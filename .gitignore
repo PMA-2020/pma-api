@@ -1,0 +1,5 @@
+env
+dev.db
+tags
+__pycache__
+.DS_Store
