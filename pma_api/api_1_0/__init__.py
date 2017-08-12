@@ -154,13 +154,13 @@ def get_data():
 
 
 def data_refined_query(args):
-    """
+    """Data refined query.
 
-    Args:
-        *args (list):
+    *Args:
+        survey (str): If present, filter by survey entities.
 
     Returns:
-        json:
+        dict: Filtered query data.
     """
     qset = Data.query
     if 'survey' in args:
