@@ -1,3 +1,4 @@
+"""Model definitions."""
 from datetime import datetime
 
 from flask import url_for
@@ -8,10 +9,26 @@ from .utils import next64
 
 
 class ApiModel(db.Model):
+    """Abstract base model."""
+
     __abstract__ = True
 
     @staticmethod
     def update_kwargs_english(kwargs, source_key, target_key):
+        """Translate API query parameters to equivalent in model.
+
+        API URL query parameters are in many case abstracted away from the
+        models and underlying database. For example, 'survey' in the API would
+        equate to 'survey_id' in the database model. Side effects: kwargs are
+        modified so that new key of name matching 'target_key' argument is
+        inserted, with value as the corresponding record id.
+
+        Args:
+            source_key (str): The API query parameter.
+            target_key (str): The equivalent model field.
+            **kwargs (dict): The keyword argument representation of query
+                parameters submitted by the API request.
+        """
         english = kwargs.pop(source_key)
         if english:
             record = EnglishString.query.filter_by(english=english).first()
@@ -25,6 +42,20 @@ class ApiModel(db.Model):
 
     @staticmethod
     def set_kwargs_id(kwargs, source_key, target_key, model, required=True):
+        """Set id of data model field based on code.
+
+        Args:
+            source_key (str): Model 'code' field name.
+            target_key (str): model 'id' field name.
+            model (class): The corresponding SqlAlchemy model class.
+            required (bool): True if code required for lookup.
+            **kwargs (dict): The keyword argument representation of query
+                parameters submitted by the API request.
+
+        Raises:
+            KeyError: If identification code for record was not supplied or did
+                not resolve.
+        """
         code = kwargs.pop(source_key)
         if code == '' and required:
             msg = 'Required key missing "{}" in data source for table "{}"'
@@ -43,12 +74,30 @@ class ApiModel(db.Model):
 
     @staticmethod
     def empty_to_none(kwargs):
+        """Convert any empty strings to None type.
+
+        Args:
+            **kwargs: Keyword arguments.
+        """
         for key in kwargs:
             if kwargs[key] == '':
                 kwargs[key] = None
 
     @staticmethod
     def namespace(old_dict, prefix, index=None):
+        """Namespaces keys in a dict by doing a prepend to key strings.
+
+        Args:
+            old_dict (dict): The original dictionary.
+            prefix (str): Prefix to prepend.
+            index (int): Optional index to append after the prefix. This is to
+                handle situations where a field has one or more sibling fields
+                that represent essentially the same variable,
+                e.g. "characteristic1", "characteristic2".
+
+        Returns:
+            dict: Namespace formatted dictionary.
+        """
         if index is not None:
             prefix = prefix + str(index)
         new_dict = {'.'.join((prefix, k)): v for k, v in old_dict.items()}
@@ -56,6 +105,8 @@ class ApiModel(db.Model):
 
 
 class Indicator(ApiModel):
+    """Indicator model."""
+
     __tablename__ = 'indicator'
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String, unique=True)
@@ -79,6 +130,12 @@ class Indicator(ApiModel):
     level3 = db.relationship('EnglishString', foreign_keys=level3_id)
 
     def __init__(self, **kwargs):
+        """Initialization for instance of model.
+
+        Does a few things: (1) Updates instance based on mapping from API query
+        parameter names to model field names, (2) Reformats any empty strings,
+        and (3) Calls super init.
+        """
         self.update_kwargs_english(kwargs, 'level1', 'level1_id')
         self.update_kwargs_english(kwargs, 'level2', 'level2_id')
         self.update_kwargs_english(kwargs, 'level3', 'level3_id')
@@ -88,6 +145,20 @@ class Indicator(ApiModel):
         super(Indicator, self).__init__(**kwargs)
 
     def full_json(self, lang=None, jns=False, endpoint=None):
+        """Return dictionary ready to convert to JSON as response.
+
+        This response contains fields of 1 or more related 
+        model(s) which are included along with fields for this model.
+
+        Args:
+            lang (str): The language, if specified.
+            jns (bool): If true, namespaces all dictionary keys with prefixed
+                table name.
+            endpoint (str): If supplied, provides URL for entity in response.
+
+        Returns:
+            dict: API response ready to be JSONified.
+        """
         result = {
             'id': self.code,
             'order': self.order,
@@ -123,6 +194,8 @@ class Indicator(ApiModel):
 
 
 class CharacteristicGroup(ApiModel):
+    """CharacteristicGroup model."""
+
     __tablename__ = 'characteristic_group'
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String, unique=True)
@@ -133,6 +206,13 @@ class CharacteristicGroup(ApiModel):
     definition = db.relationship('EnglishString', foreign_keys=definition_id)
 
     def __init__(self, **kwargs):
+        """Initialization for instance of model.
+
+        Does a few things: (1) Removes unnecessary fields, (2) Converts API
+        query parameters to model field name equivalents, (3) Inserts new
+        values into the EnglishString translation table if not present, and
+        (4) calls super init.
+        """
         # 1. Remove columns that are unnecessary
         label = kwargs.pop('label', None)
         defn = kwargs.pop('definition', None)
@@ -154,6 +234,18 @@ class CharacteristicGroup(ApiModel):
         super(CharacteristicGroup, self).__init__(**kwargs)
 
     def full_json(self, lang=None, jns=False, index=None):
+        """Return dictionary ready to convert to JSON as response.
+
+        Args:
+            lang (str): The language, if specified.
+            jns (bool): If true, namespaces all dictionary keys with prefixed
+                table name.
+            index (int): Field index for fields that have multiple instances of
+                itself, e.g. "characteristic1", "characteristic2".
+
+        Returns:
+            dict: API response ready to be JSONified.
+        """
         result = {
             'id': self.code,
             'label': self.label.to_string(lang),
@@ -168,6 +260,21 @@ class CharacteristicGroup(ApiModel):
 
     @staticmethod
     def none_json(lang=None, jns=False, index=None):
+        """Return dictionary ready to convert to JSON as response.
+        
+        All values in this dictionary are set to none, serving the cases where 
+        no data is found or needs to be supplied. 
+
+        Args:
+            lang (str): The language, if specified.
+            jns (bool): If true, namespaces all dictionary keys with prefixed
+                table name.
+            index (int): Field index for fields that have multiple instances of
+                itself, e.g. "characteristic1", "characteristic2".
+
+        Returns:
+            dict: API response ready to be JSONified.
+        """
         result = {
             'id': None,
             'label': None,
@@ -179,6 +286,8 @@ class CharacteristicGroup(ApiModel):
 
 
 class Characteristic(ApiModel):
+    """Characteristic model."""
+
     __tablename__ = 'characteristic'
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String, unique=True)
@@ -190,6 +299,16 @@ class Characteristic(ApiModel):
     label = db.relationship('EnglishString', foreign_keys=label_id)
 
     def __init__(self, **kwargs):
+        """Initialization for instance of model.
+
+        Does a few things: (1) Removes unnecessary fields, (2) Converts API
+        query parameters to model field name equivalents, (3) Inserts new
+        values into the EnglishString translation table if not present, and
+        (4) calls super init.
+
+        Raises:
+            AttributeError: If valid ID is not found for CharacteristicGroup.
+        """
         # 1. Remove columns that are unnecessary
         label = kwargs.pop('label', None)
         char_grp_code = kwargs.pop('char_grp_code', None)
@@ -210,6 +329,21 @@ class Characteristic(ApiModel):
         super(Characteristic, self).__init__(**kwargs)
 
     def full_json(self, lang=None, jns=False, index=None):
+        """Return dictionary ready to convert to JSON as response.
+
+        This response contains fields of 1 or more related 
+        model(s) which are included along with fields for this model.
+
+        Args:
+            lang (str): The language, if specified.
+            jns (bool): If true, namespaces all dictionary keys with prefixed
+                table name.
+            index (int): Field index for fields that have multiple instances of
+                itself, e.g. "characteristic1", "characteristic2".
+
+        Returns:
+            dict: API response ready to be JSONified.
+        """
         result = {
             'id': self.code,
             'order': self.order
@@ -229,6 +363,24 @@ class Characteristic(ApiModel):
 
     @staticmethod
     def none_json(lang=None, jns=False, index=None):
+        """Return dictionary ready to convert to JSON as response.
+
+        All values in this dictionary are set to none, serving the cases where
+        no data is found or needs to be supplied.
+
+        This response contains fields of 1 or more related
+        model(s) which are included along with fields for this model.
+
+        Args:
+            lang (str): The language, if specified.
+            jns (bool): If true, namespaces all dictionary keys with prefixed
+                table name.
+            index (int): Field index for fields that have multiple instances of
+                itself, e.g. "characteristic1", "characteristic2".
+
+        Returns:
+            dict: API response ready to be JSONified.
+        """
         result = {
             'id': None,
             'order': None,
@@ -242,6 +394,8 @@ class Characteristic(ApiModel):
 
 
 class Data(ApiModel):
+    """Data model."""
+
     __tablename__ = 'datum'
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String, unique=True)
@@ -267,6 +421,12 @@ class Data(ApiModel):
     subgeo = db.relationship('Geography', foreign_keys=subgeo_id)
 
     def __init__(self, **kwargs):
+        """Initialization for instance of model.
+
+        Does a few things: (1) Updates instance based on mapping from API query
+        parameter names to model field names, (2) Reformats any empty strings,
+        (3) Sets a randomly generated code string, and (4) Calls super init.
+        """
         self.set_kwargs_id(kwargs, 'survey_code', 'survey_id', Survey)
         self.set_kwargs_id(kwargs, 'indicator_code', 'indicator_id', Indicator)
         self.set_kwargs_id(kwargs, 'char1_code', 'char1_id', Characteristic, False)
@@ -277,6 +437,19 @@ class Data(ApiModel):
         super(Data, self).__init__(**kwargs)
 
     def full_json(self, lang=None, jns=False):
+        """Return dictionary ready to convert to JSON as response.
+
+        This response contains fields of 1 or more related 
+        model(s) which are included along with fields for this model.
+
+        Args:
+            lang (str): The language, if specified.
+            jns (bool): If true, namespaces all dictionary keys with prefixed
+                table name.
+
+        Returns:
+            dict: API response ready to be JSONified.
+        """
         result = {
             'id': self.code,
             'value': self.value,
@@ -320,6 +493,8 @@ class Data(ApiModel):
 
 
 class Survey(ApiModel):
+    """Survey model."""
+
     __tablename__ = 'survey'
     id = db.Column(db.Integer, primary_key=True)
     label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
@@ -339,10 +514,28 @@ class Survey(ApiModel):
     geography = db.relationship('Geography')
 
     def url_for(self):
+        """Supply URL for resource entity.
+
+        Returns:
+            dict: Dict of key 'url' and value of URL for resource entity.
+        """
         return {'url': url_for('api.get_survey', code=self.pma_code,
                 _external=True)}
 
     def full_json(self, lang=None, jns=False):
+        """Return dictionary ready to convert to JSON as response.
+
+        This response contains fields of 1 or more related 
+        model(s) which are included along with fields for this model.
+
+        Args:
+            lang (str): The language, if specified.
+            jns (bool): If true, namespaces all dictionary keys with prefixed
+                table name.
+
+        Returns:
+            dict: API response ready to be JSONified.
+        """
         result = {
             'order': self.order,
             'type': self.type,
@@ -363,6 +556,16 @@ class Survey(ApiModel):
         return result
 
     def to_json(self, lang=None):
+        """Return dictionary ready to convert to JSON as response.
+
+        Contains URL for resource entity.
+
+        Args:
+            lang (str): The language, if specified.
+
+        Returns:
+            dict: API response ready to be JSONified.
+        """
         return {
             'url': url_for('api.get_survey', code=self.pma_code,
                 _external=True),
@@ -378,11 +581,23 @@ class Survey(ApiModel):
         }
 
     def __init__(self, **kwargs):
+        """Initialization for instance of model.
+
+        Does a few things: (1) Removes unnecessary fields, (2) Converts API
+        query parameters to model field name equivalents, (3) Inserts new
+        values into the EnglishString translation table if not present, and
+        (4) calls super init.
+
+        Raises:
+            AttributeError: If valid ID is not found for Country.
+        """
+        # 1. Remove columns that are unnecessary
         label = kwargs.pop('label', None)
         country_code = kwargs.pop('country_code', None)
         geography_code = kwargs.pop('geography_code', None)
         start_date = kwargs.pop('start_date', None)
         end_date = kwargs.pop('end_date', None)
+        # 2. Remove columns that are unnecessary
         if not kwargs['label_id']:
             label_eng = EnglishString.query.filter_by(english=label).first()
             if label_eng:
@@ -411,6 +626,7 @@ class Survey(ApiModel):
 
 
 class Country(ApiModel):
+    """Country model."""
     __tablename__ = 'country'
     id = db.Column(db.Integer, primary_key=True)
     label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
@@ -422,14 +638,34 @@ class Country(ApiModel):
     label = db.relationship('EnglishString', foreign_keys=label_id)
 
     def __init__(self, **kwargs):
+        """Initialization for instance of model.
+
+        Does a few things: (1) Updates instance based on mapping from API query
+        parameter names to model field names, and (2) calls super init.
+        """
         self.update_kwargs_english(kwargs, 'label', 'label_id')
         super(Country, self).__init__(**kwargs)
 
     def url_for(self):
+        """Supply URL for resource entity.
+
+        Returns:
+            dict: Dict of key 'url' and value of URL for resource entity.
+        """
         return {'url': url_for('api.get_country', code=self.code,
                 _external=True)}
 
     def full_json(self, lang=None, jns=False):
+        """Return dictionary ready to convert to JSON as response.
+
+        Args:
+            lang (str): The language, if specified.
+            jns (bool): If true, namespaces all dictionary keys with prefixed
+                table name.
+
+        Returns:
+            dict: API response ready to be JSONified.
+        """
         result = {
             'id': self.code,
             'order': self.order,
@@ -447,6 +683,16 @@ class Country(ApiModel):
 
 
     def to_json(self, lang=None):
+        """Return dictionary ready to convert to JSON as response.
+
+        Contains URL for resource entity.
+
+        Args:
+            lang (str): The language, if specified.
+
+        Returns:
+            dict: API response ready to be JSONified.
+        """
         json_obj = {
             'url': url_for('api.get_country', code=self.code,
                 _external=True),
@@ -473,6 +719,8 @@ class Country(ApiModel):
 
 
 class Geography(ApiModel):
+    """Geography model."""
+
     __tablename__ = 'geography'
     id = db.Column(db.Integer, primary_key=True)
     label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
@@ -486,6 +734,19 @@ class Geography(ApiModel):
 
     @staticmethod
     def none_json(lang=None, jns=False):
+        """Return dictionary ready to convert to JSON as response.
+
+        All values in this dictionary are set to none, serving the cases where
+        no data is found or needs to be supplied.
+
+        Args:
+            lang (str): The language, if specified.
+            jns (bool): If true, namespaces all dictionary keys with prefixed
+                table name.
+
+        Returns:
+            dict: API response ready to be JSONified.
+        """
         result = {
             'id': None,
             'label': None
@@ -499,6 +760,8 @@ class Geography(ApiModel):
 
 
 class EnglishString(ApiModel):
+    """EnglishString model."""
+
     __tablename__ = 'english_string'
     id = db.Column(db.Integer, primary_key=True)
     uuid = db.Column(db.String, unique=True)
@@ -506,6 +769,14 @@ class EnglishString(ApiModel):
     translations = db.relationship('Translation')
 
     def to_string(self, lang=None):
+        """Returns string in specified language if supplied, else English.
+
+        Args:
+            lang (str): The language, if specified.
+
+        Returns:
+            str: The text.
+        """
         result = self.english
         if lang is not None and lang.lower() != 'en':
             found = next(iter(t for t in self.translations if t.language_code
@@ -515,6 +786,16 @@ class EnglishString(ApiModel):
         return result
 
     def to_json(self):
+        """Return dictionary ready to convert to JSON as response.
+
+        Contains URL for resource entity.
+
+        Args:
+            lang (str): The language, if specified.
+
+        Returns:
+            dict: API response ready to be JSONified.
+        """
         json_obj = {
             'url': url_for('api.get_text', uuid=self.uuid, _external=True),
             'id': self.uuid,
@@ -525,6 +806,14 @@ class EnglishString(ApiModel):
 
     @staticmethod
     def insert_unique(english):
+        """Inserts a unique record into the database.
+
+        Creates a uuid and combines with English text to as the parameters for
+        new record.
+
+        Args:
+            endlish (str): The string in English to insert.
+        """
         # TODO: This is not necessary because next64 now returns unique
         while True:
             try:
@@ -543,6 +832,8 @@ class EnglishString(ApiModel):
 
 
 class Translation(ApiModel):
+    """Translation model."""
+
     __tablename__ = 'translation'
     id = db.Column(db.Integer, primary_key=True)
     english_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
