@@ -390,16 +390,7 @@ class Survey(ApiModel):
             else:
                 new_label_eng = EnglishString.insert_unique(label)
                 kwargs['label_id'] = new_label_eng.id
-        if not kwargs['country_id']:
-            country = Country.query.filter_by(code=country_code).first()
-            if country:
-                kwargs['country_id'] = country.id
-            else:
-                raise AttributeError
-        if not kwargs['geography_id']:
-            geography = Geography.query.filter_by(code=geography_code).first()
-            if geography:
-                kwargs['geography_id'] = geography.id
+        self.set_kwargs_id(kwargs, 'country_code', 'country_id', Country, required=True)
         if start_date:
             kwargs['start_date'] = datetime.strptime(start_date, '%Y-%m-%d')
         if end_date:
