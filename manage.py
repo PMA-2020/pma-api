@@ -1,3 +1,4 @@
+"""Application manager."""
 import csv
 import os
 
@@ -14,12 +15,26 @@ manager = Manager(app)
 
 
 def make_shell_context():
+    """Make shell context.
+
+    Returns:
+        dict: Context for application manager shell.
+    """
     return dict(app=app, db=db, Country=Country, EnglishString=EnglishString,
                 Translation=Translation, Survey=Survey, Indicator=Indicator)
 manager.add_command('shell', Shell(make_context=make_shell_context))
 
 
 def init_from_source(path, Model):
+    """Initialize DB table data from csv file.
+
+    Initialize table data from csv source data files associated with the
+    corresponding data model.
+
+    Args:
+        path (str): Path to csv data file.
+        Model (class): SqlAlchemy model class.
+    """
     with open(path, newline='', encoding='utf-8') as csvfile:
         csvreader = csv.DictReader(csvfile)
         for row in csvreader:
@@ -29,6 +44,15 @@ def init_from_source(path, Model):
 
 
 def init_from_sheet(ws, model):
+    """Initialize DB table data from XLRD Worksheet.
+
+    Initialize table data from source data associated with the corresponding
+    data model.
+
+    Args:
+        ws (xlrd.sheet.Sheet): XLRD worksheet object.
+        model (class): SqlAlchemy model class.
+    """
     header = None
     for i, row in enumerate(ws.get_rows()):
         row = [r.value for r in row]
@@ -54,7 +78,11 @@ model_map = {
 
 @manager.option('--overwrite', help='Drop tables first?', action='store_true')
 def initdb(overwrite=False):
-    """Create the database."""
+    """Create the database.
+
+    Args:
+        overwrite (bool): Overwrite database if True, else update.
+    """
     with app.app_context():
         if overwrite:
             db.drop_all()
