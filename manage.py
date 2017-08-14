@@ -1,8 +1,6 @@
 import csv
-import glob
 import os
 
-from flask import current_app
 from flask_script import Manager, Shell
 import xlrd
 
