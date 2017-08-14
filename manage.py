@@ -9,15 +9,20 @@ from pma_api import create_app, db
 from pma_api.models import Characteristic, CharacteristicGroup, Country, Data,\
     Geography, Indicator, Survey, Translation, EnglishString
 
-SRC_DATA_INFO = {
-    'dir': './data/',
-    'filename': 'api_data',
-    'extension': '.xlsx'
-}
-SRC_DATA = ''.join(str(val) for _, val in SRC_DATA_INFO.items())  # path
+
 app = create_app(os.getenv('FLASK_CONFIG', 'default'))
 manager = Manager(app)
+
+SRC_DATA_INFO = {
+    'path': {
+        'dir': './data/',
+        'filename': 'api_data',
+        'extension': '.xlsx'
+    }
+}
+SRC_DATA = ''.join(str(val) for _, val in SRC_DATA_INFO['path'].items())  # path
 AUXILIARY_WORKSHEETS = ('info', 'changelog')
+
 MODEL_MAP = {
     'char': Characteristic,
     'char_grp': CharacteristicGroup,
@@ -28,7 +33,7 @@ MODEL_MAP = {
     'survey': Survey,
     'translation': Translation
 }
-
+PRIORITY_MODEL_LOAD_QUEUE = ['geography', 'country']
 
 def make_shell_context():
     """Make shell context.
@@ -87,19 +92,36 @@ def initdb(overwrite=False):
     Args:
         overwrite (bool): Overwrite database if True, else update.
     """
+
+    def init_from_workbook(wb, shortlist=list()):
+        """Init from workbook.
+
+        Args:
+            wb (xlrd.Workbook): Workbook object.
+            shortlist (list): If supplied, restricted list of worksheets to
+                execute on.
+        """
+        with xlrd.open_workbook(wb) as book:
+            for i in range(book.nsheets):
+                ws = book.sheet_by_index(i)
+                if (shortlist and ws.name not in shortlist) or \
+                        (ws.name in AUXILIARY_WORKSHEETS):
+                    continue
+                else:
+                    model = Data if ws.name.startswith('data') \
+                        else MODEL_MAP[ws.name]
+                    init_from_sheet(ws, model)
+
     with app.app_context():
         if overwrite:
             db.drop_all()
         db.create_all()
         if overwrite:
-            with xlrd.open_workbook(SRC_DATA) as book:
-                for i in range(book.nsheets):
-                    ws = book.sheet_by_index(i)
-                    if ws.name in AUXILIARY_WORKSHEETS:
-                        continue
-                    model = Data if ws.name.startswith('data') \
-                        else MODEL_MAP[ws.name]
-                    init_from_sheet(ws, model)
+            for model in PRIORITY_MODEL_LOAD_QUEUE:
+                print(model)
+                init_from_workbook(wb=SRC_DATA, shortlist=[model])
+            init_from_workbook(wb=SRC_DATA)
+
 #            country_csv = os.path.join(src_data_dir, 'country.csv')
 #            init_from_source(country_csv, Country)
 #            survey_csv = os.path.join(src_data_dir, 'survey.csv')

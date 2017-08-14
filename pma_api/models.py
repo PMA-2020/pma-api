@@ -10,6 +10,20 @@ from .utils import next64
 class ApiModel(db.Model):
     __abstract__ = True
 
+    ignore_field_prefix = '__'
+
+    @staticmethod
+    def prune_ignored_fields(kwargs):
+        """Prune ignored fields.
+
+        Args:
+            **kwargs: Keyword arguments.
+        """
+        return {
+            key: val for key, val in kwargs.items()
+            if not key.startswith(ApiModel.ignore_field_prefix)
+        }
+
     @staticmethod
     def update_kwargs_english(kwargs, source_key, target_key):
         english = kwargs.pop(source_key)
@@ -79,6 +93,7 @@ class Indicator(ApiModel):
     level3 = db.relationship('EnglishString', foreign_keys=level3_id)
 
     def __init__(self, **kwargs):
+        kwargs = self.prune_ignored_fields(kwargs)
         self.update_kwargs_english(kwargs, 'level1', 'level1_id')
         self.update_kwargs_english(kwargs, 'level2', 'level2_id')
         self.update_kwargs_english(kwargs, 'level3', 'level3_id')
@@ -134,6 +149,7 @@ class CharacteristicGroup(ApiModel):
 
     def __init__(self, **kwargs):
         # 1. Remove columns that are unnecessary
+        kwargs = self.prune_ignored_fields(kwargs)
         label = kwargs.pop('label', None)
         defn = kwargs.pop('definition', None)
         # 2. Fill in gaps
@@ -191,6 +207,7 @@ class Characteristic(ApiModel):
 
     def __init__(self, **kwargs):
         # 1. Remove columns that are unnecessary
+        kwargs = self.prune_ignored_fields(kwargs)
         label = kwargs.pop('label', None)
         char_grp_code = kwargs.pop('char_grp_code', None)
         # 2. Fill in gaps
@@ -267,6 +284,7 @@ class Data(ApiModel):
     subgeo = db.relationship('Geography', foreign_keys=subgeo_id)
 
     def __init__(self, **kwargs):
+        kwargs = self.prune_ignored_fields(kwargs)
         self.set_kwargs_id(kwargs, 'survey_code', 'survey_id', Survey)
         self.set_kwargs_id(kwargs, 'indicator_code', 'indicator_id', Indicator)
         self.set_kwargs_id(kwargs, 'char1_code', 'char1_id', Characteristic, False)
@@ -378,9 +396,10 @@ class Survey(ApiModel):
         }
 
     def __init__(self, **kwargs):
+        kwargs = self.prune_ignored_fields(kwargs)
         label = kwargs.pop('label', None)
-        country_code = kwargs.pop('country_code', None)
-        geography_code = kwargs.pop('geography_code', None)
+        # country_code = kwargs.pop('country_code', None)
+        # geography_code = kwargs.pop('geography_code', None)
         start_date = kwargs.pop('start_date', None)
         end_date = kwargs.pop('end_date', None)
         if not kwargs['label_id']:
@@ -390,7 +409,10 @@ class Survey(ApiModel):
             else:
                 new_label_eng = EnglishString.insert_unique(label)
                 kwargs['label_id'] = new_label_eng.id
-        self.set_kwargs_id(kwargs, 'country_code', 'country_id', Country, required=True)
+        self.set_kwargs_id(kwargs, 'country_code', 'country_id', Country,
+                           required=True)
+        self.set_kwargs_id(kwargs, 'geography_code', 'geography_id', Country,
+                           required=False)  # TODO: Finish
         if start_date:
             kwargs['start_date'] = datetime.strptime(start_date, '%Y-%m-%d')
         if end_date:
@@ -413,6 +435,7 @@ class Country(ApiModel):
     label = db.relationship('EnglishString', foreign_keys=label_id)
 
     def __init__(self, **kwargs):
+        kwargs = self.prune_ignored_fields(kwargs)
         self.update_kwargs_english(kwargs, 'label', 'label_id')
         super(Country, self).__init__(**kwargs)
 
