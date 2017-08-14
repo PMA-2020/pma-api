@@ -9,7 +9,12 @@ from pma_api import create_app, db
 from pma_api.models import Characteristic, CharacteristicGroup, Country, Data,\
     Geography, Indicator, Survey, Translation, EnglishString
 
-
+SRC_DATA_INFO = {
+    'dir': './data/',
+    'filename': 'api_data',
+    'extension': '.xlsx'
+}
+SRC_DATA = ''.join(str(val) for _, val in SRC_DATA_INFO.items())  # path
 app = create_app(os.getenv('FLASK_CONFIG', 'default'))
 manager = Manager(app)
 AUXILIARY_WORKSHEETS = ('info', 'changelog')
@@ -87,8 +92,7 @@ def initdb(overwrite=False):
             db.drop_all()
         db.create_all()
         if overwrite:
-            src_data = 'data/api_data.xlsx'
-            with xlrd.open_workbook(src_data) as book:
+            with xlrd.open_workbook(SRC_DATA) as book:
                 for i in range(book.nsheets):
                     ws = book.sheet_by_index(i)
                     if ws.name in AUXILIARY_WORKSHEETS:
