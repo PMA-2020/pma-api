@@ -90,10 +90,8 @@ def initdb(overwrite=False):
             with xlrd.open_workbook(src_data) as book:
                 for i in range(book.nsheets):
                     ws = book.sheet_by_index(i)
-                    if ws.name.startswith('data'):
-                        model = Data
-                    else:
-                        model = MODEL_MAP[ws.name]
+                    model = Data if ws.name.startswith('data') \
+                        else MODEL_MAP[ws.name]
                     init_from_sheet(ws, model)
 #            country_csv = os.path.join(src_data_dir, 'country.csv')
 #            init_from_source(country_csv, Country)
