@@ -8,7 +8,7 @@ api = Blueprint('api', __name__)
 
 @api.route('/')
 def say_hello():
-    return '<h1>HELLO FLASK</h1>'
+    return get_resources()
 
 
 @api.route('/countries')
