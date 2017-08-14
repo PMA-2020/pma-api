@@ -12,6 +12,7 @@ from pma_api.models import Characteristic, CharacteristicGroup, Country, Data,\
 
 app = create_app(os.getenv('FLASK_CONFIG', 'default'))
 manager = Manager(app)
+AUXILIARY_WORKSHEETS = ('info', 'changelog')
 MODEL_MAP = {
     'char': Characteristic,
     'char_grp': CharacteristicGroup,
@@ -90,6 +91,8 @@ def initdb(overwrite=False):
             with xlrd.open_workbook(src_data) as book:
                 for i in range(book.nsheets):
                     ws = book.sheet_by_index(i)
+                    if ws.name in AUXILIARY_WORKSHEETS:
+                        continue
                     model = Data if ws.name.startswith('data') \
                         else MODEL_MAP[ws.name]
                     init_from_sheet(ws, model)
