@@ -5,15 +5,8 @@ from flask_script import Manager, Shell
 import xlrd
 
 from pma_api import create_app, db
-from pma_api.models import Characteristic
-from pma_api.models import CharacteristicGroup
-from pma_api.models import Country
-from pma_api.models import Data
-from pma_api.models import Geography
-from pma_api.models import EnglishString
-from pma_api.models import Indicator
-from pma_api.models import Translation
-from pma_api.models import Survey
+from pma_api.models import Characteristic, CharacteristicGroup, Country, Data,\
+    Geography, Indicator, Survey, Translation, EnglishString
 
 
 app = create_app(os.getenv('FLASK_CONFIG', 'default'))
