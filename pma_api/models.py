@@ -147,7 +147,7 @@ class Indicator(ApiModel):
     def full_json(self, lang=None, jns=False, endpoint=None):
         """Return dictionary ready to convert to JSON as response.
 
-        This response contains fields of 1 or more related 
+        This response contains fields of 1 or more related
         model(s) which are included along with fields for this model.
 
         Args:
@@ -261,9 +261,9 @@ class CharacteristicGroup(ApiModel):
     @staticmethod
     def none_json(lang=None, jns=False, index=None):
         """Return dictionary ready to convert to JSON as response.
-        
-        All values in this dictionary are set to none, serving the cases where 
-        no data is found or needs to be supplied. 
+
+        All values in this dictionary are set to none, serving the cases where
+        no data is found or needs to be supplied.
 
         Args:
             lang (str): The language, if specified.
@@ -331,7 +331,7 @@ class Characteristic(ApiModel):
     def full_json(self, lang=None, jns=False, index=None):
         """Return dictionary ready to convert to JSON as response.
 
-        This response contains fields of 1 or more related 
+        This response contains fields of 1 or more related
         model(s) which are included along with fields for this model.
 
         Args:
@@ -439,7 +439,7 @@ class Data(ApiModel):
     def full_json(self, lang=None, jns=False):
         """Return dictionary ready to convert to JSON as response.
 
-        This response contains fields of 1 or more related 
+        This response contains fields of 1 or more related
         model(s) which are included along with fields for this model.
 
         Args:
@@ -525,7 +525,7 @@ class Survey(ApiModel):
     def full_json(self, lang=None, jns=False):
         """Return dictionary ready to convert to JSON as response.
 
-        This response contains fields of 1 or more related 
+        This response contains fields of 1 or more related
         model(s) which are included along with fields for this model.
 
         Args:
