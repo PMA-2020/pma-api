@@ -4,19 +4,18 @@ import random
 random.seed(2020)
 
 
-b64_char_set = ''.join(('abcdefghijklmnopqrstuvwxyz',
+B64_CHAR_SET = ''.join(('abcdefghijklmnopqrstuvwxyz',
                         'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
                         '0123456789-_'))
 
 
-_seen = set([None])
+_SEEN = set([None])
 
 
 def next64():
     n_char = 8
     result = None
-    while result in _seen:
-        result = ''.join(random.choice(b64_char_set) for _ in range(n_char))
-    _seen.add(result)
+    while result in _SEEN:
+        result = ''.join(random.choice(B64_CHAR_SET) for _ in range(n_char))
+    _SEEN.add(result)
     return result
-
