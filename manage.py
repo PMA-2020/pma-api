@@ -20,7 +20,7 @@ SRC_DATA_INFO = {
         'extension': '.xlsx'
     }
 }
-SRC_DATA = ''.join(str(val) for _, val in SRC_DATA_INFO['path'].items())  # path
+SRC_DATA = ''.join(str(val) for _, val in SRC_DATA_INFO['path'].items())
 AUXILIARY_WORKSHEETS = ('info', 'changelog')
 
 MODEL_MAP = {
@@ -34,6 +34,7 @@ MODEL_MAP = {
     'translation': Translation
 }
 PRIORITY_MODEL_LOAD_QUEUE = ['geography', 'country']
+
 
 def make_shell_context():
     """Make shell context.
@@ -85,6 +86,30 @@ def init_from_sheet(ws, model):
     db.session.commit()
 
 
+def init_from_workbook(wb, shortlist=list()):
+    """Init from workbook.
+
+    Args:
+        wb (xlrd.Workbook): Workbook object.
+        shortlist (list): If supplied, restricted list of worksheets to
+            execute on.
+    """
+    with xlrd.open_workbook(wb) as book:
+        for i in range(book.nsheets):
+            ws = book.sheet_by_index(i)
+            if (shortlist and ws.name not in shortlist) or \
+                    (ws.name in AUXILIARY_WORKSHEETS):
+                continue
+            else:
+                model = Data if ws.name.startswith('data') \
+                    else MODEL_MAP[ws.name]
+                if shortlist:
+                    init_from_sheet(ws, model)
+                elif not shortlist \
+                        and ws.name not in PRIORITY_MODEL_LOAD_QUEUE:
+                    init_from_sheet(ws, model)
+
+
 @manager.option('--overwrite', help='Drop tables first?', action='store_true')
 def initdb(overwrite=False):
     """Create the database.
@@ -92,42 +117,17 @@ def initdb(overwrite=False):
     Args:
         overwrite (bool): Overwrite database if True, else update.
     """
-
-    def init_from_workbook(wb, shortlist=list()):
-        """Init from workbook.
-
-        Args:
-            wb (xlrd.Workbook): Workbook object.
-            shortlist (list): If supplied, restricted list of worksheets to
-                execute on.
-        """
-        with xlrd.open_workbook(wb) as book:
-            for i in range(book.nsheets):
-                ws = book.sheet_by_index(i)
-                if (shortlist and ws.name not in shortlist) or \
-                        (ws.name in AUXILIARY_WORKSHEETS):
-                    continue
-                else:
-                    model = Data if ws.name.startswith('data') \
-                        else MODEL_MAP[ws.name]
-                    if shortlist:
-                        init_from_sheet(ws, model)
-                    elif not shortlist \
-                            and ws.name not in PRIORITY_MODEL_LOAD_QUEUE:
-                        init_from_sheet(ws, model)
-
-
     with app.app_context():
         if overwrite:
             db.drop_all()
         db.create_all()
         if overwrite:
-            # TODO: Refactor "shortlyst" and "load queue" to be cleaner /
+            # TODO: Refactor "shortlist" and "load queue" to be cleaner /
             #   easier to understand.
             # - Note: Some models need to be loaded first due to field values
             #   that are calculated from values in other tables.
-            for model in PRIORITY_MODEL_LOAD_QUEUE:
-                init_from_workbook(wb=SRC_DATA, shortlist=[model])
+            for priority_model in PRIORITY_MODEL_LOAD_QUEUE:
+                init_from_workbook(wb=SRC_DATA, shortlist=[priority_model])
             init_from_workbook(wb=SRC_DATA)
 
 
