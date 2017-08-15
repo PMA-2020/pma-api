@@ -404,10 +404,156 @@ class Country(ApiModel):
 
     label = db.relationship('EnglishString', foreign_keys=label_id)
 
+    api_schema = {  # size_min & size_max currently unused.
+        'fields': {
+            'id': {
+                'restrictions': {
+                    'type': str,
+                    'size_min': 1,
+                    'size_max': None,
+                    'queryable': True
+                },
+            },
+            'label': {
+                'restrictions': {
+                    'type': str,
+                    'size_min': 1,
+                    'size_max': None,
+                    'queryable': True
+                }
+
+            },
+            'order': {
+                'restrictions': {
+                    'type': int,
+                    'size_min': 1,
+                    'size_max': None,
+                    'queryable': False
+                }
+
+            },
+            'region': {
+                'restrictions': {
+                    'type': str,
+                    'size_min': 1,
+                    'size_max': None,
+                    'queryable': True
+                }
+
+            },
+            'subregion': {
+                'restrictions': {
+                    'type': str,
+                    'size_min': 1,
+                    'size_max': None,
+                    'queryable': True
+                }
+
+            }
+        }
+    }
+
     def __init__(self, **kwargs):
         kwargs = self.prune_ignored_fields(kwargs)
         self.update_kwargs_english(kwargs, 'label', 'label_id')
         super(Country, self).__init__(**kwargs)
+
+
+    @staticmethod
+    def validate_param_types(params):
+        """Validate query parameter types.
+
+        Args:
+            params (ImmutableMultiDict): API query parameters.
+
+        Returns
+            bool: True if valid param types, else false.
+        """
+        # TODO: Support other types?: lists, associative arrays.
+        flds = Country.api_schema['fields']
+        typed_params = {
+            key: {
+                'value': val,
+                'type': int if val.isdigit()
+                else float if '.' in val and val.replace('.', '', 1).isdigit()
+                else bool if val.lower() in ('false', 'true')
+                else str
+            } for key, val in params.items()
+        }
+
+        return False \
+            if False in [val['type'] == flds[key]['restrictions']['type']
+                         for key, val in typed_params.items() if key in flds
+                         if flds[key]['restrictions']['queryable'] == True] \
+            else True
+
+    @staticmethod  # TODO: Insert violation in error message.
+    def validate_keys(params):
+        """Validate whether query parameters passed even exist to be queried.
+
+        Args:
+            params (ImmutableMultiDict): API query parameters.
+
+        Returns:
+            tuple: (bool: Validity, str: Error message)
+        """
+        msg = 'One or more invalid query parameter was passed.'
+        flds = Country.api_schema['fields']
+        return (False, msg) if True in [key not in flds for key in params]\
+            else (True, '')
+
+    @staticmethod  # TODO: Insert violation in error message.
+    def validate_queryable(params):
+        """Validate whether query parameters are allowed to be queried.
+
+        Args:
+            params (ImmutableMultiDict): API query parameters.
+
+        Returns:
+            tuple: (bool: Validity, str: Error message)
+        """
+        msg = 'One or more query parameter passed is not queryable.'
+        flds = Country.api_schema['fields']
+        return (False, msg) \
+            if True in [flds[key]['restrictions']['queryable'] == False
+                        for key in params if key in flds]\
+                else (True, '')
+
+    @staticmethod  # TODO: Insert violation in error message.
+    def validate_types(params):
+        """Validate whether query parameter types are correct.
+
+        Args:
+            params (ImmutableMultiDict): API query parameters.
+
+        Returns:
+            tuple: (bool: Validity, str: Error message)
+        """
+        msg = 'One or more types for query parameters was invalid.'
+        return (False, msg) if Country.validate_param_types(params) == False\
+            else (True, '')
+
+    @staticmethod
+    def validate_query(query_params):
+        """Validate query.
+
+        Args:
+            query_params (ImmutableMultiDict): API query parameters.
+
+        Returns:
+            bool: True if valid query, else false.
+            lit: List of error message strings.
+        """
+        # TODO: Decide on letting the user know if the query was invalid,
+        #   either in its own response or at the top along with results if we
+        #   choose to return results when part of the query was invalid.
+        validation_funcs = [Country.validate_keys, Country.validate_queryable,
+                           Country.validate_types]
+        validities = [func(query_params) for func in validation_funcs]
+
+        return \
+            False if False in [status for status, _ in validities] else True, \
+            list(filter(None, [messages for _, messages in validities]))
 
     def url_for(self):
         return {'url': url_for('api.get_country', code=self.code,

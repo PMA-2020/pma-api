@@ -13,7 +13,15 @@ def say_hello():
 
 @api.route('/countries')
 def get_countries():
-    countries = Country.query.all()
+    model = Country
+    countries = model.query.all()
+
+    print('\n\n', request.args)  # Testing
+    validity, messages = model.validate_query(request.args)
+    print(validity)
+    print(messages)
+    print('\n\n')
+
     return jsonify({
         'resultsSize': len(countries),
         'results': [c.full_json() for c in countries]
