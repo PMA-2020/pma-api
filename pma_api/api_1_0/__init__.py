@@ -14,11 +14,10 @@ def say_hello():
 @api.route('/countries')
 def get_countries():
     countries = Country.query.all()
-    json_obj = {
+    return jsonify({
         'resultsSize': len(countries),
-        'results': [c.url_for() for c in countries]
-    }
-    return jsonify(json_obj)
+        'results': [c.full_json() for c in countries]
+    })
 
 
 @api.route('/countries/<code>')
@@ -83,7 +82,7 @@ def get_data():
     all_data = Data.query.all()
     return jsonify(json_obj = {
         'resultsSize': len(all_data),
-        'results': [rec.full_json() for rec in all_data]
+        'results': [d.full_json() for d in all_data]
     })
 
 
