@@ -31,13 +31,12 @@ def get_country(code):
 @api.route('/surveys')
 def get_surveys():
     # Query by year, country, round
-    print(request.args)
+    # print(request.args)
     surveys = Survey.query.all()
-    json_obj = {
+    return jsonify({
         'resultsSize': len(surveys),
         'results': [s.full_json() for s in surveys]
-    }
-    return jsonify(json_obj)
+    })
 
 
 @api.route('/surveys/<code>')
@@ -50,13 +49,12 @@ def get_survey(code):
 @api.route('/indicators')
 def get_indicators():
     indicators = Indicator.query.all()
-    json_obj = {
+    return jsonify({
         'resultsSize': len(indicators),
         'results': [
             i.full_json(endpoint='api.get_indicator') for i in indicators
         ]
-    }
-    return jsonify(json_obj)
+    })
 
 
 @api.route('/indicators/<code>')
@@ -119,7 +117,7 @@ def get_text(uuid):
 
 @api.route('/resources')
 def get_resources():
-    json_obj = {
+    return jsonify({
         'resources': [{
             'name': 'countries',
             'resource': url_for('api.get_surveys', _external=True)
@@ -130,5 +128,4 @@ def get_resources():
             'name': 'texts',
             'resource': url_for('api.get_texts', _external=True)
         }]
-    }
-    return jsonify(json_obj)
+    })
