@@ -3,6 +3,7 @@ __pycache__
 .DS_Store
 *~$*
 env
+dev
 dev.db
 tags
 test/files/ignored/*
