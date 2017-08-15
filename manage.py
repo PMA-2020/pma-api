@@ -1,3 +1,4 @@
+"""Application manager."""
 import csv
 import glob
 import os
@@ -23,12 +24,26 @@ manager = Manager(app)
 
 
 def make_shell_context():
+    """Make shell context.
+
+    Returns:
+        dict: Context for application manager shell.
+    """
     return dict(app=app, db=db, Country=Country, EnglishString=EnglishString,
                 Translation=Translation, Survey=Survey, Indicator=Indicator)
 manager.add_command('shell', Shell(make_context=make_shell_context))
 
 
 def init_from_source(path, Model):
+    """Initialize DB table data.
+
+    Initialize table data from csv source data files associated with the
+    correspodning data model.
+
+    Args:
+        path (str): Path to csv data file.
+        Model (class): SqlAlchemy model class.
+    """
     with open(path, newline='', encoding='utf-8') as csvfile:
         csvreader = csv.DictReader(csvfile)
         for row in csvreader:
@@ -63,7 +78,11 @@ model_map = {
 
 @manager.option('--overwrite', help='Drop tables first?', action='store_true')
 def initdb(overwrite=False):
-    """Create the database."""
+    """Create the database.
+
+    Args:
+        overwrite (bool): Overwrite database if True, else update.
+    """
     with app.app_context():
         if overwrite:
             db.drop_all()
