@@ -107,10 +107,11 @@ def get_datum(uuid):
 @api.route('/texts')
 def get_texts():
     english_strings = EnglishString.query.all()
-    json_obj = {
+    return jsonify(json_obj = {
         'resultsSize': len(english_strings),
-        'results': [eng.url_for() for eng in english_strings]
-    }
+        'results': [d.to_json() for d in english_strings]
+    })
+
 
 
 @api.route('/texts/<uuid>')
