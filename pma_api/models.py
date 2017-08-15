@@ -192,7 +192,8 @@ class Characteristic(ApiModel):
     def __init__(self, **kwargs):
         kwargs = self.prune_ignored_fields(kwargs)
         self.update_kwargs_english(kwargs, 'label', 'label_id')
-        self.update_kwargs_english(kwargs, 'char_grp_code', 'char_grp_id')
+        self.set_kwargs_id(kwargs, 'char_grp_code', 'char_grp_id',
+                           CharacteristicGroup)
         super(Characteristic, self).__init__(**kwargs)
 
     def full_json(self, lang=None, jns=False, index=None):

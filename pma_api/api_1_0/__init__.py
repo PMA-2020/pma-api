@@ -79,15 +79,12 @@ def get_characteristic(code):
 
 @api.route('/data')
 def get_data():
-    all_data = data_refined_query(request.args)
-    # all_data = Data.query.all()
-    json_obj = {
+    # all_data = data_refined_query(request.args)  # TODO: Put this back.
+    all_data = Data.query.all()
+    return jsonify(json_obj = {
         'resultsSize': len(all_data),
-        'results': [
-            d.full_json() for d in all_data
-        ]
-    }
-    return jsonify(json_obj)
+        'results': [rec.full_json() for rec in all_data]
+    })
 
 
 def data_refined_query(args):

@@ -33,7 +33,9 @@ MODEL_MAP = {
     'survey': Survey,
     'translation': Translation
 }
-PRIORITY_MODEL_LOAD_QUEUE = ['geography', 'country']
+# PRIORITY_MODEL_LOAD_QUEUE = ['geography', 'country']
+LOAD_QUEUE = ['translation', 'geography', 'country', 'char_grp', 'char',
+              'indicator', 'survey', 'data']
 
 
 def make_shell_context():
@@ -86,28 +88,28 @@ def init_from_sheet(ws, model):
     db.session.commit()
 
 
-def init_from_workbook(wb, shortlist=list()):
+def init_from_workbook(wb, queue):
     """Init from workbook.
 
     Args:
         wb (xlrd.Workbook): Workbook object.
-        shortlist (list): If supplied, restricted list of worksheets to
-            execute on.
+        queue (list): Order in which to load models.
     """
+    # 1. Load DB in order for all non 'data' worksheets.
     with xlrd.open_workbook(wb) as book:
+        for present_item in queue:
+            for i in range(book.nsheets):
+                ws = book.sheet_by_index(i)
+                if ws.name in AUXILIARY_WORKSHEETS:
+                    continue
+                else:
+                    if ws.name == present_item:
+                        init_from_sheet(ws, MODEL_MAP[ws.name])
+    # 2. Handle 'data' worksheets.
         for i in range(book.nsheets):
             ws = book.sheet_by_index(i)
-            if (shortlist and ws.name not in shortlist) or \
-                    (ws.name in AUXILIARY_WORKSHEETS):
-                continue
-            else:
-                model = Data if ws.name.startswith('data') \
-                    else MODEL_MAP[ws.name]
-                if shortlist:
-                    init_from_sheet(ws, model)
-                elif not shortlist \
-                        and ws.name not in PRIORITY_MODEL_LOAD_QUEUE:
-                    init_from_sheet(ws, model)
+            if ws.name.startswith('data'):
+                init_from_sheet(ws, Data)
 
 
 @manager.option('--overwrite', help='Drop tables first?', action='store_true')
@@ -126,9 +128,9 @@ def initdb(overwrite=False):
             #   easier to understand.
             # - Note: Some models need to be loaded first due to field values
             #   that are calculated from values in other tables.
-            for priority_model in PRIORITY_MODEL_LOAD_QUEUE:
-                init_from_workbook(wb=SRC_DATA, shortlist=[priority_model])
-            init_from_workbook(wb=SRC_DATA)
+            # for priority_model in PRIORITY_MODEL_LOAD_QUEUE:
+            init_from_workbook(wb=SRC_DATA, queue=LOAD_QUEUE)
+            # init_from_workbook(wb=SRC_DATA)
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
