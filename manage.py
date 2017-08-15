@@ -110,31 +110,25 @@ def initdb(overwrite=False):
                 else:
                     model = Data if ws.name.startswith('data') \
                         else MODEL_MAP[ws.name]
-                    init_from_sheet(ws, model)
+                    if shortlist:
+                        init_from_sheet(ws, model)
+                    elif not shortlist \
+                            and ws.name not in PRIORITY_MODEL_LOAD_QUEUE:
+                        init_from_sheet(ws, model)
+
 
     with app.app_context():
         if overwrite:
             db.drop_all()
         db.create_all()
         if overwrite:
+            # TODO: Refactor "shortlyst" and "load queue" to be cleaner /
+            #   easier to understand.
+            # - Note: Some models need to be loaded first due to field values
+            #   that are calculated from values in other tables.
             for model in PRIORITY_MODEL_LOAD_QUEUE:
-                print(model)
                 init_from_workbook(wb=SRC_DATA, shortlist=[model])
             init_from_workbook(wb=SRC_DATA)
-
-#            country_csv = os.path.join(src_data_dir, 'country.csv')
-#            init_from_source(country_csv, Country)
-#            survey_csv = os.path.join(src_data_dir, 'survey.csv')
-#            init_from_source(survey_csv, Survey)
-#            char_grp_csv = os.path.join(src_data_dir, 'char_grp.csv')
-#            init_from_source(char_grp_csv, CharacteristicGroup)
-#            char_csv = os.path.join(src_data_dir, 'char.csv')
-#            init_from_source(char_csv, Characteristic)
-#            indicator_csv = os.path.join(src_data_dir, 'indicator.csv')
-#            init_from_source(indicator_csv, Indicator)
-#            data_csvs = glob.glob(os.path.join(src_data_dir, 'data*.csv'))
-#            for data in data_csvs:
-#                init_from_source(data, Data)
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
