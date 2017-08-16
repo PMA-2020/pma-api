@@ -54,7 +54,7 @@ docall: doc doctest
 test:
 	${PYTHON} -m unittest discover -v
 
-doctest:
+testdoc:
 	${PYTHON} -m test --doctests-only
 
 

@@ -112,28 +112,6 @@ def get_indicator(code):
     return jsonify(json_obj)
 
 
-@api.route('/characteristics')
-def get_characterstics():
-    """Characteristics resource collection GET method.
-
-    Returns:
-        json: Collection for resource.
-    """
-    pass
-
-
-@api.route('/characteristics/<code>')
-def get_characteristic(code):
-    """Characteristic resource entity GET method.
-
-    Args:
-        code (str): Identification for resource entity.
-
-    Returns:
-        json: Entity of resource.
-    """
-    pass
-
 
 @api.route('/data')
 def get_data():
@@ -212,6 +190,25 @@ def get_text(uuid):
     return jsonify(json_obj)
 
 
+@api.route('/characteristicGroups')
+def get_characteristic_groups():
+    return 'Characteristic groups'
+
+
+@api.route('/characteristicGroups/<code>')
+def get_characteristic_group(code):
+    """Characteristic resource entity GET method.
+
+    Args:
+        code (str): Identification for resource entity.
+
+    Returns:
+        json: Entity of resource.
+    """
+    return code
+
+
+
 @api.route('/resources')
 def get_resources():
     """API resource route..
@@ -219,16 +216,21 @@ def get_resources():
     Returns:
         json: List of resources.
     """
+    resource_endpoints = (
+        ('countries', 'api.get_surveys'),
+        ('surveys', 'api.get_surveys'),
+        ('texts', 'api.get_texts'),
+        ('indicators', 'api.get_indicators'),
+        ('data', 'api.get_data'),
+        ('characteristcGroups', 'api.get_characteristic_groups')
+    )
     json_obj = {
-        'resources': [{
-            'name': 'countries',
-            'resource': url_for('api.get_surveys', _external=True)
-        },{
-            'name': 'surveys',
-            'resource': url_for('api.get_countries', _external=True)
-        },{
-            'name': 'texts',
-            'resource': url_for('api.get_texts', _external=True)
-        }]
+        'resources': [
+            {
+                'name': name,
+                'resource': url_for(route, _external=True)
+            }
+            for name, route in resource_endpoints
+        ]
     }
     return jsonify(json_obj)
