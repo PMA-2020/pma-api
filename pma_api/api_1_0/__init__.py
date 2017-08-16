@@ -8,13 +8,21 @@ api = Blueprint('api', __name__)
 
 
 @api.route('/')
-def say_hello():
-    """API Root.
+def root():
+    """Root route.
 
     Returns:
-        json: List of resources.
+        func: get_resources() if 'application/json'
+        func: get_docs() if 'text/html'
     """
-    return '<h1>HELLO FLASK</h1>'
+    # TODO: See flask.pocoo.org/snippets/45/
+    request_headers = 'application/json'  # default for now
+    if request_headers == 'application/json':
+        return get_resources()
+    elif request_headers == 'text/html':
+        return 'Documentation.'
+    else:
+        return get_resources()
 
 
 @api.route('/countries')
@@ -112,28 +120,6 @@ def get_indicator(code):
     return jsonify(json_obj)
 
 
-@api.route('/characteristics')
-def get_characterstics():
-    """Characteristics resource collection GET method.
-
-    Returns:
-        json: Collection for resource.
-    """
-    pass
-
-
-@api.route('/characteristics/<code>')
-def get_characteristic(code):
-    """Characteristic resource entity GET method.
-
-    Args:
-        code (str): Identification for resource entity.
-
-    Returns:
-        json: Entity of resource.
-    """
-    pass
-
 
 @api.route('/data')
 def get_data():
@@ -215,6 +201,25 @@ def get_text(uuid):
     return jsonify(json_obj)
 
 
+@api.route('/characteristicGroups')
+def get_characteristic_groups():
+    return 'Characteristic groups'
+
+
+@api.route('/characteristicGroups/<code>')
+def get_characteristic_group(code):
+    """Characteristic resource entity GET method.
+
+    Args:
+        code (str): Identification for resource entity.
+
+    Returns:
+        json: Entity of resource.
+    """
+    return code
+
+
+
 @api.route('/resources')
 def get_resources():
     """API resource route..
@@ -222,16 +227,21 @@ def get_resources():
     Returns:
         json: List of resources.
     """
+    resource_endpoints = (
+        ('countries', 'api.get_surveys'),
+        ('surveys', 'api.get_surveys'),
+        ('texts', 'api.get_texts'),
+        ('indicators', 'api.get_indicators'),
+        ('data', 'api.get_data'),
+        ('characteristcGroups', 'api.get_characteristic_groups')
+    )
     json_obj = {
-        'resources': [{
-            'name': 'countries',
-            'resource': url_for('api.get_surveys', _external=True)
-        }, {
-            'name': 'surveys',
-            'resource': url_for('api.get_countries', _external=True)
-        }, {
-            'name': 'texts',
-            'resource': url_for('api.get_texts', _external=True)
-        }]
+        'resources': [
+            {
+                'name': name,
+                'resource': url_for(route, _external=True)
+            }
+            for name, route in resource_endpoints
+        ]
     }
     return jsonify(json_obj)
