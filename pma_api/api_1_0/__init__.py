@@ -17,12 +17,9 @@ def root():
     """
     # TODO: See flask.pocoo.org/snippets/45/
     request_headers = 'application/json'  # default for now
-    if request_headers == 'application/json':
-        return get_resources()
-    elif request_headers == 'text/html':
+    if request_headers == 'text/html':
         return 'Documentation.'
-    else:
-        return get_resources()
+    return get_resources()
 
 
 @api.route('/countries')
