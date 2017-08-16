@@ -154,6 +154,7 @@ def data_refined_query(args):
     results = qset.all()
     return results
 
+
 @api.route('/data/<uuid>')
 def get_datum(uuid):
     """Data resource entity GET method.
@@ -181,6 +182,8 @@ def get_texts():
         'resultsSize': len(english_strings),
         'results': [eng.url_for() for eng in english_strings]
     }
+    return json_obj
+
 
 
 @api.route('/texts/<uuid>')
