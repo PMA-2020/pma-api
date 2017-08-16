@@ -18,7 +18,7 @@ DOC_TEST=${PYDOCSTYLE} ${TEST}
 MANAGE=${PYTHON} manage.py
 
 
-.PHONY: lint linttest lintall pylint pylinttest pylintall code codetest codeall doc doctest docall test serve shell db
+.PHONY: lint linttest lintall pylint pylinttest pylintall code codetest codeall doc doctest docall test testdoc serve shell db
 
 # ALL LINTING
 lint:
@@ -63,7 +63,7 @@ docall: doc doctest
 test:
 	${PYTHON} -m unittest discover -v
 
-doctest:
+testdoc:
 	${PYTHON} -m test --doctests-only
 
 
