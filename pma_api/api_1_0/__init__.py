@@ -196,6 +196,8 @@ def get_texts():
         'resultsSize': len(english_strings),
         'results': [eng.url_for() for eng in english_strings]
     }
+    return json_obj
+
 
 
 @api.route('/texts/<uuid>')

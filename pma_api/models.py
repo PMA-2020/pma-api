@@ -259,7 +259,7 @@ class CharacteristicGroup(ApiModel):
         return '<CharacteristicGroup "{}">'.format(self.code)
 
     @staticmethod
-    def none_json(lang=None, jns=False, index=None):
+    def none_json(jns=False, index=None):
         """Return dictionary ready to convert to JSON as response.
 
         All values in this dictionary are set to none, serving the cases where
@@ -365,7 +365,7 @@ class Characteristic(ApiModel):
         return '<Characteristic "{}">'.format(self.code)
 
     @staticmethod
-    def none_json(lang=None, jns=False, index=None):
+    def none_json(jns=False, index=None):
         """Return dictionary ready to convert to JSON as response.
 
         All values in this dictionary are set to none, serving the cases where
@@ -392,7 +392,7 @@ class Characteristic(ApiModel):
         if jns:
             result = ApiModel.namespace(result, 'char', index=index)
         char_grp_json = \
-            CharacteristicGroup.none_json(lang, jns=True, index=index)
+            CharacteristicGroup.none_json(jns=True, index=index)
         result.update(char_grp_json)
         return result
 
@@ -478,15 +478,15 @@ class Data(ApiModel):
         if self.char1 is not None:
             char1_json = self.char1.full_json(lang, jns=True, index=1)
         else:
-            char1_json = Characteristic.none_json(lang, jns=True, index=1)
+            char1_json = Characteristic.none_json(jns=True, index=1)
         if self.char2 is not None:
             char2_json = self.char2.full_json(lang, jns=True, index=2)
         else:
-            char2_json = Characteristic.none_json(lang, jns=True, index=2)
+            char2_json = Characteristic.none_json(jns=True, index=2)
         if self.subgeo is not None:
             subgeo_json = self.subgeo.full_json(lang, jns=True)
         else:
-            subgeo_json = Geography.none_json(lang, jns=True)
+            subgeo_json = Geography.none_json(jns=True)
 
         result.update(survey_json)
         result.update(indicator_json)
@@ -563,30 +563,30 @@ class Survey(ApiModel):
         result.update(country_json)
         return result
 
-    def to_json(self, lang=None):
-        """Return dictionary ready to convert to JSON as response.
-
-        Contains URL for resource entity.
-
-        Args:
-            lang (str): The language, if specified.
-
-        Returns:
-            dict: API response ready to be JSONified.
-        """
-        return {
-            'url': url_for('api.get_survey', code=self.pma_code,
-                           _external=True),
-            'order': self.order,
-            'type': self.type,
-            'year': self.year,
-            'round': self.round,
-            'start_date': self.start_date.date().isoformat(),
-            'end_date': self.end_date.date().isoformat(),
-            'survey_code': self.survey_code,
-            'pma_code': self.pma_code,
-            'country': self.country.url_for()
-        }
+    # def to_json(self, lang=None):
+    #     """Return dictionary ready to convert to JSON as response.
+    #
+    #     Contains URL for resource entity.
+    #
+    #     Args:
+    #         lang (str): The language, if specified.
+    #
+    #     Returns:
+    #         dict: API response ready to be JSONified.
+    #     """
+    #     return {
+    #         'url': url_for('api.get_survey', code=self.pma_code,
+    #                        _external=True),
+    #         'order': self.order,
+    #         'type': self.type,
+    #         'year': self.year,
+    #         'round': self.round,
+    #         'start_date': self.start_date.date().isoformat(),
+    #         'end_date': self.end_date.date().isoformat(),
+    #         'survey_code': self.survey_code,
+    #         'pma_code': self.pma_code,
+    #         'country': self.country.url_for()
+    #     }
 
     def __init__(self, **kwargs):
         """Initialization for instance of model.
@@ -731,7 +731,7 @@ class Geography(ApiModel):
     country = db.relationship('Country', foreign_keys=country_id)
 
     @staticmethod
-    def none_json(lang=None, jns=False):
+    def none_json(jns=False):
         """Return dictionary ready to convert to JSON as response.
 
         All values in this dictionary are set to none, serving the cases where
