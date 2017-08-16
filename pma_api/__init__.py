@@ -1,3 +1,4 @@
+"""Definition of application object."""
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -8,6 +9,14 @@ db = SQLAlchemy()
 
 
 def create_app(config_name):
+    """Create configured Flask application.
+
+    Args:
+        config_name (str): Name of the configuration to be used.
+
+    Returns:
+        Flask: Configured Flask application.
+    """
     app = Flask(__name__)
     app.config.from_object(config[config_name])
 
