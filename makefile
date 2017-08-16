@@ -18,7 +18,7 @@ DOC_TEST=${PYDOCSTYLE} ${TEST}
 MANAGE=${PYTHON} manage.py
 
 
-.PHONY: lint linttest lintall code codetest codeall doc doctest docall test serve shell db
+.PHONY: lint linttest lintall pylint pylinttest pylintall code codetest codeall doc doctest docall test serve shell db
 
 # ALL LINTING
 lint:
@@ -29,6 +29,15 @@ linttest:
 
 lintall: lint linttest
 
+
+# PYLINT
+pylint:
+	${LINT_SRC}
+
+pylinttest:
+	${LINT_TEST}
+
+pylintall: pylint pylinttest
 
 # PYCODESTYLE
 code:
