@@ -13,6 +13,31 @@ class ApiModel(db.Model):
 
     __abstract__ = True
 
+    ignore_field_prefix = '__'
+
+    def __init__(self, *args, **kwargs):
+        self.prune_ignored_fields(kwargs)
+        self.empty_to_none(kwargs)
+        super().__init__(*args, **kwargs)
+
+    @staticmethod
+    def prune_ignored_fields(kwargs):
+        """Prune ignored fields.
+
+        Args:
+            **kwargs: Keyword arguments.
+        """
+        to_pop = [k for k in kwargs.keys() if
+                  k.startswith(ApiModel.ignore_field_prefix)]
+        for key in to_pop:
+            kwargs.pop(key)
+
+    @staticmethod
+    def update_kwargs_date(kwargs, source_key):
+        string_date = kwargs[source_key]
+        this_date = datetime.strptime(string_date, '%Y-%m-%d')
+        kwargs[source_key] = this_date
+
     @staticmethod
     def update_kwargs_english(kwargs, source_key, target_key):
         """Translate API query parameters to equivalent in model.
@@ -141,7 +166,6 @@ class Indicator(ApiModel):
         self.update_kwargs_english(kwargs, 'level3', 'level3_id')
         self.update_kwargs_english(kwargs, 'definition', 'definition_id')
         self.update_kwargs_english(kwargs, 'label', 'label_id')
-        self.empty_to_none(kwargs)
         super(Indicator, self).__init__(**kwargs)
 
     def full_json(self, lang=None, jns=False, endpoint=None):
@@ -213,24 +237,8 @@ class CharacteristicGroup(ApiModel):
         values into the EnglishString translation table if not present, and
         (4) calls super init.
         """
-        # 1. Remove columns that are unnecessary
-        label = kwargs.pop('label', None)
-        defn = kwargs.pop('definition', None)
-        # 2. Fill in gaps
-        if not kwargs['label_id']:
-            label_eng = EnglishString.query.filter_by(english=label).first()
-            if label_eng:
-                kwargs['label_id'] = label_eng.id
-            else:
-                new_label_eng = EnglishString.insert_unique(label)
-                kwargs['label_id'] = new_label_eng.id
-        if not kwargs['definition_id']:
-            defn_eng = EnglishString.query.filter_by(english=defn).first()
-            if defn_eng:
-                kwargs['definition_id'] = defn_eng.id
-            else:
-                new_defn_eng = EnglishString.insert_unique(defn)
-                kwargs['definition_id'] = new_defn_eng.id
+        self.update_kwargs_english(kwargs, 'label', 'label_id')
+        self.update_kwargs_english(kwargs, 'definition', 'definition_id')
         super(CharacteristicGroup, self).__init__(**kwargs)
 
     def full_json(self, lang=None, jns=False, index=None):
@@ -310,24 +318,9 @@ class Characteristic(ApiModel):
         Raises:
             AttributeError: If valid ID is not found for CharacteristicGroup.
         """
-        # 1. Remove columns that are unnecessary
-        label = kwargs.pop('label', None)
-        char_grp_code = kwargs.pop('char_grp_code', None)
-        # 2. Fill in gaps
-        if not kwargs['char_grp_id']:
-            found = \
-                CharacteristicGroup.query.filter_by(code=char_grp_code).first()
-            if found:
-                kwargs['char_grp_id'] = found.id
-            else:
-                raise AttributeError(char_grp_code)
-        if not kwargs['label_id']:
-            eng = EnglishString.query.filter_by(english=label).first()
-            if eng:
-                kwargs['label_id'] = found.id
-            else:
-                new_string = EnglishString.insert_unique(label)
-                kwargs['label_id'] = new_string.id
+        self.update_kwargs_english(kwargs, 'label', 'label_id')
+        self.set_kwargs_id(kwargs, 'char_grp_code', 'char_grp_id',
+                           CharacteristicGroup)
         super(Characteristic, self).__init__(**kwargs)
 
     def full_json(self, lang=None, jns=False, index=None):
@@ -416,13 +409,13 @@ class Data(ApiModel):
     indicator_id = db.Column(db.Integer, db.ForeignKey('indicator.id'))
     char1_id = db.Column(db.Integer, db.ForeignKey('characteristic.id'))
     char2_id = db.Column(db.Integer, db.ForeignKey('characteristic.id'))
-    subgeo_id = db.Column(db.Integer, db.ForeignKey('geography.id'))
+    geo_id = db.Column(db.Integer, db.ForeignKey('geography.id'))
 
     survey = db.relationship('Survey', foreign_keys=survey_id)
     indicator = db.relationship('Indicator', foreign_keys=indicator_id)
     char1 = db.relationship('Characteristic', foreign_keys=char1_id)
     char2 = db.relationship('Characteristic', foreign_keys=char2_id)
-    subgeo = db.relationship('Geography', foreign_keys=subgeo_id)
+    geo = db.relationship('Geography', foreign_keys=geo_id)
 
     def __init__(self, **kwargs):
         """Initialization for instance of model.
@@ -432,14 +425,10 @@ class Data(ApiModel):
         (3) Sets a randomly generated code string, and (4) Calls super init.
         """
         self.set_kwargs_id(kwargs, 'survey_code', 'survey_id', Survey)
-        self.set_kwargs_id(
-            kwargs, 'indicator_code', 'indicator_id', Indicator)
-        self.set_kwargs_id(
-            kwargs, 'char1_code', 'char1_id', Characteristic, False)
-        self.set_kwargs_id(
-            kwargs, 'char2_code', 'char2_id', Characteristic, False)
-        self.set_kwargs_id(
-            kwargs, 'subgeo_code', 'subgeo_id', Geography, False)
+        self.set_kwargs_id(kwargs, 'indicator_code', 'indicator_id', Indicator)
+        self.set_kwargs_id(kwargs, 'char1_code', 'char1_id', Characteristic, False)
+        self.set_kwargs_id(kwargs, 'char2_code', 'char2_id', Characteristic, False)
+        self.set_kwargs_id(kwargs, 'geo_code', 'geo_id', Geography, False)
         self.empty_to_none(kwargs)
         kwargs['code'] = next64()
         super(Data, self).__init__(**kwargs)
@@ -482,17 +471,17 @@ class Data(ApiModel):
         if self.char2 is not None:
             char2_json = self.char2.full_json(lang, jns=True, index=2)
         else:
-            char2_json = Characteristic.none_json(jns=True, index=2)
-        if self.subgeo is not None:
-            subgeo_json = self.subgeo.full_json(lang, jns=True)
+            char2_json = Characteristic.none_json(lang, jns=True, index=2)
+        if self.geo is not None:
+            geo_json = self.geo.full_json(lang, jns=True)
         else:
-            subgeo_json = Geography.none_json(jns=True)
+            geo_json = Geography.none_json(jns=True)
 
         result.update(survey_json)
         result.update(indicator_json)
         result.update(char1_json)
         result.update(char2_json)
-        result.update(subgeo_json)
+        result.update(geo_json)
 
         return result
 
@@ -599,25 +588,13 @@ class Survey(ApiModel):
         Raises:
             AttributeError: If valid ID is not found for Country.
         """
-        # 1. Remove columns that are unnecessary
-        label = kwargs.pop('label', None)
-        country_code = kwargs.pop('country_code', None)
-        geography_code = kwargs.pop('geography_code', None)
-        start_date = kwargs.pop('start_date', None)
-        end_date = kwargs.pop('end_date', None)
-        # 2. Remove columns that are unnecessary
-        if not kwargs['label_id']:
-            label_eng = EnglishString.query.filter_by(english=label).first()
-            if label_eng:
-                kwargs['label_id'] = label_eng.id
-            else:
-                new_label_eng = EnglishString.insert_unique(label)
-                kwargs['label_id'] = new_label_eng.id
-        self.set_kwargs_id(kwargs, 'country_code', 'country_id', Country, required=True)
-        if start_date:
-            kwargs['start_date'] = datetime.strptime(start_date, '%Y-%m-%d')
-        if end_date:
-            kwargs['end_date'] = datetime.strptime(end_date, '%Y-%m-%d')
+        self.update_kwargs_english(kwargs, 'label', 'label_id')
+        self.update_kwargs_date(kwargs, 'start_date')
+        self.update_kwargs_date(kwargs, 'end_date')
+        self.set_kwargs_id(kwargs, 'country_code', 'country_id', Country,
+                           required=True)
+        self.set_kwargs_id(kwargs, 'geography_code', 'geography_id', Geography,
+                           required=False)
         super(Survey, self).__init__(**kwargs)
 
     def __repr__(self):
@@ -636,6 +613,55 @@ class Country(ApiModel):
 
     label = db.relationship('EnglishString', foreign_keys=label_id)
 
+    api_schema = {  # size_min & size_max currently unused.
+        'fields': {
+            'id': {
+                'restrictions': {
+                    'type': str,
+                    'size_min': 1,
+                    'size_max': None,
+                    'queryable': True
+                },
+            },
+            'label': {
+                'restrictions': {
+                    'type': str,
+                    'size_min': 1,
+                    'size_max': None,
+                    'queryable': True
+                }
+
+            },
+            'order': {
+                'restrictions': {
+                    'type': int,
+                    'size_min': 1,
+                    'size_max': None,
+                    'queryable': False
+                }
+
+            },
+            'region': {
+                'restrictions': {
+                    'type': str,
+                    'size_min': 1,
+                    'size_max': None,
+                    'queryable': True
+                }
+
+            },
+            'subregion': {
+                'restrictions': {
+                    'type': str,
+                    'size_min': 1,
+                    'size_max': None,
+                    'queryable': True
+                }
+
+            }
+        }
+    }
+
     def __init__(self, **kwargs):
         """Initialization for instance of model.
 
@@ -644,6 +670,103 @@ class Country(ApiModel):
         """
         self.update_kwargs_english(kwargs, 'label', 'label_id')
         super(Country, self).__init__(**kwargs)
+
+
+    @staticmethod
+    def validate_param_types(params):
+        """Validate query parameter types.
+
+        Args:
+            params (ImmutableMultiDict): API query parameters.
+
+        Returns
+            bool: True if valid param types, else false.
+        """
+        # TODO: Support other types?: lists, associative arrays.
+        flds = Country.api_schema['fields']
+        typed_params = {
+            key: {
+                'value': val,
+                'type': int if val.isdigit()
+                else float if '.' in val and val.replace('.', '', 1).isdigit()
+                else bool if val.lower() in ('false', 'true')
+                else str
+            } for key, val in params.items()
+        }
+
+        return False \
+            if False in [val['type'] == flds[key]['restrictions']['type']
+                         for key, val in typed_params.items() if key in flds
+                         if flds[key]['restrictions']['queryable'] == True] \
+            else True
+
+    @staticmethod  # TODO: Insert violation in error message.
+    def validate_keys(params):
+        """Validate whether query parameters passed even exist to be queried.
+
+        Args:
+            params (ImmutableMultiDict): API query parameters.
+
+        Returns:
+            tuple: (bool: Validity, str: Error message)
+        """
+        msg = 'One or more invalid query parameter was passed.'
+        flds = Country.api_schema['fields']
+        return (False, msg) if True in [key not in flds for key in params]\
+            else (True, '')
+
+    @staticmethod  # TODO: Insert violation in error message.
+    def validate_queryable(params):
+        """Validate whether query parameters are allowed to be queried.
+
+        Args:
+            params (ImmutableMultiDict): API query parameters.
+
+        Returns:
+            tuple: (bool: Validity, str: Error message)
+        """
+        msg = 'One or more query parameter passed is not queryable.'
+        flds = Country.api_schema['fields']
+        return (False, msg) \
+            if True in [flds[key]['restrictions']['queryable'] == False
+                        for key in params if key in flds]\
+                else (True, '')
+
+    @staticmethod  # TODO: Insert violation in error message.
+    def validate_types(params):
+        """Validate whether query parameter types are correct.
+
+        Args:
+            params (ImmutableMultiDict): API query parameters.
+
+        Returns:
+            tuple: (bool: Validity, str: Error message)
+        """
+        msg = 'One or more types for query parameters was invalid.'
+        return (False, msg) if Country.validate_param_types(params) == False\
+            else (True, '')
+
+    @staticmethod
+    def validate_query(query_params):
+        """Validate query.
+
+        Args:
+            query_params (ImmutableMultiDict): API query parameters.
+
+        Returns:
+            bool: True if valid query, else false.
+            lit: List of error message strings.
+        """
+        # TODO: Decide on letting the user know if the query was invalid,
+        #   either in its own response or at the top along with results if we
+        #   choose to return results when part of the query was invalid.
+        validation_funcs = [Country.validate_keys, Country.validate_queryable,
+                           Country.validate_types]
+        validities = [func(query_params) for func in validation_funcs]
+
+        return \
+            False if False in [status for status, _ in validities] else True, \
+            list(filter(None, [messages for _, messages in validities]))
 
     def url_for(self):
         """Supply URL for resource entity.
