@@ -34,6 +34,12 @@ class ApiModel(db.Model):
 
     @staticmethod
     def update_kwargs_date(kwargs, source_key):
+        """Update dates to correct format.
+
+        Args:
+            kwargs (dict): Keyword arguments.
+            source_key (str): The source date string.
+        """
         string_date = kwargs[source_key]
         this_date = datetime.strptime(string_date, '%Y-%m-%d')
         kwargs[source_key] = this_date
@@ -274,7 +280,6 @@ class CharacteristicGroup(ApiModel):
         no data is found or needs to be supplied.
 
         Args:
-            lang (str): The language, if specified.
             jns (bool): If true, namespaces all dictionary keys with prefixed
                 table name.
             index (int): Field index for fields that have multiple instances of
@@ -368,7 +373,6 @@ class Characteristic(ApiModel):
         model(s) which are included along with fields for this model.
 
         Args:
-            lang (str): The language, if specified.
             jns (bool): If true, namespaces all dictionary keys with prefixed
                 table name.
             index (int): Field index for fields that have multiple instances of
@@ -426,8 +430,10 @@ class Data(ApiModel):
         """
         self.set_kwargs_id(kwargs, 'survey_code', 'survey_id', Survey)
         self.set_kwargs_id(kwargs, 'indicator_code', 'indicator_id', Indicator)
-        self.set_kwargs_id(kwargs, 'char1_code', 'char1_id', Characteristic, False)
-        self.set_kwargs_id(kwargs, 'char2_code', 'char2_id', Characteristic, False)
+        self.set_kwargs_id(kwargs, 'char1_code', 'char1_id',
+                           Characteristic, False)
+        self.set_kwargs_id(kwargs, 'char2_code', 'char2_id',
+                           Characteristic, False)
         self.set_kwargs_id(kwargs, 'geo_code', 'geo_id', Geography, False)
         self.empty_to_none(kwargs)
         kwargs['code'] = next64()
@@ -471,7 +477,7 @@ class Data(ApiModel):
         if self.char2 is not None:
             char2_json = self.char2.full_json(lang, jns=True, index=2)
         else:
-            char2_json = Characteristic.none_json(lang, jns=True, index=2)
+            char2_json = Characteristic.none_json(jns=True, index=2)
         if self.geo is not None:
             geo_json = self.geo.full_json(lang, jns=True)
         else:
@@ -671,7 +677,6 @@ class Country(ApiModel):
         self.update_kwargs_english(kwargs, 'label', 'label_id')
         super(Country, self).__init__(**kwargs)
 
-
     @staticmethod
     def validate_param_types(params):
         """Validate query parameter types.
@@ -687,7 +692,8 @@ class Country(ApiModel):
         typed_params = {
             key: {
                 'value': val,
-                'type': int if val.isdigit()
+                'type':
+                int if val.isdigit()
                 else float if '.' in val and val.replace('.', '', 1).isdigit()
                 else bool if val.lower() in ('false', 'true')
                 else str
@@ -697,7 +703,7 @@ class Country(ApiModel):
         return False \
             if False in [val['type'] == flds[key]['restrictions']['type']
                          for key, val in typed_params.items() if key in flds
-                         if flds[key]['restrictions']['queryable'] == True] \
+                         if flds[key]['restrictions']['queryable']] \
             else True
 
     @staticmethod  # TODO: Insert violation in error message.
@@ -728,9 +734,9 @@ class Country(ApiModel):
         msg = 'One or more query parameter passed is not queryable.'
         flds = Country.api_schema['fields']
         return (False, msg) \
-            if True in [flds[key]['restrictions']['queryable'] == False
-                        for key in params if key in flds]\
-                else (True, '')
+            if True in [not flds[key]['restrictions']['queryable']
+                        for key in params if key in flds] \
+            else (True, '')
 
     @staticmethod  # TODO: Insert violation in error message.
     def validate_types(params):
@@ -743,7 +749,7 @@ class Country(ApiModel):
             tuple: (bool: Validity, str: Error message)
         """
         msg = 'One or more types for query parameters was invalid.'
-        return (False, msg) if Country.validate_param_types(params) == False\
+        return (False, msg) if not Country.validate_param_types(params) \
             else (True, '')
 
     @staticmethod
@@ -761,7 +767,7 @@ class Country(ApiModel):
         #   either in its own response or at the top along with results if we
         #   choose to return results when part of the query was invalid.
         validation_funcs = [Country.validate_keys, Country.validate_queryable,
-                           Country.validate_types]
+                            Country.validate_types]
         validities = [func(query_params) for func in validation_funcs]
 
         return \
@@ -861,7 +867,6 @@ class Geography(ApiModel):
         no data is found or needs to be supplied.
 
         Args:
-            lang (str): The language, if specified.
             jns (bool): If true, namespaces all dictionary keys with prefixed
                 table name.
 
@@ -911,9 +916,6 @@ class EnglishString(ApiModel):
 
         Contains URL for resource entity.
 
-        Args:
-            lang (str): The language, if specified.
-
         Returns:
             dict: API response ready to be JSONified.
         """
@@ -933,9 +935,9 @@ class EnglishString(ApiModel):
         new record.
 
         Args:
-            endlish (str): The string in English to insert.
+            english (str): The string in English to insert.
         """
-        # TODO: This is not necessary because next64 now returns unique
+        # TODO: This is not necessary because next64 now returns unique.
         while True:
             try:
                 uuid = next64()
