@@ -692,8 +692,8 @@ class Country(ApiModel):
         typed_params = {
             key: {
                 'value': val,
-                'type':
-                int if val.isdigit()
+                'type': None if val == ''
+                else int if val.isdigit()
                 else float if '.' in val and val.replace('.', '', 1).isdigit()
                 else bool if val.lower() in ('false', 'true')
                 else str
