@@ -46,10 +46,11 @@ if __name__ == '__main__':
         # TODO: Make dynamic. Maybe make TEST_PACKAGES a dict (mod name + path)
         if test_package == SRC_PKG_NAME:
             root_dir = TEST_DIR+'../'+SRC_PKG_NAME
-        elif test_package == TEST_DIR:
+        elif test_package == TEST_PKG_NAME:
             root_dir = TEST_DIR
         else:
-            raise Exception('Test package not found.')
+            raise Exception('Test package \'{}\' not found.'
+                            .format(test_package))
 
         test_modules = []
         for dummy, dummy, filenames in os.walk(root_dir):
