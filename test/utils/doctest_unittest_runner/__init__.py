@@ -34,20 +34,21 @@ def get_test_modules(pkg_name, test_dir, relative_path_to_root):
 
     """
     test_dir_name = os.path.basename(os.path.dirname(test_dir))
-
-    try:
-        pkg_root_dir = test_dir if pkg_name == test_dir_name \
-            else test_dir + relative_path_to_root + pkg_name
-    except:
-        msg = ' Test package \'{}\' not found.'.format(pkg_name)
-        raise DoctestUnittestRunnerException(msg)
-
+    pkg_root_dir = test_dir if pkg_name == test_dir_name \
+        else test_dir+relative_path_to_root+pkg_name
     test_modules = []
-    for dummy, dummy, filenames in os.walk(pkg_root_dir):
-        for file in filenames:
-            if file.endswith('.py'):
-                file = file[:-3]
-                test_module = pkg_name + '.' + file
+    for dirpath, dummy, filenames in os.walk(pkg_root_dir):
+        for filename in filenames:
+            if filename.endswith('.py'):
+                filename = filename[:-3]
+                sub_pkg = \
+                    dirpath.replace(pkg_root_dir, '').replace('/', '.')
+                test_module = pkg_name+sub_pkg+'.'+filename
+                # TODO: Fix this logic. This is just a band-aid. The path to
+                #   module syntax needs to be recursive.
+                if test_module[len(pkg_name)] != '.':
+                    test_module = test_module[0:len(pkg_name)]+'.'\
+                                  +test_module[len(pkg_name):]
                 test_modules.append(test_module)
     return test_modules
 
