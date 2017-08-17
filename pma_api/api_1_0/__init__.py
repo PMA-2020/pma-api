@@ -125,7 +125,6 @@ def get_indicator(code):
     return jsonify(json_obj)
 
 
-
 @api.route('/data')
 def get_data():
     """Data resource collection GET method.
@@ -203,12 +202,17 @@ def get_text(uuid):
 
 @api.route('/characteristicGroups')
 def get_characteristic_groups():
-    return 'Characteristic groups'
+    """Characteristic Groups  resource collection GET method.
+
+    Returns:
+        json: Collection for resource.
+    """
+    return 'Characteristic groups'  # TODO
 
 
 @api.route('/characteristicGroups/<code>')
 def get_characteristic_group(code):
-    """Characteristic resource entity GET method.
+    """Characteristic Groups resource entity GET method.
 
     Args:
         code (str): Identification for resource entity.
@@ -219,10 +223,9 @@ def get_characteristic_group(code):
     return code
 
 
-
 @api.route('/resources')
 def get_resources():
-    """API resource route..
+    """API resource route.
 
     Returns:
         json: List of resources.
@@ -233,7 +236,7 @@ def get_resources():
         ('texts', 'api.get_texts'),
         ('indicators', 'api.get_indicators'),
         ('data', 'api.get_data'),
-        ('characteristcGroups', 'api.get_characteristic_groups')
+        ('characteristicGroups', 'api.get_characteristic_groups')
     )
     json_obj = {
         'resources': [
