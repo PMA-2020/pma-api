@@ -64,7 +64,7 @@ test:
 	${PYTHON} -m unittest discover -v
 
 testdoc:
-	${PYTHON} -m test --doctests-only
+	${PYTHON} -m test.test --doctests-only
 
 
 # SERVER MANAGEMENT
