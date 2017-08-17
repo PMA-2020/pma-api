@@ -699,12 +699,11 @@ class Country(ApiModel):
                 else str
             } for key, val in request_args.items()
         }
-
-        return False \
-            if False in [val['type'] == flds[key]['restrictions']['type']
-                         for key, val in typed_params.items() if key in flds
-                         if flds[key]['restrictions']['queryable']] \
-            else True
+        if False in [val['type'] == flds[key]['restrictions']['type']
+                     for key, val in typed_params.items() if key in flds
+                     if flds[key]['restrictions']['queryable']]:
+            return False
+        return True
 
     @staticmethod  # TODO: Insert violation in error message.
     def validate_keys(request_args):
