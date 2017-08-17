@@ -471,7 +471,7 @@ class Data(ApiModel):
         if self.char2 is not None:
             char2_json = self.char2.full_json(lang, jns=True, index=2)
         else:
-            char2_json = Characteristic.none_json(lang, jns=True, index=2)
+            char2_json = Characteristic.none_json(jns=True, index=2)
         if self.geo is not None:
             geo_json = self.geo.full_json(lang, jns=True)
         else:
