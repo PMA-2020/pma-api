@@ -692,7 +692,8 @@ class Country(ApiModel):
         typed_params = {
             key: {
                 'value': val,
-                'type': None if val == ''
+                'type':
+                None if val == ''
                 else int if val.isdigit()
                 else float if '.' in val and val.replace('.', '', 1).isdigit()
                 else bool if val.lower() in ('false', 'true')
@@ -717,8 +718,9 @@ class Country(ApiModel):
         """
         msg = 'One or more invalid query parameter was passed.'
         flds = Country.api_schema['fields']
-        return (False, msg) if True in [key not in flds for key in request_args]\
-            else (True, '')
+        if True in [key not in flds for key in request_args]:
+            return False, msg
+        return True, ''
 
     @staticmethod  # TODO: Insert violation in error message.
     def validate_queryable(request_args):
@@ -730,12 +732,11 @@ class Country(ApiModel):
         Returns:
             tuple: (bool: Validity, str: Error message)
         """
-        msg = 'One or more query parameter passed is not queryable.'
         flds = Country.api_schema['fields']
-        return (False, msg) \
-            if True in [flds[key]['restrictions']['queryable'] == False
-                        for key in request_args if key in flds]\
-                else (True, '')
+        if True in [not flds[key]['restrictions']['queryable']
+                    for key in request_args if key in flds]:
+            return False, 'One or more query params passed is not queryable.'
+        return True, ''
 
     @staticmethod  # TODO: Insert violation in error message.
     def validate_types(request_args):
@@ -747,9 +748,9 @@ class Country(ApiModel):
         Returns:
             tuple: (bool: Validity, str: Error message)
         """
-        msg = 'One or more types for query parameters was invalid.'
-        return (False, msg) if Country.validate_param_types(request_args) == False\
-            else (True, '')
+        if not Country.validate_param_types(request_args):
+            return False, 'One or more types for query parameters was invalid.'
+        return True, ''
 
     @staticmethod
     def validate_query(request_args):
@@ -766,7 +767,7 @@ class Country(ApiModel):
         #   either in its own response or at the top along with results if we
         #   choose to return results when part of the query was invalid.
         validation_funcs = [Country.validate_keys, Country.validate_queryable,
-                           Country.validate_types]
+                            Country.validate_types]
         validities = [func(request_args) for func in validation_funcs]
 
         return \
