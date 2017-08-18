@@ -678,11 +678,11 @@ class Country(ApiModel):
         super(Country, self).__init__(**kwargs)
 
     @staticmethod
-    def validate_param_types(params):
+    def validate_param_types(request_args):
         """Validate query parameter types.
 
         Args:
-            params (ImmutableMultiDict): API query parameters.
+            request_args (ImmutableMultiDict): API query parameters.
 
         Returns
             bool: True if valid param types, else false.
@@ -693,71 +693,71 @@ class Country(ApiModel):
             key: {
                 'value': val,
                 'type':
-                int if val.isdigit()
+                None if val == ''
+                else int if val.isdigit()
                 else float if '.' in val and val.replace('.', '', 1).isdigit()
                 else bool if val.lower() in ('false', 'true')
                 else str
-            } for key, val in params.items()
+            } for key, val in request_args.items()
         }
-
-        return False \
-            if False in [val['type'] == flds[key]['restrictions']['type']
-                         for key, val in typed_params.items() if key in flds
-                         if flds[key]['restrictions']['queryable']] \
-            else True
+        if False in [val['type'] == flds[key]['restrictions']['type']
+                     for key, val in typed_params.items() if key in flds
+                     if flds[key]['restrictions']['queryable']]:
+            return False
+        return True
 
     @staticmethod  # TODO: Insert violation in error message.
-    def validate_keys(params):
+    def validate_keys(request_args):
         """Validate whether query parameters passed even exist to be queried.
 
         Args:
-            params (ImmutableMultiDict): API query parameters.
+            request_args (ImmutableMultiDict): API query parameters.
 
         Returns:
             tuple: (bool: Validity, str: Error message)
         """
         msg = 'One or more invalid query parameter was passed.'
         flds = Country.api_schema['fields']
-        return (False, msg) if True in [key not in flds for key in params]\
-            else (True, '')
+        if True in [key not in flds for key in request_args]:
+            return False, msg
+        return True, ''
 
     @staticmethod  # TODO: Insert violation in error message.
-    def validate_queryable(params):
+    def validate_queryable(request_args):
         """Validate whether query parameters are allowed to be queried.
 
         Args:
-            params (ImmutableMultiDict): API query parameters.
+            request_args (ImmutableMultiDict): API query parameters.
 
         Returns:
             tuple: (bool: Validity, str: Error message)
         """
-        msg = 'One or more query parameter passed is not queryable.'
         flds = Country.api_schema['fields']
-        return (False, msg) \
-            if True in [not flds[key]['restrictions']['queryable']
-                        for key in params if key in flds] \
-            else (True, '')
+        if True in [not flds[key]['restrictions']['queryable']
+                    for key in request_args if key in flds]:
+            return False, 'One or more query params passed is not queryable.'
+        return True, ''
 
     @staticmethod  # TODO: Insert violation in error message.
-    def validate_types(params):
+    def validate_types(request_args):
         """Validate whether query parameter types are correct.
 
         Args:
-            params (ImmutableMultiDict): API query parameters.
+            request_args (ImmutableMultiDict): API query parameters.
 
         Returns:
             tuple: (bool: Validity, str: Error message)
         """
-        msg = 'One or more types for query parameters was invalid.'
-        return (False, msg) if not Country.validate_param_types(params) \
-            else (True, '')
+        if not Country.validate_param_types(request_args):
+            return False, 'One or more types for query parameters was invalid.'
+        return True, ''
 
     @staticmethod
-    def validate_query(query_params):
+    def validate_query(request_args):
         """Validate query.
 
         Args:
-            query_params (ImmutableMultiDict): API query parameters.
+            request_args (ImmutableMultiDict): API query parameters.
 
         Returns:
             bool: True if valid query, else false.
@@ -768,7 +768,7 @@ class Country(ApiModel):
         #   choose to return results when part of the query was invalid.
         validation_funcs = [Country.validate_keys, Country.validate_queryable,
                             Country.validate_types]
-        validities = [func(query_params) for func in validation_funcs]
+        validities = [func(request_args) for func in validation_funcs]
 
         return \
             False if False in [status for status, _ in validities] else True, \
