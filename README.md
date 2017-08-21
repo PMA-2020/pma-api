@@ -1,15 +1,15 @@
-# [PMA API](#intro)
+# PMA API
 This is the PMA2020 API.
 
-# [Developer Documentation](#developer-documentation)
+# Developer Documentation
 This is the developer documentation.
-## [Common Endpoints](#common-endpoints)
+## Common Endpoints
 This is documentation for common API endpoints.
 
-### [Root](#intro) `/`
+### Root `/`
 This endpoint re-routes directly to: `/resources` 
 
-### [Resources](#resources) `/resources`
+### Resources `/resources`
 #### Example 1 - No parameters
 Query: `/resources`
 
@@ -46,11 +46,11 @@ A list of resources.
 }
 ```
 
-## [Application Specific Endpoints](#application-specific-endpoints)
+## Application Specific Endpoints
 This is documentation for application specific endpoints, such as 
 [PMA2020 Datalab](http://datalab.pma2020.org).
 
-### [Application initialization](#application-initialization) `/datalab/init`
+### Application initialization `/datalab/init`
 Fetch data for all key resources in one request. This endpoint takes no 
 query parameters.
 
@@ -118,7 +118,7 @@ characteristics), all of which have at least one stored data point associated.
 }
 ```
 
-### [Filtering by existing relational data](#filtering-by-existing-relational-data) `/datalab`
+### Filtering by existing relational data `/datalab`
 #### Example 1 - Filter by all key resources
 Query: `/datalab`
 
@@ -157,7 +157,7 @@ of surveys which have one or more stored data point associated. Note that these
 are separate lists which are returned, as opposed to *example 2* where one list
 of all valid combinations are returned.
 
-### [Querying Data](#querying-data) `/datalab/data`
+### Querying Data `/datalab/data`
 Query data. Accepts parameters: 'survey', 'indicator', and 'characteristic'.
 #### Example 1 - Query all data needed to render a visualization 
 Query: `/datalab/data?survey=ID1,ID2,ID3&indicator=ID4&characteristicGroup1=ID5&characteristicGroup2=ID6`
