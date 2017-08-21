@@ -1,13 +1,16 @@
-# PMA API
+# [PMA API](#intro)
 This is the PMA2020 API.
 
-## Developer Documentation
+# [Developer Documentation](#developer-documentation)
 This is the developer documentation.
-### Common Endpoints
+## [Common Endpoints](#common-endpoints)
 This is documentation for common API endpoints.
 
-#### Resources [`/resources` | `/`]
-##### Example 1 - No parameters
+### [Root](#intro) `/`
+This endpoint re-routes directly to: `/resources` 
+
+### [Resources](#resources) `/resources`
+#### Example 1 - No parameters
 Query: `/resources`
 
 Returns:  
@@ -43,11 +46,11 @@ A list of resources.
 }
 ```
 
-### Application Specific Endpoints
+## [Application Specific Endpoints](#application-specific-endpoints)
 This is documentation for application specific endpoints, such as 
-[PMA2020 Datalab](http:datalab.pma2020.org).
+[PMA2020 Datalab](http://datalab.pma2020.org).
 
-#### Application initialization `/datalab/init`
+### [Application initialization](#application-initialization) `/datalab/init`
 Fetch data for all key resources in one request. This endpoint takes no 
 query parameters.
 
@@ -115,15 +118,15 @@ characteristics), all of which have at least one stored data point associated.
 }
 ```
 
-#### Filtering by existing relational data `/datalab`
-##### Example 1 - Filter by all key resources
+### [Filtering by existing relational data](#filtering-by-existing-relational-data) `/datalab`
+#### Example 1 - Filter by all key resources
 Query: `/datalab`
 
 Returns:  
 A list of all specific, key resources (surveys, indicators, and 
 characteristics), all of which have at least one stored data point associated.
 
-##### Example 2 - Filter by surveys
+#### Example 2 - Filter by surveys
 Query: `/datalab?survey=<ID1>,<ID2>,<ID3>`
 
 Returns:  
@@ -144,7 +147,7 @@ without the need for any further API calls.
 ```
 
 
-##### Example 3 - Filter by indicators or characteristics
+#### Example 3 - Filter by indicators or characteristics
 Query: `/datalab?[indicator | characteristic]=ID1`
 
 Returns:  
@@ -154,9 +157,9 @@ of surveys which have one or more stored data point associated. Note that these
 are separate lists which are returned, as opposed to *example 2* where one list
 of all valid combinations are returned.
 
-#### Querying Data `/datalab/data`
+### [Querying Data](#querying-data) `/datalab/data`
 Query data. Accepts parameters: 'survey', 'indicator', and 'characteristic'.
-##### Example 1 - Query all data needed to render a visualization 
+#### Example 1 - Query all data needed to render a visualization 
 Query: `/datalab/data?survey=ID1,ID2,ID3&indicator=ID4&characteristicGroup1=ID5&characteristicGroup2=ID6`
 
 Returns:  
