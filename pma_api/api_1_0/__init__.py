@@ -1,6 +1,7 @@
 """API Routes."""
 from flask import Blueprint, jsonify, request, url_for
 
+from .. import queries
 from ..models import Country, EnglishString, Survey, Indicator, Data
 
 
@@ -244,4 +245,14 @@ def get_resources():
             for name, route in resource_endpoints
         ]
     }
+    return jsonify(json_obj)
+
+
+@api.route('/datalab/data')
+def get_datalab_data():
+    """Get the correct slice of datalab data."""
+    survey = request.args.get('survey', None)
+    indicator = request.args.get('indicator', None)
+    char_grp = request.args.get('characteristicGroup', None)
+    json_obj = queries.get_datalab_data(survey, indicator, char_grp)
     return jsonify(json_obj)

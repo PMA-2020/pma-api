@@ -604,7 +604,7 @@ class Survey(ApiModel):
         super(Survey, self).__init__(**kwargs)
 
     def __repr__(self):
-        return '<Survey "{}">'.format(self.survey_code)
+        return '<Survey "{}">'.format(self.code)
 
 
 class Country(ApiModel):

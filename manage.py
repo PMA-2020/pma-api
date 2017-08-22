@@ -37,7 +37,9 @@ def make_shell_context():
         dict: Context for application manager shell.
     """
     return dict(app=app, db=db, Country=Country, EnglishString=EnglishString,
-                Translation=Translation, Survey=Survey, Indicator=Indicator)
+                Translation=Translation, Survey=Survey, Indicator=Indicator,
+                Data=Data, Characteristic=Characteristic,
+                CharacteristicGroup=CharacteristicGroup)
 
 
 def init_from_source(path, model):
