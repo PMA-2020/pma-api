@@ -251,6 +251,9 @@ def get_resources():
 @api.route('/datalab/data')
 def get_datalab_data():
     """Get the correct slice of datalab data."""
+    if not request.args:
+        return 'NoArgsError: This endpoint requires the following 3 query ' \
+               'parameters: \n* survey\n* indicator\n* characteristicGroup'
     survey = request.args.get('survey', None)
     indicator = request.args.get('indicator', None)
     char_grp = request.args.get('characteristicGroup', None)

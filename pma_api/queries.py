@@ -1,12 +1,14 @@
+"""Queries."""
 from sqlalchemy import or_
 from sqlalchemy.orm import aliased
 
 from . import db
-from .models import (Data, Survey, Indicator, Characteristic,
-                     CharacteristicGroup)
+from .models import Data, Survey, Indicator, Characteristic, \
+    CharacteristicGroup
 
 
 def get_datalab_data(survey_code, indicator_code, char_grp1_code):
+    """Get datalab data."""
     char1 = aliased(Characteristic)
     char2 = aliased(Characteristic)
     char_grp1 = aliased(CharacteristicGroup)
@@ -23,7 +25,7 @@ def get_datalab_data(survey_code, indicator_code, char_grp1_code):
     results = joined.filter(survey_sql) \
                     .filter(Indicator.code == indicator_code) \
                     .filter(char_grp1.code == char_grp1_code) \
-                    .filter(char_grp2.code == None) \
+                    .filter(char_grp2.code is None) \
                     .all()
     json_results = []
     for record in results:
@@ -39,8 +41,8 @@ def get_datalab_data(survey_code, indicator_code, char_grp1_code):
     return json_results
 
 
-
 def survey_list_to_sql(survey_list):
+    """Survey list to SQL."""
     # TODO: error checking on survey_list
     split = survey_list.split(',')
     sql_exprs = [Survey.code == code for code in split]
