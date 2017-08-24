@@ -64,33 +64,34 @@ class DatalabData:
     @staticmethod
     def all_combinable_model_indices():
         """All combo model indices."""
-        return [DatalabData.model_info[x]['index'] for x in DatalabData.combo_models]
+        return [DatalabData.model_info[x]['index'] for x in
+                DatalabData.combo_models]
 
     @staticmethod
-    def remaining_combinable_model_indices(this_model_name):
+    def remaining_model_indices(this_model_name):
         """Remaining combo model indices."""
         this_model_index = DatalabData.model_info[this_model_name]['index']
         return tuple(x for x in DatalabData.all_combinable_model_indices()
                      if x != this_model_index)
 
     @staticmethod
-    def remaining_combinable_model_names(this_model_name):
+    def remaining_model_names(this_model_name):
         """Remaining combo model names."""
         return tuple(x for x in DatalabData.combo_models
                      if x != this_model_name)
 
     @staticmethod
-    def remaining_combinable_model_name_indices(this_model_name):
+    def remaining_model_name_indices(this_model_name):
         """Remaining combo model names and indices."""
         other_model_indices, other_model_names = \
-            DatalabData.remaining_combinable_model_indices(this_model_name), \
-            DatalabData.remaining_combinable_model_names(this_model_name)
+            DatalabData.remaining_model_indices(this_model_name), \
+            DatalabData.remaining_model_names(this_model_name)
         return {k: v for k, v in zip(other_model_names, other_model_indices)}
 
     @staticmethod
     def model_index(model_name):
         """Get model index."""
-        return DatalabData.model_info[model_name]['index'] 
+        return DatalabData.model_info[model_name]['index']
 
     @staticmethod
     def results_with_size(results):
@@ -153,12 +154,14 @@ class DatalabData:
         return DatalabData.format_response(results)
 
     @staticmethod
-    def get_filtered_datalab_data(survey_codes, indicator_code, char_grp1_code):
+    def get_filtered_datalab_data(survey_codes, indicator_code,
+                                  char_grp1_code):
         """Get filtered datalab data."""
         survey_sql = DatalabData.api_list_to_sql_list(
             model=Survey, query_values=survey_codes)
         grp1, grp2 = DatalabData.char_grp1, DatalabData.char_grp2
 
+        # TODO: Pylint ignore E711 - Comparison to 'None' should be 'is'.
         results = DatalabData.default_data_view().filter(survey_sql) \
             .filter(Indicator.code == indicator_code) \
             .filter(grp1.code == char_grp1_code) \
@@ -168,13 +171,13 @@ class DatalabData:
         return DatalabData.format_response(results)
 
     @staticmethod
-    def get_other_combinable_model_codes(this_model_name, filter_codes):
+    def other_model_codes(this_model_name, filter_codes):
         """Get other combinable model codes."""
         # TODO: Question, should we return 'null' as is, or otherwise?
         # TODO: How to search the DB by 'null' if the user asks for it?
 
         other_model_name_indices = DatalabData.\
-            remaining_combinable_model_name_indices(this_model_name)
+            remaining_model_name_indices(this_model_name)
         results = DatalabData.default_data_view().filter(filter_codes).all()
         combos = {k: list(set(record[v] for record in results))  # Model codes
                   for k, v in other_model_name_indices.items()}
@@ -191,13 +194,17 @@ class DatalabData:
             codes = DatalabData.api_list_to_sql_list(
                 model=mdl['model'], query_values=request_args[mdl['api_name']])
 
-            return DatalabData.get_other_combinable_model_codes(
+            return DatalabData.other_model_codes(
                 this_model_name=mdl['api_name'], filter_codes=codes)
-        else:
-            # return 'Only supporting one query parameter at the moment.'
-            mdl = DatalabData.model_info[query_keys[0]]
-            codes = DatalabData.api_list_to_sql_list(
-                model=mdl['model'], query_values=request_args[mdl['api_name']])
 
-            return DatalabData.get_other_combinable_model_codes(
-                this_model_name=mdl['api_name'], filter_codes=codes)
+        # return 'Only supporting one query parameter at the moment.'
+        # - WIP
+        result = DatalabData.get_filtered_datalab_data(
+            survey_codes=request_args['survey']
+            if request_args['survey'] else None,
+            indicator_code=request_args['indicator']
+            if request_args['indicator'] else None,
+            char_grp1_code=request_args['characteristicGroup']
+            if request_args['characteristicGroup'] else None)
+
+        return result
