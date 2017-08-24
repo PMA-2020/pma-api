@@ -254,6 +254,10 @@ def get_datalab_data():
     if not request.args:
         return 'NoArgsError: This endpoint requires the following 3 query ' \
                'parameters: \n* survey\n* indicator\n* characteristicGroup'
+    elif 'survey' not in request.args or 'indicator' not in request.args or \
+                    'characteristicGroup' not in request.args:
+        return 'InvalidArgsError: This endpoint requires the following 3 ' \
+               'parameters: \n* survey\n* indicator\n* characteristicGroup'
     survey = request.args.get('survey', None)
     indicator = request.args.get('indicator', None)
     char_grp = request.args.get('characteristicGroup', None)
