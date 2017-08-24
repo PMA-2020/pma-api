@@ -428,16 +428,17 @@ class Data(ApiModel):
         parameter names to model field names, (2) Reformats any empty strings,
         (3) Sets a randomly generated code string, and (4) Calls super init.
         """
-        self.set_kwargs_id(kwargs, 'survey_code', 'survey_id', Survey)
-        self.set_kwargs_id(kwargs, 'indicator_code', 'indicator_id', Indicator)
-        self.set_kwargs_id(kwargs, 'char1_code', 'char1_id',
-                           Characteristic, False)
-        self.set_kwargs_id(kwargs, 'char2_code', 'char2_id',
-                           Characteristic, False)
-        self.set_kwargs_id(kwargs, 'geo_code', 'geo_id', Geography, False)
-        self.empty_to_none(kwargs)
-        kwargs['code'] = next64()
-        super(Data, self).__init__(**kwargs)
+        if kwargs:
+            self.set_kwargs_id(kwargs, 'survey_code', 'survey_id', Survey)
+            self.set_kwargs_id(kwargs, 'indicator_code', 'indicator_id', Indicator)
+            self.set_kwargs_id(kwargs, 'char1_code', 'char1_id',
+                               Characteristic, False)
+            self.set_kwargs_id(kwargs, 'char2_code', 'char2_id',
+                               Characteristic, False)
+            self.set_kwargs_id(kwargs, 'geo_code', 'geo_id', Geography, False)
+            self.empty_to_none(kwargs)
+            kwargs['code'] = next64()
+            super(Data, self).__init__(**kwargs)
 
     def full_json(self, lang=None, jns=False):
         """Return dictionary ready to convert to JSON as response.

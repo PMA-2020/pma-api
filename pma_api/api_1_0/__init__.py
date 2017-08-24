@@ -248,6 +248,7 @@ def get_resources():
     return jsonify(json_obj)
 
 
+# TODO: Handle null cases.
 @api.route('/datalab/data')
 def get_datalab_data():
     """Get the correct slice of datalab data."""
@@ -271,9 +272,22 @@ def get_datalab_data():
 def get_datalab_combos():
     """Get datalab combos."""
     # TODO: Account for all combinations of request args or lack thereof.
+    # TODO: Add logic to sort by arguments. If you have indicator, go to
+    # this method.
+
     if 'survey' not in request.args and 'indicator' not in request.args \
             and 'characteristicGroup' not in request.args:
         return 'InvalidArgsError: This endpoint requires 1-2 of 3 ' \
                'parameters: \n* survey\n* indicator\n* characteristicGroup'
 
+    # return jsonify(DatalabData.related_models_from_single_model_data(
+    #     request.args))
     return jsonify(DatalabData.get_combos(request.args))
+
+@api.route('/datalab/init')
+def get_datalab_init():
+    """Get datalab combos."""
+    # return a number of resources, each resource showing a list of its
+    # records which actually have data associated with them.
+    # calls datalab.data()
+    return 'not implemented'
