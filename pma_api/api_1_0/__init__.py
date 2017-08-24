@@ -1,7 +1,7 @@
 """API Routes."""
 from flask import Blueprint, jsonify, request, url_for
 
-from .. import queries
+from ..queries import DatalabData
 from ..models import Country, EnglishString, Survey, Indicator, Data
 
 
@@ -252,9 +252,7 @@ def get_resources():
 def get_datalab_data():
     """Get the correct slice of datalab data."""
     if not request.args:
-        # return 'NoArgsError: This endpoint requires the following 3 query ' \
-        #        'parameters: \n* survey\n* indicator\n* characteristicGroup'
-        json_obj = queries.get_all_datalab_data()
+        json_obj = DatalabData.get_all_datalab_data()
     elif 'survey' not in request.args or 'indicator' not in request.args \
             or 'characteristicGroup' not in request.args:
         return 'InvalidArgsError: This endpoint requires the following 3 ' \
@@ -263,13 +261,19 @@ def get_datalab_data():
         survey = request.args.get('survey', None)
         indicator = request.args.get('indicator', None)
         char_grp = request.args.get('characteristicGroup', None)
-        json_obj = queries.get_filtered_datalab_data(survey, indicator,
-                                                     char_grp)
+        json_obj = DatalabData.get_filtered_datalab_data(survey, indicator,
+                                                         char_grp)
 
-    json_obj = {
-        'resultsSize': len(json_obj),
-        'results': json_obj
-    }
-
-    # return str(json_obj)
     return jsonify(json_obj)
+
+
+@api.route('/datalab/combos')
+def get_datalab_combos():
+    """Get datalab combos."""
+    # TODO: Account for all combinations of request args or lack thereof.
+    if 'survey' not in request.args and 'indicator' not in request.args \
+            and 'characteristicGroup' not in request.args:
+        return 'InvalidArgsError: This endpoint requires 1-2 of 3 ' \
+               'parameters: \n* survey\n* indicator\n* characteristicGroup'
+
+    return jsonify(DatalabData.get_combos(request.args))
