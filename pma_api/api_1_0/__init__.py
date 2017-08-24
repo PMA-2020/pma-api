@@ -252,14 +252,24 @@ def get_resources():
 def get_datalab_data():
     """Get the correct slice of datalab data."""
     if not request.args:
-        return 'NoArgsError: This endpoint requires the following 3 query ' \
-               'parameters: \n* survey\n* indicator\n* characteristicGroup'
-    elif 'survey' not in request.args or 'indicator' not in request.args or \
-                    'characteristicGroup' not in request.args:
+        # return 'NoArgsError: This endpoint requires the following 3 query ' \
+        #        'parameters: \n* survey\n* indicator\n* characteristicGroup'
+        json_obj = queries.get_all_datalab_data()
+    elif 'survey' not in request.args or 'indicator' not in request.args \
+            or 'characteristicGroup' not in request.args:
         return 'InvalidArgsError: This endpoint requires the following 3 ' \
                'parameters: \n* survey\n* indicator\n* characteristicGroup'
-    survey = request.args.get('survey', None)
-    indicator = request.args.get('indicator', None)
-    char_grp = request.args.get('characteristicGroup', None)
-    json_obj = queries.get_datalab_data(survey, indicator, char_grp)
+    else:
+        survey = request.args.get('survey', None)
+        indicator = request.args.get('indicator', None)
+        char_grp = request.args.get('characteristicGroup', None)
+        json_obj = queries.get_filtered_datalab_data(survey, indicator,
+                                                     char_grp)
+
+    json_obj = {
+        'resultsSize': len(json_obj),
+        'results': json_obj
+    }
+
+    # return str(json_obj)
     return jsonify(json_obj)
