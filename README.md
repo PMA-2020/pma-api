@@ -112,8 +112,8 @@ characteristics), all of which have at least one stored data point associated.
     }
     "languages": {
         "en": "English",
-		"fr": "French"
-		...
+        "fr": "French"
+        ...
     }
 }
 ```

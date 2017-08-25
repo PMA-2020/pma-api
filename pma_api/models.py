@@ -146,7 +146,9 @@ class Indicator(ApiModel):
     type = db.Column(db.String)
     definition_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
     level1_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
+    # Level 2 = Category
     level2_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
+    # Level 3 = Domain
     level3_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
     # TODO: Should this be a translated string?
     denominator = db.Column(db.String)
@@ -157,7 +159,9 @@ class Indicator(ApiModel):
     label = db.relationship('EnglishString', foreign_keys=label_id)
     definition = db.relationship('EnglishString', foreign_keys=definition_id)
     level1 = db.relationship('EnglishString', foreign_keys=level1_id)
+    # Level 2 = Category
     level2 = db.relationship('EnglishString', foreign_keys=level2_id)
+    # Level 3 = Domain
     level3 = db.relationship('EnglishString', foreign_keys=level3_id)
 
     def __init__(self, **kwargs):
@@ -183,7 +187,7 @@ class Indicator(ApiModel):
         Args:
             lang (str): The language, if specified.
             jns (bool): If true, namespaces all dictionary keys with prefixed
-                table name.
+                table name, e.g. indicator.id.
             endpoint (str): If supplied, provides URL for entity in response.
 
         Returns:
@@ -221,6 +225,17 @@ class Indicator(ApiModel):
 
     def __repr__(self):
         return '<Indicator "{}">'.format(self.code)
+
+    def datalab_init_json(self):
+        """Datalab init json: Indicator."""
+        to_return = {
+                'id': self.code,
+                'label.id': self.label.code,
+                'definition.id': self.definition.code,
+                'order': self.order,
+                'category.id': self.level2.code
+            }
+        return to_return
 
 
 class CharacteristicGroup(ApiModel):
@@ -297,6 +312,18 @@ class CharacteristicGroup(ApiModel):
             result = ApiModel.namespace(result, 'charGrp', index=index)
         return result
 
+    def datalab_init_json(self):
+        """Datalab init json: CharacteristicGroup."""
+        to_return = {
+            'id': self.code,
+            'label.id': self.label.code,
+            'definition.id': self.definition.code,
+            'order': 'To be implemented.',
+            # 'order': self.order,
+            'category.id': 'To be implemented.'
+        }
+        return to_return
+
 
 class Characteristic(ApiModel):
     """Characteristic model."""
@@ -361,6 +388,15 @@ class Characteristic(ApiModel):
 
     def __repr__(self):
         return '<Characteristic "{}">'.format(self.code)
+
+    def datalab_init_json(self):
+        """Datalab init json: Characteristic."""
+        to_return = {
+                'id': self.code,
+                'label.id': self.label.code,
+                'order': self.order,
+            }
+        return to_return
 
     @staticmethod
     def none_json(jns=False, index=None):
@@ -428,16 +464,18 @@ class Data(ApiModel):
         parameter names to model field names, (2) Reformats any empty strings,
         (3) Sets a randomly generated code string, and (4) Calls super init.
         """
-        self.set_kwargs_id(kwargs, 'survey_code', 'survey_id', Survey)
-        self.set_kwargs_id(kwargs, 'indicator_code', 'indicator_id', Indicator)
-        self.set_kwargs_id(kwargs, 'char1_code', 'char1_id',
-                           Characteristic, False)
-        self.set_kwargs_id(kwargs, 'char2_code', 'char2_id',
-                           Characteristic, False)
-        self.set_kwargs_id(kwargs, 'geo_code', 'geo_id', Geography, False)
-        self.empty_to_none(kwargs)
-        kwargs['code'] = next64()
-        super(Data, self).__init__(**kwargs)
+        if kwargs:
+            self.set_kwargs_id(kwargs, 'survey_code', 'survey_id', Survey)
+            self.set_kwargs_id(kwargs, 'indicator_code', 'indicator_id',
+                               Indicator)
+            self.set_kwargs_id(kwargs, 'char1_code', 'char1_id',
+                               Characteristic, False)
+            self.set_kwargs_id(kwargs, 'char2_code', 'char2_id',
+                               Characteristic, False)
+            self.set_kwargs_id(kwargs, 'geo_code', 'geo_id', Geography, False)
+            self.empty_to_none(kwargs)
+            kwargs['code'] = next64()
+            super(Data, self).__init__(**kwargs)
 
     def full_json(self, lang=None, jns=False):
         """Return dictionary ready to convert to JSON as response.
@@ -557,6 +595,19 @@ class Survey(ApiModel):
 
         result.update(country_json)
         return result
+
+    def datalab_init_json(self):
+        """Datalab init json: Survey."""
+        to_return = {
+            'id': self.code,
+            'label.id': 'To be implemented.',
+            # 'label_code': self.label.code,
+            'order': self.order,
+            'country.label.id': self.country.label_id,
+            'geography.label.id': 'To be implemented.'
+            # 'geography_label_code': self.geography.code
+            }
+        return to_return
 
     # def to_json(self, lang=None):
     #     """Return dictionary ready to convert to JSON as response.
@@ -838,7 +889,7 @@ class Country(ApiModel):
                 json_obj['label'] = translation.translation
             else:
                 json_obj['label'] = url_for(
-                    'api.get_text', uuid=self.label.uuid, _external=True)
+                    'api.get_text', code=self.label.code, _external=True)
         return json_obj
 
     def __repr__(self):
@@ -890,7 +941,7 @@ class EnglishString(ApiModel):
 
     __tablename__ = 'english_string'
     id = db.Column(db.Integer, primary_key=True)
-    uuid = db.Column(db.String, unique=True)
+    code = db.Column(db.String, unique=True)
     english = db.Column(db.String, nullable=False)
     translations = db.relationship('Translation')
 
@@ -920,8 +971,8 @@ class EnglishString(ApiModel):
             dict: API response ready to be JSONified.
         """
         json_obj = {
-            'url': url_for('api.get_text', uuid=self.uuid, _external=True),
-            'id': self.uuid,
+            'url': url_for('api.get_text', code=self.code, _external=True),
+            'id': self.code,
             'text': self.english,
             'langCode': 'en'
         }
@@ -931,7 +982,7 @@ class EnglishString(ApiModel):
     def insert_unique(english):
         """Inserts a unique record into the database.
 
-        Creates a uuid and combines with English text to as the parameters for
+        Creates a code and combines with English text to as the parameters for
         new record.
 
         Args:
@@ -940,18 +991,36 @@ class EnglishString(ApiModel):
         # TODO: This is not necessary because next64 now returns unique.
         while True:
             try:
-                uuid = next64()
-                record = EnglishString(uuid=uuid, english=english)
+                code = next64()
+                record = EnglishString(code=code, english=english)
                 db.session.add(record)
                 db.session.commit()
                 return record
             except IntegrityError:
                 pass
 
+    def datalab_init_json(self):
+        """Datalab init json: EnglishString."""
+        this_dict = {
+            'en': self.english
+        }
+        for translation in self.translations:
+            this_dict[translation.language_code] = translation.translation
+        to_return = {
+            self.code: this_dict
+        }
+        return to_return
+
+    # For the Translation class implementation.
+    # def datalab_init_json(self):
+    #     """Datalab init json: EnglishString."""
+    #     return {'id': self.code,
+    #             'string': self.english}
+
     def __repr__(self):
         preview = self.english if len(self.english) < 20 else \
                   '{}...'.format(self.english[:17])
-        return '<EnglishString {} "{}">'.format(self.uuid, preview)
+        return '<EnglishString {} "{}">'.format(self.code, preview)
 
 
 class Translation(ApiModel):
@@ -962,6 +1031,49 @@ class Translation(ApiModel):
     english_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
     language_code = db.Column(db.String, nullable=False)
     translation = db.Column(db.String, nullable=False)
+    languages_info = {
+        'english': {
+            'code': 'en',
+            'label': 'English',
+            'active': True,
+            'string_records': lambda: Translation.english()
+        },
+        'french': {
+            'code': 'fr',
+            'label': 'French',
+            'active': True,
+            'string_records': lambda: 'To be implemented.'
+        }
+    }
+
+    @staticmethod
+    def languages():
+        """Languages list."""
+        languages = {v['code']: v['label'] for _, v in
+                     Translation.languages_info.items()}
+        return languages
+
+    # @staticmethod  # TODO: Get other languages.
+    # def strings():
+    #     """Strings list."""
+    #     strings = {}
+    #     for language, info, in Translation.languages_info.items():
+    #         if info['active']:
+    #             strings[info['code']] = info['string_records']()
+    #
+    #     return strings
+    #
+    # @staticmethod
+    # def english():
+    #     """English."""
+    #     query_results = EnglishString.query.all()
+    #
+    #     strings = {}
+    #     for record in query_results:
+    #         data = record.datalab_init_json()
+    #         strings[data['id']] = data['string']
+    #
+    #     return strings
 
     def __repr__(self):
         preview = self.translation if len(self.translation) < 20 else \

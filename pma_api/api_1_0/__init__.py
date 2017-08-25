@@ -1,7 +1,7 @@
 """API Routes."""
 from flask import Blueprint, jsonify, request, url_for
 
-from .. import queries
+from ..queries import DatalabData
 from ..models import Country, EnglishString, Survey, Indicator, Data
 
 
@@ -154,17 +154,17 @@ def data_refined_query(args):
     return results
 
 
-@api.route('/data/<uuid>')
-def get_datum(uuid):
+@api.route('/data/<code>')
+def get_datum(code):
     """Data resource entity GET method.
 
     Args:
-        uuid (str): Identification for resource entity.
+        code (str): Identification for resource entity.
 
     Returns:
         json: Entity of resource.
     """
-    data = Data.query.filter_by(code=uuid).first()
+    data = Data.query.filter_by(code=code).first()
     json_obj = data.full_json()
     return jsonify(json_obj)
 
@@ -183,17 +183,17 @@ def get_texts():
     })
 
 
-@api.route('/texts/<uuid>')
-def get_text(uuid):
+@api.route('/texts/<code>')
+def get_text(code):
     """Text resource entity GET method.
 
     Args:
-        uuid (str): Identification for resource entity.
+        code (str): Identification for resource entity.
 
     Returns:
         json: Entity of resource.
     """
-    text = EnglishString.query.filter_by(uuid=uuid).first()
+    text = EnglishString.query.filter_by(code=code).first()
     json_obj = text.to_json()
     return jsonify(json_obj)
 
@@ -248,11 +248,44 @@ def get_resources():
     return jsonify(json_obj)
 
 
+# TODO: Handle null cases.
 @api.route('/datalab/data')
 def get_datalab_data():
     """Get the correct slice of datalab data."""
-    survey = request.args.get('survey', None)
-    indicator = request.args.get('indicator', None)
-    char_grp = request.args.get('characteristicGroup', None)
-    json_obj = queries.get_datalab_data(survey, indicator, char_grp)
+    if not request.args:
+        json_obj = DatalabData.get_all_datalab_data()
+    elif 'survey' not in request.args or 'indicator' not in request.args \
+            or 'characteristicGroup' not in request.args:
+        return 'InvalidArgsError: This endpoint requires the following 3 ' \
+               'parameters: \n* survey\n* indicator\n* characteristicGroup'
+    else:
+        survey = request.args.get('survey', None)
+        indicator = request.args.get('indicator', None)
+        char_grp = request.args.get('characteristicGroup', None)
+        json_obj = DatalabData.get_filtered_datalab_data(survey, indicator,
+                                                         char_grp)
+
     return jsonify(json_obj)
+
+
+@api.route('/datalab/combos')
+def get_datalab_combos():
+    """Get datalab combos."""
+    # TODO: Account for all combinations of request args or lack thereof.
+    # TODO: Add logic to sort by arguments. If you have indicator, go to
+    # this method.
+
+    if 'survey' not in request.args and 'indicator' not in request.args \
+            and 'characteristicGroup' not in request.args:
+        return 'InvalidArgsError: This endpoint requires 1-2 of 3 ' \
+               'parameters: \n* survey\n* indicator\n* characteristicGroup'
+
+    # return jsonify(DatalabData.related_models_from_single_model_data(
+    #     request.args))
+    return jsonify(DatalabData.get_combos(request.args))
+
+
+@api.route('/datalab/init')
+def get_datalab_init():
+    """Get datalab combos."""
+    return jsonify(DatalabData.datalab_init())
