@@ -171,6 +171,7 @@ class Indicator(ApiModel):
         parameter names to model field names, (2) Reformats any empty strings,
         and (3) Calls super init.
         """
+        kwargs['is_favorite'] = bool(kwargs['is_favorite'])
         self.update_kwargs_english(kwargs, 'level1', 'level1_id')
         self.update_kwargs_english(kwargs, 'level2', 'level2_id')
         self.update_kwargs_english(kwargs, 'level3', 'level3_id')
@@ -465,6 +466,7 @@ class Data(ApiModel):
         (3) Sets a randomly generated code string, and (4) Calls super init.
         """
         if kwargs:
+            kwargs['is_total'] = bool(kwargs['is_total'])
             self.set_kwargs_id(kwargs, 'survey_code', 'survey_id', Survey)
             self.set_kwargs_id(kwargs, 'indicator_code', 'indicator_id',
                                Indicator)
