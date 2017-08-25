@@ -1,1 +1,1 @@
-web python3 manage.py runserver
+web: gunicorn pma_api.create_app
