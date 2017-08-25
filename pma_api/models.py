@@ -850,7 +850,7 @@ class Country(ApiModel):
                 json_obj['label'] = translation.translation
             else:
                 json_obj['label'] = url_for(
-                    'api.get_text', uuid=self.label.uuid, _external=True)
+                    'api.get_text', code=self.label.code, _external=True)
         return json_obj
 
     def __repr__(self):
@@ -932,7 +932,7 @@ class EnglishString(ApiModel):
             dict: API response ready to be JSONified.
         """
         json_obj = {
-            'url': url_for('api.get_text', uuid=self.code, _external=True),
+            'url': url_for('api.get_text', code=self.code, _external=True),
             'id': self.code,
             'text': self.english,
             'langCode': 'en'
@@ -943,7 +943,7 @@ class EnglishString(ApiModel):
     def insert_unique(english):
         """Inserts a unique record into the database.
 
-        Creates a uuid and combines with English text to as the parameters for
+        Creates a code and combines with English text to as the parameters for
         new record.
 
         Args:
@@ -952,8 +952,8 @@ class EnglishString(ApiModel):
         # TODO: This is not necessary because next64 now returns unique.
         while True:
             try:
-                uuid = next64()
-                record = EnglishString(uuid=uuid, english=english)
+                code = next64()
+                record = EnglishString(code=code, english=english)
                 db.session.add(record)
                 db.session.commit()
                 return record

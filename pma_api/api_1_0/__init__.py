@@ -154,17 +154,17 @@ def data_refined_query(args):
     return results
 
 
-@api.route('/data/<uuid>')
-def get_datum(uuid):
+@api.route('/data/<code>')
+def get_datum(code):
     """Data resource entity GET method.
 
     Args:
-        uuid (str): Identification for resource entity.
+        code (str): Identification for resource entity.
 
     Returns:
         json: Entity of resource.
     """
-    data = Data.query.filter_by(code=uuid).first()
+    data = Data.query.filter_by(code=code).first()
     json_obj = data.full_json()
     return jsonify(json_obj)
 
@@ -183,17 +183,17 @@ def get_texts():
     })
 
 
-@api.route('/texts/<uuid>')
-def get_text(uuid):
+@api.route('/texts/<code>')
+def get_text(code):
     """Text resource entity GET method.
 
     Args:
-        uuid (str): Identification for resource entity.
+        code (str): Identification for resource entity.
 
     Returns:
         json: Entity of resource.
     """
-    text = EnglishString.query.filter_by(uuid=uuid).first()
+    text = EnglishString.query.filter_by(code=code).first()
     json_obj = text.to_json()
     return jsonify(json_obj)
 
