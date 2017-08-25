@@ -4,7 +4,7 @@ from sqlalchemy.orm import aliased
 
 from . import db
 from .models import Data, Survey, Indicator, Characteristic, \
-    CharacteristicGroup
+    CharacteristicGroup, EnglishString, Translation
 
 
 # TODO: Include query parameters inside the response.
@@ -328,17 +328,62 @@ class DatalabData:
         return results
 
     @staticmethod
-    def datalab_init():
-        """DataLab Init."""
-        # return a number of resources, each resource showing a list of its
-        # records which actually have data associated with them.
-        # calls datalab.data()
+    def datalab_init_indicators():
+        """Datalab init."""
         select_args = Indicator
         joined = DatalabData.datalab_data_joined(select_args)
-
         results = joined.distinct().all()
-
         results = [record.datalab_init_json() for record in results]
-
-
         return results
+
+    @staticmethod
+    def datalab_init_char_grp():
+        """Datalab init."""
+        select_args = DatalabData.char_grp1
+        joined = DatalabData.datalab_data_joined(select_args)
+        results = joined.distinct().all()
+        results = [record.datalab_init_json() if record is not None else "none"
+                   for record in results]
+        return results
+
+
+    @staticmethod
+    def datalab_init_chars():
+        """Datalab init."""
+        select_args = DatalabData.char1
+        joined = DatalabData.datalab_data_joined(select_args)
+        results = joined.distinct().all()
+        results = [record.datalab_init_json() if record is not None else "none"
+                   for record in results]
+        return results
+
+    @staticmethod
+    def datalab_init_surveys():
+        """Datalab init."""
+        select_args = Survey
+        joined = DatalabData.datalab_data_joined(select_args)
+        results = joined.distinct().all()
+        results = [record.datalab_init_json() for record in results]
+        return results
+
+    @staticmethod  # TODO: Get other languages.
+    def datalab_init_strings():
+        """Datalab init."""
+        return Translation.strings()
+
+    @staticmethod
+    def datalab_init_languages():
+        """Datalab init."""
+        return Translation.languages()
+
+    @staticmethod
+    def datalab_init():
+        """DataLab Init."""
+        return {
+            'indicators': DatalabData.datalab_init_indicators(),
+            'characteristicGroups': DatalabData.datalab_init_char_grp(),
+            'characteristics': DatalabData.datalab_init_chars(),
+            'surveys': DatalabData.datalab_init_surveys(),
+            'strings': DatalabData.datalab_init_strings(),
+            'languages': DatalabData.datalab_init_languages()
+        }
