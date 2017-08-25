@@ -284,10 +284,8 @@ def get_datalab_combos():
     #     request.args))
     return jsonify(DatalabData.get_combos(request.args))
 
+
 @api.route('/datalab/init')
 def get_datalab_init():
     """Get datalab combos."""
-    # return a number of resources, each resource showing a list of its
-    # records which actually have data associated with them.
-    # calls datalab.data()
-    return 'not implemented'
+    return jsonify(DatalabData.datalab_init())

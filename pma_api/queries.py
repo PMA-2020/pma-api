@@ -7,6 +7,7 @@ from .models import Data, Survey, Indicator, Characteristic, \
     CharacteristicGroup
 
 
+# TODO: Include query parameters inside the response.
 class DatalabData:
     """PmaData"""
     model = Data
@@ -287,7 +288,19 @@ class DatalabData:
     @staticmethod
     def get_combos_survey_list(survey_list):
         """Get combos for survey list."""
-        return 'Not yet implemented. - survey_list'  # TODO
+        survey_list_sql = DatalabData.api_list_to_sql_list(Survey, survey_list)
+        select_args = (Indicator.code, DatalabData.char_grp1.code)
+        joined = DatalabData.datalab_data_joined(*select_args)
+        filtered = joined.filter(survey_list_sql)
+        results = filtered.distinct().all()
+        results = [{
+            'indicator.id': record[0],
+            'characteristicGroup.id': record[1]
+        } for record in results]
+        results = DatalabData.results_with_size(results)
+
+        return results
+
 
     @staticmethod  # TODO: Finish: Results.all() returns an sequence for each
     #result. Therefore an iterable of sequence.
@@ -312,4 +325,20 @@ class DatalabData:
             .filter(CharacteristicGroup.code == char_grp)
         results = filtered.all()
         results = [x[0] for x in results]
+        return results
+
+    @staticmethod
+    def datalab_init():
+        """DataLab Init."""
+        # return a number of resources, each resource showing a list of its
+        # records which actually have data associated with them.
+        # calls datalab.data()
+        select_args = Indicator
+        joined = DatalabData.datalab_data_joined(select_args)
+
+        results = joined.distinct().all()
+
+        results = [record.datalab_init_json() for record in results]
+
+
         return results

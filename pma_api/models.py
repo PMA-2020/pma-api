@@ -183,7 +183,7 @@ class Indicator(ApiModel):
         Args:
             lang (str): The language, if specified.
             jns (bool): If true, namespaces all dictionary keys with prefixed
-                table name.
+                table name, e.g. indicator.id.
             endpoint (str): If supplied, provides URL for entity in response.
 
         Returns:
@@ -221,6 +221,17 @@ class Indicator(ApiModel):
 
     def __repr__(self):
         return '<Indicator "{}">'.format(self.code)
+
+    def datalab_init_json(self):
+        """Datalab init json."""
+        to_return = {
+                "id": self.code,
+                "label.id": self.label.code,
+                "definition.id": self.definition.code,
+                "order": self.order,
+                "level2.id": self.level2.code
+            }
+        return to_return
 
 
 class CharacteristicGroup(ApiModel):
@@ -891,7 +902,7 @@ class EnglishString(ApiModel):
 
     __tablename__ = 'english_string'
     id = db.Column(db.Integer, primary_key=True)
-    uuid = db.Column(db.String, unique=True)
+    code = db.Column(db.String, unique=True)
     english = db.Column(db.String, nullable=False)
     translations = db.relationship('Translation')
 
@@ -921,8 +932,8 @@ class EnglishString(ApiModel):
             dict: API response ready to be JSONified.
         """
         json_obj = {
-            'url': url_for('api.get_text', uuid=self.uuid, _external=True),
-            'id': self.uuid,
+            'url': url_for('api.get_text', uuid=self.code, _external=True),
+            'id': self.code,
             'text': self.english,
             'langCode': 'en'
         }
@@ -952,7 +963,7 @@ class EnglishString(ApiModel):
     def __repr__(self):
         preview = self.english if len(self.english) < 20 else \
                   '{}...'.format(self.english[:17])
-        return '<EnglishString {} "{}">'.format(self.uuid, preview)
+        return '<EnglishString {} "{}">'.format(self.code, preview)
 
 
 class Translation(ApiModel):
