@@ -1,6 +1,1 @@
-# web: gunicorn pma_api.create_app
-# web: gunicorn -b 0.0.0.0:8080 pma_api:create_app
-# web: gunicorn -b 0.0.0.0:5000 pma_api:staging
-# web: gunicorn -b 0.0.0.0:5000 pma_api:app
-# below is port 8080 by default.
 web: gunicorn pma_api:app
