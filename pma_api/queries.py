@@ -1,4 +1,6 @@
 """Queries."""
+from collections import ChainMap
+
 from sqlalchemy import or_, distinct
 from sqlalchemy.orm import aliased
 
@@ -364,12 +366,16 @@ class DatalabData:
         joined = DatalabData.datalab_data_joined(select_args)
         results = joined.distinct().all()
         results = [record.datalab_init_json() for record in results]
+
         return results
 
     @staticmethod  # TODO: Get other languages.
     def datalab_init_strings():
         """Datalab init."""
-        return Translation.strings()
+        results= EnglishString.query.all()
+        results = [record.datalab_init_json() for record in results]
+        results = dict(ChainMap(*results))
+        return results
 
     @staticmethod
     def datalab_init_languages():

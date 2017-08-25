@@ -316,11 +316,11 @@ class CharacteristicGroup(ApiModel):
         """Datalab init json: CharacteristicGroup."""
         to_return = {
             'id': self.code,
-            'label_id': self.label.code,
-            'definition_id': self.definition.code,
+            'label.id': self.label.code,
+            'definition.id': self.definition.code,
             'order': 'To be implemented.',
             # 'order': self.order,
-            'category_id': 'To be implemented.'
+            'category.id': 'To be implemented.'
         }
         return to_return
 
@@ -603,10 +603,8 @@ class Survey(ApiModel):
             'label.id': 'To be implemented.',
             # 'label_code': self.label.code,
             'order': self.order,
-            # TODO: Ask James; should country.code be here?
-            'country.id': self.country.code,
-            'country.label_id': self.country.label_id,
-            'geography.label_id': 'To be implemented.'
+            'country.label.id': self.country.label_id,
+            'geography.label.id': 'To be implemented.'
             # 'geography_label_code': self.geography.code
             }
         return to_return
@@ -1003,14 +1001,21 @@ class EnglishString(ApiModel):
 
     def datalab_init_json(self):
         """Datalab init json: EnglishString."""
-        strings = {
-                # self.code: self.english,
-                # TODO: Ask James; should it be like this or should this be
-                # a 2 key dict (id: <id>, english: <english>)?
-                'id': self.code,
-                'string': self.english
-            }
-        return strings
+        this_dict = {
+            'en': self.english
+        }
+        for translation in self.translations:
+            this_dict[translation.language_code] = translation.translation
+        to_return = {
+            self.code: this_dict
+        }
+        return to_return
+
+    # For the Translation class implementation.
+    # def datalab_init_json(self):
+    #     """Datalab init json: EnglishString."""
+    #     return {'id': self.code,
+    #             'string': self.english}
 
     def __repr__(self):
         preview = self.english if len(self.english) < 20 else \
@@ -1037,7 +1042,7 @@ class Translation(ApiModel):
             'code': 'fr',
             'label': 'French',
             'active': True,
-            'string_records': lambda: 'To be implemented'
+            'string_records': lambda: 'To be implemented.'
         }
     }
 
@@ -1048,26 +1053,27 @@ class Translation(ApiModel):
                      Translation.languages_info.items()}
         return languages
 
-    @staticmethod  # TODO: Get other languages.
-    def strings():
-        """Strings list."""
-        strings = {}
-        for language, info, in Translation.languages_info.items():
-            if info['active']:
-                strings[info['code']] = info['string_records']()
-        return strings
-
-    @staticmethod
-    def english():
-        """English."""
-        query_results = EnglishString.query.all()
-
-        strings = {}
-        for record in query_results:
-            data = record.datalab_init_json()
-            strings[data['id']] = data['string']
-
-        return strings
+    # @staticmethod  # TODO: Get other languages.
+    # def strings():
+    #     """Strings list."""
+    #     strings = {}
+    #     for language, info, in Translation.languages_info.items():
+    #         if info['active']:
+    #             strings[info['code']] = info['string_records']()
+    #
+    #     return strings
+    #
+    # @staticmethod
+    # def english():
+    #     """English."""
+    #     query_results = EnglishString.query.all()
+    #
+    #     strings = {}
+    #     for record in query_results:
+    #         data = record.datalab_init_json()
+    #         strings[data['id']] = data['string']
+    #
+    #     return strings
 
     def __repr__(self):
         preview = self.translation if len(self.translation) < 20 else \
