@@ -252,7 +252,8 @@ class DatalabData:
         #     .filter(grp1.code == char_grp) \
         #     .filter(grp2.code == None) \
         #     .all()
-
+        
+        results = [item[0] for item in results]
 
         return results
         # return DatalabData.format_response(results)
@@ -276,6 +277,7 @@ class DatalabData:
             return DatalabData.related_models_from_single_model_data(
                 request_args)
         elif survey_list and indicator and char_grp:
+            # TODO: Not a valid query
             return DatalabData.get_filtered_datalab_data(survey_list,
                                                          indicator, char_grp)
         elif survey_list and indicator and not char_grp:
