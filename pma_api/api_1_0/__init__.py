@@ -15,75 +15,36 @@ api = Blueprint('api', __name__)
 # TODO: See if I need to specify mimetype, eg application/json, etc in any way.
 def response(data, request_args):
     """Response."""
+    data_format = request_args.get('format', None)
+    return format_response(data, data_format)
+
+
+def format_response(data, _format):
+    """Format response."""
     supported_formats = ('json', 'csv', 'xml', 'html')
-    data_format = request_args['format'] if 'format' in request_args else None
-    if data_format == 'json':
+    
+    if _format == 'json':
         return json_response(data)
-    elif data_format == 'csv':
+    elif _format == 'csv':
         return csv_response(data)
-    elif data_format == 'xml' or data_format == 'html':
-        return 'Format \'{}\' is not currently available.'.format(data_format)
-    elif data_format not in supported_formats and data_format is not None:
+    elif _format == 'xml' or _format == 'html':
+        return 'Format \'{}\' is not currently available.'.format(_format)
+    elif _format not in supported_formats and _format is not None:
         return 'Format \'{}\' is not a recognized format.'
     else:
         return json_response(data)
 
 
-# def csv_response(data):  # TODO: Handle or error on non-flat endpoints.
-#     """CSV Response."""
-#
-#     def dict_to_2d_array(dict_data):
-#         """Dict to 2d array."""
-#         header = [str(k) for k, v in dict_data['results'][0].items()]
-#         rows = []
-#         for dict_row in dict_data['results']:
-#             rows.append([str(v) for k, v in dict_row.items()])
-#
-#         # return [header + rows]
-#         # _2d_array = header + rows
-#         rows.insert(0, header)
-#         # return _2d_array
-#         return rows
-#
-#     def _2d_array_to_csv(_2d_arr_data):
-#         """2d array to CSV."""
-#
-#         def generate(data):
-#             """Generate"""
-#             for row in data:
-#                 yield ','.join(row) + '\n'
-#
-#         # csv_str = generate(_2d_arr_data)
-#         # return str(_2d_arr_data)
-#
-#         # return Response(csv_str, mimetype='text/csv')
-#         return Response(generate(_2d_arr_data), mimetype='text/csv')
-#
-#     return _2d_array_to_csv(dict_to_2d_array(data))
-#     # return str(dict_to_2d_array(data))
-
 def csv_response(data):
     """CSV Response."""
-    data = data
     string_io = StringIO()
-    #         header = [str(k) for k, v in dict_data['results'][0].items()]
     header = data['results'][0].keys()
-
     writer = DictWriter(f=string_io, fieldnames=header)
-
     writer.writeheader()
     writer.writerows((item for item in data['results']))
-    # for item in data['results']:
-    #     writer.writerow(item)
-
-
-    # for item in data['reesults']:
-    #     string_row = ''
-    #     string_io.write(string_row)
     result = string_io.getvalue()
+    
     return Response(result, mimetype='text/csv')
-
-    # return str(data)
 
 
 def json_response(data):
