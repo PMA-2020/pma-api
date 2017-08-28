@@ -1,3 +1,5 @@
+import os
+
 from pma_api import create_app
 
 
