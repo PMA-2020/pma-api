@@ -1,1 +1,1 @@
-web: gunicorn pma_api:app
+web: gunicorn run:app

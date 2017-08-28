@@ -9,27 +9,23 @@ class Config:
     CSRF_ENABLED = True
     WTF_CSRF_ENABLED = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    # try:
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-    # except KeyError:
-    #     SQLALCHEMY_DATABASE_URI = 'sqlite:///'+os.path.join(basedir, 'dev.db')
 
 
 class StagingConfig(Config):
     """Production configuration."""
-    pass
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 
 
 class ProductionConfig(Config):
     """Production configuration."""
-    pass
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 
 
 class DevelopmentConfig(Config):
     """Development configuration."""
     DEBUG = True
     SQLALCHEMY_ECHO = True
-    # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'dev.db')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'dev.db')
 
 
 config = {
