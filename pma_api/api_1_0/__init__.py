@@ -1,11 +1,55 @@
 """API Routes."""
+from io import StringIO
+from csv import DictWriter
+
 from flask import Blueprint, jsonify, request, url_for
+from flask import Response
 
 from ..queries import DatalabData
 from ..models import Country, EnglishString, Survey, Indicator, Data
 
 
 api = Blueprint('api', __name__)
+
+
+# TODO: See if I need to specify mimetype, eg application/json, etc in any way.
+def response(data, request_args):
+    """Response."""
+    data_format = request_args.get('format', None)
+    return format_response(data, data_format)
+
+
+def format_response(data, _format):
+    """Format response."""
+    supported_formats = ('json', 'csv', 'xml', 'html')
+    
+    if _format == 'json':
+        return json_response(data)
+    elif _format == 'csv':
+        return csv_response(data)
+    elif _format == 'xml' or _format == 'html':
+        return 'Format \'{}\' is not currently available.'.format(_format)
+    elif _format not in supported_formats and _format is not None:
+        return 'Format \'{}\' is not a recognized format.'
+    else:
+        return json_response(data)
+
+
+def csv_response(data):
+    """CSV Response."""
+    string_io = StringIO()
+    header = data['results'][0].keys()
+    writer = DictWriter(f=string_io, fieldnames=header)
+    writer.writeheader()
+    writer.writerows((item for item in data['results']))
+    result = string_io.getvalue()
+    
+    return Response(result, mimetype='text/csv')
+
+
+def json_response(data):
+    """JSON Response."""
+    return jsonify(data)
 
 
 @api.route('/')
@@ -39,7 +83,7 @@ def get_countries():
     print(messages)
     print('\n\n')
 
-    return jsonify({
+    return response(request_args=request.args, data={
         'resultsSize': len(countries),
         'results': [c.full_json() for c in countries]
     })
@@ -58,7 +102,7 @@ def get_country(code):
     lang = request.args.get('_lang')
     country = Country.query.filter_by(country_code=code).first()
     json_obj = country.to_json(lang=lang)
-    return jsonify(json_obj)
+    return response(request_args=request.args, data=json_obj)
 
 
 @api.route('/surveys')
@@ -71,7 +115,7 @@ def get_surveys():
     # Query by year, country, round
     # print(request.args)
     surveys = Survey.query.all()
-    return jsonify({
+    return response(request_args=request.args, data={
         'resultsSize': len(surveys),
         'results': [s.full_json() for s in surveys]
     })
@@ -89,7 +133,7 @@ def get_survey(code):
     """
     survey = Survey.query.filter_by(code=code).first()
     json_obj = survey.full_json()
-    return jsonify(json_obj)
+    return response(request_args=request.args, data=json_obj)
 
 
 @api.route('/indicators')
@@ -100,7 +144,7 @@ def get_indicators():
         json: Collection for resource.
     """
     indicators = Indicator.query.all()
-    return jsonify({
+    return response(request_args=request.args, data={
         'resultsSize': len(indicators),
         'results': [
             i.full_json(endpoint='api.get_indicator') for i in indicators
@@ -120,7 +164,7 @@ def get_indicator(code):
     """
     indicator = Indicator.query.filter_by(code=code).first()
     json_obj = indicator.full_json()
-    return jsonify(json_obj)
+    return response(request_args=request.args, data=json_obj)
 
 
 @api.route('/data')
@@ -132,7 +176,7 @@ def get_data():
     """
     all_data = data_refined_query(request.args)
     # all_data = Data.query.all()
-    return jsonify({
+    return response(request_args=request.args, data={
         'resultsSize': len(all_data),
         'results': [d.full_json() for d in all_data]
     })
@@ -166,7 +210,7 @@ def get_datum(code):
     """
     data = Data.query.filter_by(code=code).first()
     json_obj = data.full_json()
-    return jsonify(json_obj)
+    return response(request_args=request.args, data=json_obj)
 
 
 @api.route('/texts')
@@ -177,7 +221,7 @@ def get_texts():
         json: Collection for resource.
     """
     english_strings = EnglishString.query.all()
-    return jsonify({
+    return response(request_args=request.args, data={
         'resultsSize': len(english_strings),
         'results': [d.to_json() for d in english_strings]
     })
@@ -195,7 +239,7 @@ def get_text(code):
     """
     text = EnglishString.query.filter_by(code=code).first()
     json_obj = text.to_json()
-    return jsonify(json_obj)
+    return response(request_args=request.args, data=json_obj)
 
 
 @api.route('/characteristicGroups')
@@ -245,7 +289,7 @@ def get_resources():
             for name, route in resource_endpoints
         ]
     }
-    return jsonify(json_obj)
+    return response(request_args=request.args, data=json_obj)
 
 
 # TODO: Handle null cases.
@@ -265,7 +309,7 @@ def get_datalab_data():
         json_obj = DatalabData.get_filtered_datalab_data(survey, indicator,
                                                          char_grp)
 
-    return jsonify(json_obj)
+    return response(request_args=request.args, data=json_obj)
 
 
 @api.route('/datalab/combos')
@@ -280,12 +324,14 @@ def get_datalab_combos():
         return 'InvalidArgsError: This endpoint requires 1-2 of 3 ' \
                'parameters: \n* survey\n* indicator\n* characteristicGroup'
 
-    # return jsonify(DatalabData.related_models_from_single_model_data(
+    # return response(request_args=request.args,
+    #                 data=DatalabData.related_models_from_single_model_data(
     #     request.args))
-    return jsonify(DatalabData.get_combos(request.args))
+    return response(request_args=request.args,
+                    data=DatalabData.get_combos(request.args))
 
 
 @api.route('/datalab/init')
 def get_datalab_init():
     """Get datalab combos."""
-    return jsonify(DatalabData.datalab_init())
+    return response(data=DatalabData.datalab_init(), request_args=request.args)
