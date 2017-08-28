@@ -11,7 +11,7 @@ This endpoint re-routes directly to: `/resources`
 
 ### Resources `/resources`
 #### Example 1 - No parameters
-Query: `/resources`
+Example: `/resources`
 
 Returns:  
 A list of resources.
@@ -54,7 +54,7 @@ This is documentation for application specific endpoints, such as
 Fetch data for all key resources in one request. This endpoint takes no 
 query parameters.
 
-Query: `/datalab/init`
+Example: `/datalab/init`
 
 Returns:  
 A list of all specific, key resources (surveys, indicators, and 
@@ -120,14 +120,14 @@ characteristics), all of which have at least one stored data point associated.
 
 ### Filtering by existing relational data `/datalab`
 #### Example 1 - Filter by all key resources
-Query: `/datalab`
+Example: `/datalab`
 
 Returns:  
 A list of all specific, key resources (surveys, indicators, and 
 characteristics), all of which have at least one stored data point associated.
 
 #### Example 2 - Filter by surveys
-Query: `/datalab?survey=<ID1>,<ID2>,<ID3>`
+Example: `/v1/datalab/combos?survey=GH2013PMA,GH2014PMA`
 
 Returns:  
 A list of indicator and characteristic combinations which have one or more 
@@ -137,18 +137,29 @@ data isaggregated further by specified indicator(s) and characteristic(s),
 without the need for any further API calls.
 ```
 {
-    "indicatorCharacteristicCombos": [
-        {
-            "indicator": "<indicator_code>",
-            "characteristic": "<characteristic_code>"
-        }, ...
-    ],
+  "results": [
+    {
+      "characteristicGroup.id": "none", 
+      "indicator.id": "mcpr_aw"
+    }, 
+    {
+      "characteristicGroup.id": "residence", 
+      "indicator.id": "mcpr_aw"
+    }, 
+    {
+      "characteristicGroup.id": "wealth_quintile", 
+      "indicator.id": "mcpr_aw"
+    }, 
+    ...
+    }
+  ], 
+  "resultsSize": 6
 }
 ```
 
 
 #### Example 3 - Filter by indicators or characteristics
-Query: `/datalab?[indicator | characteristic]=ID1`
+Example: `/datalab?[indicator | characteristic]=ID1`
 
 Returns:  
 A list of indicators or characteristics (whichever was not provided in the 
@@ -160,22 +171,30 @@ of all valid combinations are returned.
 ### Querying Data `/datalab/data`
 Query data. Accepts parameters: 'survey', 'indicator', and 'characteristic'.
 #### Example 1 - Query all data needed to render a visualization 
-Query: `/datalab/data?survey=ID1,ID2,ID3&indicator=ID4&characteristicGroup1=ID5&characteristicGroup2=ID6`
+Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characteristicGroup=none`
 
 Returns:  
 A list of all data points filtered by parameters provided.
 ```
-[
+{
+  "results": [
     {
-        'survey.id':'BAC',
-        'indicator.id':'DEF',
-        'characteristicGroup1.id':'GTI',
-        'characteristic1.id':'15-19',
-        'characteristicGroup2.id':'',
-        'characteristic2.id':'',
-        'value': 0.16,
-        'precision': 1
+      "characteristic.id": "none", 
+      "characteristicGroup.id": "none", 
+      "indicator.id": "mcpr_aw", 
+      "precision": 1, 
+      "survey.id": "GH2013PMA", 
+      "value": 15.4
     }, 
-    ...
-]
+    {
+      "characteristic.id": "none", 
+      "characteristicGroup.id": "none", 
+      "indicator.id": "mcpr_aw", 
+      "precision": null, 
+      "survey.id": "GH2014PMA", 
+      "value": 16.1
+    }
+  ], 
+  "resultsSize": 2
+}
 ```
