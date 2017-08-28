@@ -1,5 +1,9 @@
 """API Routes."""
+from io import StringIO
+from csv import DictWriter
+
 from flask import Blueprint, jsonify, request, url_for
+from flask import Response
 
 from ..queries import DatalabData
 from ..models import Country, EnglishString, Survey, Indicator, Data
@@ -8,7 +12,7 @@ from ..models import Country, EnglishString, Survey, Indicator, Data
 api = Blueprint('api', __name__)
 
 
-# TODO: Mimetype - application/json, etc.
+# TODO: See if I need to specify mimetype, eg application/json, etc in any way.
 def response(data, request_args):
     """Response."""
     supported_formats = ('json', 'csv', 'xml', 'html')
@@ -25,9 +29,61 @@ def response(data, request_args):
         return json_response(data)
 
 
+# def csv_response(data):  # TODO: Handle or error on non-flat endpoints.
+#     """CSV Response."""
+#
+#     def dict_to_2d_array(dict_data):
+#         """Dict to 2d array."""
+#         header = [str(k) for k, v in dict_data['results'][0].items()]
+#         rows = []
+#         for dict_row in dict_data['results']:
+#             rows.append([str(v) for k, v in dict_row.items()])
+#
+#         # return [header + rows]
+#         # _2d_array = header + rows
+#         rows.insert(0, header)
+#         # return _2d_array
+#         return rows
+#
+#     def _2d_array_to_csv(_2d_arr_data):
+#         """2d array to CSV."""
+#
+#         def generate(data):
+#             """Generate"""
+#             for row in data:
+#                 yield ','.join(row) + '\n'
+#
+#         # csv_str = generate(_2d_arr_data)
+#         # return str(_2d_arr_data)
+#
+#         # return Response(csv_str, mimetype='text/csv')
+#         return Response(generate(_2d_arr_data), mimetype='text/csv')
+#
+#     return _2d_array_to_csv(dict_to_2d_array(data))
+#     # return str(dict_to_2d_array(data))
+
 def csv_response(data):
     """CSV Response."""
-    return str(data)
+    data = data
+    string_io = StringIO()
+    #         header = [str(k) for k, v in dict_data['results'][0].items()]
+    header = data['results'][0].keys()
+
+    writer = DictWriter(f=string_io, fieldnames=header)
+
+    writer.writeheader()
+    writer.writerows((item for item in data['results']))
+    # for item in data['results']:
+    #     writer.writerow(item)
+
+
+    # for item in data['reesults']:
+    #     string_row = ''
+    #     string_io.write(string_row)
+    result = string_io.getvalue()
+    return Response(result, mimetype='text/csv')
+
+    # return str(data)
 
 
 def json_response(data):
