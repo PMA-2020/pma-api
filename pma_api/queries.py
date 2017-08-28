@@ -253,6 +253,7 @@ class DatalabData:
         #     .filter(grp2.code == None) \
         #     .all()
 
+        results = [item[0] for item in results]
 
         return results
         # return DatalabData.format_response(results)
@@ -265,7 +266,14 @@ class DatalabData:
         survey_list = request_args.get('survey', None)
         indicator = request_args.get('indicator', None)
         char_grp = request_args.get('characteristicGroup', None)
-        if survey_list and not indicator and not char_grp:
+        if survey_list and indicator and char_grp:
+            return 'Not a valid query. This endpoint is for getting metadata' \
+                   'combos, not for querying data. For querying data, use ' \
+                   'the /data endpoint.'
+            # return DatalabData.get_filtered_datalab_data(survey_list,
+            #                                              indicator, char_grp)
+        elif survey_list and not indicator and not char_grp:
+            # TODO: Refactor - and not(indicator or char_grp)
             return DatalabData.get_combos_survey_list(survey_list)
         elif not survey_list and indicator and char_grp:
             return DatalabData.related_models_from_multi_model_data(indicator,
@@ -275,9 +283,6 @@ class DatalabData:
             #       indicator and char_grp explicitly.
             return DatalabData.related_models_from_single_model_data(
                 request_args)
-        elif survey_list and indicator and char_grp:
-            return DatalabData.get_filtered_datalab_data(survey_list,
-                                                         indicator, char_grp)
         elif survey_list and indicator and not char_grp:
             return DatalabData.get_combos_survey_indicator(survey_list,
                                                            indicator)
@@ -285,7 +290,7 @@ class DatalabData:
             return DatalabData.get_combos_survey_char_grp(survey_list,
                                                            char_grp)
         else:
-            return "Something unexpected happened."
+            return 'Something unexpected happened.'
 
     @staticmethod
     def get_combos_survey_list(survey_list):
