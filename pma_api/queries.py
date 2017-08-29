@@ -191,12 +191,28 @@ class DatalabData:
         survey_list_sql = DatalabData.survey_list_to_sql(survey_list)
         filtered = joined.filter(survey_list_sql)
         results = filtered.distinct().all()
-        inner_list = [{
-            'indicator.id': record[0],
-            'characteristicGroup.id': record[1]
-        } for record in results]
+        indicator_dict = {}
+        char_grp_dict = {}
+        for item in results:
+            this_indicator = item[0]
+            this_char_grp = item[1]
+            if this_indicator in indicator_dict:
+                indicator_dict[this_indicator].add(this_char_grp)
+            else:
+                indicator_dict[this_indicator] = set([this_char_grp])
+            if this_char_grp in char_grp_dict:
+                char_grp_dict[this_char_grp].add(this_indicator)
+            else:
+                char_grp_dict[this_char_grp] = set([this_indicator])
+        new_indicator_dict = {
+            k: sorted(list(v)) for k, v in indicator_dict.items()
+        }
+        new_char_grp_dict = {
+            k: sorted(list(v)) for k, v in char_grp_dict.items()
+        }
         to_return = {
-            'combos': inner_list
+            'indicators': new_indicator_dict,
+            'characteristicGroups': new_char_grp_dict
         }
         return to_return
 

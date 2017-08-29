@@ -45,7 +45,7 @@ class QuerySetApiResult:
 
 def response(data, request_args):
     """Response."""
-    if request_args == 'json':
+    if request_args == 'json' or True:
         return QuerySetApiResult(data, 'json').to_response()
 
 
