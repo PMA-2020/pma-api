@@ -66,7 +66,8 @@ def json_response(data):
     return jsonify(data)
 
 
-# TODO: Add methods for:
+# TODO: (jef/jkp 2017-08-29) Add methods for:
 # * return warnings, errors
 # * return version number
 # * documentation
+# Needs: Decision on how these should be returned.
