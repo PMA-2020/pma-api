@@ -181,6 +181,7 @@ def get_text(code):
     return response(request_args=request.args, data=json_obj)
 
 
+# TODO: (jef/jkp 2017-08-29) Finish route. Needs: Nothing?
 @api.route('/characteristicGroups')
 def get_characteristic_groups():
     """Get Characteristic Groups resource collection.
@@ -188,7 +189,7 @@ def get_characteristic_groups():
     Returns:
         json: Collection for resource.
     """
-    return 'Characteristic groups'  # TODO
+    return 'Characteristic groups'
 
 
 @api.route('/characteristicGroups/<code>')

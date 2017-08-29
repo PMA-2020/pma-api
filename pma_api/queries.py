@@ -276,7 +276,8 @@ class DatalabData:
         results = [record.datalab_init_json() for record in results]
         return results
 
-    @staticmethod  # TODO: Get other languages.
+    # TODO: (jkp 2017-08-29) Get other languages. Needs: Nothing.
+    @staticmethod
     def init_strings():
         """Datalab init."""
         results = EnglishString.query.all()

@@ -153,7 +153,8 @@ class Indicator(ApiModel):
     level2_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
     # Level 3 = Domain
     level3_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
-    # TODO: Should this be a translated string?
+    # TODO: (jkp 2017-08-29) Should this be a translated string?
+    # Needs: Nothing?
     denominator = db.Column(db.String)
     measurement_type = db.Column(db.String)
     is_favorite = db.Column(db.Boolean)
@@ -749,7 +750,8 @@ class Country(ApiModel):
         Returns
             bool: True if valid param types, else false.
         """
-        # TODO: Support other types?: lists, associative arrays.
+        # TODO: (jef 2017-08-29) Support other types?: lists, dict.
+        # Needs: Nothing?
         flds = Country.api_schema['fields']
         typed_params = {
             key: {
@@ -768,7 +770,10 @@ class Country(ApiModel):
             return False
         return True
 
-    @staticmethod  # TODO: Insert violation in error message.
+    # TODO: (jef 2017-08-29) Insert violation in error message for methods:
+    # validate_keys(), validate_queryable(), validate_types().
+    # Needs: Validation to be decided on.
+    @staticmethod
     def validate_keys(request_args):
         """Validate whether query parameters passed even exist to be queried.
 
@@ -784,7 +789,7 @@ class Country(ApiModel):
             return False, msg
         return True, ''
 
-    @staticmethod  # TODO: Insert violation in error message.
+    @staticmethod
     def validate_queryable(request_args):
         """Validate whether query parameters are allowed to be queried.
 
@@ -800,7 +805,7 @@ class Country(ApiModel):
             return False, 'One or more query params passed is not queryable.'
         return True, ''
 
-    @staticmethod  # TODO: Insert violation in error message.
+    @staticmethod
     def validate_types(request_args):
         """Validate whether query parameter types are correct.
 
@@ -825,9 +830,10 @@ class Country(ApiModel):
             bool: True if valid query, else false.
             lit: List of error message strings.
         """
-        # TODO: Decide on letting the user know if the query was invalid,
-        #   either in its own response or at the top along with results if we
-        #   choose to return results when part of the query was invalid.
+        # TODO: (jef 2017-08.29) Decide on letting the user know if the query
+        # was invalid, either in its own response or at the top along with
+        # results if we choose to return results when part of the query was
+        # invalid. Needs: Validation to be decided on.
         validation_funcs = [Country.validate_keys, Country.validate_queryable,
                             Country.validate_types]
         validities = [func(request_args) for func in validation_funcs]
@@ -862,7 +868,8 @@ class Country(ApiModel):
             'subregion': self.subregion,
             'region': self.region,
         }
-        # TODO: is it possble that label is null?
+        # TODO: (jkp 2017-08-29) is it possble that label is null?
+        # Needs: Nothing.
         label = self.label.to_string(lang)
         result['label'] = label
 
@@ -1003,7 +1010,8 @@ class EnglishString(ApiModel):
         Args:
             english (str): The string in English to insert.
         """
-        # TODO: This is not necessary because next64 now returns unique.
+        # TODO: (jkp 2017-08-29) This is not necessary because next64 now
+        # returns unique. Needs: Nothing.
         while True:
             try:
                 code = next64()
@@ -1071,7 +1079,9 @@ class Translation(ApiModel):
                      Translation.languages_info.items()}
         return languages
 
-    # @staticmethod  # TODO: Get other languages.
+    # TODO: (jkp 2017-08-29) Get other languages. Needs: Decision as to whether
+    # or not the code for this needs to be here. Otherwise nothing.
+    # @staticmethod
     # def strings():
     #     """Strings list."""
     #     strings = {}
