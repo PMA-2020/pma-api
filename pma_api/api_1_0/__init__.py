@@ -18,7 +18,8 @@ def root():
         func: get_resources() if 'application/json'
         func: get_docs() if 'text/html'
     """
-    # TODO: See flask.pocoo.org/snippets/45/
+    # TODO: (jef/jkp 2017-08-29) Investigate mimetypes in accept headers.
+    # See: flask.pocoo.org/snippets/45/ Needs: Nothing?
     request_headers = 'application/json'  # default for now
     if request_headers == 'text/html':
         return 'Documentation.'

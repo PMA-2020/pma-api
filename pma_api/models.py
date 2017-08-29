@@ -153,7 +153,8 @@ class Indicator(ApiModel):
     level2_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
     # Level 3 = Domain
     level3_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
-    # TODO: Should this be a translated string?
+    # TODO: (jkp 2017-08-29) Should this be a translated string?
+    # Needs: Nothing?
     denominator = db.Column(db.String)
     measurement_type = db.Column(db.String)
     is_favorite = db.Column(db.Boolean)
