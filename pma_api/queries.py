@@ -1,187 +1,30 @@
 """Queries."""
 from collections import ChainMap
 
-from sqlalchemy import or_, distinct
+from sqlalchemy import or_
 from sqlalchemy.orm import aliased
 
 from . import db
-from .models import Data, Survey, Indicator, Characteristic, \
-    CharacteristicGroup, EnglishString, Translation
+from .models import (Characteristic, CharacteristicGroup, Data, EnglishString,
+                     Indicator, Survey, Translation)
 
 
-# TODO: Include query parameters inside the response.
 class DatalabData:
-    """PmaData"""
-    model = Data
+    """PmaData."""
+
     char1 = aliased(Characteristic)
     char2 = aliased(Characteristic)
     char_grp1 = aliased(CharacteristicGroup)
     char_grp2 = aliased(CharacteristicGroup)
-    default_display_fields = (Survey.code, Indicator.code, char1.code,
-                              char_grp1.code)
-    # TODO: Use aliases instead of indexes.
-    model_info = {
-        # - Note: model_info key meanings.
-        # '<model_name>': {
-        #     'model': '<SqlAlchemy Model Class>',
-        #     'index': '<SqlAlchemy Query Index>'
-        # },
-        'data': {
-            'db_name': 'data',
-            'api_name': 'data',
-            'model': Data,
-            'index': 0
-        },
-        'survey': {
-            'db_name': 'survey',
-            'api_name': 'survey',
-            'model': Survey,
-            'index': 1
-        },
-        'indicator': {
-            'db_name': 'indicator',
-            'api_name': 'indicator',
-            'model': Indicator,
-            'index': 2
-        },
-        'characteristic': {
-            'db_name': 'characteristic',
-            'api_name': 'characteristic',
-            'model': Characteristic,
-            'index': 3
-        },
-        'characteristicGroup': {
-            'db_name': 'characteristic_group',
-            'api_name': 'characteristicGroup',
-            'model': CharacteristicGroup,
-            'index': 4
-        }
-    }
-    combo_models = ('survey', 'indicator', 'characteristicGroup')
 
     @staticmethod
-    def default_data_view():
-        """Default data view."""
-        return \
-            DatalabData.datalab_data_view(DatalabData.default_display_fields)
-
-    @staticmethod
-    def all_combinable_model_indices():
-        """All combo model indices."""
-        return [DatalabData.model_info[x]['index'] for x in
-                DatalabData.combo_models]
-
-    @staticmethod
-    def remaining_model_indices(this_model_name):
-        """Remaining combo model indices."""
-        this_model_index = DatalabData.model_info[this_model_name]['index']
-        return tuple(x for x in DatalabData.all_combinable_model_indices()
-                     if x != this_model_index)
-
-    @staticmethod
-    def remaining_model_names(this_model_name):
-        """Remaining combo model names."""
-        return tuple(x for x in DatalabData.combo_models
-                     if x != this_model_name)
-
-    @staticmethod
-    def remaining_model_name_indices(this_model_name):
-        """Remaining combo model names and indices."""
-        other_model_indices, other_model_names = \
-            DatalabData.remaining_model_indices(this_model_name), \
-            DatalabData.remaining_model_names(this_model_name)
-        return {k: v for k, v in zip(other_model_names, other_model_indices)}
-
-    @staticmethod
-    def model_index(model_name):
-        """Get model index."""
-        return DatalabData.model_info[model_name]['index']
-
-    @staticmethod
-    def results_with_size(results):
-        """Results with size."""
-        return {
-            'resultsSize': len(results),
-            'results': results
-        }
-
-    @staticmethod
-    def format_response(query_result):
-        """Format response"""
-        index = DatalabData.model_index
-        json_results = []
-        for record in query_result:
-            this_dict = {
-                'value': record[index('data')].value,
-                'precision': record[index('data')].precision,
-                'survey.id': record[index('survey')],
-                'indicator.id': record[index('indicator')],
-                'characteristic.id': record[index('characteristic')],
-                'characteristicGroup.id': record[index('characteristicGroup')]
-            }
-            json_results.append(this_dict)
-        return DatalabData.results_with_size(json_results)
-
-    @staticmethod
-    def api_list_to_sql_list(model, query_values):
-        """Survey list to SQL."""
-        # TODO: Error checking on survey_list.
-        split = query_values.split(',')
-        sql_exprs = [model.code == code for code in split]
-        if len(sql_exprs) > 1:
-            full_sql = or_(*sql_exprs)
-        else:
-            full_sql = sql_exprs[0]
-        return full_sql
-
-    @staticmethod
-    def get_all_datalab_data():
-        """Get all datalab data."""
-        results = DatalabData.default_data_view().all()
-        return DatalabData.format_response(results)
-
-    @staticmethod
-    def get_filtered_datalab_data(survey_codes, indicator_code,
-                                  char_grp1_code):
-        """Get filtered datalab data."""
-        survey_sql = DatalabData.api_list_to_sql_list(
-            model=Survey, query_values=survey_codes)
-        grp1, grp2 = DatalabData.char_grp1, DatalabData.char_grp2
-
-        # TODO: Pylint ignore E711 - Comparison to 'None' should be 'is'.
-        results = DatalabData.default_data_view().filter(survey_sql) \
-            .filter(Indicator.code == indicator_code) \
-            .filter(grp1.code == char_grp1_code) \
-            .filter(grp2.code == None) \
-            .all()
-
-        return DatalabData.format_response(results)
-
-    @staticmethod
-    def other_model_codes(this_model_name, filter_codes):
-        """Get other combinable model codes."""
-        # TODO: Question, should we return 'null' as is, or otherwise?
-        # TODO: How to search the DB by 'null' if the user asks for it?
-
-        other_model_name_indices = DatalabData.\
-            remaining_model_name_indices(this_model_name)
-        results = DatalabData.default_data_view().filter(filter_codes).all()
-        combos = {k: list(set(record[v] for record in results))  # Model codes
-                  for k, v in other_model_name_indices.items()}
-
-        return combos
-
-    @staticmethod
-    def datalab_data_joined(*select_args):
+    def all_joined(*select_args):
         """Datalab data joined."""
         chr1 = DatalabData.char1
         chr2 = DatalabData.char2
         grp1 = DatalabData.char_grp1
         grp2 = DatalabData.char_grp2
-        # joined = Data\
-        # joined = db.session.query(*select_args)\
-        # .select_from(Data)
-        joined = db.session.query(*select_args)\
+        joined = db.session.query(*select_args) \
             .select_from(Data) \
             .join(Survey, Data.survey_id == Survey.id) \
             .join(Indicator, Data.indicator_id == Indicator.id) \
@@ -192,209 +35,252 @@ class DatalabData:
         return joined
 
     @staticmethod
-    def datalab_data_view(display_fields):
-        """Joined table."""
-        select_args = [DatalabData.model, *display_fields]
-        return DatalabData.datalab_data_joined(*select_args)
+    def filter_minimal(survey_codes, indicator_code, char_grp_code):
+        """Get filtered Datalab data and return minimal columns.
 
-    @staticmethod
-    def get_combo_from_multiple_keys(survey_codes, indicator_code,
-                                  char_grp1_code):
-        """Get filtered datalab data."""
-        survey_sql = DatalabData.api_list_to_sql_list(
-            model=Survey, query_values=survey_codes)
+        Args:
+            survey_codes (str): A list of survey codes joined together by a
+                comma
+            indicator_code (str): An indicator code
+            char_grp_code (str): A characteristic group code
+
+        Filters the data based on the function arguments. The returned data
+        are data value, the precision, the survey code, the indicator code,
+        the characteristic group code, and the characteristic code.
+
+        Returns:
+            A list of simple python objects, one for each record found by
+            applying the various filters.
+        """
+        chr1 = DatalabData.char1
         grp1, grp2 = DatalabData.char_grp1, DatalabData.char_grp2
-
-        # TODO: Pylint ignore E711 - Comparison to 'None' should be 'is'.
-        results = DatalabData.default_data_view().filter(survey_sql) \
-            .filter(Indicator.code == indicator_code) \
-            .filter(grp1.code == char_grp1_code) \
-            .filter(grp2.code == None) \
-            .all()
-
-        return DatalabData.format_response(results)
+        select_args = (Data, Survey.code, Indicator.code,
+                       grp1.code, chr1.code)
+        filtered = DatalabData.all_joined(*select_args)
+        if survey_codes is not None:
+            survey_sql = DatalabData.survey_list_to_sql(survey_codes)
+            filtered = filtered.filter(survey_sql)
+        if indicator_code is not None:
+            filtered = filtered.filter(Indicator.code == indicator_code)
+        if char_grp_code is not None:
+            filtered = filtered.filter(grp1.code == char_grp_code)
+        # TODO (jkp, begin=2017-08-28): This will be grp2.code == 'none'
+        # eventually when the Data show "none" for char_grp2 in excel import
+        # Remove E711 from .pycodestyle
+        # pylint: disable=singleton-comparison
+        filtered = filtered.filter(grp2.code == None)
+        results = filtered.all()
+        json_results = []
+        for item in results:
+            this_dict = {
+                'value': item[0].value,
+                'precision': item[0].precision,
+                'survey.id': item[1],
+                'indicator.id': item[2],
+                'characteristicGroup.id': item[3],
+                'characteristic.id': item[4]
+            }
+            json_results.append(this_dict)
+        return json_results
 
     @staticmethod
-    def related_models_from_single_model_data(request_args):
-        """Get other combinable model codes.
+    def survey_list_to_sql(survey_list):
+        """Turn a list of surveys passed through URL to SQL.
 
-        This is useful for: Indicator, Characteristic Group.
+        Args:
+            survey_list (str): A list of survey codes
+
+        Returns:
+            The SQLAlchemy object that represents these OR'd together.
         """
-        query_keys = tuple(k for k, v in request_args.items())
+        return DatalabData.api_list_to_sql_list(Survey, survey_list)
 
-        if len(query_keys) == 1:  # TODO: Refactor to something like
-                                    # TODO: get_combos()
-            mdl = DatalabData.model_info[query_keys[0]]
-            codes = DatalabData.api_list_to_sql_list(
-                model=mdl['model'], query_values=request_args[mdl['api_name']])
+    @staticmethod
+    def api_list_to_sql_list(model, query_values):
+        """Convert generally query args to SQL.
 
-            return DatalabData.other_model_codes(
-                this_model_name=mdl['api_name'], filter_codes=codes)
+        Args:
+            model (db.Model): A model object with a code attribute
+            query_values (str): A list of codes joined by comma
+
+        Results:
+            The SQLAlchemy object that represents these OR'd together.
+        """
+        # TODO (jkp 2017-08-28) Error checking on survey_list.
+        split = query_values.split(',')
+        sql_exprs = [model.code == code for code in split]
+        if len(sql_exprs) > 1:
+            full_sql = or_(*sql_exprs)
         else:
-            # TODO RETURN SOMETHING
-            return 'something went wrong related_models_from_single_model_data'
+            full_sql = sql_exprs[0]
+        return full_sql
 
-    # TODO: Finish this.
     @staticmethod
-    def related_models_from_multi_model_data(indicator, char_grp):
-        """Get other combinable model codes.
-
-        This is useful for: Survey.
-        """
-        # grp1, grp2 = DatalabData.char_grp1, DatalabData.char_grp2
-        # TODO: Pylint ignore E711 - Comparison to 'None' should be 'is'.
-        select_args = distinct(Survey.code)
-        results = DatalabData.datalab_data_joined(select_args)
-        results = results.all()
-
-        # results = DatalabData.default_data_view() \
-        #     .filter(Indicator.code == indicator) \
-        #     .filter(grp1.code == char_grp) \
-        #     .filter(grp2.code == None) \
-        #     .all()
-
-        results = [item[0] for item in results]
-
+    def all_minimal():
+        """Get all datalab data in the minimal style."""
+        results = DatalabData.filter_minimal(None, None, None)
         return results
-        # return DatalabData.format_response(results)
-        # pass
 
     @staticmethod
-    def get_combos(request_args):
-        """Get other combinable model codes."""
-        # Calls another function of get combos with a survey code.
-        survey_list = request_args.get('survey', None)
-        indicator = request_args.get('indicator', None)
-        char_grp = request_args.get('characteristicGroup', None)
-        if survey_list and indicator and char_grp:
-            return 'Not a valid query. This endpoint is for getting metadata' \
-                   'combos, not for querying data. For querying data, use ' \
-                   'the /data endpoint.'
-            # return DatalabData.get_filtered_datalab_data(survey_list,
-            #                                              indicator, char_grp)
-        elif survey_list and not indicator and not char_grp:
-            # TODO: Refactor - and not(indicator or char_grp)
-            return DatalabData.get_combos_survey_list(survey_list)
-        elif not survey_list and indicator and char_grp:
-            return DatalabData.related_models_from_multi_model_data(indicator,
-                                                           char_grp)
-        elif not survey_list and (indicator or char_grp):
-            # TODO: Refactor passing in request_args to concretely passing in
-            #       indicator and char_grp explicitly.
-            return DatalabData.related_models_from_single_model_data(
-                request_args)
-        elif survey_list and indicator and not char_grp:
-            return DatalabData.get_combos_survey_indicator(survey_list,
-                                                           indicator)
-        elif survey_list and char_grp and not indicator:
-            return DatalabData.get_combos_survey_char_grp(survey_list,
-                                                           char_grp)
-        else:
-            return 'Something unexpected happened.'
+    def combos_indicator(indicator):
+        """Get all valid combos of survey and characteristic group.
+
+        Args:
+            indicator_code (str): An indicator code
+
+        Returns:
+            A dictionary with two key names and list values.
+        """
+        select_args = (Survey.code, DatalabData.char_grp1.code)
+        joined = DatalabData.all_joined(*select_args)
+        filtered = joined.filter(Indicator.code == indicator)
+        results = filtered.distinct().all()
+        survey_codes = set()
+        char_grp_codes = set()
+        for item in results:
+            survey_code = item[0]
+            survey_codes.add(survey_code)
+            char_grp_code = item[1]
+            char_grp_codes.add(char_grp_code)
+        to_return = {
+            'survey.id': sorted(list(survey_codes)),
+            'characteristicGroup.id': sorted(list(char_grp_codes))
+        }
+        return to_return
 
     @staticmethod
-    def get_combos_survey_list(survey_list):
-        """Get combos for survey list."""
-        survey_list_sql = DatalabData.api_list_to_sql_list(Survey, survey_list)
+    def combos_char_grp(char_grp_code):
+        """Get all valid combos of survey and indicator.
+
+        Args:
+            char_grp_code (str): A characteristic group code
+
+        Returns:
+            A dictionary with two key names and list values.
+        """
+        select_args = (Survey.code, Indicator.code)
+        joined = DatalabData.all_joined(*select_args)
+        filtered = joined.filter(DatalabData.char_grp1.code == char_grp_code)
+        results = filtered.distinct().all()
+        survey_codes = set()
+        indicator_codes = set()
+        for item in results:
+            survey_code = item[0]
+            survey_codes.add(survey_code)
+            indicator_code = item[1]
+            indicator_codes.add(indicator_code)
+        to_return = {
+            'survey.id': sorted(list(survey_codes)),
+            'indicator.id': sorted(list(indicator_codes))
+        }
+        return to_return
+
+    @staticmethod
+    def combos_survey_list(survey_list):
+        # TODO (jkp 2017-08-29): make better. make hashmaps one to the other
+        """Get all valid combos of indicator and characteristic groups.
+
+        Args:
+            survey_list (str): A list of survey codes, comma separated
+
+        Returns:
+            An object.
+        """
         select_args = (Indicator.code, DatalabData.char_grp1.code)
-        joined = DatalabData.datalab_data_joined(*select_args)
+        joined = DatalabData.all_joined(*select_args)
+        survey_list_sql = DatalabData.survey_list_to_sql(survey_list)
         filtered = joined.filter(survey_list_sql)
         results = filtered.distinct().all()
-        results = [{
+        inner_list = [{
             'indicator.id': record[0],
             'characteristicGroup.id': record[1]
         } for record in results]
-        results = DatalabData.results_with_size(results)
-
-        return results
-
-
-    @staticmethod  # TODO: Finish: Results.all() returns an sequence for each
-    #result. Therefore an iterable of sequence.
-    def get_combos_survey_indicator(survey_list, indicator):
-        """Get combos for survey list and indicator."""
-        survey_list_sql = DatalabData.api_list_to_sql_list(Survey, survey_list)
-        select_args = distinct(CharacteristicGroup.code)
-        joined = DatalabData.datalab_data_joined(select_args)
-        filtered = joined.filter(survey_list_sql)\
-            .filter(Indicator.code == indicator)
-        results = filtered.all()
-        results = [x[0] for x in results]
-        return results
-
-    @staticmethod  # TODO: Fiish
-    def get_combos_survey_char_grp(survey_list, char_grp):
-        """Get combos for survey list and char group."""
-        survey_list_sql = DatalabData.api_list_to_sql_list(Survey, survey_list)
-        select_args = distinct(Indicator.code)
-        joined = DatalabData.datalab_data_joined(select_args)
-        filtered = joined.filter(survey_list_sql)\
-            .filter(CharacteristicGroup.code == char_grp)
-        results = filtered.all()
-        results = [x[0] for x in results]
-        return results
+        to_return = {
+            'combos': inner_list
+        }
+        return to_return
 
     @staticmethod
-    def datalab_init_indicators():
+    def combos_indicator_char_grp(indicator_code, char_grp_code):
+        """Get all valid surveys from supplied arguments.
+
+        Args:
+            indicator_code (str): An indicator code
+            char_grp_code (str): A characteristic group code
+
+        Returns:
+            A list of surveys that have data for the supplied indicator and
+            characteristic group
+        """
+        select_arg = Survey.code
+        joined = DatalabData.all_joined(select_arg)
+        filtered = joined.filter(Indicator.code == indicator_code) \
+            .filter(DatalabData.char_grp1.code == char_grp_code)
+        results = filtered.distinct().all()
+        to_return = {
+            'survey.id': [item[0] for item in results]
+        }
+        return to_return
+
+    @staticmethod
+    def init_indicators():
         """Datalab init."""
         select_args = Indicator
-        joined = DatalabData.datalab_data_joined(select_args)
+        joined = DatalabData.all_joined(select_args)
         results = joined.distinct().all()
         results = [record.datalab_init_json() for record in results]
         return results
 
     @staticmethod
-    def datalab_init_char_grp():
+    def init_char_grp():
         """Datalab init."""
         select_args = DatalabData.char_grp1
-        joined = DatalabData.datalab_data_joined(select_args)
+        joined = DatalabData.all_joined(select_args)
         results = joined.distinct().all()
         results = [record.datalab_init_json() if record is not None else "none"
                    for record in results]
         return results
 
-
     @staticmethod
-    def datalab_init_chars():
+    def init_chars():
         """Datalab init."""
         select_args = DatalabData.char1
-        joined = DatalabData.datalab_data_joined(select_args)
+        joined = DatalabData.all_joined(select_args)
         results = joined.distinct().all()
         results = [record.datalab_init_json() if record is not None else "none"
                    for record in results]
         return results
 
     @staticmethod
-    def datalab_init_surveys():
+    def init_surveys():
         """Datalab init."""
         select_args = Survey
-        joined = DatalabData.datalab_data_joined(select_args)
+        joined = DatalabData.all_joined(select_args)
         results = joined.distinct().all()
         results = [record.datalab_init_json() for record in results]
-
         return results
 
     @staticmethod  # TODO: Get other languages.
-    def datalab_init_strings():
+    def init_strings():
         """Datalab init."""
-        results= EnglishString.query.all()
+        results = EnglishString.query.all()
         results = [record.datalab_init_json() for record in results]
         results = dict(ChainMap(*results))
         return results
 
     @staticmethod
-    def datalab_init_languages():
+    def init_languages():
         """Datalab init."""
         return Translation.languages()
 
     @staticmethod
     def datalab_init():
-        """DataLab Init."""
+        """Datalab Init."""
         return {
-            'indicators': DatalabData.datalab_init_indicators(),
-            'characteristicGroups': DatalabData.datalab_init_char_grp(),
-            'characteristics': DatalabData.datalab_init_chars(),
-            'surveys': DatalabData.datalab_init_surveys(),
-            'strings': DatalabData.datalab_init_strings(),
-            'languages': DatalabData.datalab_init_languages()
+            'indicators': DatalabData.init_indicators(),
+            'characteristicGroups': DatalabData.init_char_grp(),
+            'characteristics': DatalabData.init_chars(),
+            'surveys': DatalabData.init_surveys(),
+            'strings': DatalabData.init_strings(),
+            'languages': DatalabData.init_languages()
         }

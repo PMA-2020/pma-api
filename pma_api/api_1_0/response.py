@@ -4,28 +4,49 @@ from csv import DictWriter
 
 from flask import Response, jsonify
 
+from . import __version__
 
-# TODO: Change into a class.
+
+class QuerySetApiResult:
+    """A representation of a list of records (Python dictionaries)."""
+
+    def __init__(self, record_list, return_format, **kwargs):
+        """Store the list of records and the format."""
+        self.record_list = record_list
+        self.return_format = return_format
+        self.kwargs = kwargs
+
+    def to_response(self):
+        """Convert the list of records into a response."""
+        if self.return_format == 'json':
+            return self.json_response(self.record_list, **self.kwargs)
+        # if _format == 'json':
+        #     return json_response(data)
+        # elif _format == 'csv':
+        #     return csv_response(data)
+        # elif _format == 'xml' or _format == 'html':
+        #    return 'Format \'{}\' is not currently available.'.format(_format)
+        # elif _format not in supported_formats and _format is not None:
+        #     return 'Format \'{}\' is not a recognized format.'
+        # else:
+        #     return json_response(data)
+
+    @staticmethod
+    def json_response(record_list, **kwargs):
+        """Convert a list of records into a JSON response."""
+        obj = {
+            **kwargs,
+            'results': record_list,
+            'resultSize': len(record_list),
+            'version': __version__
+        }
+        return jsonify(obj)
+
+
 def response(data, request_args):
     """Response."""
-    data_format = request_args.get('format', None)
-    return format_response(data, data_format)
-
-
-def format_response(data, _format):
-    """Format response."""
-    supported_formats = ('json', 'csv', 'xml', 'html')
-
-    if _format == 'json':
-        return json_response(data)
-    elif _format == 'csv':
-        return csv_response(data)
-    elif _format == 'xml' or _format == 'html':
-        return 'Format \'{}\' is not currently available.'.format(_format)
-    elif _format not in supported_formats and _format is not None:
-        return 'Format \'{}\' is not a recognized format.'
-    else:
-        return json_response(data)
+    if request_args == 'json':
+        return QuerySetApiResult(data, 'json').to_response()
 
 
 def csv_response(data):

@@ -1,3 +1,5 @@
+# TODO (jkp 2017-08-29) figure out a way to break this up
+# pylint: disable=too-many-lines
 """Model definitions."""
 from datetime import datetime
 
@@ -16,6 +18,7 @@ class ApiModel(db.Model):
     ignore_field_prefix = '__'
 
     def __init__(self, *args, **kwargs):
+        """Perform common tasks on kwargs."""
         self.prune_ignored_fields(kwargs)
         self.empty_to_none(kwargs)
         super().__init__(*args, **kwargs)
@@ -165,7 +168,7 @@ class Indicator(ApiModel):
     level3 = db.relationship('EnglishString', foreign_keys=level3_id)
 
     def __init__(self, **kwargs):
-        """Initialization for instance of model.
+        """Initialize instance of model.
 
         Does a few things: (1) Updates instance based on mapping from API query
         parameter names to model field names, (2) Reformats any empty strings,
@@ -225,17 +228,18 @@ class Indicator(ApiModel):
         return result
 
     def __repr__(self):
+        """Return a representation of this object."""
         return '<Indicator "{}">'.format(self.code)
 
     def datalab_init_json(self):
         """Datalab init json: Indicator."""
         to_return = {
-                'id': self.code,
-                'label.id': self.label.code,
-                'definition.id': self.definition.code,
-                'order': self.order,
-                'category.id': self.level2.code
-            }
+            'id': self.code,
+            'label.id': self.label.code,
+            'definition.id': self.definition.code,
+            'order': self.order,
+            'category.id': self.level2.code
+        }
         return to_return
 
 
@@ -252,7 +256,7 @@ class CharacteristicGroup(ApiModel):
     definition = db.relationship('EnglishString', foreign_keys=definition_id)
 
     def __init__(self, **kwargs):
-        """Initialization for instance of model.
+        """Initialize instance of model.
 
         Does a few things: (1) Removes unnecessary fields, (2) Converts API
         query parameters to model field name equivalents, (3) Inserts new
@@ -286,6 +290,7 @@ class CharacteristicGroup(ApiModel):
         return result
 
     def __repr__(self):
+        """Return a representation of this object."""
         return '<CharacteristicGroup "{}">'.format(self.code)
 
     @staticmethod
@@ -341,7 +346,7 @@ class Characteristic(ApiModel):
     label = db.relationship('EnglishString', foreign_keys=label_id)
 
     def __init__(self, **kwargs):
-        """Initialization for instance of model.
+        """Initialize instance of model.
 
         Does a few things: (1) Removes unnecessary fields, (2) Converts API
         query parameters to model field name equivalents, (3) Inserts new
@@ -388,15 +393,16 @@ class Characteristic(ApiModel):
         return result
 
     def __repr__(self):
+        """Return a representation of this object."""
         return '<Characteristic "{}">'.format(self.code)
 
     def datalab_init_json(self):
         """Datalab init json: Characteristic."""
         to_return = {
-                'id': self.code,
-                'label.id': self.label.code,
-                'order': self.order,
-            }
+            'id': self.code,
+            'label.id': self.label.code,
+            'order': self.order,
+        }
         return to_return
 
     @staticmethod
@@ -459,7 +465,7 @@ class Data(ApiModel):
     geo = db.relationship('Geography', foreign_keys=geo_id)
 
     def __init__(self, **kwargs):
-        """Initialization for instance of model.
+        """Initialize instance of model.
 
         Does a few things: (1) Updates instance based on mapping from API query
         parameter names to model field names, (2) Reformats any empty strings,
@@ -532,6 +538,7 @@ class Data(ApiModel):
         return result
 
     def __repr__(self):
+        """Return a representation of this object."""
         return '<Data "{}">'.format(self.code)
 
 
@@ -606,9 +613,9 @@ class Survey(ApiModel):
             # 'label_code': self.label.code,
             'order': self.order,
             'country.label.id': self.country.label_id,
-            'geography.label.id': 'To be implemented.'
             # 'geography_label_code': self.geography.code
-            }
+            'geography.label.id': 'To be implemented.'
+        }
         return to_return
 
     # def to_json(self, lang=None):
@@ -637,7 +644,7 @@ class Survey(ApiModel):
     #     }
 
     def __init__(self, **kwargs):
-        """Initialization for instance of model.
+        """Initialize instance of model.
 
         Does a few things: (1) Removes unnecessary fields, (2) Converts API
         query parameters to model field name equivalents, (3) Inserts new
@@ -657,11 +664,13 @@ class Survey(ApiModel):
         super(Survey, self).__init__(**kwargs)
 
     def __repr__(self):
+        """Return a representation of this object."""
         return '<Survey "{}">'.format(self.code)
 
 
 class Country(ApiModel):
     """Country model."""
+
     __tablename__ = 'country'
     id = db.Column(db.Integer, primary_key=True)
     label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
@@ -722,7 +731,7 @@ class Country(ApiModel):
     }
 
     def __init__(self, **kwargs):
-        """Initialization for instance of model.
+        """Initialize instance of model.
 
         Does a few things: (1) Updates instance based on mapping from API query
         parameter names to model field names, and (2) calls super init.
@@ -884,9 +893,10 @@ class Country(ApiModel):
         if lang is None or lang.lower() == 'en':
             json_obj['label'] = self.label.english
         else:
+            lang = lang.lower()
             translations = self.label.translations
-            translation = next(iter(t for t in translations if t.language_code
-                                    == lang.lower()), None)
+            gen = iter(t for t in translations if t.language_code == lang)
+            translation = next(gen, None)
             if translation:
                 json_obj['label'] = translation.translation
             else:
@@ -895,6 +905,7 @@ class Country(ApiModel):
         return json_obj
 
     def __repr__(self):
+        """Return a representation of this object."""
         return '<Country "{}">'.format(self.code)
 
 
@@ -935,6 +946,7 @@ class Geography(ApiModel):
         return result
 
     def __repr__(self):
+        """Return a representation of this object."""
         return '<Geography "{}">'.format(self.label.english)
 
 
@@ -948,7 +960,7 @@ class EnglishString(ApiModel):
     translations = db.relationship('Translation')
 
     def to_string(self, lang=None):
-        """Returns string in specified language if supplied, else English.
+        """Return string in specified language if supplied, else English.
 
         Args:
             lang (str): The language, if specified.
@@ -958,8 +970,9 @@ class EnglishString(ApiModel):
         """
         result = self.english
         if lang is not None and lang.lower() != 'en':
-            found = next(iter(t for t in self.translations if t.language_code
-                              == lang.lower()), None)
+            lang = lang.lower()
+            gen = iter(t for t in self.translations if t.language_code == lang)
+            found = next(gen, None)
             if found is not None:
                 result = found.translation
         return result
@@ -982,7 +995,7 @@ class EnglishString(ApiModel):
 
     @staticmethod
     def insert_unique(english):
-        """Inserts a unique record into the database.
+        """Insert a unique record into the database.
 
         Creates a code and combines with English text to as the parameters for
         new record.
@@ -1020,8 +1033,11 @@ class EnglishString(ApiModel):
     #             'string': self.english}
 
     def __repr__(self):
-        preview = self.english if len(self.english) < 20 else \
-                  '{}...'.format(self.english[:17])
+        """Return a representation of this object."""
+        if len(self.english) < 20:
+            preview = '{}...'.format(self.english[:17])
+        else:
+            preview = self.english
         return '<EnglishString {} "{}">'.format(self.code, preview)
 
 
@@ -1038,13 +1054,13 @@ class Translation(ApiModel):
             'code': 'en',
             'label': 'English',
             'active': True,
-            'string_records': lambda: Translation.english()
+            'string_records': 'english'
         },
         'french': {
             'code': 'fr',
             'label': 'French',
             'active': True,
-            'string_records': lambda: 'To be implemented.'
+            'string_records': 'To be implemented.'
         }
     }
 
@@ -1078,6 +1094,9 @@ class Translation(ApiModel):
     #     return strings
 
     def __repr__(self):
-        preview = self.translation if len(self.translation) < 20 else \
-                  '{}...'.format(self.translation[:17])
+        """Return a representation of this object."""
+        if len(self.translation) < 20:
+            preview = '{}...'.format(self.translation[:17])
+        else:
+            preview = self.translation
         return '<Translation ({}) "{}">'.format(self.language_code, preview)
