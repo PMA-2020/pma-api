@@ -144,7 +144,8 @@ class Indicator(ApiModel):
     __tablename__ = 'indicator'
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String, unique=True)
-    label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
+    label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
+            nullable=False)
     order = db.Column(db.Integer, unique=True)
     type = db.Column(db.String)
     definition_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
@@ -252,9 +253,12 @@ class CharacteristicGroup(ApiModel):
     code = db.Column(db.String, unique=True)
     label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
     definition_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
+    order = db.Column(db.Integer, unique=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
 
     label = db.relationship('EnglishString', foreign_keys=label_id)
     definition = db.relationship('EnglishString', foreign_keys=definition_id)
+    category = db.relationship('EnglishString', foreign_keys=category_id)
 
     def __init__(self, **kwargs):
         """Initialize instance of model.
@@ -266,6 +270,7 @@ class CharacteristicGroup(ApiModel):
         """
         self.update_kwargs_english(kwargs, 'label', 'label_id')
         self.update_kwargs_english(kwargs, 'definition', 'definition_id')
+        self.update_kwargs_english(kwargs, 'category', 'category_id')
         super(CharacteristicGroup, self).__init__(**kwargs)
 
     def full_json(self, lang=None, jns=False, index=None):
@@ -325,9 +330,8 @@ class CharacteristicGroup(ApiModel):
             'id': self.code,
             'label.id': self.label.code,
             'definition.id': self.definition.code,
-            'order': 'To be implemented.',
-            # 'order': self.order,
-            'category.id': 'To be implemented.'
+            'order': self.order,
+            'category.id': self.category.code
         }
         return to_return
 
@@ -481,7 +485,6 @@ class Data(ApiModel):
                                Characteristic, False)
             self.set_kwargs_id(kwargs, 'char2_code', 'char2_id',
                                Characteristic, False)
-            self.set_kwargs_id(kwargs, 'geo_code', 'geo_id', Geography, False)
             self.empty_to_none(kwargs)
             kwargs['code'] = next64()
             super(Data, self).__init__(**kwargs)
@@ -548,7 +551,8 @@ class Survey(ApiModel):
 
     __tablename__ = 'survey'
     id = db.Column(db.Integer, primary_key=True)
-    label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
+    label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
+            nullable=False)
     order = db.Column(db.Integer, unique=True)
     type = db.Column(db.String)
     year = db.Column(db.Integer)
@@ -556,7 +560,7 @@ class Survey(ApiModel):
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
     code = db.Column(db.String, unique=True)
-    pma_code = db.Column(db.String, unique=True)
+    pma_code = db.Column(db.String)
     country_id = db.Column(db.Integer, db.ForeignKey('country.id'))
     geography_id = db.Column(db.Integer, db.ForeignKey('geography.id'))
 
@@ -610,39 +614,12 @@ class Survey(ApiModel):
         """Datalab init json: Survey."""
         to_return = {
             'id': self.code,
-            'label.id': 'To be implemented.',
-            # 'label_code': self.label.code,
+            'label.id': self.label.code,
             'order': self.order,
-            'country.label.id': self.country.label_id,
-            # 'geography_label_code': self.geography.code
-            'geography.label.id': 'To be implemented.'
+            'country.label.id': self.country.label.code,
+            'geography.subheading.id': self.geography.subheading.code
         }
         return to_return
-
-    # def to_json(self, lang=None):
-    #     """Return dictionary ready to convert to JSON as response.
-    #
-    #     Contains URL for resource entity.
-    #
-    #     Args:
-    #         lang (str): The language, if specified.
-    #
-    #     Returns:
-    #         dict: API response ready to be JSONified.
-    #     """
-    #     return {
-    #         'url': url_for('api.get_survey', code=self.pma_code,
-    #                        _external=True),
-    #         'order': self.order,
-    #         'type': self.type,
-    #         'year': self.year,
-    #         'round': self.round,
-    #         'start_date': self.start_date.date().isoformat(),
-    #         'end_date': self.end_date.date().isoformat(),
-    #         'survey_code': self.survey_code,
-    #         'pma_code': self.pma_code,
-    #         'country': self.country.url_for()
-    #     }
 
     def __init__(self, **kwargs):
         """Initialize instance of model.
@@ -923,12 +900,24 @@ class Geography(ApiModel):
     id = db.Column(db.Integer, primary_key=True)
     label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
     order = db.Column(db.Integer, unique=True)
+    subheading_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
     type = db.Column(db.String)
     code = db.Column(db.String, unique=True)
-    country_id = db.Column(db.Integer, db.ForeignKey('country.id'))
 
     label = db.relationship('EnglishString', foreign_keys=label_id)
-    country = db.relationship('Country', foreign_keys=country_id)
+    subheading = db.relationship('EnglishString', foreign_keys=subheading_id)
+    # TODO (2017-08-29 jkp): Include country backref? Maybe? Delete if a lot of
+    # time has passed and no need for this feature
+
+    def __init__(self, **kwargs):
+        """Initialize instance of model.
+
+        Does a few things: (1) Updates instance based on mapping from API query
+        parameter names to model field names, and (2) calls super init.
+        """
+        self.update_kwargs_english(kwargs, 'label', 'label_id')
+        self.update_kwargs_english(kwargs, 'subheading', 'subheading_id')
+        super(Geography, self).__init__(**kwargs)
 
     @staticmethod
     def none_json(jns=False):
