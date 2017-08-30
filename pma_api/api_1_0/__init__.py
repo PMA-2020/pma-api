@@ -1,11 +1,13 @@
 """API Routes."""
 from flask import Blueprint, jsonify
 
+from ..queries import DatalabData
+
 api = Blueprint('api', __name__)
 __version__ = '1.0'
 
 # pylint: disable=wrong-import-position
-from . import collection
+from . import collection, datalab
 
 
 @api.route('/')
