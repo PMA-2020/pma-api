@@ -22,7 +22,9 @@ def create_app(config_name):
 
     db.init_app(app)
 
-    from .api_1_0 import api as api_1_0_blueprint
+    from .api_1_0 import api as api_1_0_blueprint, root
     app.register_blueprint(api_1_0_blueprint, url_prefix='/v1')
+
+    app.add_url_rule('/', view_func=lambda: 'To be implemented.')
 
     return app
