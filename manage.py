@@ -15,7 +15,6 @@ manager = Manager(app)
 
 
 SRC_DATA = './data/api_data.xlsx'
-UI_DATA = './data/ui_data.xlsx'
 
 
 ORDERED_MODEL_MAP = (
@@ -28,10 +27,6 @@ ORDERED_MODEL_MAP = (
     ('data', Data)
     # TODO: Add in translations to the excel file
     # ('translation', Translation)
-)
-
-UI_ORDERED_MODEL_MAP = (
-    ('translation', Translation),
 )
 
 
@@ -92,11 +87,11 @@ def init_from_workbook(wb, queue):
 
     Args:
         wb (xlrd.Workbook): Workbook object.
-        queue (tuple): Order in which to load models.
+        queue (list): Order in which to load models.
     """
     with xlrd.open_workbook(wb) as book:
         for sheetname, model in queue:
-            if sheetname == 'data':  # actually done last
+            if sheetname == 'data': # actually done last
                 for ws in book.sheets():
                     if ws.name.startswith('data'):
                         init_from_sheet(ws, model)
@@ -119,7 +114,6 @@ def initdb(overwrite=False):
         db.create_all()
         if overwrite:
             init_from_workbook(wb=SRC_DATA, queue=ORDERED_MODEL_MAP)
-        init_from_workbook(wb=UI_DATA, queue=UI_ORDERED_MODEL_MAP)
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))

@@ -4,6 +4,7 @@
 from datetime import datetime
 
 from flask import url_for
+from sqlalchemy.exc import IntegrityError
 
 from . import db
 from .utils import next64
@@ -144,7 +145,7 @@ class Indicator(ApiModel):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String, unique=True)
     label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
-                         nullable=False)
+            nullable=False)
     order = db.Column(db.Integer, unique=True)
     type = db.Column(db.String)
     definition_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
@@ -235,9 +236,11 @@ class Indicator(ApiModel):
     def datalab_init_json(self):
         """Datalab init json: Indicator."""
         to_return = {
-            'indicator.id': self.code,
+            'id': self.code,
             'label.id': self.label.code,
-            'definition.id': self.definition.code
+            'definition.id': self.definition.code,
+            'order': self.order,
+            'category.id': self.level2.code
         }
         return to_return
 
@@ -549,7 +552,7 @@ class Survey(ApiModel):
     __tablename__ = 'survey'
     id = db.Column(db.Integer, primary_key=True)
     label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
-                         nullable=False)
+            nullable=False)
     order = db.Column(db.Integer, unique=True)
     type = db.Column(db.String)
     year = db.Column(db.Integer)
@@ -987,7 +990,7 @@ class EnglishString(ApiModel):
         return json_obj
 
     @staticmethod
-    def insert_unique(english, code=None):
+    def insert_unique(english):
         """Insert a unique record into the database.
 
         Creates a code and combines with English text to as the parameters for
@@ -998,12 +1001,15 @@ class EnglishString(ApiModel):
         """
         # TODO: (jkp 2017-08-29) This is not necessary because next64 now
         # returns unique. Needs: Nothing.
-        if code is None:
-            code = next64()
-        record = EnglishString(code=code, english=english)
-        db.session.add(record)
-        db.session.commit()
-        return record
+        while True:
+            try:
+                code = next64()
+                record = EnglishString(code=code, english=english)
+                db.session.add(record)
+                db.session.commit()
+                return record
+            except IntegrityError:
+                pass
 
     def datalab_init_json(self):
         """Datalab init json: EnglishString."""
@@ -1054,26 +1060,6 @@ class Translation(ApiModel):
             'string_records': 'To be implemented.'
         }
     }
-
-    def __init__(self, **kwargs):
-        """Initialize instance of model.
-
-        Does a few things: (1) Gets english code if it is already supplied and
-         creates a record in EnglishString. This happens when inserting a
-         record for UI data. Otherwise, gets the english code.
-        and (2) Calls super init.
-        """
-        if kwargs['english_code']:
-            english = EnglishString.insert_unique(
-                kwargs['english'], kwargs['english_code'].lower())
-            kwargs.pop('english_code')
-        else:
-            english = EnglishString.query.filter_by(english=kwargs['english'])\
-                .first()
-        kwargs['english_id'] = english.id
-
-        kwargs.pop('english')
-        super(Translation, self).__init__(**kwargs)
 
     @staticmethod
     def languages():
