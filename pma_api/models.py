@@ -145,7 +145,7 @@ class Indicator(ApiModel):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String, unique=True)
     label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
-            nullable=False)
+                         nullable=False)
     order = db.Column(db.Integer, unique=True)
     type = db.Column(db.String)
     definition_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
@@ -236,11 +236,9 @@ class Indicator(ApiModel):
     def datalab_init_json(self):
         """Datalab init json: Indicator."""
         to_return = {
-            'id': self.code,
+            'indicator.id': self.code,
             'label.id': self.label.code,
-            'definition.id': self.definition.code,
-            'order': self.order,
-            'category.id': self.level2.code
+            'definition.id': self.definition.code
         }
         return to_return
 
@@ -552,7 +550,7 @@ class Survey(ApiModel):
     __tablename__ = 'survey'
     id = db.Column(db.Integer, primary_key=True)
     label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
-            nullable=False)
+                         nullable=False)
     order = db.Column(db.Integer, unique=True)
     type = db.Column(db.String)
     year = db.Column(db.Integer)
