@@ -6,8 +6,8 @@ from flask_script import Manager, Shell
 import xlrd
 
 from pma_api import create_app, db
-from pma_api.models import Characteristic, CharacteristicGroup, Country, Data,\
-    Geography, Indicator, Survey, Translation, EnglishString
+from pma_api.models import Metadata, Characteristic, CharacteristicGroup, \
+    Country, Data, Geography, Indicator, Survey, Translation, EnglishString
 
 
 app = create_app(os.getenv('FLASK_CONFIG', 'default'))
@@ -103,6 +103,18 @@ def init_from_workbook(wb, queue):
             else:
                 ws = book.sheet_by_name(sheetname)
                 init_from_sheet(ws, model)
+
+        create_metadata(book)
+
+
+def create_metadata(wb):
+    """Create metadata."""
+    record = Metadata(**{
+        'name': wb.filestr,
+        'type': '',
+        'version': ''
+    })
+    return
 
 
 # TODO: remove --overwrite
