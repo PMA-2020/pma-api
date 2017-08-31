@@ -5,7 +5,7 @@ from csv import DictWriter
 from flask import Response, jsonify
 
 from . import __version__
-from ..models import Metadata
+from ..models import WbMetadata
 
 
 class QuerySetApiResult:
@@ -49,7 +49,7 @@ class QuerySetApiResult:
         obj = {
             'version': __version__,
             'dataset_metadata': [item.to_json() for item in
-                                 Metadata.query.all()]
+                                 WbMetadata.query.all()]
         }
         return obj
 

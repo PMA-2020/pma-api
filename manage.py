@@ -2,13 +2,12 @@
 import csv
 import glob
 import os
-from hashlib import md5
 
 from flask_script import Manager, Shell
 import xlrd
 
 from pma_api import create_app, db
-from pma_api.models import Metadata, Characteristic, CharacteristicGroup, \
+from pma_api.models import WbMetadata, Characteristic, CharacteristicGroup, \
     Country, Data, Geography, Indicator, Survey, Translation, EnglishString
 
 
@@ -28,7 +27,7 @@ def get_file_by_glob(pattern):
     found = glob.glob(pattern)
     return found[0]
 
-sufx = standard_file_suffix = '_data'
+sufx = WbMetadata.standard_file_suffix
 SRC_DATA = get_file_by_glob('./data/api'+sufx+'*.xlsx')
 UI_DATA = get_file_by_glob('./data/ui'+sufx+'*.xlsx')
 
@@ -59,7 +58,7 @@ def make_shell_context():
     return dict(app=app, db=db, Country=Country, EnglishString=EnglishString,
                 Translation=Translation, Survey=Survey, Indicator=Indicator,
                 Data=Data, Characteristic=Characteristic,
-                CharacteristicGroup=CharacteristicGroup)
+                CharacteristicGroup=CharacteristicGroup, WbMetadata=WbMetadata)
 
 
 def init_from_source(path, model):
@@ -128,15 +127,7 @@ def create_wb_metadata(wb_path):
     Args:
         wb_path (str) Path to Excel Workbook.
     """
-    filename = os.path.splitext(os.path.basename(wb_path))[0]
-    suffix = standard_file_suffix
-    record = Metadata(**{
-        'name': filename,
-        'type': filename[:-len(suffix)] if filename.endswith(suffix)
-        else 'unidentified',
-        'md5_checksum': md5(open(wb_path, 'rb').read()).hexdigest()
-
-    })
+    record = WbMetadata(wb_path)
     db.session.add(record)
     db.session.commit()
 
