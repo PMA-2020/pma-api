@@ -1,5 +1,6 @@
 """Application manager."""
 import csv
+import glob
 import os
 from hashlib import md5
 
@@ -15,8 +16,13 @@ app = create_app(os.getenv('FLASK_CONFIG', 'default'))
 manager = Manager(app)
 
 
-SRC_DATA = './data/api_data.xlsx'
-UI_DATA = './data/ui_data.xlsx'
+def get_file_by_glob(pattern):
+    """Get file by glob."""
+    found = glob.glob(pattern)
+    return found[0]
+
+SRC_DATA = get_file_by_glob('./data/api_data*.xlsx')
+UI_DATA = get_file_by_glob('./data/ui_data*.xlsx')
 
 
 ORDERED_MODEL_MAP = (
