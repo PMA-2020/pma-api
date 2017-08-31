@@ -6,7 +6,7 @@ __version__ = '1.0'
 
 # pylint: disable=wrong-import-position
 from . import collection
-from ..models import Metadata
+from .response import QuerySetApiResult
 
 
 @api.route('/')
@@ -28,9 +28,4 @@ def root():
 @api.route('/version')
 def show_version():
     """Show API version."""
-    response = {
-        'version': __version__,
-        'dataset_metadata': [item.to_json() for item in Metadata.query.all()]
-
-    }
-    return jsonify(response)
+    return jsonify(QuerySetApiResult.metadata())
