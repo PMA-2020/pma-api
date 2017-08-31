@@ -1,21 +1,35 @@
 """Application manager."""
 import csv
+import glob
 import os
 
 from flask_script import Manager, Shell
 import xlrd
 
 from pma_api import create_app, db
-from pma_api.models import Characteristic, CharacteristicGroup, Country, Data,\
-    Geography, Indicator, Survey, Translation, EnglishString
+from pma_api.models import WbMetadata, Characteristic, CharacteristicGroup, \
+    Country, Data, Geography, Indicator, Survey, Translation, EnglishString
 
 
 app = create_app(os.getenv('FLASK_CONFIG', 'default'))
 manager = Manager(app)
 
 
-SRC_DATA = './data/api_data.xlsx'
-UI_DATA = './data/ui_data.xlsx'
+def get_file_by_glob(pattern):
+    """Get file by glob.
+
+    Args:
+        pattern (str): A glob pattern.
+
+    Returns:
+        str: Path/to/first_file_found
+    """
+    found = glob.glob(pattern)
+    return found[0]
+
+sufx = WbMetadata.standard_file_suffix
+SRC_DATA = get_file_by_glob('./data/api'+sufx+'*.xlsx')
+UI_DATA = get_file_by_glob('./data/ui'+sufx+'*.xlsx')
 
 
 ORDERED_MODEL_MAP = (
@@ -44,7 +58,7 @@ def make_shell_context():
     return dict(app=app, db=db, Country=Country, EnglishString=EnglishString,
                 Translation=Translation, Survey=Survey, Indicator=Indicator,
                 Data=Data, Characteristic=Characteristic,
-                CharacteristicGroup=CharacteristicGroup)
+                CharacteristicGroup=CharacteristicGroup, WbMetadata=WbMetadata)
 
 
 def init_from_source(path, model):
@@ -103,6 +117,19 @@ def init_from_workbook(wb, queue):
             else:
                 ws = book.sheet_by_name(sheetname)
                 init_from_sheet(ws, model)
+
+    create_wb_metadata(wb)
+
+
+def create_wb_metadata(wb_path):
+    """Create metadata for Excel Workbook files imported into the DB.
+
+    Args:
+        wb_path (str) Path to Excel Workbook.
+    """
+    record = WbMetadata(wb_path)
+    db.session.add(record)
+    db.session.commit()
 
 
 # TODO: remove --overwrite

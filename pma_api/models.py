@@ -1,7 +1,9 @@
 # TODO (jkp 2017-08-29) figure out a way to break this up
 # pylint: disable=too-many-lines
 """Model definitions."""
+import os
 from datetime import datetime
+from hashlib import md5
 
 from flask import url_for
 
@@ -135,6 +137,45 @@ class ApiModel(db.Model):
             prefix = prefix + str(index)
         new_dict = {'.'.join((prefix, k)): v for k, v in old_dict.items()}
         return new_dict
+
+
+class WbMetadata(db.Model):
+    """Metadata."""
+
+    __tablename__ = 'metadata'
+    ignore_field_prefix = '__'
+    standard_file_suffix = '_data'
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    name = db.Column(db.String, unique=True)
+    type = db.Column(db.String, index=True)
+    md5_checksum = db.Column(db.String)
+    blob = db.Column(db.Binary)
+    created_on = db.Column(db.DateTime, default=db.func.now(),
+                           onupdate=db.func.now(), index=True)
+
+    def __init__(self, path):
+        """Metadata init."""
+        filename = os.path.splitext(os.path.basename(path))[0]
+        suffix = WbMetadata.standard_file_suffix
+        self.name = filename
+        self.type = filename[:-len(suffix)] if filename.endswith(suffix) else \
+            'unidentified',
+        self.blob = open(path, 'rb').read()
+        self.md5_checksum = md5(self.blob).hexdigest()
+
+    def to_json(self):
+        """Return dictionary ready to convert to JSON as response.
+
+        Returns:
+            dict: API response ready to be JSONified.
+        """
+        result = {
+            'name': self.name,
+            'hash': self.md5_checksum,
+            'type': self.type,
+            'created_on': self.created_on
+        }
+        return result
 
 
 class Indicator(ApiModel):
@@ -389,7 +430,7 @@ class Characteristic(ApiModel):
             result = self.namespace(result, 'char', index=index)
 
         char_grp_json = \
-            self.char_grp.full_json(lang=lang, jns=True, index=index)
+            self.char_grp.to_json(lang=lang, jns=True, index=index)
 
         result.update(char_grp_json)
         return result
@@ -515,18 +556,18 @@ class Data(ApiModel):
         if jns:
             result = self.namespace(result, 'data')
 
-        survey_json = self.survey.full_json(lang=lang, jns=True)
-        indicator_json = self.indicator.full_json(lang=lang, jns=True)
+        survey_json = self.survey.to_json(lang=lang, jns=True)
+        indicator_json = self.indicator.to_json(lang=lang, jns=True)
         if self.char1 is not None:
-            char1_json = self.char1.full_json(lang, jns=True, index=1)
+            char1_json = self.char1.to_json(lang, jns=True, index=1)
         else:
             char1_json = Characteristic.none_json(jns=True, index=1)
         if self.char2 is not None:
-            char2_json = self.char2.full_json(lang, jns=True, index=2)
+            char2_json = self.char2.to_json(lang, jns=True, index=2)
         else:
             char2_json = Characteristic.none_json(jns=True, index=2)
         if self.geo is not None:
-            geo_json = self.geo.full_json(lang, jns=True)
+            geo_json = self.geo.to_json(lang, jns=True)
         else:
             geo_json = Geography.none_json(jns=True)
 
@@ -602,7 +643,7 @@ class Survey(ApiModel):
         if jns:
             result = self.namespace(result, 'survey')
 
-        country_json = self.country.full_json(lang=lang, jns=True)
+        country_json = self.country.to_json(lang=lang, jns=True)
 
         result.update(country_json)
         return result
