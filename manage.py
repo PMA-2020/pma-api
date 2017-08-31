@@ -17,12 +17,20 @@ manager = Manager(app)
 
 
 def get_file_by_glob(pattern):
-    """Get file by glob."""
+    """Get file by glob.
+
+    Args:
+        pattern (str): A glob pattern.
+
+    Returns:
+        str: Path/to/first_file_found
+    """
     found = glob.glob(pattern)
     return found[0]
 
-SRC_DATA = get_file_by_glob('./data/api_data*.xlsx')
-UI_DATA = get_file_by_glob('./data/ui_data*.xlsx')
+sufx = standard_file_suffix = '_data'
+SRC_DATA = get_file_by_glob('./data/api'+sufx+'*.xlsx')
+UI_DATA = get_file_by_glob('./data/ui'+sufx+'*.xlsx')
 
 
 ORDERED_MODEL_MAP = (
@@ -120,11 +128,13 @@ def create_wb_metadata(wb_path):
     Args:
         wb_path (str) Path to Excel Workbook.
     """
-    filename_ext = os.path.splitext(os.path.basename(wb_path))
+    filename = os.path.splitext(os.path.basename(wb_path))[0]
+    suffix = standard_file_suffix
     record = Metadata(**{
-        'name': filename_ext[0],
-        'type': 'dataset' if filename_ext[1].startswith('.xls') else 'unknown',
-        'md5_checksum': md5(open(wb_path,'rb').read()).hexdigest()
+        'name': filename,
+        'type': filename[:-len(suffix)] if filename.endswith(suffix)
+        else 'unidentified',
+        'md5_checksum': md5(open(wb_path, 'rb').read()).hexdigest()
 
     })
     db.session.add(record)
