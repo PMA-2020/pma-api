@@ -264,9 +264,20 @@ class DatalabData:
         select_args = DatalabData.char_grp1
         joined = DatalabData.all_joined(select_args)
         results = joined.distinct().all()
-        results = [record.datalab_init_json() if record is not None else "none"
-                   for record in results]
-        return results
+        chargrp_categories = []
+        for char_grp in results:
+            for cat in chargrp_categories:
+                if char_grp.category.code == cat['category.label.id']:
+                    cat['characteristicGroups'].append(char_grp.
+                                                       datalab_init_json())
+                    break
+            else:
+                chargrp_categories.append({
+                    'category.label.id': char_grp.category.code,
+                    'characteristicGroups': [char_grp.datalab_init_json()]
+                })
+
+        return chargrp_categories
 
     @staticmethod
     def init_chars():
@@ -284,8 +295,49 @@ class DatalabData:
         select_args = Survey
         joined = DatalabData.all_joined(select_args)
         results = joined.distinct().all()
-        results = [record.datalab_init_json() for record in results]
-        return results
+
+        country_order = []
+        country_map = {}
+        country_geo_map = {}
+        for survey in results:
+            country = survey.country
+            country_code = country.code
+            geo = survey.geography
+            geo_code = geo.code
+            country_geo_key = '|'.join((country_code, geo_code))
+            if not country in country_order:
+                country_order.append(country)
+
+            if country_code in country_map and geo not in country_map[country_code]:
+                country_map[country_code].append(geo)
+            elif country_code not in country_map:
+                country_map[country_code] = [geo]
+
+            if country_geo_key in country_geo_map:
+                country_geo_map[country_geo_key].append(survey)
+            else:
+                country_geo_map[country_geo_key] = [survey]
+
+        survey_country_list = []
+        for country in country_order:
+            this_country_geos = country_map[country.code]
+            geography_list = []
+            for geo in this_country_geos:
+                country_geo_key = '|'.join((country.code, geo.code))
+                surveys = country_geo_map[country_geo_key]
+                survey_list = [s.datalab_init_json() for s in surveys]
+                this_geo_obj = {
+                    'geography.label.id': geo.subheading.code,
+                    'surveys': survey_list
+                }
+                geography_list.append(this_geo_obj)
+            this_country_obj = {
+                'country.label.id': country.label.code,
+                'geographies': geography_list
+            }
+            survey_country_list.append(this_country_obj)
+
+        return survey_country_list
 
     # TODO: (jkp 2017-08-29) Get other languages. Needs: Nothing.
     @staticmethod
@@ -305,10 +357,10 @@ class DatalabData:
     def datalab_init():
         """Datalab Init."""
         return {
-            'indicators': DatalabData.init_indicators(),
-            'characteristicGroups': DatalabData.init_char_grp(),
+            'indicatorCategories': DatalabData.init_indicators(),
+            'characteristicGroupCategories': DatalabData.init_char_grp(),
             'characteristics': DatalabData.init_chars(),
-            'surveys': DatalabData.init_surveys(),
+            'surveyCountries': DatalabData.init_surveys(),
             'strings': DatalabData.init_strings(),
             'languages': DatalabData.init_languages()
         }
