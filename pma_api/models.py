@@ -143,8 +143,6 @@ class WbMetadata(db.Model):
     """Metadata."""
 
     __tablename__ = 'metadata'
-    ignore_field_prefix = '__'
-    standard_file_suffix = '_data'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String, unique=True)
     type = db.Column(db.String, index=True)
@@ -156,10 +154,11 @@ class WbMetadata(db.Model):
     def __init__(self, path):
         """Metadata init."""
         filename = os.path.splitext(os.path.basename(path))[0]
-        suffix = WbMetadata.standard_file_suffix
         self.name = filename
-        self.type = filename[:-len(suffix)] if filename.endswith(suffix) else \
-            'unidentified',
+        if filename.startswith('api'):
+            self.type = 'api'
+        elif filename.startswith('ui'):
+            self.type = 'ui'
         self.blob = open(path, 'rb').read()
         self.md5_checksum = md5(self.blob).hexdigest()
 
@@ -276,7 +275,7 @@ class Indicator(ApiModel):
     def datalab_init_json(self):
         """Datalab init json: Indicator."""
         to_return = {
-            'indicator.id': self.code,
+            'id': self.code,
             'label.id': self.label.code,
             'definition.id': self.definition.code
         }
@@ -368,8 +367,6 @@ class CharacteristicGroup(ApiModel):
             'id': self.code,
             'label.id': self.label.code,
             'definition.id': self.definition.code,
-            'order': self.order,
-            'category.id': self.category.code
         }
         return to_return
 
@@ -653,9 +650,6 @@ class Survey(ApiModel):
         to_return = {
             'id': self.code,
             'label.id': self.label.code,
-            'order': self.order,
-            'country.label.id': self.country.label.code,
-            'geography.subheading.id': self.geography.subheading.code
         }
         return to_return
 

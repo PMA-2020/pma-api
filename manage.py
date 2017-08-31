@@ -27,9 +27,9 @@ def get_file_by_glob(pattern):
     found = glob.glob(pattern)
     return found[0]
 
-sufx = WbMetadata.standard_file_suffix
-SRC_DATA = get_file_by_glob('./data/api'+sufx+'*.xlsx')
-UI_DATA = get_file_by_glob('./data/ui'+sufx+'*.xlsx')
+
+SRC_DATA = get_file_by_glob('./data/api_data*.xlsx')
+UI_DATA = get_file_by_glob('./data/ui_data*.xlsx')
 
 
 ORDERED_MODEL_MAP = (
