@@ -4,10 +4,11 @@ from flask import Blueprint, jsonify
 from ..queries import DatalabData
 
 api = Blueprint('api', __name__)
-__version__ = '1.0'
+__version__ = '1.1'
 
 # pylint: disable=wrong-import-position
 from . import collection, datalab
+from .response import QuerySetApiResult
 
 
 @api.route('/')
@@ -29,7 +30,4 @@ def root():
 @api.route('/version')
 def show_version():
     """Show API version."""
-    response = {
-        'version': __version__
-    }
-    return jsonify(response)
+    return jsonify(QuerySetApiResult.metadata())
