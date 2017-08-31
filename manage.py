@@ -1,6 +1,7 @@
 """Application manager."""
 import csv
 import os
+from hashlib import md5
 
 from flask_script import Manager, Shell
 import xlrd
@@ -104,17 +105,24 @@ def init_from_workbook(wb, queue):
                 ws = book.sheet_by_name(sheetname)
                 init_from_sheet(ws, model)
 
-        create_metadata(book)
+    create_wb_metadata(wb)
 
 
-def create_metadata(wb):
-    """Create metadata."""
+def create_wb_metadata(wb_path):
+    """Create metadata for Excel Workbook files imported into the DB.
+
+    Args:
+        wb_path (str) Path to Excel Workbook.
+    """
+    filename_ext = os.path.splitext(os.path.basename(wb_path))
     record = Metadata(**{
-        'name': wb.filestr,
-        'type': '',
-        'version': ''
+        'name': filename_ext[0],
+        'type': 'dataset' if filename_ext[1].startswith('.xls') else 'unknown',
+        'md5_checksum': md5(open(wb_path,'rb').read()).hexdigest()
+
     })
-    return
+    db.session.add(record)
+    db.session.commit()
 
 
 # TODO: remove --overwrite

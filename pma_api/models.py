@@ -140,21 +140,21 @@ class ApiModel(db.Model):
 class Metadata(db.Model):
     """Metadata."""
 
-    __tablename__ = 'indicator'
+    __tablename__ = 'metadata'
     ignore_field_prefix = '__'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String, unique=True)
     type = db.Column(db.String, index=True)
-    version = db.Column(db.String, unique=True)
+    md5_checksum = db.Column(db.String)
     created_on = db.Column(db.DateTime, default=db.func.now(),
                            onupdate=db.func.now(), index=True)
 
     def __init__(self,**kwargs):
         """Metadata init."""
         if kwargs:
-            self.name = kwargs['item']
+            self.name = kwargs['name']
             self.type = kwargs['type']
-            self.version = kwargs['version']
+            self.md5_checksum = kwargs['md5_checksum']
 
 
 class Indicator(ApiModel):
