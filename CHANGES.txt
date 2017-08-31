@@ -1,2 +1,9 @@
+v0.1.1, 31 August 2017
+ * `/v1/version` route and JSON objects return metadata object
+   which shows version information for code and source data files.
+ * datalab/init has better-formatted objects for indicator, 
+   characteristicGroup, and country-round select boxes.
+ * Added metadata table to database
+
 v0.1.0, 29 August 2017
  * Initial release with semantic versioning
