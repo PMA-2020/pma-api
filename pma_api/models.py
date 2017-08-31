@@ -430,7 +430,7 @@ class Characteristic(ApiModel):
             result = self.namespace(result, 'char', index=index)
 
         char_grp_json = \
-            self.char_grp.to_json(lang=lang, jns=True, index=index)
+            self.char_grp.full_json(lang=lang, jns=True, index=index)
 
         result.update(char_grp_json)
         return result
@@ -556,18 +556,18 @@ class Data(ApiModel):
         if jns:
             result = self.namespace(result, 'data')
 
-        survey_json = self.survey.to_json(lang=lang, jns=True)
-        indicator_json = self.indicator.to_json(lang=lang, jns=True)
+        survey_json = self.survey.full_json(lang=lang, jns=True)
+        indicator_json = self.indicator.full_json(lang=lang, jns=True)
         if self.char1 is not None:
-            char1_json = self.char1.to_json(lang, jns=True, index=1)
+            char1_json = self.char1.full_json(lang, jns=True, index=1)
         else:
             char1_json = Characteristic.none_json(jns=True, index=1)
         if self.char2 is not None:
-            char2_json = self.char2.to_json(lang, jns=True, index=2)
+            char2_json = self.char2.full_json(lang, jns=True, index=2)
         else:
             char2_json = Characteristic.none_json(jns=True, index=2)
         if self.geo is not None:
-            geo_json = self.geo.to_json(lang, jns=True)
+            geo_json = self.geo.full_json(lang, jns=True)
         else:
             geo_json = Geography.none_json(jns=True)
 
@@ -643,7 +643,7 @@ class Survey(ApiModel):
         if jns:
             result = self.namespace(result, 'survey')
 
-        country_json = self.country.to_json(lang=lang, jns=True)
+        country_json = self.country.full_json(lang=lang, jns=True)
 
         result.update(country_json)
         return result
