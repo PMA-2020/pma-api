@@ -235,7 +235,7 @@ class Indicator(ApiModel):
     def datalab_init_json(self):
         """Datalab init json: Indicator."""
         to_return = {
-            'indicator.id': self.code,
+            'id': self.code,
             'label.id': self.label.code,
             'definition.id': self.definition.code
         }
@@ -327,8 +327,6 @@ class CharacteristicGroup(ApiModel):
             'id': self.code,
             'label.id': self.label.code,
             'definition.id': self.definition.code,
-            'order': self.order,
-            'category.id': self.category.code
         }
         return to_return
 
@@ -612,9 +610,6 @@ class Survey(ApiModel):
         to_return = {
             'id': self.code,
             'label.id': self.label.code,
-            'order': self.order,
-            'country.label.id': self.country.label.code,
-            'geography.subheading.id': self.geography.subheading.code
         }
         return to_return
 
