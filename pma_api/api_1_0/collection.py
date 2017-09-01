@@ -13,19 +13,16 @@ def get_countries():
     Returns:
         json: Collection for resource.
     """
-    model = Country
-    countries = model.query.all()
+    countries = Country.query.all()
 
-    print('\n\n', request.args)  # Testing
-    validity, messages = model.validate_query(request.args)
-    print(validity)
-    print(messages)
-    print('\n\n')
+    # print('\n\n', request.args)  # Testing
+    # validity, messages = model.validate_query(request.args)
+    # print(validity)
+    # print(messages)
+    # print('\n\n')  # Testing
 
-    return response(request_args=request.args, data={
-        'resultsSize': len(countries),
-        'results': [c.full_json() for c in countries]
-    })
+    return response(request_args=request.args,
+                    data=[c.full_json() for c in countries])
 
 
 @api.route('/countries/<code>')
@@ -54,10 +51,8 @@ def get_surveys():
     # Query by year, country, round
     # print(request.args)
     surveys = Survey.query.all()
-    return response(request_args=request.args, data={
-        'resultsSize': len(surveys),
-        'results': [s.full_json() for s in surveys]
-    })
+    return response(request_args=request.args,
+                    data=[s.full_json() for s in surveys])
 
 
 @api.route('/surveys/<code>')
@@ -83,12 +78,9 @@ def get_indicators():
         json: Collection for resource.
     """
     indicators = Indicator.query.all()
-    return response(request_args=request.args, data={
-        'resultsSize': len(indicators),
-        'results': [
-            i.full_json(endpoint='api.get_indicator') for i in indicators
-        ]
-    })
+    return response(request_args=request.args,
+                    data=[i.full_json(endpoint='api.get_indicator')
+                          for i in indicators])
 
 
 @api.route('/indicators/<code>')
@@ -115,10 +107,8 @@ def get_data():
     """
     all_data = data_refined_query(request.args)
     # all_data = Data.query.all()
-    return response(request_args=request.args, data={
-        'resultsSize': len(all_data),
-        'results': [d.full_json() for d in all_data]
-    })
+    return response(request_args=request.args,
+                    data=[d.full_json() for d in all_data])
 
 
 def data_refined_query(args):
@@ -160,10 +150,8 @@ def get_texts():
         json: Collection for resource.
     """
     english_strings = EnglishString.query.all()
-    return response(request_args=request.args, data={
-        'resultsSize': len(english_strings),
-        'results': [d.to_json() for d in english_strings]
-    })
+    return response(request_args=request.args,
+                    data=[d.to_json() for d in english_strings])
 
 
 @api.route('/texts/<code>')
@@ -213,7 +201,7 @@ def get_resources():
         json: List of resources.
     """
     resource_endpoints = (
-        ('countries', 'api.get_surveys'),
+        ('countries', 'api.get_countries'),
         ('surveys', 'api.get_surveys'),
         ('texts', 'api.get_texts'),
         ('indicators', 'api.get_indicators'),
