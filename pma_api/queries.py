@@ -255,7 +255,7 @@ class DatalabData:
                     'category.label.id': ind.level2.code,
                     'indicators': [ind.datalab_init_json()]
                 })
-        return results
+        return indicator_categories
 
     @staticmethod
     def init_char_grp():
