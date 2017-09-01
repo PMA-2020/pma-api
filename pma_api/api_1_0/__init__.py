@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify
 from ..queries import DatalabData
 
 api = Blueprint('api', __name__)
-__version__ = '1.1'
+__version__ = '1.2'
 
 # pylint: disable=wrong-import-position
 from . import collection, datalab
