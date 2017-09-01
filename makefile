@@ -18,7 +18,7 @@ DOC_TEST=${PYDOCSTYLE} ${TEST}
 MANAGE=${PYTHON} manage.py
 
 
-.PHONY: lint linttest lintall pylint pylinttest pylintall code codetest codeall doc doctest docall test testdoc serve shell db
+.PHONY: lint linttest lintall pylint pylinttest pylintall code codetest codeall doc doctest docall test testdoc serve shell db production staging gunicorn
 
 # ALL LINTING
 lint:
@@ -76,3 +76,12 @@ shell:
 
 db:
 	${MANAGE} initdb --overwrite
+
+production:
+	heroku run bash --app pma-api
+
+staging:
+	heroku run bash --app pma-api-staging
+
+gunicorn:
+	gunicorn run:app
