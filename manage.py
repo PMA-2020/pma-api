@@ -45,6 +45,11 @@ ORDERED_MODEL_MAP = (
 )
 
 
+UI_ORDERED_MODEL_MAP = (
+    ('translation', Translation),
+)
+
+
 def make_shell_context():
     """Make shell context.
 
@@ -102,7 +107,7 @@ def init_from_workbook(wb, queue):
 
     Args:
         wb (xlrd.Workbook): Workbook object.
-        queue (list): Order in which to load models.
+        queue (tuple): Order in which to load models.
     """
     with xlrd.open_workbook(wb) as book:
         for sheetname, model in queue:
@@ -142,6 +147,7 @@ def initdb(overwrite=False):
         db.create_all()
         if overwrite:
             init_from_workbook(wb=SRC_DATA, queue=ORDERED_MODEL_MAP)
+            init_from_workbook(wb=UI_DATA, queue=UI_ORDERED_MODEL_MAP)
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))

@@ -244,7 +244,17 @@ class DatalabData:
         select_args = Indicator
         joined = DatalabData.all_joined(select_args)
         results = joined.distinct().all()
-        results = [record.datalab_init_json() for record in results]
+        indicator_categories = []
+        for ind in results:
+            for cat in indicator_categories:
+                if ind.level2.code == cat['category.label.id']:
+                    cat['indicators'].append(ind.datalab_init_json())
+                    break
+            else:
+                indicator_categories.append({
+                    'category.label.id': ind.level2.code,
+                    'indicators': [ind.datalab_init_json()]
+                })
         return results
 
     @staticmethod

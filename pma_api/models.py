@@ -6,7 +6,6 @@ from datetime import datetime
 from hashlib import md5
 
 from flask import url_for
-from sqlalchemy.exc import IntegrityError
 
 from . import db
 from .utils import next64
@@ -279,8 +278,6 @@ class Indicator(ApiModel):
             'id': self.code,
             'label.id': self.label.code,
             'definition.id': self.definition.code,
-            'order': self.order,
-            'category.id': self.level2.code
         }
         return to_return
 
@@ -1025,7 +1022,7 @@ class EnglishString(ApiModel):
         return json_obj
 
     @staticmethod
-    def insert_unique(english):
+    def insert_unique(english, code=None):
         """Insert a unique record into the database.
 
         Creates a code and combines with English text to as the parameters for
@@ -1036,15 +1033,12 @@ class EnglishString(ApiModel):
         """
         # TODO: (jkp 2017-08-29) This is not necessary because next64 now
         # returns unique. Needs: Nothing.
-        while True:
-            try:
-                code = next64()
-                record = EnglishString(code=code, english=english)
-                db.session.add(record)
-                db.session.commit()
-                return record
-            except IntegrityError:
-                pass
+        if code is None:
+            code = next64()
+        record = EnglishString(code=code, english=english)
+        db.session.add(record)
+        db.session.commit()
+        return record
 
     def datalab_init_json(self):
         """Datalab init json: EnglishString."""
@@ -1096,36 +1090,31 @@ class Translation(ApiModel):
         }
     }
 
+    def __init__(self, **kwargs):
+        """Initialize instance of model.
+
+        Does a few things: (1) Gets english code if it is already supplied and
+        creates a record in EnglishString. This happens when inserting a
+        record for UI data. Otherwise, gets the english code and (2) Calls
+        super init.
+        """
+        if kwargs['english_code']:
+            english = EnglishString.insert_unique(
+                kwargs['english'], kwargs['english_code'].lower())
+            kwargs.pop('english_code')
+        else:
+            english = EnglishString.query.filter_by(english=kwargs['english'])\
+                .first()
+        kwargs['english_id'] = english.id
+        kwargs.pop('english')
+        super(Translation, self).__init__(**kwargs)
+
     @staticmethod
     def languages():
         """Languages list."""
         languages = {v['code']: v['label'] for _, v in
                      Translation.languages_info.items()}
         return languages
-
-    # TODO: (jkp 2017-08-29) Get other languages. Needs: Decision as to whether
-    # or not the code for this needs to be here. Otherwise nothing.
-    # @staticmethod
-    # def strings():
-    #     """Strings list."""
-    #     strings = {}
-    #     for language, info, in Translation.languages_info.items():
-    #         if info['active']:
-    #             strings[info['code']] = info['string_records']()
-    #
-    #     return strings
-    #
-    # @staticmethod
-    # def english():
-    #     """English."""
-    #     query_results = EnglishString.query.all()
-    #
-    #     strings = {}
-    #     for record in query_results:
-    #         data = record.datalab_init_json()
-    #         strings[data['id']] = data['string']
-    #
-    #     return strings
 
     def __repr__(self):
         """Return a representation of this object."""
