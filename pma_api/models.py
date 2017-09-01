@@ -147,7 +147,7 @@ class WbMetadata(db.Model):
     name = db.Column(db.String, unique=True)
     type = db.Column(db.String, index=True)
     md5_checksum = db.Column(db.String)
-    blob = db.Column(db.Binary)
+    blob = db.Column(db.LargeBinary)
     created_on = db.Column(db.DateTime, default=db.func.now(),
                            onupdate=db.func.now(), index=True)
 
