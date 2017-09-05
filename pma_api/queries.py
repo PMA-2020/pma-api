@@ -290,6 +290,8 @@ class DatalabData:
 
     @staticmethod
     def init_surveys():
+        # pylint: disable=too-many-locals
+        # TODO (2017-09-05 jkp) refactor so that this method is simpler
         """Datalab init."""
         select_args = Survey
         joined = DatalabData.all_joined(select_args)
@@ -304,11 +306,12 @@ class DatalabData:
             geo = survey.geography
             geo_code = geo.code
             country_geo_key = '|'.join((country_code, geo_code))
-            if not country in country_order:
+            if country not in country_order:
                 country_order.append(country)
 
-            if country_code in country_map and geo not in country_map[country_code]:
-                country_map[country_code].append(geo)
+            if country_code in country_map:
+                if geo not in country_map[country_code]:
+                    country_map[country_code].append(geo)
             elif country_code not in country_map:
                 country_map[country_code] = [geo]
 

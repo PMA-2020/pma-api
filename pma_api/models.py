@@ -139,12 +139,13 @@ class ApiModel(db.Model):
         return new_dict
 
 
-class WbMetadata(db.Model):
+# pylint: disable=too-few-public-methods
+class SourceData(db.Model):
     """Metadata."""
 
     __tablename__ = 'metadata'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    name = db.Column(db.String, unique=True)
+    name = db.Column(db.String)
     type = db.Column(db.String, index=True)
     md5_checksum = db.Column(db.String)
     blob = db.Column(db.LargeBinary)
@@ -184,7 +185,7 @@ class Indicator(ApiModel):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String, unique=True)
     label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
-            nullable=False)
+                         nullable=False)
     order = db.Column(db.Integer, unique=True)
     type = db.Column(db.String)
     definition_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
@@ -587,7 +588,7 @@ class Survey(ApiModel):
     __tablename__ = 'survey'
     id = db.Column(db.Integer, primary_key=True)
     label_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
-            nullable=False)
+                         nullable=False)
     order = db.Column(db.Integer, unique=True)
     type = db.Column(db.String)
     year = db.Column(db.Integer)

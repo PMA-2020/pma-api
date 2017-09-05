@@ -2,7 +2,7 @@
 from flask import request, url_for
 
 from . import api
-from .response import response
+from ..response import QuerySetApiResult
 from ..models import Country, EnglishString, Survey, Indicator, Data
 
 
@@ -14,15 +14,8 @@ def get_countries():
         json: Collection for resource.
     """
     countries = Country.query.all()
-
-    # print('\n\n', request.args)  # Testing
-    # validity, messages = model.validate_query(request.args)
-    # print(validity)
-    # print(messages)
-    # print('\n\n')  # Testing
-
-    return response(request_args=request.args,
-                    data=[c.full_json() for c in countries])
+    data = [c.full_json() for c in countries]
+    return QuerySetApiResult(data, 'json')
 
 
 @api.route('/countries/<code>')
@@ -38,7 +31,7 @@ def get_country(code):
     lang = request.args.get('_lang')
     country = Country.query.filter_by(country_code=code).first()
     json_obj = country.to_json(lang=lang)
-    return response(request_args=request.args, data=json_obj)
+    return QuerySetApiResult(json_obj, 'json')
 
 
 @api.route('/surveys')
@@ -51,8 +44,8 @@ def get_surveys():
     # Query by year, country, round
     # print(request.args)
     surveys = Survey.query.all()
-    return response(request_args=request.args,
-                    data=[s.full_json() for s in surveys])
+    data = [s.full_json() for s in surveys]
+    return QuerySetApiResult(data, 'json')
 
 
 @api.route('/surveys/<code>')
@@ -67,7 +60,7 @@ def get_survey(code):
     """
     survey = Survey.query.filter_by(code=code).first()
     json_obj = survey.full_json()
-    return response(request_args=request.args, data=json_obj)
+    return QuerySetApiResult(json_obj, 'json')
 
 
 @api.route('/indicators')
@@ -78,9 +71,8 @@ def get_indicators():
         json: Collection for resource.
     """
     indicators = Indicator.query.all()
-    return response(request_args=request.args,
-                    data=[i.full_json(endpoint='api.get_indicator')
-                          for i in indicators])
+    data = [i.full_json(endpoint='api.get_indicator') for i in indicators]
+    return QuerySetApiResult(data, 'json')
 
 
 @api.route('/indicators/<code>')
@@ -95,7 +87,7 @@ def get_indicator(code):
     """
     indicator = Indicator.query.filter_by(code=code).first()
     json_obj = indicator.full_json()
-    return response(request_args=request.args, data=json_obj)
+    return QuerySetApiResult(json_obj, 'json')
 
 
 @api.route('/data')
@@ -106,9 +98,8 @@ def get_data():
         json: Collection for resource.
     """
     all_data = data_refined_query(request.args)
-    # all_data = Data.query.all()
-    return response(request_args=request.args,
-                    data=[d.full_json() for d in all_data])
+    data = [d.full_json() for d in all_data]
+    return QuerySetApiResult(data, 'json')
 
 
 def data_refined_query(args):
@@ -139,7 +130,7 @@ def get_datum(code):
     """
     data = Data.query.filter_by(code=code).first()
     json_obj = data.full_json()
-    return response(request_args=request.args, data=json_obj)
+    return QuerySetApiResult(json_obj, 'json')
 
 
 @api.route('/texts')
@@ -150,8 +141,8 @@ def get_texts():
         json: Collection for resource.
     """
     english_strings = EnglishString.query.all()
-    return response(request_args=request.args,
-                    data=[d.to_json() for d in english_strings])
+    data = [d.to_json() for d in english_strings]
+    return QuerySetApiResult(data, 'json')
 
 
 @api.route('/texts/<code>')
@@ -166,7 +157,7 @@ def get_text(code):
     """
     text = EnglishString.query.filter_by(code=code).first()
     json_obj = text.to_json()
-    return response(request_args=request.args, data=json_obj)
+    return QuerySetApiResult(json_obj, 'json')
 
 
 # TODO: (jef/jkp 2017-08-29) Finish route. Needs: Nothing?
@@ -217,4 +208,4 @@ def get_resources():
             for name, route in resource_endpoints
         ]
     }
-    return response(request_args=request.args, data=json_obj)
+    return QuerySetApiResult(json_obj, 'json')

@@ -2,7 +2,7 @@
 from flask import jsonify, request
 
 from . import api
-from .response import QuerySetApiResult, response
+from ..response import QuerySetApiResult
 from ..queries import DatalabData
 
 
@@ -13,7 +13,8 @@ def get_datalab_data():
     indicator = request.args.get('indicator', None)
     char_grp = request.args.get('characteristicGroup', None)
     json_obj = DatalabData.filter_minimal(survey, indicator, char_grp)
-    return QuerySetApiResult(json_obj, 'json').to_response()
+    response_format = request.args.get('format', None)
+    return QuerySetApiResult(json_obj, response_format)
 
 
 @api.route('/datalab/combos')
@@ -42,4 +43,5 @@ def get_datalab_combos():
 @api.route('/datalab/init')
 def get_datalab_init():
     """Get datalab combos."""
-    return response(data=DatalabData.datalab_init(), request_args=request.args)
+    data = DatalabData.datalab_init()
+    return jsonify(data)
