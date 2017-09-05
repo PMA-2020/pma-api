@@ -37,6 +37,7 @@ def create_app(config_name):
     from .api_1_0 import api as api_1_0_blueprint
     app.register_blueprint(api_1_0_blueprint, url_prefix='/v1')
 
-    app.add_url_rule('/', view_func=lambda: 'To be implemented.')
+    app.add_url_rule('/', view_func=lambda: jsonify({
+        'info': 'To be implemented.'}))
 
     return app

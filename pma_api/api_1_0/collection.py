@@ -168,7 +168,8 @@ def get_characteristic_groups():
     Returns:
         json: Collection for resource.
     """
-    return 'Characteristic groups'
+    from flask import jsonify
+    return jsonify({'info': 'To be implemented.'})
 
 
 @api.route('/characteristicGroups/<code>')

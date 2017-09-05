@@ -35,9 +35,13 @@ def get_datalab_combos():
     elif not indicator and char_grp:
         json_obj = DatalabData.combos_char_grp(char_grp)
         return jsonify(json_obj)
-    # else: survey_list, indicator, char_grp are all None
-    # TODO (jkp 2017-08-29) put in informative error code. Need: more time
-    return 'Request args are all empty', 400
+    elif survey_list is None and indicator is None and char_grp is None:
+        msg = 'All request arguments supplied were empty, or none were ' \
+              'supplied. Please supply all required query parameters for ' \
+              'endpoint \'{endpoint}\': {params}'\
+            .format(endpoint='/datalab/combos',
+                    params=str(['survey', 'indicator', 'characteristicGroup']))
+        return jsonify({'error': msg}), 400
 
 
 @api.route('/datalab/init')
