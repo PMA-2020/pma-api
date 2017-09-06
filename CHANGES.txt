@@ -1,3 +1,9 @@
+v0.1.3, 6 September 2017
+ * CSV format allowed on /v1/datalab/data?format=csv
+ * Support CORS
+ * Version information moved to /version
+ * Internal refactor to return custom object
+
 v0.1.2, 1 September 2017
  * Datalab init for indicators fixed
  * Added back '/' root route
@@ -6,7 +12,7 @@ v0.1.2, 1 September 2017
 v0.1.1, 31 August 2017
  * `/v1/version` route and JSON objects return metadata object
    which shows version information for code and source data files.
- * datalab/init has better-formatted objects for indicator, 
+ * datalab/init has better-formatted objects for indicator,
    characteristicGroup, and country-round select boxes.
  * Added metadata table to database
 
