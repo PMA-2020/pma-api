@@ -1,6 +1,7 @@
 """Definition of application object."""
 from flask import Blueprint, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 from config import config
 from .app import PmaApiFlask
@@ -31,6 +32,7 @@ def create_app(config_name):
     app = PmaApiFlask(__name__)
     app.config.from_object(config[config_name])
 
+    CORS(app)
     db.init_app(app)
     app.register_blueprint(root)
 
