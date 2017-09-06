@@ -7,8 +7,9 @@ from flask_script import Manager, Shell
 import xlrd
 
 from pma_api import create_app, db
-from pma_api.models import WbMetadata, Characteristic, CharacteristicGroup, \
-    Country, Data, Geography, Indicator, Survey, Translation, EnglishString
+from pma_api.models import (Characteristic, CharacteristicGroup, Country,
+        Data, EnglishString, Geography, Indicator, SourceData, Survey,
+        Translation)
 
 
 app = create_app(os.getenv('FLASK_CONFIG', 'default'))
@@ -59,7 +60,7 @@ def make_shell_context():
     return dict(app=app, db=db, Country=Country, EnglishString=EnglishString,
                 Translation=Translation, Survey=Survey, Indicator=Indicator,
                 Data=Data, Characteristic=Characteristic,
-                CharacteristicGroup=CharacteristicGroup, WbMetadata=WbMetadata)
+                CharacteristicGroup=CharacteristicGroup, SourceData=SourceData)
 
 
 def init_from_source(path, model):
@@ -128,7 +129,7 @@ def create_wb_metadata(wb_path):
     Args:
         wb_path (str) Path to Excel Workbook.
     """
-    record = WbMetadata(wb_path)
+    record = SourceData(wb_path)
     db.session.add(record)
     db.session.commit()
 
