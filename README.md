@@ -299,8 +299,13 @@ Example: `/v1/datalab/combos?characteristicGroup=wealth_quintile&indicator=mcpr_
 
 ### Querying application-specific data `/v1/datalab/data`
 Returns list of data points with minimal number of fields necessary for 
-rendering visualizations. Requires 3 parameters: "survey", "indicator", and 
-"characteristicGroup".
+rendering visualizations.
+
+#### Required Parameters
+- `survey` *(string)* - Survey.
+- `indicator` *(string)* - Indicator.
+- `characteristicGroup` *(string)* - Characteristic group.
+
 Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characteristicGroup=none`
 ```
 {
@@ -312,6 +317,34 @@ Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characte
       "precision": 1, 
       "survey.id": "GH2013PMA", 
       "value": 15.4
+    }, 
+    ...
+  ], 
+  "resultsSize": <'n' results>
+}
+```
+
+#### Optional Parameters
+##### Querying Time Series Data
+- `overTime` *(boolean)*
+
+Supplying this query parameter and setting value to `true` will tell the API 
+to return chronologically sorted data, and also include a `date` attribute for 
+ each data point. If not supplied, the API will automatically interpret this 
+ value as `false`. 
+
+Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characteristicGroup=none&overTime=true`
+```
+{
+  "results": [
+    {
+      "characteristic.id": "none", 
+      "characteristicGroup.id": "none", 
+      "indicator.id": "mcpr_aw", 
+      "precision": 1, 
+      "survey.id": "GH2013PMA", 
+      "value": 15.4
+      "date": "2017-01"
     }, 
     ...
   ], 
