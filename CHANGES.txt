@@ -1,3 +1,9 @@
+v0.1.4, 11 September 2017
+ * Small documentation update
+ * 'label.id' used in /datalab/init result
+ * /datalab/data returns a list of series
+ * CSV format broken for now
+
 v0.1.3, 6 September 2017
  * CSV format allowed on /v1/datalab/data?format=csv
  * Support CORS
