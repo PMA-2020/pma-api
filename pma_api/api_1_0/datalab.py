@@ -12,7 +12,9 @@ def get_datalab_data():
     survey = request.args.get('survey', None)
     indicator = request.args.get('indicator', None)
     char_grp = request.args.get('characteristicGroup', None)
-    json_obj = DatalabData.filter_minimal(survey, indicator, char_grp)
+    over_time = request.args.get('overTime', 'false')
+    over_time = True if over_time.lower() == 'true' else False
+    json_obj = DatalabData.series_query(survey, indicator, char_grp, over_time)
     response_format = request.args.get('format', None)
     return QuerySetApiResult(json_obj, response_format)
 
