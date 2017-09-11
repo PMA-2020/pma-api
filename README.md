@@ -206,25 +206,33 @@ data isaggregated further by specified indicator(s) and characteristic(s),
 without the need for any further API calls.
 
 Example: `/v1/datalab/combos?survey=GH2013PMA,GH2014PMA`
-```
-{
-  "results": [
-    {
-      "characteristicGroup.id": "none", 
-      "indicator.id": "mcpr_aw"
-    }, 
-    {
-      "characteristicGroup.id": "residence", 
-      "indicator.id": "mcpr_aw"
-    }, 
-    {
-      "characteristicGroup.id": "wealth_quintile", 
-      "indicator.id": "mcpr_aw"
-    }, 
-    ...
-    }
-  ], 
-  "resultsSize": 6
+```{
+  "characteristicGroups": {
+    "none": [
+      "mcpr_aw", 
+      "uneed_tot_aw"
+    ], 
+    "residence": [
+      "mcpr_aw", 
+      "uneed_tot_aw"
+    ], 
+    "wealth_quintile": [
+      "mcpr_aw", 
+      "uneed_tot_aw"
+    ]
+  }, 
+  "indicators": {
+    "mcpr_aw": [
+      "none", 
+      "residence", 
+      "wealth_quintile"
+    ], 
+    "uneed_tot_aw": [
+      "none", 
+      "residence", 
+      "wealth_quintile"
+    ]
+  }
 }
 ```
 
