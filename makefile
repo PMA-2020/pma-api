@@ -18,7 +18,7 @@ DOC_TEST=${PYDOCSTYLE} ${TEST}
 MANAGE=${PYTHON} manage.py
 
 
-.PHONY: lint linttest lintall pylint pylinttest pylintall code codetest codeall doc doctest docall test testdoc serve shell db production staging gunicorn
+.PHONY: lint linttest lintall pylint pylinttest pylintall code codetest codeall doc doctest docall test testdoc serve shell db production staging gunicorn tags ltags
 
 # ALL LINTING
 lint:
@@ -85,3 +85,11 @@ staging:
 
 gunicorn:
 	gunicorn run:app
+
+
+# CTAGS
+tags:
+	ctags -R --python-kinds=-i .
+
+ltags:
+	ctags -R --python-kinds=-i ./${CODE_SRC}

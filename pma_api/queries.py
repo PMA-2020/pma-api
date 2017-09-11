@@ -5,8 +5,8 @@ from sqlalchemy import or_
 from sqlalchemy.orm import aliased
 
 from . import db
-from .models import (Characteristic, CharacteristicGroup, Data, EnglishString,
-                     Indicator, Survey, Translation)
+from .models import (Characteristic, CharacteristicGroup, Country, Data,
+                     EnglishString, Geography, Indicator, Survey, Translation)
 
 
 class DatalabData:
@@ -27,6 +27,8 @@ class DatalabData:
         joined = db.session.query(*select_args) \
             .select_from(Data) \
             .join(Survey, Data.survey_id == Survey.id) \
+            .join(Geography, Survey.geography_id == Geography.id) \
+            .join(Country, Survey.country_id == Country.id) \
             .join(Indicator, Data.indicator_id == Indicator.id) \
             .outerjoin(chr1, Data.char1_id == chr1.id) \
             .outerjoin(grp1, grp1.id == chr1.char_grp_id) \
@@ -35,7 +37,57 @@ class DatalabData:
         return joined
 
     @staticmethod
-    def filter_minimal(survey_codes, indicator_code, char_grp_code):
+    def series_query(survey_codes, indicator_code, char_grp_code, over_time):
+        json_list = DatalabData.filter_minimal(survey_codes, indicator_code,
+                                               char_grp_code, over_time)
+        if over_time:
+            series_list = DatalabData.data_to_time_series(json_list)
+        else:
+            series_list = DatalabData.data_to_series(json_list)
+        return series_list
+
+    @staticmethod
+    def data_to_time_series(sorted_data):
+        return []
+
+    @staticmethod
+    def data_to_series(sorted_data):
+        curr_survey = None
+        results = []
+        next_series = {}
+        for obj in sorted_data:
+            if obj['survey.label.id'] != curr_survey:
+                if curr_survey is not None:
+                    results.append(next_series)
+                next_series = {
+                    'survey.id': obj.pop('survey.id'),
+                    'survey.label.id': obj.pop('survey.label.id'),
+                    'geography.id': obj.pop('geography.id'),
+                    'geography.label.id': obj.pop('geography.label.id'),
+                    'country.id': obj.pop('country.id'),
+                    'country.label.id': obj.pop('country.label.id'),
+                    'values': [
+                        {
+                            'characteristic.label.id': obj.pop('characteristic.label.id'),
+                            'characteristic.id': obj.pop('characteristic.id'),
+                            'value': obj.pop('value'),
+                            'precision': obj.pop('precision')
+                        }
+                    ]
+                }
+                curr_survey = next_series['survey.label.id']
+            else:
+                next_series['values'].append({
+                    'characteristic.label.id': obj.pop('characteristic.label.id'),
+                    'characteristic.id': obj.pop('characteristic.id'),
+                    'value': obj.pop('value'),
+                    'precision': obj.pop('precision')
+                })
+        results.append(next_series)
+        return results
+
+    @staticmethod
+    def filter_minimal(survey_codes, indicator_code, char_grp_code, over_time):
         """Get filtered Datalab data and return minimal columns.
 
         Args:
@@ -54,8 +106,8 @@ class DatalabData:
         """
         chr1 = DatalabData.char1
         grp1, grp2 = DatalabData.char_grp1, DatalabData.char_grp2
-        select_args = (Data, Survey.code, Indicator.code,
-                       grp1.code, chr1.code)
+        select_args = (Data, Survey, Indicator.code, grp1.code, chr1,
+                       Geography, Country)
         filtered = DatalabData.all_joined(*select_args)
         if survey_codes is not None:
             survey_sql = DatalabData.survey_list_to_sql(survey_codes)
@@ -69,16 +121,31 @@ class DatalabData:
         # Remove E711 from .pycodestyle
         # pylint: disable=singleton-comparison
         filtered = filtered.filter(grp2.code == None)
-        results = filtered.all()
+        if over_time:
+            ordered = filtered.order_by(chr1.order) \
+                              .order_by(Geography.order) \
+                              .order_by(Survey.order)
+                              # Perhaps order by the date of the survey?
+        else:
+            ordered = filtered.order_by(Survey.order) \
+                              .order_by(chr1.order)
+        results = ordered.all()
         json_results = []
         for item in results:
             this_dict = {
                 'value': item[0].value,
                 'precision': item[0].precision,
-                'survey.id': item[1],
+                'survey.id': item[1].code,
+                'survey.date': item[1].start_date,
+                'survey.label.id': item[1].label.code,
                 'indicator.id': item[2],
                 'characteristicGroup.id': item[3],
-                'characteristic.id': item[4]
+                'characteristic.id': item[4].code,
+                'characteristic.label.id': item[4].label.code,
+                'geography.label.id': item[5].subheading.code,
+                'geography.id': item[5].code,
+                'country.label.id': item[6].label.code,
+                'country.id': item[6].code
             }
             json_results.append(this_dict)
         return json_results
@@ -247,12 +314,12 @@ class DatalabData:
         indicator_categories = []
         for ind in results:
             for cat in indicator_categories:
-                if ind.level2.code == cat['category.label.id']:
+                if ind.level2.code == cat['label.id']:
                     cat['indicators'].append(ind.datalab_init_json())
                     break
             else:
                 indicator_categories.append({
-                    'category.label.id': ind.level2.code,
+                    'label.id': ind.level2.code,
                     'indicators': [ind.datalab_init_json()]
                 })
         return indicator_categories
@@ -266,13 +333,13 @@ class DatalabData:
         chargrp_categories = []
         for char_grp in results:
             for cat in chargrp_categories:
-                if char_grp.category.code == cat['category.label.id']:
+                if char_grp.category.code == cat['label.id']:
                     cat['characteristicGroups'].append(char_grp.
                                                        datalab_init_json())
                     break
             else:
                 chargrp_categories.append({
-                    'category.label.id': char_grp.category.code,
+                    'label.id': char_grp.category.code,
                     'characteristicGroups': [char_grp.datalab_init_json()]
                 })
 
@@ -329,12 +396,12 @@ class DatalabData:
                 surveys = country_geo_map[country_geo_key]
                 survey_list = [s.datalab_init_json() for s in surveys]
                 this_geo_obj = {
-                    'geography.label.id': geo.subheading.code,
+                    'label.id': geo.subheading.code,
                     'surveys': survey_list
                 }
                 geography_list.append(this_geo_obj)
             this_country_obj = {
-                'country.label.id': country.label.code,
+                'label.id': country.label.code,
                 'geographies': geography_list
             }
             survey_country_list.append(this_country_obj)

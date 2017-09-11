@@ -4,14 +4,14 @@ This is the PMA2020 API.
 # Developer Documentation
 ## Navigation
 ### Resource Lists
-Resource roots are endpoints that return a list of resources and URLs to those 
-resources. The resource list for common endpoints can be found at `/v#` or 
-`/v#/resources`, and the resource list for application-specific endpoints can 
-be found at `/v#/datalab` or `v#/datalab/resources`, where "#" is the API 
+Resource roots are endpoints that return a list of resources and URLs to those
+resources. The resource list for common endpoints can be found at `/v#` or
+`/v#/resources`, and the resource list for application-specific endpoints can
+be found at `/v#/datalab` or `v#/datalab/resources`, where "#" is the API
 version number.
 ### Navigating API Versions
-Leaving `/v#/` out of your API query URLs will default to the most recent, 
-stable API verison. To prevent unexpected results, it is advised to always 
+Leaving `/v#/` out of your API query URLs will default to the most recent,
+stable API verison. To prevent unexpected results, it is advised to always
 supply a version number.
 
 ## Syntax
@@ -21,37 +21,37 @@ supply a version number.
 - Back-slash, `\ `: For character escaping (TODO).
 - Question mark, `?`: For specifying query parameters.
 - Ampersand, `&`: Query parameter delimiter.
-- Equals-sign, `=`: Keyword query parameter assignment operator. 
+- Equals-sign, `=`: Keyword query parameter assignment operator.
 - Comma, `,`: List item delimiter.
 
 #### Character Escpaing
 TODO
- 
+
 ### Data Types
 #### Primitives
-In an API query URL string, specific data types should be used as follows and 
+In an API query URL string, specific data types should be used as follows and
 should be specified witout quotation marks (`"` or `'`).
 ##### String
 Example: `/v1/datalab/data?survey=GH2013PMA`.
 
-##### Integer 
+##### Integer
 Example: `/v1/datalab/data?precision=1`.
 
-##### Float 
+##### Float
 Example: `/v1/datalab/data?value=15.4`.
 
 ##### Boolean
-Booleans can be any upper or lower case variant of 'true' or 'false'. Values 
-"1", "0", "null", "none" are examples of non-booleans. 
+Booleans can be any upper or lower case variant of 'true' or 'false'. Values
+"1", "0", "null", "none" are examples of non-booleans.
 Example: `/v1/datalab/indicator?isFavorite=true`.
 
 ##### Null
-Null can be any upper or lower case variant of 'null'.  Values "0" and "none" 
+Null can be any upper or lower case variant of 'null'.  Values "0" and "none"
 are examples of non-null values.
 Example: `/v1/datalab/indicator?isFavorite=null`.
 
 ##### None
-None can be any upper or lower case variant of 'none'.  Values "0" and "null" 
+None can be any upper or lower case variant of 'none'.  Values "0" and "null"
 are examples of non-none values.
 Example: `/v1/data?char1.id=none`
 
@@ -76,7 +76,7 @@ TODO
 ## Common Endpoints
 
 ### Root `/v1/`
-This endpoint re-routes directly to: `/v1/resources` 
+This endpoint re-routes directly to: `/v1/resources`
 
 ### Resources `/v1/resources`
 Returns a list of core resources. Takes no arguments.
@@ -86,27 +86,27 @@ Example: `/v1/resources`
 {
   "resources": [
     {
-      "name": "countries", 
+      "name": "countries",
       "resource": "https://<base_url>/surveys"
-    }, 
+    },
     {
-      "name": "surveys", 
+      "name": "surveys",
       "resource": "https://<base_url>/surveys"
-    }, 
+    },
     {
-      "name": "texts", 
+      "name": "texts",
       "resource": "https://<base_url>/texts"
-    }, 
+    },
     {
-      "name": "indicators", 
+      "name": "indicators",
       "resource": "https://<base_url>/indicators"
-    }, 
+    },
     {
-      "name": "data", 
+      "name": "data",
       "resource": "https://<base_url>/data"
-    }, 
+    },
     {
-      "name": "characteristicGroups", 
+      "name": "characteristicGroups",
       "resource": "https://<base_url>/characteristicGroups"
     }
   ]
@@ -124,157 +124,165 @@ Example: `/v1/version`
 ```
 
 ## Application Specific Endpoints
-This is documentation for application specific endpoints, such as 
+This is documentation for application specific endpoints, such as
 [PMA2020 Datalab](http://datalab.pma2020.org).
 
 ### Application initialization `/v1/datalab/init`
-Returns lists of all specific, key resources (surveys, indicators, and 
-characteristics), all of which have at least one stored data point associated. 
+Returns lists of all specific, key resources (surveys, indicators, and
+characteristics), all of which have at least one stored data point associated.
 Takes no arguments.
 
-Example: `/v1/datalab/init` 
+Example: `/v1/datalab/init`
 ```
 {
   "characteristicGroups": [
     {
-      "category.id": "To be implemented.", 
-      "definition.id": "0UI5Qdrh", 
-      "id": "wealth_quintile", 
-      "label.id": "BP8WlFPW", 
+      "category.id": "To be implemented.",
+      "definition.id": "0UI5Qdrh",
+      "id": "wealth_quintile",
+      "label.id": "BP8WlFPW",
       "order": "To be implemented."
-    }, 
+    },
     ...
-  ], 
+  ],
   "characteristics": [
     {
-      "id": "none", 
-      "label.id": "jVwfpK1a", 
+      "id": "none",
+      "label.id": "jVwfpK1a",
       "order": 0
-    }, 
+    },
     ...
-  ], 
+  ],
   "indicators": [
     {
-      "category.id": "h2koO9c-", 
-      "definition.id": "e3E-GqDL", 
-      "id": "uneed_tot_aw", 
-      "label.id": "e3E-GqDL", 
+      "category.id": "h2koO9c-",
+      "definition.id": "e3E-GqDL",
+      "id": "uneed_tot_aw",
+      "label.id": "e3E-GqDL",
       "order": 80
-    }, 
+    },
     ...
-  ], 
+  ],
   "languages": {
-    "en": "English", 
+    "en": "English",
     "fr": "French",
     ...
-  }, 
+  },
   "strings": {
     "-iTSAPqU": {
       "en": "Non-user"
-    }, 
+    },
     "-lfInUMt": {
       "en": "Highest"
-    },  
+    },
     ...
-  }, 
+  },
   "surveys": [
     {
-      "country.label.id": 3, 
-      "geography.label.id": "To be implemented.", 
-      "id": "KE2014PMA", 
-      "label.id": "To be implemented.", 
+      "country.label.id": 3,
+      "geography.label.id": "To be implemented.",
+      "id": "KE2014PMA",
+      "label.id": "To be implemented.",
       "order": 601
-    }, 
+    },
     ...
   ]
 }
 ```
 
 ### Query for valid combinations of key resources `/v1/datalab/combos`
-Query for valid combinations of key resources, given 1-2 of 3 possible key 
-resources required for rendering visualizations. A valid combinations of 
-resources is defined as resources that, when passed to `v1/data` or 
-`v1/datalab/data`, will return 1 or more data points. This endpoint requires 
-1-2 of the following parameters (key resources): "survey", "indicator", or 
+Query for valid combinations of key resources, given 1-2 of 3 possible key
+resources required for rendering visualizations. A valid combinations of
+resources is defined as resources that, when passed to `v1/data` or
+`v1/datalab/data`, will return 1 or more data points. This endpoint requires
+1-2 of the following parameters (key resources): "survey", "indicator", or
 "characteristicGroup".
 
-#### A. Query by survey `/v1/datalab/combos?survey=<surveys>`  
-A list of indicator and characteristic combinations which have one or more 
-stored data point associated with any of the provided surveys. From this list 
+#### A. Query by survey `/v1/datalab/combos?survey=<surveys>`
+A list of indicator and characteristic combinations which have one or more
+stored data point associated with any of the provided surveys. From this list
 provided, the client application should have enough information to filter valid
-data isaggregated further by specified indicator(s) and characteristic(s), 
+data isaggregated further by specified indicator(s) and characteristic(s),
 without the need for any further API calls.
 
 Example: `/v1/datalab/combos?survey=GH2013PMA,GH2014PMA`
-```
-{
-  "results": [
-    {
-      "characteristicGroup.id": "none", 
-      "indicator.id": "mcpr_aw"
-    }, 
-    {
-      "characteristicGroup.id": "residence", 
-      "indicator.id": "mcpr_aw"
-    }, 
-    {
-      "characteristicGroup.id": "wealth_quintile", 
-      "indicator.id": "mcpr_aw"
-    }, 
-    ...
-    }
-  ], 
-  "resultsSize": 6
+```{
+  "characteristicGroups": {
+    "none": [
+      "mcpr_aw",
+      "uneed_tot_aw"
+    ],
+    "residence": [
+      "mcpr_aw",
+      "uneed_tot_aw"
+    ],
+    "wealth_quintile": [
+      "mcpr_aw",
+      "uneed_tot_aw"
+    ]
+  },
+  "indicators": {
+    "mcpr_aw": [
+      "none",
+      "residence",
+      "wealth_quintile"
+    ],
+    "uneed_tot_aw": [
+      "none",
+      "residence",
+      "wealth_quintile"
+    ]
+  }
 }
 ```
 
 #### B. Query by indicator or characteristicGroup `/v1/datalab?[indicator | characteristicGroup]=<id>`
-Filtering by either indicator or characteristicGroup returns a list of 
-indicators or characteristics (whichever was not provided in the query) which 
-have one or more stored data point associated, and a separate list of surveys 
+Filtering by either indicator or characteristicGroup returns a list of
+indicators or characteristics (whichever was not provided in the query) which
+have one or more stored data point associated, and a separate list of surveys
 which have one or more stored data point associated.
 
-Example: `/v1/datalab/combos?indicator=mcpr_aw`  
+Example: `/v1/datalab/combos?indicator=mcpr_aw`
 ```
 {
   "characteristicGroup": [
-    "none", 
-    "wealth_quintile", 
+    "none",
+    "wealth_quintile",
     ...
-  ], 
+  ],
   "survey": [
-    "GH2015PMA", 
-    "KE2015PMA", 
+    "GH2015PMA",
+    "KE2015PMA",
     ...
   ]
 }
 ```
 
-Example: `/v1/datalab/combos?characteristicGroup=wealth_quintile`  
+Example: `/v1/datalab/combos?characteristicGroup=wealth_quintile`
 ```
 {
   "indicator": [
-    "mcpr_aw", 
+    "mcpr_aw",
     "uneed_tot_aw",
     ...
-  ], 
+  ],
   "survey": [
-    "GH2015PMA", 
-    "KE2015PMA", 
+    "GH2015PMA",
+    "KE2015PMA",
     ...
   ]
 }
 ```
 
 #### C. Query by 2 of 3 key resources `/v1/datalab/combos?<resource_1>=<id>&<resource_2>=<id>`
-Filter by 2 of 3 of the `/datalab/combos` parameters: "survey", "indicator", and 
-"characteristicGroup". 
+Filter by 2 of 3 of the `/datalab/combos` parameters: "survey", "indicator", and
+"characteristicGroup".
 
 Example: `/v1/datalab/combos?survey=GH2015PMA&indicator=mcpr_aw`
 ```
 [
-  "age_5yr_int", 
-  "facility_type_gh", 
+  "age_5yr_int",
+  "facility_type_gh",
   ...
 ]
 ```
@@ -282,7 +290,7 @@ Example: `/v1/datalab/combos?survey=GH2015PMA&indicator=mcpr_aw`
 Example: `/v1/datalab/combos?survey=GH2015PMA&characteristicGroup=wealth_quintile`
 ```
 [
-  "mcpr_aw", 
+  "mcpr_aw",
   "uneed_tot_aw"
   ...
 ]
@@ -291,30 +299,97 @@ Example: `/v1/datalab/combos?survey=GH2015PMA&characteristicGroup=wealth_quintil
 Example: `/v1/datalab/combos?characteristicGroup=wealth_quintile&indicator=mcpr_aw`
 ```
 [
-    "GH2015PMA", 
+    "GH2015PMA",
     "KE2014PMA",
     ...
 ]
 ```
 
 ### Querying application-specific data `/v1/datalab/data`
-Returns list of data points with minimal number of fields necessary for 
-rendering visualizations. Requires 3 parameters: "survey", "indicator", and 
-"characteristicGroup".
+Returns list of data points with minimal number of fields necessary for
+rendering visualizations.
+
+#### Required Parameters
+- `survey` *(string)* - Survey.
+- `indicator` *(string)* - Indicator.
+- `characteristicGroup` *(string)* - Characteristic group.
+
 Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characteristicGroup=none`
 ```
 {
   "results": [
     {
-      "characteristic.id": "none", 
-      "characteristicGroup.id": "none", 
-      "indicator.id": "mcpr_aw", 
-      "precision": 1, 
-      "survey.id": "GH2013PMA", 
+      "country.id": "GH",
+      "country.label.id": "6EA0At85",
+      "geography.id": "gh_national",
+      "geography.label.id": "w748V1ul",
+      "survey.id": "GH2013PMA",
+      "survey.label.id": "lq0db_sX",
+      "values": [
+        {
+          "characteristic.id": "none",
+          "characteristic.label.id": "nQWQT0z0",
+          "precision": 1,
+          "value": 15.4
+        }
+      ]
+    },
+    {
+      "country.id": "GH",
+      "country.label.id": "6EA0At85",
+      "geography.id": "gh_national",
+      "geography.label.id": "w748V1ul",
+      "survey.id": "GH2014PMA",
+      "survey.label.id": "cizmJ6Gv",
+      "values": [
+        {
+          "characteristic.id": "none",
+          "characteristic.label.id": "nQWQT0z0",
+          "precision": null,
+          "value": 16.1
+        }
+      ]
+    }
+  ]
+  "results": [
+    {
+      "characteristic.id": "none",
+      "characteristicGroup.id": "none",
+      "indicator.id": "mcpr_aw",
+      "precision": 1,
+      "survey.id": "GH2013PMA",
       "value": 15.4
-    }, 
+    },
     ...
-  ], 
+  ],
+  "resultsSize": <'n' results>
+}
+```
+
+#### Optional Parameters
+##### Querying Time Series Data (WORK IN PROGRESS)
+- `overTime` *(boolean)*
+
+Supplying this query parameter and setting value to `true` will tell the API
+to return chronologically sorted data, and also include a `date` attribute for
+ each data point. If not supplied, the API will automatically interpret this
+ value as `false`.
+
+Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characteristicGroup=none&overTime=true`
+```
+{
+  "results": [
+    {
+      "characteristic.id": "none",
+      "characteristicGroup.id": "none",
+      "indicator.id": "mcpr_aw",
+      "precision": 1,
+      "survey.id": "GH2013PMA",
+      "value": 15.4
+      "date": "2017-01"
+    },
+    ...
+  ],
   "resultsSize": <'n' results>
 }
 ```
