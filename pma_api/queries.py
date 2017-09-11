@@ -247,12 +247,12 @@ class DatalabData:
         indicator_categories = []
         for ind in results:
             for cat in indicator_categories:
-                if ind.level2.code == cat['category.label.id']:
+                if ind.level2.code == cat['label.id']:
                     cat['indicators'].append(ind.datalab_init_json())
                     break
             else:
                 indicator_categories.append({
-                    'category.label.id': ind.level2.code,
+                    'label.id': ind.level2.code,
                     'indicators': [ind.datalab_init_json()]
                 })
         return indicator_categories
@@ -266,13 +266,13 @@ class DatalabData:
         chargrp_categories = []
         for char_grp in results:
             for cat in chargrp_categories:
-                if char_grp.category.code == cat['category.label.id']:
+                if char_grp.category.code == cat['label.id']:
                     cat['characteristicGroups'].append(char_grp.
                                                        datalab_init_json())
                     break
             else:
                 chargrp_categories.append({
-                    'category.label.id': char_grp.category.code,
+                    'label.id': char_grp.category.code,
                     'characteristicGroups': [char_grp.datalab_init_json()]
                 })
 
@@ -329,12 +329,12 @@ class DatalabData:
                 surveys = country_geo_map[country_geo_key]
                 survey_list = [s.datalab_init_json() for s in surveys]
                 this_geo_obj = {
-                    'geography.label.id': geo.subheading.code,
+                    'label.id': geo.subheading.code,
                     'surveys': survey_list
                 }
                 geography_list.append(this_geo_obj)
             this_country_obj = {
-                'country.label.id': country.label.code,
+                'label.id': country.label.code,
                 'geographies': geography_list
             }
             survey_country_list.append(this_country_obj)
