@@ -183,6 +183,114 @@ class DatalabData:
         return full_sql
 
     @staticmethod
+    def combos_all(survey_list, indicator, char_grp):
+        """Get lists of all valid datalab selections.
+
+        Based on a current selection in the datalab, this method returns lists
+        of what should be clickable in each of the three selection areas of
+        the datalab.
+
+        Args:
+            survey_list (list of str): A list of survey codes. An empty list if
+                not provided.
+            indicator (str): An indicator code or None if not provided.
+            char_grp(str): An characteristic group code or None if not
+                provided.
+
+        Returns:
+            A dictionary with a survey list, an indicator list, and a
+            characteristic group list.
+        """
+        def keep_survey(this_indicator, this_char_grp):
+            """Determine whether a survey from the data is valid.
+
+            Args:
+                this_indicator (str): An indicator code from the data
+                this_char_grp (str): A characteristic code from the data
+
+            Returns:
+                True or False to say if the related survey code should be
+                included in the return set.
+            """
+            if indicator is None and char_grp is None:
+                keep = True
+            elif indicator is None and char_grp is not None:
+                keep = this_char_grp == char_grp
+            elif indicator is not None and char_grp is None:
+                keep = this_indicator == indicator
+            else:
+                indicator_match = this_indicator == indicator
+                char_grp_match = this_char_grp == char_grp
+                keep = indicator_match and char_grp_match
+            return keep
+
+        def keep_indicator(this_survey, this_char_grp):
+            """Determine whether an indicator from the data is valid.
+
+            Args:
+                this_survey (str): A survey code from the data
+                this_char_grp (str): A characteristic code from the data
+
+            Returns:
+                True or False to say if the related indicator code should be
+                included in the return set.
+            """
+            if not survey_list and char_grp is None:
+                keep = True
+            elif not survey_list and char_grp is not None:
+                keep = this_char_grp == char_grp
+            elif survey_list and char_grp is None:
+                keep = this_survey in survey_list
+            else:
+                survey_match = this_survey in survey_list
+                char_grp_match = this_char_grp == char_grp
+                keep = survey_match and char_grp_match
+            return keep
+
+        def keep_char_grp(this_survey, this_indicator):
+            """Determine whether a characterist group from the data is valid.
+
+            Args:
+                this_survey (str): A survey code from the data
+                this_indicator (str): An indicator code from the data
+
+            Returns:
+                True or False to say if the related characteristic group code
+                should be included in the return set.
+            """
+            if not survey_list and indicator is None:
+                keep = True
+            elif not survey_list and indicator is not None:
+                keep = this_indicator == indicator
+            elif survey_list and char_grp is None:
+                keep = this_survey in survey_list
+            else:
+                survey_match = this_survey in survey_list
+                indicator_match = this_indicator == indicator
+                keep = survey_match and indicator_match
+            return keep
+
+        select_args = (Survey.code, Indicator.code, DatalabData.char_grp1.code)
+        joined = DatalabData.all_joined(*select_args)
+        results = joined.distinct().all()
+        surveys = set()
+        indicators = set()
+        char_grps = set()
+        for survey_code, indicator_code, char_grp_code in results:
+            if keep_survey(indicator_code, char_grp_code):
+                surveys.add(survey_code)
+            if keep_indicator(survey_code, char_grp_code):
+                indicators.add(indicator_code)
+            if keep_char_grp(survey_code, indicator_code):
+                char_grps.add(char_grp_code)
+        json_obj = {
+            'survey.id': sorted(list(surveys)),
+            'indicator.id': sorted(list(indicators)),
+            'characteristicGroup.id': sorted(list(char_grps))
+        }
+        return json_obj
+
+    @staticmethod
     def all_minimal():
         """Get all datalab data in the minimal style."""
         results = DatalabData.filter_minimal(None, None, None)

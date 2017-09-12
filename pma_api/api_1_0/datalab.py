@@ -22,27 +22,12 @@ def get_datalab_data():
 @api.route('/datalab/combos')
 def get_datalab_combos():
     """Get datalab combos."""
-    survey_list = request.args.get('survey', None)
+    survey = request.args.get('survey', None)
+    survey_list = sorted(survey.split(',')) if survey else []
     indicator = request.args.get('indicator', None)
     char_grp = request.args.get('characteristicGroup', None)
-    if survey_list:
-        json_obj = DatalabData.combos_survey_list(survey_list)
-        return jsonify(json_obj)
-    elif indicator and char_grp:
-        json_obj = DatalabData.combos_indicator_char_grp(indicator, char_grp)
-        return jsonify(json_obj)
-    elif indicator and not char_grp:
-        json_obj = DatalabData.combos_indicator(indicator)
-        return jsonify(json_obj)
-    elif not indicator and char_grp:
-        json_obj = DatalabData.combos_char_grp(char_grp)
-        return jsonify(json_obj)
-    msg = 'All request arguments supplied were empty, or none were ' \
-          'supplied. Please supply all required query parameters for ' \
-          'endpoint \'{endpoint}\': {params}'\
-        .format(endpoint='/datalab/combos',
-                params=str(['survey', 'indicator', 'characteristicGroup']))
-    return jsonify({'error': msg}), 400
+    json_obj = DatalabData.combos_all(survey_list, indicator, char_grp)
+    return jsonify(json_obj)
 
 
 @api.route('/datalab/init')
