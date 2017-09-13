@@ -173,7 +173,7 @@ class SourceData(db.Model):
             'name': self.name,
             'hash': self.md5_checksum,
             'type': self.type,
-            'created_on': self.created_on
+            'createdOn': self.created_on
         }
         return result
 

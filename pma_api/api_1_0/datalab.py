@@ -1,8 +1,8 @@
 """Routes related to the datalab."""
-from flask import jsonify, request
+from flask import request
 
 from . import api
-from ..response import QuerySetApiResult
+from ..response import ApiResult, QuerySetApiResult
 from ..queries import DatalabData
 
 
@@ -23,7 +23,9 @@ def get_datalab_data():
         json_obj = DatalabData.data_to_time_series(json_list)
     else:
         json_obj = DatalabData.data_to_series(json_list)
-    return jsonify(json_obj)
+    request_params = request.args.to_dict()
+    metadata = {'queryParameters': request_params}
+    return QuerySetApiResult(json_obj, 'json', metadata=metadata)
 
 
 @api.route('/datalab/combos')
@@ -34,11 +36,13 @@ def get_datalab_combos():
     indicator = request.args.get('indicator', None)
     char_grp = request.args.get('characteristicGroup', None)
     json_obj = DatalabData.combos_all(survey_list, indicator, char_grp)
-    return jsonify(json_obj)
+    request_params = request.args.to_dict()
+    metadata = {'queryParameters': request_params}
+    return ApiResult(json_obj, metadata=metadata)
 
 
 @api.route('/datalab/init')
 def get_datalab_init():
     """Get datalab combos."""
-    data = DatalabData.datalab_init()
-    return jsonify(data)
+    json_obj = DatalabData.datalab_init()
+    return ApiResult(json_obj)

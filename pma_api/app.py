@@ -1,7 +1,7 @@
 """Custom subclass for the PMA API."""
 from flask import Flask
 
-from .response import QuerySetApiResult
+from .response import ApiResult
 
 
 class PmaApiFlask(Flask):
@@ -9,6 +9,6 @@ class PmaApiFlask(Flask):
 
     def make_response(self, rv):
         """Handle custom responses."""
-        if isinstance(rv, QuerySetApiResult):
+        if isinstance(rv, ApiResult):
             return rv.to_response()
         return Flask.make_response(self, rv)
