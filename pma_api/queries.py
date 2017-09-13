@@ -38,6 +38,7 @@ class DatalabData:
 
     @staticmethod
     def series_query(survey_codes, indicator_code, char_grp_code, over_time):
+        """Get the series based on supplied codes."""
         json_list = DatalabData.filter_minimal(survey_codes, indicator_code,
                                                char_grp_code, over_time)
         if over_time:
@@ -48,10 +49,47 @@ class DatalabData:
 
     @staticmethod
     def data_to_time_series(sorted_data):
-        return []
+        """Transform a sorted list of data into time series."""
+        curr_char = None
+        results = []
+        next_series = {}
+        for obj in sorted_data:
+            if obj['characteristic.id'] != curr_char:
+                if curr_char is not None:
+                    results.append(next_series)
+                next_series = {
+                    'characteristic.id': obj.pop('characteristic.id'),
+                    'characteristic.label.id':
+                        obj.pop('characteristic.label.id'),
+                    'geography.id': obj.pop('geography.id'),
+                    'geography.label.id': obj.pop('geography.label.id'),
+                    'country.id': obj.pop('country.id'),
+                    'country.label.id': obj.pop('country.label.id'),
+                    'values': [
+                        {
+                            'survey.id': obj.pop('survey.id'),
+                            'survey.label.id': obj.pop('survey.label.id'),
+                            'survey.date': obj.pop('survey.date'),
+                            'value': obj.pop('value'),
+                            'precision': obj.pop('precision')
+                        }
+                    ]
+                }
+                curr_char = next_series['characteristic.id']
+            else:
+                next_series['values'].append({
+                    'survey.id': obj.pop('survey.id'),
+                    'survey.label.id': obj.pop('survey.label.id'),
+                    'survey.date': obj.pop('survey.date'),
+                    'value': obj.pop('value'),
+                    'precision': obj.pop('precision')
+                })
+        results.append(next_series)
+        return results
 
     @staticmethod
     def data_to_series(sorted_data):
+        """Transform a sorted list of data into series."""
         curr_survey = None
         results = []
         next_series = {}
@@ -68,7 +106,8 @@ class DatalabData:
                     'country.label.id': obj.pop('country.label.id'),
                     'values': [
                         {
-                            'characteristic.label.id': obj.pop('characteristic.label.id'),
+                            'characteristic.label.id':
+                                obj.pop('characteristic.label.id'),
                             'characteristic.id': obj.pop('characteristic.id'),
                             'value': obj.pop('value'),
                             'precision': obj.pop('precision')
@@ -78,7 +117,8 @@ class DatalabData:
                 curr_survey = next_series['survey.label.id']
             else:
                 next_series['values'].append({
-                    'characteristic.label.id': obj.pop('characteristic.label.id'),
+                    'characteristic.label.id':
+                        obj.pop('characteristic.label.id'),
                     'characteristic.id': obj.pop('characteristic.id'),
                     'value': obj.pop('value'),
                     'precision': obj.pop('precision')
@@ -122,10 +162,11 @@ class DatalabData:
         # pylint: disable=singleton-comparison
         filtered = filtered.filter(grp2.code == None)
         if over_time:
-            ordered = filtered.order_by(chr1.order) \
-                              .order_by(Geography.order) \
+            # This ordering is very important!
+            ordered = filtered.order_by(Geography.order) \
+                              .order_by(chr1.order) \
                               .order_by(Survey.order)
-                              # Perhaps order by the date of the survey?
+            # Perhaps order by the date of the survey?
         else:
             ordered = filtered.order_by(Survey.order) \
                               .order_by(chr1.order)
@@ -136,7 +177,7 @@ class DatalabData:
                 'value': item[0].value,
                 'precision': item[0].precision,
                 'survey.id': item[1].code,
-                'survey.date': item[1].start_date,
+                'survey.date': item[1].start_date.strftime('%Y-%m-%d'),
                 'survey.label.id': item[1].label.code,
                 'indicator.id': item[2],
                 'characteristicGroup.id': item[3],
@@ -184,6 +225,7 @@ class DatalabData:
 
     @staticmethod
     def combos_all(survey_list, indicator, char_grp):
+        # pylint: disable=too-many-locals
         """Get lists of all valid datalab selections.
 
         Based on a current selection in the datalab, this method returns lists
@@ -293,7 +335,7 @@ class DatalabData:
     @staticmethod
     def all_minimal():
         """Get all datalab data in the minimal style."""
-        results = DatalabData.filter_minimal(None, None, None)
+        results = DatalabData.filter_minimal(None, None, None, False)
         return results
 
     @staticmethod

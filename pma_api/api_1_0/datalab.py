@@ -14,9 +14,16 @@ def get_datalab_data():
     char_grp = request.args.get('characteristicGroup', None)
     over_time = request.args.get('overTime', 'false')
     over_time = True if over_time.lower() == 'true' else False
-    json_obj = DatalabData.series_query(survey, indicator, char_grp, over_time)
+    json_list = DatalabData.filter_minimal(survey, indicator, char_grp,
+                                           over_time)
     response_format = request.args.get('format', None)
-    return QuerySetApiResult(json_obj, response_format)
+    if response_format == 'csv':
+        return QuerySetApiResult(json_list, response_format)
+    if over_time:
+        json_obj = DatalabData.data_to_time_series(json_list)
+    else:
+        json_obj = DatalabData.data_to_series(json_list)
+    return jsonify(json_obj)
 
 
 @api.route('/datalab/combos')
