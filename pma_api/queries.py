@@ -38,6 +38,7 @@ class DatalabData:
 
     @staticmethod
     def series_query(survey_codes, indicator_code, char_grp_code, over_time):
+        """Get the series based on supplied codes."""
         json_list = DatalabData.filter_minimal(survey_codes, indicator_code,
                                                char_grp_code, over_time)
         if over_time:
@@ -48,10 +49,47 @@ class DatalabData:
 
     @staticmethod
     def data_to_time_series(sorted_data):
-        return []
+        """Transform a sorted list of data into time series."""
+        curr_char = None
+        results = []
+        next_series = {}
+        for obj in sorted_data:
+            if obj['characteristic.id'] != curr_char:
+                if curr_char is not None:
+                    results.append(next_series)
+                next_series = {
+                    'characteristic.id': obj.pop('characteristic.id'),
+                    'characteristic.label.id':
+                        obj.pop('characteristic.label.id'),
+                    'geography.id': obj.pop('geography.id'),
+                    'geography.label.id': obj.pop('geography.label.id'),
+                    'country.id': obj.pop('country.id'),
+                    'country.label.id': obj.pop('country.label.id'),
+                    'values': [
+                        {
+                            'survey.id': obj.pop('survey.id'),
+                            'survey.label.id': obj.pop('survey.label.id'),
+                            'survey.date': obj.pop('survey.date'),
+                            'value': obj.pop('value'),
+                            'precision': obj.pop('precision')
+                        }
+                    ]
+                }
+                curr_char = next_series['characteristic.id']
+            else:
+                next_series['values'].append({
+                    'survey.id': obj.pop('survey.id'),
+                    'survey.label.id': obj.pop('survey.label.id'),
+                    'survey.date': obj.pop('survey.date'),
+                    'value': obj.pop('value'),
+                    'precision': obj.pop('precision')
+                })
+        results.append(next_series)
+        return results
 
     @staticmethod
     def data_to_series(sorted_data):
+        """Transform a sorted list of data into series."""
         curr_survey = None
         results = []
         next_series = {}
@@ -68,7 +106,8 @@ class DatalabData:
                     'country.label.id': obj.pop('country.label.id'),
                     'values': [
                         {
-                            'characteristic.label.id': obj.pop('characteristic.label.id'),
+                            'characteristic.label.id':
+                                obj.pop('characteristic.label.id'),
                             'characteristic.id': obj.pop('characteristic.id'),
                             'value': obj.pop('value'),
                             'precision': obj.pop('precision')
@@ -78,7 +117,8 @@ class DatalabData:
                 curr_survey = next_series['survey.label.id']
             else:
                 next_series['values'].append({
-                    'characteristic.label.id': obj.pop('characteristic.label.id'),
+                    'characteristic.label.id':
+                        obj.pop('characteristic.label.id'),
                     'characteristic.id': obj.pop('characteristic.id'),
                     'value': obj.pop('value'),
                     'precision': obj.pop('precision')
@@ -122,10 +162,11 @@ class DatalabData:
         # pylint: disable=singleton-comparison
         filtered = filtered.filter(grp2.code == None)
         if over_time:
-            ordered = filtered.order_by(chr1.order) \
-                              .order_by(Geography.order) \
+            # This ordering is very important!
+            ordered = filtered.order_by(Geography.order) \
+                              .order_by(chr1.order) \
                               .order_by(Survey.order)
-                              # Perhaps order by the date of the survey?
+            # Perhaps order by the date of the survey?
         else:
             ordered = filtered.order_by(Survey.order) \
                               .order_by(chr1.order)
@@ -136,7 +177,7 @@ class DatalabData:
                 'value': item[0].value,
                 'precision': item[0].precision,
                 'survey.id': item[1].code,
-                'survey.date': item[1].start_date,
+                'survey.date': item[1].start_date.strftime('%Y-%m-%d'),
                 'survey.label.id': item[1].label.code,
                 'indicator.id': item[2],
                 'characteristicGroup.id': item[3],
@@ -183,9 +224,118 @@ class DatalabData:
         return full_sql
 
     @staticmethod
+    def combos_all(survey_list, indicator, char_grp):
+        # pylint: disable=too-many-locals
+        """Get lists of all valid datalab selections.
+
+        Based on a current selection in the datalab, this method returns lists
+        of what should be clickable in each of the three selection areas of
+        the datalab.
+
+        Args:
+            survey_list (list of str): A list of survey codes. An empty list if
+                not provided.
+            indicator (str): An indicator code or None if not provided.
+            char_grp(str): An characteristic group code or None if not
+                provided.
+
+        Returns:
+            A dictionary with a survey list, an indicator list, and a
+            characteristic group list.
+        """
+        def keep_survey(this_indicator, this_char_grp):
+            """Determine whether a survey from the data is valid.
+
+            Args:
+                this_indicator (str): An indicator code from the data
+                this_char_grp (str): A characteristic code from the data
+
+            Returns:
+                True or False to say if the related survey code should be
+                included in the return set.
+            """
+            if indicator is None and char_grp is None:
+                keep = True
+            elif indicator is None and char_grp is not None:
+                keep = this_char_grp == char_grp
+            elif indicator is not None and char_grp is None:
+                keep = this_indicator == indicator
+            else:
+                indicator_match = this_indicator == indicator
+                char_grp_match = this_char_grp == char_grp
+                keep = indicator_match and char_grp_match
+            return keep
+
+        def keep_indicator(this_survey, this_char_grp):
+            """Determine whether an indicator from the data is valid.
+
+            Args:
+                this_survey (str): A survey code from the data
+                this_char_grp (str): A characteristic code from the data
+
+            Returns:
+                True or False to say if the related indicator code should be
+                included in the return set.
+            """
+            if not survey_list and char_grp is None:
+                keep = True
+            elif not survey_list and char_grp is not None:
+                keep = this_char_grp == char_grp
+            elif survey_list and char_grp is None:
+                keep = this_survey in survey_list
+            else:
+                survey_match = this_survey in survey_list
+                char_grp_match = this_char_grp == char_grp
+                keep = survey_match and char_grp_match
+            return keep
+
+        def keep_char_grp(this_survey, this_indicator):
+            """Determine whether a characterist group from the data is valid.
+
+            Args:
+                this_survey (str): A survey code from the data
+                this_indicator (str): An indicator code from the data
+
+            Returns:
+                True or False to say if the related characteristic group code
+                should be included in the return set.
+            """
+            if not survey_list and indicator is None:
+                keep = True
+            elif not survey_list and indicator is not None:
+                keep = this_indicator == indicator
+            elif survey_list and char_grp is None:
+                keep = this_survey in survey_list
+            else:
+                survey_match = this_survey in survey_list
+                indicator_match = this_indicator == indicator
+                keep = survey_match and indicator_match
+            return keep
+
+        select_args = (Survey.code, Indicator.code, DatalabData.char_grp1.code)
+        joined = DatalabData.all_joined(*select_args)
+        results = joined.distinct().all()
+        surveys = set()
+        indicators = set()
+        char_grps = set()
+        for survey_code, indicator_code, char_grp_code in results:
+            if keep_survey(indicator_code, char_grp_code):
+                surveys.add(survey_code)
+            if keep_indicator(survey_code, char_grp_code):
+                indicators.add(indicator_code)
+            if keep_char_grp(survey_code, indicator_code):
+                char_grps.add(char_grp_code)
+        json_obj = {
+            'survey.id': sorted(list(surveys)),
+            'indicator.id': sorted(list(indicators)),
+            'characteristicGroup.id': sorted(list(char_grps))
+        }
+        return json_obj
+
+    @staticmethod
     def all_minimal():
         """Get all datalab data in the minimal style."""
-        results = DatalabData.filter_minimal(None, None, None)
+        results = DatalabData.filter_minimal(None, None, None, False)
         return results
 
     @staticmethod

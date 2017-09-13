@@ -1,3 +1,12 @@
+v0.1.5, 13 September 2017
+ * Echo back query parameters for /datalab/init and
+   /datalab/combos
+ * CSV download fixed
+ * Support /datalab/data?overTime=true
+ * Add in partner information with survey
+ * Change /datalab/combos so that it always returns three
+   lists of what is valid to choose for the datalab
+
 v0.1.4, 11 September 2017
  * Small documentation update
  * 'label.id' used in /datalab/init result

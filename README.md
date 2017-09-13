@@ -9,6 +9,7 @@ resources. The resource list for common endpoints can be found at `/v#` or
 `/v#/resources`, and the resource list for application-specific endpoints can
 be found at `/v#/datalab` or `v#/datalab/resources`, where "#" is the API
 version number.
+
 ### Navigating API Versions
 Leaving `/v#/` out of your API query URLs will default to the most recent,
 stable API verison. To prevent unexpected results, it is advised to always
@@ -191,11 +192,11 @@ Example: `/v1/datalab/init`
 ```
 
 ### Query for valid combinations of key resources `/v1/datalab/combos`
-Query for valid combinations of key resources, given 1-2 of 3 possible key
+Query for valid combinations of key resources, given any combination of 3 possible key
 resources required for rendering visualizations. A valid combinations of
 resources is defined as resources that, when passed to `v1/data` or
 `v1/datalab/data`, will return 1 or more data points. This endpoint requires
-1-2 of the following parameters (key resources): "survey", "indicator", or
+1-3 of the following parameters (key resources): "survey", "indicator", or
 "characteristicGroup".
 
 #### A. Query by survey `/v1/datalab/combos?survey=<surveys>`
@@ -206,33 +207,25 @@ data isaggregated further by specified indicator(s) and characteristic(s),
 without the need for any further API calls.
 
 Example: `/v1/datalab/combos?survey=GH2013PMA,GH2014PMA`
-```{
-  "characteristicGroups": {
-    "none": [
-      "mcpr_aw",
-      "uneed_tot_aw"
-    ],
-    "residence": [
-      "mcpr_aw",
-      "uneed_tot_aw"
-    ],
-    "wealth_quintile": [
-      "mcpr_aw",
-      "uneed_tot_aw"
-    ]
-  },
-  "indicators": {
-    "mcpr_aw": [
-      "none",
-      "residence",
-      "wealth_quintile"
-    ],
-    "uneed_tot_aw": [
-      "none",
-      "residence",
-      "wealth_quintile"
-    ]
-  }
+```
+{
+  "characteristicGroup.id": [
+    "none",
+    "residence",
+    "wealth_quintile"
+  ],
+  "indicator.id": [
+    "mcpr_aw",
+    "uneed_tot_aw"
+  ],
+  "survey.id": [
+    "GH2013PMA",
+    "GH2014PMA",
+    "GH2015PMA",
+    "KE2014PMA",
+    "KE2015PMA",
+    "KE2015PMA_2"
+  ]
 }
 ```
 
@@ -245,15 +238,22 @@ which have one or more stored data point associated.
 Example: `/v1/datalab/combos?indicator=mcpr_aw`
 ```
 {
-  "characteristicGroup": [
+  "characteristicGroup.id": [
     "none",
-    "wealth_quintile",
-    ...
+    "residence",
+    "wealth_quintile"
   ],
-  "survey": [
+  "indicator.id": [
+    "mcpr_aw",
+    "uneed_tot_aw"
+  ],
+  "survey.id": [
+    "GH2013PMA",
+    "GH2014PMA",
     "GH2015PMA",
+    "KE2014PMA",
     "KE2015PMA",
-    ...
+    "KE2015PMA_2"
   ]
 }
 ```
@@ -261,15 +261,22 @@ Example: `/v1/datalab/combos?indicator=mcpr_aw`
 Example: `/v1/datalab/combos?characteristicGroup=wealth_quintile`
 ```
 {
-  "indicator": [
-    "mcpr_aw",
-    "uneed_tot_aw",
-    ...
+  "characteristicGroup.id": [
+    "none",
+    "residence",
+    "wealth_quintile"
   ],
-  "survey": [
+  "indicator.id": [
+    "mcpr_aw",
+    "uneed_tot_aw"
+  ],
+  "survey.id": [
+    "GH2013PMA",
+    "GH2014PMA",
     "GH2015PMA",
+    "KE2014PMA",
     "KE2015PMA",
-    ...
+    "KE2015PMA_2"
   ]
 }
 ```
@@ -280,29 +287,25 @@ Filter by 2 of 3 of the `/datalab/combos` parameters: "survey", "indicator", and
 
 Example: `/v1/datalab/combos?survey=GH2015PMA&indicator=mcpr_aw`
 ```
-[
-  "age_5yr_int",
-  "facility_type_gh",
-  ...
-]
-```
-
-Example: `/v1/datalab/combos?survey=GH2015PMA&characteristicGroup=wealth_quintile`
-```
-[
-  "mcpr_aw",
-  "uneed_tot_aw"
-  ...
-]
-```
-
-Example: `/v1/datalab/combos?characteristicGroup=wealth_quintile&indicator=mcpr_aw`
-```
-[
+{
+  "characteristicGroup.id": [
+    "none",
+    "residence",
+    "wealth_quintile"
+  ],
+  "indicator.id": [
+    "mcpr_aw",
+    "uneed_tot_aw"
+  ],
+  "survey.id": [
+    "GH2013PMA",
+    "GH2014PMA",
     "GH2015PMA",
     "KE2014PMA",
-    ...
-]
+    "KE2015PMA",
+    "KE2015PMA_2"
+  ]
+}
 ```
 
 ### Querying application-specific data `/v1/datalab/data`
@@ -350,19 +353,8 @@ Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characte
         }
       ]
     }
-  ]
-  "results": [
-    {
-      "characteristic.id": "none",
-      "characteristicGroup.id": "none",
-      "indicator.id": "mcpr_aw",
-      "precision": 1,
-      "survey.id": "GH2013PMA",
-      "value": 15.4
-    },
-    ...
   ],
-  "resultsSize": <'n' results>
+  "resultsSize": 2
 }
 ```
 

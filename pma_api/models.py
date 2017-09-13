@@ -173,7 +173,7 @@ class SourceData(db.Model):
             'name': self.name,
             'hash': self.md5_checksum,
             'type': self.type,
-            'created_on': self.created_on
+            'createdOn': self.created_on
         }
         return result
 
@@ -599,10 +599,12 @@ class Survey(ApiModel):
     pma_code = db.Column(db.String)
     country_id = db.Column(db.Integer, db.ForeignKey('country.id'))
     geography_id = db.Column(db.Integer, db.ForeignKey('geography.id'))
+    partner_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
 
     label = db.relationship('EnglishString', foreign_keys=label_id)
     country = db.relationship('Country')
     geography = db.relationship('Geography')
+    partner = db.relationship('EnglishString', foreign_keys=partner_id)
 
     def url_for(self):
         """Supply URL for resource entity.
@@ -650,6 +652,7 @@ class Survey(ApiModel):
         """Datalab init json: Survey."""
         to_return = {
             'id': self.code,
+            'partner.label.id': self.partner.code,
             'label.id': self.label.code,
         }
         return to_return
@@ -666,6 +669,7 @@ class Survey(ApiModel):
             AttributeError: If valid ID is not found for Country.
         """
         self.update_kwargs_english(kwargs, 'label', 'label_id')
+        self.update_kwargs_english(kwargs, 'partner', 'partner_id')
         self.update_kwargs_date(kwargs, 'start_date')
         self.update_kwargs_date(kwargs, 'end_date')
         self.set_kwargs_id(kwargs, 'country_code', 'country_id', Country,

@@ -1,8 +1,8 @@
 """Routes related to the datalab."""
-from flask import jsonify, request
+from flask import request
 
 from . import api
-from ..response import QuerySetApiResult
+from ..response import ApiResult, QuerySetApiResult
 from ..queries import DatalabData
 
 
@@ -14,39 +14,35 @@ def get_datalab_data():
     char_grp = request.args.get('characteristicGroup', None)
     over_time = request.args.get('overTime', 'false')
     over_time = True if over_time.lower() == 'true' else False
-    json_obj = DatalabData.series_query(survey, indicator, char_grp, over_time)
+    json_list = DatalabData.filter_minimal(survey, indicator, char_grp,
+                                           over_time)
     response_format = request.args.get('format', None)
-    return QuerySetApiResult(json_obj, response_format)
+    if response_format == 'csv':
+        return QuerySetApiResult(json_list, response_format)
+    if over_time:
+        json_obj = DatalabData.data_to_time_series(json_list)
+    else:
+        json_obj = DatalabData.data_to_series(json_list)
+    request_params = request.args.to_dict()
+    metadata = {'queryParameters': request_params}
+    return QuerySetApiResult(json_obj, 'json', metadata=metadata)
 
 
 @api.route('/datalab/combos')
 def get_datalab_combos():
     """Get datalab combos."""
-    survey_list = request.args.get('survey', None)
+    survey = request.args.get('survey', None)
+    survey_list = sorted(survey.split(',')) if survey else []
     indicator = request.args.get('indicator', None)
     char_grp = request.args.get('characteristicGroup', None)
-    if survey_list:
-        json_obj = DatalabData.combos_survey_list(survey_list)
-        return jsonify(json_obj)
-    elif indicator and char_grp:
-        json_obj = DatalabData.combos_indicator_char_grp(indicator, char_grp)
-        return jsonify(json_obj)
-    elif indicator and not char_grp:
-        json_obj = DatalabData.combos_indicator(indicator)
-        return jsonify(json_obj)
-    elif not indicator and char_grp:
-        json_obj = DatalabData.combos_char_grp(char_grp)
-        return jsonify(json_obj)
-    msg = 'All request arguments supplied were empty, or none were ' \
-          'supplied. Please supply all required query parameters for ' \
-          'endpoint \'{endpoint}\': {params}'\
-        .format(endpoint='/datalab/combos',
-                params=str(['survey', 'indicator', 'characteristicGroup']))
-    return jsonify({'error': msg}), 400
+    json_obj = DatalabData.combos_all(survey_list, indicator, char_grp)
+    request_params = request.args.to_dict()
+    metadata = {'queryParameters': request_params}
+    return ApiResult(json_obj, metadata=metadata)
 
 
 @api.route('/datalab/init')
 def get_datalab_init():
     """Get datalab combos."""
-    data = DatalabData.datalab_init()
-    return jsonify(data)
+    json_obj = DatalabData.datalab_init()
+    return ApiResult(json_obj)
