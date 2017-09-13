@@ -1103,7 +1103,7 @@ class Translation(ApiModel):
         record for UI data. Otherwise, gets the english code and (2) Calls
         super init.
         """
-        if kwargs['english_code']:
+        if kwargs.get('english_code'):
             english = EnglishString.insert_unique(
                 kwargs['english'], kwargs['english_code'].lower())
             kwargs.pop('english_code')
