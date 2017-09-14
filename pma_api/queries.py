@@ -9,6 +9,7 @@ from .models import (Characteristic, CharacteristicGroup, Country, Data,
                      EnglishString, Geography, Indicator, Survey, Translation)
 
 
+# pylint: disable=too-many-public-methods
 class DatalabData:
     """PmaData."""
 
@@ -583,3 +584,35 @@ class DatalabData:
             'strings': DatalabData.init_strings(),
             'languages': DatalabData.init_languages()
         }
+
+    @staticmethod
+    def query_input(survey, indicator, char_grp):
+        """Build up a dictionary of query input to return with API result.
+
+        Args:
+            survey (str): A list of survey codes separated by a comma
+            indicator (str): An indicator code
+            char_grp (str): A characteristic group code
+
+        Returns:
+            A dictionary with lists of input data. Data is from datalab init.
+        """
+        survey_list = sorted(survey.split(',')) if survey else []
+        survey_records = Survey.get_by_code(survey_list)
+        input_survey = [r.datalab_init_json(False) for r in survey_records]
+        indicator_records = Indicator.get_by_code(indicator)
+        if indicator_records:
+            input_indicator = [indicator_records[0].datalab_init_json()]
+        else:
+            input_indicator = None
+        char_grp_records = CharacteristicGroup.get_by_code(char_grp)
+        if char_grp_records:
+            input_char_grp = [char_grp_records[0].datalab_init_json()]
+        else:
+            input_char_grp = None
+        query_input = {
+            'surveys': input_survey,
+            'characteristicGroups': input_char_grp,
+            'indicators': input_indicator
+        }
+        return query_input

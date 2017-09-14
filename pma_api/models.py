@@ -138,6 +138,25 @@ class ApiModel(db.Model):
         new_dict = {'.'.join((prefix, k)): v for k, v in old_dict.items()}
         return new_dict
 
+    @classmethod
+    def get_by_code(cls, lookup):
+        """Return an item by code or list of codes.
+
+        Args:
+            lookup (str or seq of str): The codes to lookup
+
+        Returns:
+            The records that match that code
+        """
+        if lookup is None:
+            return []
+        if isinstance(lookup, str):
+            query = cls.query.filter(cls.code == lookup)
+        else:  # assume it is a sequence of codes
+            query = cls.query.filter(cls.code.in_(lookup))
+        records = query.all()
+        return records
+
 
 # pylint: disable=too-few-public-methods
 class SourceData(db.Model):
@@ -648,13 +667,18 @@ class Survey(ApiModel):
         result.update(country_json)
         return result
 
-    def datalab_init_json(self):
+    def datalab_init_json(self, reduced=True):
         """Datalab init json: Survey."""
         to_return = {
             'id': self.code,
             'partner.label.id': self.partner.code,
             'label.id': self.label.code,
         }
+        if not reduced:
+            to_return.update({
+                'geography.label.id': self.geography.subheading.code,
+                'country.label.id': self.country.label.code
+            })
         return to_return
 
     def __init__(self, **kwargs):
@@ -1103,7 +1127,7 @@ class Translation(ApiModel):
         record for UI data. Otherwise, gets the english code and (2) Calls
         super init.
         """
-        if kwargs['english_code']:
+        if kwargs.get('english_code'):
             english = EnglishString.insert_unique(
                 kwargs['english'], kwargs['english_code'].lower())
             kwargs.pop('english_code')
