@@ -1,5 +1,9 @@
+v0.1.6, 14 September 2017
+ * Send back datalab/init data for query parameters to /datalab/data
+ * Update documentation with overTime and format=csv
+
 v0.1.5, 13 September 2017
- * Echo back query parameters for /datalab/init and
+ * Echo back query parameters for /datalab/data and
    /datalab/combos
  * CSV download fixed
  * Support /datalab/data?overTime=true
