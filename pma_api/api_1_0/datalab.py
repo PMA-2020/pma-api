@@ -23,9 +23,8 @@ def get_datalab_data():
         json_obj = DatalabData.data_to_time_series(json_list)
     else:
         json_obj = DatalabData.data_to_series(json_list)
-    request_params = request.args.to_dict()
-    metadata = {'queryParameters': request_params}
-    return QuerySetApiResult(json_obj, 'json', metadata=metadata)
+    query_input = DatalabData.query_input(survey, indicator, char_grp)
+    return QuerySetApiResult(json_obj, 'json', queryInput=query_input)
 
 
 @api.route('/datalab/combos')

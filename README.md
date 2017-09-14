@@ -320,6 +320,56 @@ rendering visualizations.
 Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characteristicGroup=none`
 ```
 {
+  "metadata": {
+    "datasetMetadata": [
+      {
+        "createdOn": "Thu, 14 Sep 2017 20:32:02 GMT",
+        "hash": "ef5c8634e0dbc812a3df9b0882873db9",
+        "name": "api_data",
+        "type": "api"
+      },
+      {
+        "createdOn": "Thu, 14 Sep 2017 20:32:02 GMT",
+        "hash": "cca82c783607b2bf1431ac5bcd26f8cc",
+        "name": "ui_data",
+        "type": "ui"
+      }
+    ],
+    "version": "0.1.5"
+  },
+  "queryInput": {
+    "characteristicGroups": [
+      {
+        "definition.id": "PRE_iU_n",
+        "id": "none",
+        "label.id": "XkVmGDDF"
+      }
+    ],
+    "indicators": [
+      {
+        "definition.id": "NQv8ZZOp",
+        "id": "mcpr_aw",
+        "label.id": "NQv8ZZOp"
+      }
+    ],
+    "surveys": [
+      {
+        "country.label.id": "6EA0At85",
+        "geography.label.id": "w748V1ul",
+        "id": "GH2013PMA",
+        "label.id": "lq0db_sX",
+        "partner.label.id": "cizmJ6Gv"
+      },
+      {
+        "country.label.id": "6EA0At85",
+        "geography.label.id": "w748V1ul",
+        "id": "GH2014PMA",
+        "label.id": "2Ea5SlF4",
+        "partner.label.id": "cizmJ6Gv"
+      }
+    ]
+  },
+  "resultSize": 2,
   "results": [
     {
       "country.id": "GH",
@@ -331,7 +381,7 @@ Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characte
       "values": [
         {
           "characteristic.id": "none",
-          "characteristic.label.id": "nQWQT0z0",
+          "characteristic.label.id": "J-N_aTkS",
           "precision": 1,
           "value": 15.4
         }
@@ -343,23 +393,22 @@ Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characte
       "geography.id": "gh_national",
       "geography.label.id": "w748V1ul",
       "survey.id": "GH2014PMA",
-      "survey.label.id": "cizmJ6Gv",
+      "survey.label.id": "2Ea5SlF4",
       "values": [
         {
           "characteristic.id": "none",
-          "characteristic.label.id": "nQWQT0z0",
+          "characteristic.label.id": "J-N_aTkS",
           "precision": null,
           "value": 16.1
         }
       ]
     }
-  ],
-  "resultsSize": 2
+  ]
 }
 ```
 
 #### Optional Parameters
-##### Querying Time Series Data (WORK IN PROGRESS)
+##### Querying Time Series Data
 - `overTime` *(boolean)*
 
 Supplying this query parameter and setting value to `true` will tell the API
@@ -370,18 +419,84 @@ to return chronologically sorted data, and also include a `date` attribute for
 Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characteristicGroup=none&overTime=true`
 ```
 {
+  "metadata": {
+    "datasetMetadata": [
+      {
+        "createdOn": "Thu, 14 Sep 2017 20:32:02 GMT",
+        "hash": "ef5c8634e0dbc812a3df9b0882873db9",
+        "name": "api_data",
+        "type": "api"
+      },
+      {
+        "createdOn": "Thu, 14 Sep 2017 20:32:02 GMT",
+        "hash": "cca82c783607b2bf1431ac5bcd26f8cc",
+        "name": "ui_data",
+        "type": "ui"
+      }
+    ],
+    "version": "0.1.5"
+  },
+  "queryInput": {
+    "characteristicGroups": [
+      {
+        "definition.id": "PRE_iU_n",
+        "id": "none",
+        "label.id": "XkVmGDDF"
+      }
+    ],
+    "indicators": [
+      {
+        "definition.id": "NQv8ZZOp",
+        "id": "mcpr_aw",
+        "label.id": "NQv8ZZOp"
+      }
+    ],
+    "surveys": [
+      {
+        "country.label.id": "6EA0At85",
+        "geography.label.id": "w748V1ul",
+        "id": "GH2013PMA",
+        "label.id": "lq0db_sX",
+        "partner.label.id": "cizmJ6Gv"
+      },
+      {
+        "country.label.id": "6EA0At85",
+        "geography.label.id": "w748V1ul",
+        "id": "GH2014PMA",
+        "label.id": "2Ea5SlF4",
+        "partner.label.id": "cizmJ6Gv"
+      }
+    ]
+  },
+  "resultSize": 1,
   "results": [
     {
       "characteristic.id": "none",
-      "characteristicGroup.id": "none",
-      "indicator.id": "mcpr_aw",
-      "precision": 1,
-      "survey.id": "GH2013PMA",
-      "value": 15.4
-      "date": "2017-01"
-    },
-    ...
-  ],
-  "resultsSize": <'n' results>
+      "characteristic.label.id": "J-N_aTkS",
+      "country.id": "GH",
+      "country.label.id": "6EA0At85",
+      "geography.id": "gh_national",
+      "geography.label.id": "w748V1ul",
+      "values": [
+        {
+          "precision": 1,
+          "survey.date": "2013-10-03",
+          "survey.id": "GH2013PMA",
+          "survey.label.id": "lq0db_sX",
+          "value": 15.4
+        },
+        {
+          "precision": null,
+          "survey.date": "2014-01-01",
+          "survey.id": "GH2014PMA",
+          "survey.label.id": "2Ea5SlF4",
+          "value": 16.1
+        }
+      ]
+    }
+  ]
 }
 ```
+##### CSV download
+- `format=csv`
+Add `format=csv` to the query parameters to get a csv download.
