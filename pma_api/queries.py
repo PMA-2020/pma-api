@@ -95,7 +95,7 @@ class DatalabData:
         results = []
         next_series = {}
         for obj in sorted_data:
-            if obj['survey.label.id'] != curr_survey:
+            if obj['survey.id'] != curr_survey:
                 if curr_survey is not None:
                     results.append(next_series)
                 next_series = {
@@ -115,7 +115,7 @@ class DatalabData:
                         }
                     ]
                 }
-                curr_survey = next_series['survey.label.id']
+                curr_survey = next_series['survey.id']
             else:
                 next_series['values'].append({
                     'characteristic.label.id':
