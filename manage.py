@@ -7,9 +7,10 @@ from flask_script import Manager, Shell
 import xlrd
 
 from pma_api import create_app, db
-from pma_api.models import (Characteristic, CharacteristicGroup, Country,
-        Data, EnglishString, Geography, Indicator, SourceData, Survey,
+from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
+        Country, Data, EnglishString, Geography, Indicator, SourceData, Survey,
         Translation)
+import pma_api.api_1_0.caching as caching
 
 
 app = create_app(os.getenv('FLASK_CONFIG', 'default'))
@@ -59,7 +60,7 @@ def make_shell_context():
     """
     return dict(app=app, db=db, Country=Country, EnglishString=EnglishString,
                 Translation=Translation, Survey=Survey, Indicator=Indicator,
-                Data=Data, Characteristic=Characteristic,
+                Data=Data, Characteristic=Characteristic, Cache=Cache,
                 CharacteristicGroup=CharacteristicGroup, SourceData=SourceData)
 
 
@@ -149,6 +150,14 @@ def initdb(overwrite=False):
         if overwrite:
             init_from_workbook(wb=SRC_DATA, queue=ORDERED_MODEL_MAP)
             init_from_workbook(wb=UI_DATA, queue=UI_ORDERED_MODEL_MAP)
+            caching.cache_datalab_init(app)
+
+
+@manager.command
+def cache_responses():
+    """Cache responses in the 'cache' table of DB."""
+    with app.app_context():
+        caching.cache_datalab_init(app)
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))

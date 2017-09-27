@@ -182,6 +182,12 @@ class SourceData(db.Model):
         self.blob = open(path, 'rb').read()
         self.md5_checksum = md5(self.blob).hexdigest()
 
+    @classmethod
+    def get_current_api_data(cls):
+        """Return the record for the most recent API data."""
+        record = cls.query.filter_by(type='api').first()
+        return record
+
     def to_json(self):
         """Return dictionary ready to convert to JSON as response.
 
@@ -195,6 +201,25 @@ class SourceData(db.Model):
             'createdOn': self.created_on
         }
         return result
+
+
+class Cache(db.Model):
+    """Cache for API responses."""
+
+    __tablename__ = 'cache'
+    key = db.Column(db.String, primary_key=True)
+    value = db.Column(db.String, nullable=False)
+    mimetype = db.Column(db.String)
+    source_data_md5 = db.Column(db.String)
+
+    @classmethod
+    def get(cls, key):
+        """Return a record by key."""
+        return cls.query.filter_by(key=key).first()
+
+    def __repr__(self):
+        """Give a representation of this record."""
+        return "<Cache key='{}'>".format(self.key)
 
 
 class Indicator(ApiModel):

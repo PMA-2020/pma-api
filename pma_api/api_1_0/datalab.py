@@ -2,6 +2,8 @@
 from flask import request
 
 from . import api
+from . import caching
+from ..models import Cache
 from ..response import ApiResult, QuerySetApiResult
 from ..queries import DatalabData
 
@@ -43,5 +45,8 @@ def get_datalab_combos():
 @api.route('/datalab/init')
 def get_datalab_init():
     """Get datalab combos."""
+    cached = Cache.get(caching.KEY_DATALAB_INIT)
+    if cached:
+        return cached
     json_obj = DatalabData.datalab_init()
     return ApiResult(json_obj)
