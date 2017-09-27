@@ -2,7 +2,7 @@
 from io import StringIO
 from csv import DictWriter
 
-from flask import Response, jsonify
+from flask import Response, jsonify, make_response
 
 from .__version__ import __version__
 
@@ -57,8 +57,10 @@ class QuerySetApiResult(ApiResult):
 
     def to_response(self):
         """Convert the list of records into a response."""
-        if self.return_format == 'csv':
+        if self.return_format == 'csv' and self.record_list:
             return self.csv_response(self.record_list)
+        elif self.return_format == 'csv':  # and not self.record_list
+            return make_response('', 204)
         # Default is JSON
         return self.json_response(self.record_list, self.extra_metadata,
                                   **self.kwargs)
