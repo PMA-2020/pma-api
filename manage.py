@@ -1,6 +1,7 @@
 """Application manager."""
 import csv
 import glob
+import logging
 import os
 
 from flask_script import Manager, Shell
@@ -8,8 +9,8 @@ import xlrd
 
 from pma_api import create_app, db
 from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
-        Country, Data, EnglishString, Geography, Indicator, SourceData, Survey,
-        Translation)
+                            Country, Data, EnglishString, Geography, Indicator,
+                            SourceData, Survey, Translation)
 import pma_api.api_1_0.caching as caching
 
 
@@ -98,7 +99,13 @@ def init_from_sheet(ws, model):
             header = row
         else:
             row_dict = {k: v for k, v in zip(header, row)}
-            record = model(**row_dict)
+            try:
+                record = model(**row_dict)
+            except:
+                msg = 'Error when processing row {} of "{}". Cell values: {}'
+                msg = msg.format(i+1, ws.name, row)
+                logging.error(msg)
+                raise
             db.session.add(record)
     db.session.commit()
 
@@ -112,7 +119,7 @@ def init_from_workbook(wb, queue):
     """
     with xlrd.open_workbook(wb) as book:
         for sheetname, model in queue:
-            if sheetname == 'data': # actually done last
+            if sheetname == 'data':  # actually done last
                 for ws in book.sheets():
                     if ws.name.startswith('data'):
                         init_from_sheet(ws, model)
