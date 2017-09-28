@@ -46,7 +46,7 @@ def get_datalab_combos():
 def get_datalab_init():
     """Get datalab combos."""
     cached = Cache.get(caching.KEY_DATALAB_INIT)
-    if cached:
+    if cached and not request.args.get('cached') == 'false':
         return cached
     json_obj = DatalabData.datalab_init()
     return ApiResult(json_obj)

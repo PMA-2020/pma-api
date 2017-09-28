@@ -465,7 +465,8 @@ class DatalabData:
         """Datalab init."""
         select_args = Indicator
         joined = DatalabData.all_joined(select_args)
-        results = joined.distinct().all()
+        ordered = joined.order_by(Indicator.order)
+        results = ordered.distinct().all()
         indicator_categories = []
         for ind in results:
             for cat in indicator_categories:
@@ -484,7 +485,8 @@ class DatalabData:
         """Datalab init."""
         select_args = DatalabData.char_grp1
         joined = DatalabData.all_joined(select_args)
-        results = joined.distinct().all()
+        ordered = joined.order_by(DatalabData.char_grp1.order)
+        results = ordered.distinct().all()
         chargrp_categories = []
         for char_grp in results:
             for cat in chargrp_categories:
@@ -517,7 +519,10 @@ class DatalabData:
         """Datalab init."""
         select_args = Survey
         joined = DatalabData.all_joined(select_args)
-        results = joined.distinct().all()
+        ordered = joined.order_by(Country.order) \
+                        .order_by(Geography.order) \
+                        .order_by(Survey.order)
+        results = ordered.distinct().all()
 
         country_order = []
         country_map = {}
