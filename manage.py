@@ -41,13 +41,12 @@ ORDERED_MODEL_MAP = (
     ('char_grp', CharacteristicGroup),
     ('char', Characteristic),
     ('indicator', Indicator),
+    ('translation', Translation),
     ('data', Data)
-    # TODO: Add in translations to the excel file
-    # ('translation', Translation)
 )
 
 
-UI_ORDERED_MODEL_MAP = (
+TRANSLATION_MODEL_MAP = (
     ('translation', Translation),
 )
 
@@ -120,7 +119,6 @@ def init_from_workbook(wb, queue):
             else:
                 ws = book.sheet_by_name(sheetname)
                 init_from_sheet(ws, model)
-
     create_wb_metadata(wb)
 
 
@@ -135,7 +133,6 @@ def create_wb_metadata(wb_path):
     db.session.commit()
 
 
-# TODO: remove --overwrite
 @manager.option('--overwrite', help='Drop tables first?', action='store_true')
 def initdb(overwrite=False):
     """Create the database.
@@ -149,8 +146,20 @@ def initdb(overwrite=False):
         db.create_all()
         if overwrite:
             init_from_workbook(wb=SRC_DATA, queue=ORDERED_MODEL_MAP)
-            init_from_workbook(wb=UI_DATA, queue=UI_ORDERED_MODEL_MAP)
+            init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
             caching.cache_datalab_init(app)
+
+
+@manager.command
+def translations():
+    """Import anew all translations into the database."""
+    with app.app_context():
+        # TODO (jkp 2017-09-28) make this ONE transaction instead of many.
+        db.session.query(SourceData).delete()
+        db.session.query(Translation).delete()
+        db.session.commit()
+        init_from_workbook(wb=SRC_DATA, queue=TRANSLATION_MODEL_MAP)
+        init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
 
 
 @manager.command
