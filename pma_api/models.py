@@ -233,10 +233,14 @@ class Indicator(ApiModel):
                          nullable=False)
     order = db.Column(db.Integer, unique=True)
     type = db.Column(db.String)
-    definition_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
-    level1_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
-    level2_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
-    domain_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
+    definition_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
+                              nullable=False)
+    level1_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
+                          nullable=False)
+    level2_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
+                          nullable=False)
+    domain_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
+                          nullable=False)
     # TODO: (jkp 2017-08-29) Should this be a translated string?
     # Needs: Nothing?
     denominator = db.Column(db.String)
