@@ -1,3 +1,9 @@
+v0.1.7, 2 October 2017
+ * Empty CSV download is now a 204 server response
+ * Implemented server-side caching for /datalab/init
+ * Added query param cached=false to force dynamic response
+ * Various dataset fixes, including date MM-YYYY
+
 v0.1.6, 14 September 2017
  * Send back datalab/init data for query parameters to /datalab/data
  * Update documentation with overTime and format=csv
