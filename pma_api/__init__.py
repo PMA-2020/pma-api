@@ -4,6 +4,12 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
 from config import config
+
+
+db = SQLAlchemy()
+
+
+# pylint: disable=wrong-import-position
 from .app import PmaApiFlask
 from .response import QuerySetApiResult
 
@@ -15,9 +21,6 @@ root = Blueprint('root', __name__)
 def show_version():
     """Show API version data."""
     return jsonify(QuerySetApiResult.metadata())
-
-
-db = SQLAlchemy()
 
 
 def create_app(config_name):

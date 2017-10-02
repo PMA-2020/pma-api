@@ -1,15 +1,17 @@
 """Application manager."""
 import csv
 import glob
+import logging
 import os
 
 from flask_script import Manager, Shell
 import xlrd
 
 from pma_api import create_app, db
-from pma_api.models import (Characteristic, CharacteristicGroup, Country,
-        Data, EnglishString, Geography, Indicator, SourceData, Survey,
-        Translation)
+from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
+                            Country, Data, EnglishString, Geography, Indicator,
+                            SourceData, Survey, Translation)
+import pma_api.api_1_0.caching as caching
 
 
 app = create_app(os.getenv('FLASK_CONFIG', 'default'))
@@ -40,13 +42,12 @@ ORDERED_MODEL_MAP = (
     ('char_grp', CharacteristicGroup),
     ('char', Characteristic),
     ('indicator', Indicator),
+    ('translation', Translation),
     ('data', Data)
-    # TODO: Add in translations to the excel file
-    # ('translation', Translation)
 )
 
 
-UI_ORDERED_MODEL_MAP = (
+TRANSLATION_MODEL_MAP = (
     ('translation', Translation),
 )
 
@@ -59,7 +60,7 @@ def make_shell_context():
     """
     return dict(app=app, db=db, Country=Country, EnglishString=EnglishString,
                 Translation=Translation, Survey=Survey, Indicator=Indicator,
-                Data=Data, Characteristic=Characteristic,
+                Data=Data, Characteristic=Characteristic, Cache=Cache,
                 CharacteristicGroup=CharacteristicGroup, SourceData=SourceData)
 
 
@@ -98,7 +99,13 @@ def init_from_sheet(ws, model):
             header = row
         else:
             row_dict = {k: v for k, v in zip(header, row)}
-            record = model(**row_dict)
+            try:
+                record = model(**row_dict)
+            except:
+                msg = 'Error when processing row {} of "{}". Cell values: {}'
+                msg = msg.format(i+1, ws.name, row)
+                logging.error(msg)
+                raise
             db.session.add(record)
     db.session.commit()
 
@@ -112,14 +119,13 @@ def init_from_workbook(wb, queue):
     """
     with xlrd.open_workbook(wb) as book:
         for sheetname, model in queue:
-            if sheetname == 'data': # actually done last
+            if sheetname == 'data':  # actually done last
                 for ws in book.sheets():
                     if ws.name.startswith('data'):
                         init_from_sheet(ws, model)
             else:
                 ws = book.sheet_by_name(sheetname)
                 init_from_sheet(ws, model)
-
     create_wb_metadata(wb)
 
 
@@ -134,7 +140,6 @@ def create_wb_metadata(wb_path):
     db.session.commit()
 
 
-# TODO: remove --overwrite
 @manager.option('--overwrite', help='Drop tables first?', action='store_true')
 def initdb(overwrite=False):
     """Create the database.
@@ -148,7 +153,27 @@ def initdb(overwrite=False):
         db.create_all()
         if overwrite:
             init_from_workbook(wb=SRC_DATA, queue=ORDERED_MODEL_MAP)
-            init_from_workbook(wb=UI_DATA, queue=UI_ORDERED_MODEL_MAP)
+            init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
+            caching.cache_datalab_init(app)
+
+
+@manager.command
+def translations():
+    """Import anew all translations into the database."""
+    with app.app_context():
+        # TODO (jkp 2017-09-28) make this ONE transaction instead of many.
+        db.session.query(SourceData).delete()
+        db.session.query(Translation).delete()
+        db.session.commit()
+        init_from_workbook(wb=SRC_DATA, queue=TRANSLATION_MODEL_MAP)
+        init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
+
+
+@manager.command
+def cache_responses():
+    """Cache responses in the 'cache' table of DB."""
+    with app.app_context():
+        caching.cache_datalab_init(app)
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))

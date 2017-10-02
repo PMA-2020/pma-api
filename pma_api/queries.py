@@ -85,7 +85,8 @@ class DatalabData:
                     'value': obj.pop('value'),
                     'precision': obj.pop('precision')
                 })
-        results.append(next_series)
+        if next_series:
+            results.append(next_series)
         return results
 
     @staticmethod
@@ -95,7 +96,7 @@ class DatalabData:
         results = []
         next_series = {}
         for obj in sorted_data:
-            if obj['survey.label.id'] != curr_survey:
+            if obj['survey.id'] != curr_survey:
                 if curr_survey is not None:
                     results.append(next_series)
                 next_series = {
@@ -115,7 +116,7 @@ class DatalabData:
                         }
                     ]
                 }
-                curr_survey = next_series['survey.label.id']
+                curr_survey = next_series['survey.id']
             else:
                 next_series['values'].append({
                     'characteristic.label.id':
@@ -124,7 +125,8 @@ class DatalabData:
                     'value': obj.pop('value'),
                     'precision': obj.pop('precision')
                 })
-        results.append(next_series)
+        if next_series:
+            results.append(next_series)
         return results
 
     @staticmethod
@@ -178,7 +180,9 @@ class DatalabData:
                 'value': item[0].value,
                 'precision': item[0].precision,
                 'survey.id': item[1].code,
-                'survey.date': item[1].start_date.strftime('%Y-%m-%d'),
+                # TODO (jkp 2017-09-28) Change to better format once datalab
+                # is updated to handle. Suggest %Y-%m.
+                'survey.date': item[1].start_date.strftime('%m-%Y'),
                 'survey.label.id': item[1].label.code,
                 'indicator.id': item[2],
                 'characteristicGroup.id': item[3],
@@ -461,7 +465,8 @@ class DatalabData:
         """Datalab init."""
         select_args = Indicator
         joined = DatalabData.all_joined(select_args)
-        results = joined.distinct().all()
+        ordered = joined.order_by(Indicator.order)
+        results = ordered.distinct().all()
         indicator_categories = []
         for ind in results:
             for cat in indicator_categories:
@@ -480,7 +485,8 @@ class DatalabData:
         """Datalab init."""
         select_args = DatalabData.char_grp1
         joined = DatalabData.all_joined(select_args)
-        results = joined.distinct().all()
+        ordered = joined.order_by(DatalabData.char_grp1.order)
+        results = ordered.distinct().all()
         chargrp_categories = []
         for char_grp in results:
             for cat in chargrp_categories:
@@ -513,7 +519,10 @@ class DatalabData:
         """Datalab init."""
         select_args = Survey
         joined = DatalabData.all_joined(select_args)
-        results = joined.distinct().all()
+        ordered = joined.order_by(Country.order) \
+                        .order_by(Geography.order) \
+                        .order_by(Survey.order)
+        results = ordered.distinct().all()
 
         country_order = []
         country_map = {}

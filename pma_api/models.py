@@ -37,15 +37,16 @@ class ApiModel(db.Model):
             kwargs.pop(key)
 
     @staticmethod
-    def update_kwargs_date(kwargs, source_key):
+    def update_kwargs_date(kwargs, source_key, fstr):
         """Update dates to correct format.
 
         Args:
             kwargs (dict): Keyword arguments.
             source_key (str): The source date string.
+            fstr (str): The format string for the date.
         """
         string_date = kwargs[source_key]
-        this_date = datetime.strptime(string_date, '%Y-%m-%d')
+        this_date = datetime.strptime(string_date, fstr)
         kwargs[source_key] = this_date
 
     @staticmethod
@@ -182,6 +183,12 @@ class SourceData(db.Model):
         self.blob = open(path, 'rb').read()
         self.md5_checksum = md5(self.blob).hexdigest()
 
+    @classmethod
+    def get_current_api_data(cls):
+        """Return the record for the most recent API data."""
+        record = cls.query.filter_by(type='api').first()
+        return record
+
     def to_json(self):
         """Return dictionary ready to convert to JSON as response.
 
@@ -197,6 +204,25 @@ class SourceData(db.Model):
         return result
 
 
+class Cache(db.Model):
+    """Cache for API responses."""
+
+    __tablename__ = 'cache'
+    key = db.Column(db.String, primary_key=True)
+    value = db.Column(db.String, nullable=False)
+    mimetype = db.Column(db.String)
+    source_data_md5 = db.Column(db.String)
+
+    @classmethod
+    def get(cls, key):
+        """Return a record by key."""
+        return cls.query.filter_by(key=key).first()
+
+    def __repr__(self):
+        """Give a representation of this record."""
+        return "<Cache key='{}'>".format(self.key)
+
+
 class Indicator(ApiModel):
     """Indicator model."""
 
@@ -207,12 +233,14 @@ class Indicator(ApiModel):
                          nullable=False)
     order = db.Column(db.Integer, unique=True)
     type = db.Column(db.String)
-    definition_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
-    level1_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
-    # Level 2 = Category
-    level2_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
-    # Level 3 = Domain
-    level3_id = db.Column(db.Integer, db.ForeignKey('english_string.id'))
+    definition_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
+                              nullable=False)
+    level1_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
+                          nullable=False)
+    level2_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
+                          nullable=False)
+    domain_id = db.Column(db.Integer, db.ForeignKey('english_string.id'),
+                          nullable=False)
     # TODO: (jkp 2017-08-29) Should this be a translated string?
     # Needs: Nothing?
     denominator = db.Column(db.String)
@@ -226,7 +254,7 @@ class Indicator(ApiModel):
     # Level 2 = Category
     level2 = db.relationship('EnglishString', foreign_keys=level2_id)
     # Level 3 = Domain
-    level3 = db.relationship('EnglishString', foreign_keys=level3_id)
+    domain = db.relationship('EnglishString', foreign_keys=domain_id)
 
     def __init__(self, **kwargs):
         """Initialize instance of model.
@@ -238,7 +266,7 @@ class Indicator(ApiModel):
         kwargs['is_favorite'] = bool(kwargs['is_favorite'])
         self.update_kwargs_english(kwargs, 'level1', 'level1_id')
         self.update_kwargs_english(kwargs, 'level2', 'level2_id')
-        self.update_kwargs_english(kwargs, 'level3', 'level3_id')
+        self.update_kwargs_english(kwargs, 'domain', 'domain_id')
         self.update_kwargs_english(kwargs, 'definition', 'definition_id')
         self.update_kwargs_english(kwargs, 'label', 'label_id')
         super(Indicator, self).__init__(**kwargs)
@@ -272,13 +300,13 @@ class Indicator(ApiModel):
         defn_str = self.definition.to_string(lang)
         level1_str = self.level1.to_string(lang)
         level2_str = self.level2.to_string(lang)
-        level3_str = self.level3.to_string(lang)
+        domain_str = self.domain.to_string(lang)
 
         result['label'] = label_str
         result['definition'] = defn_str
         result['level1'] = level1_str
         result['level2'] = level2_str
-        result['level3'] = level3_str
+        result['domain'] = domain_str
 
         if endpoint is not None:
             result['url'] = url_for(endpoint, code=self.code, _external=True)
@@ -298,6 +326,7 @@ class Indicator(ApiModel):
             'id': self.code,
             'label.id': self.label.code,
             'definition.id': self.definition.code,
+            'type': self.type
         }
         return to_return
 
@@ -694,8 +723,8 @@ class Survey(ApiModel):
         """
         self.update_kwargs_english(kwargs, 'label', 'label_id')
         self.update_kwargs_english(kwargs, 'partner', 'partner_id')
-        self.update_kwargs_date(kwargs, 'start_date')
-        self.update_kwargs_date(kwargs, 'end_date')
+        self.update_kwargs_date(kwargs, 'start_date', '%m-%Y')
+        self.update_kwargs_date(kwargs, 'end_date', '%m-%Y')
         self.set_kwargs_id(kwargs, 'country_code', 'country_id', Country,
                            required=True)
         self.set_kwargs_id(kwargs, 'geography_code', 'geography_id', Geography,
@@ -1051,6 +1080,25 @@ class EnglishString(ApiModel):
         return json_obj
 
     @staticmethod
+    def insert_or_update(english, code):
+        """Insert or update an English record.
+
+        Args:
+            english (str): The string in English to insert.
+            code (str): The code for the string.
+
+        Returns:
+            The EnglishString record inserted or updated.
+        """
+        record = EnglishString.query.filter_by(code=code).first()
+        if record and record.english != english:
+            record.english = english
+            db.session.commit()
+        elif not record:
+            record = EnglishString.insert_unique(english, code)
+        return record
+
+    @staticmethod
     def insert_unique(english, code=None):
         """Insert a unique record into the database.
 
@@ -1059,6 +1107,10 @@ class EnglishString(ApiModel):
 
         Args:
             english (str): The string in English to insert.
+            code (str): The code for the string. None if it should be random.
+
+        Returns:
+            The new EnglishString record.
         """
         # TODO: (jkp 2017-08-29) This is not necessary because next64 now
         # returns unique. Needs: Nothing.
@@ -1080,12 +1132,6 @@ class EnglishString(ApiModel):
             self.code: this_dict
         }
         return to_return
-
-    # For the Translation class implementation.
-    # def datalab_init_json(self):
-    #     """Datalab init json: EnglishString."""
-    #     return {'id': self.code,
-    #             'string': self.english}
 
     def __repr__(self):
         """Return a representation of this object."""
@@ -1128,7 +1174,7 @@ class Translation(ApiModel):
         super init.
         """
         if kwargs.get('english_code'):
-            english = EnglishString.insert_unique(
+            english = EnglishString.insert_or_update(
                 kwargs['english'], kwargs['english_code'].lower())
             kwargs.pop('english_code')
         else:
