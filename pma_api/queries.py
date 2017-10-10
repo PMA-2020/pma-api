@@ -72,7 +72,6 @@ class DatalabData:
                             'survey.label.id': obj.pop('survey.label.id'),
                             'survey.date': obj.pop('survey.date'),
                             'value': obj.pop('value'),
-                            'precision': obj.pop('precision')
                         }
                     ]
                 }
@@ -83,7 +82,6 @@ class DatalabData:
                     'survey.label.id': obj.pop('survey.label.id'),
                     'survey.date': obj.pop('survey.date'),
                     'value': obj.pop('value'),
-                    'precision': obj.pop('precision')
                 })
         if next_series:
             results.append(next_series)
@@ -112,7 +110,6 @@ class DatalabData:
                                 obj.pop('characteristic.label.id'),
                             'characteristic.id': obj.pop('characteristic.id'),
                             'value': obj.pop('value'),
-                            'precision': obj.pop('precision')
                         }
                     ]
                 }
@@ -123,7 +120,6 @@ class DatalabData:
                         obj.pop('characteristic.label.id'),
                     'characteristic.id': obj.pop('characteristic.id'),
                     'value': obj.pop('value'),
-                    'precision': obj.pop('precision')
                 })
         if next_series:
             results.append(next_series)
@@ -180,8 +176,6 @@ class DatalabData:
                 'value': item[0].value,
                 'precision': item[0].precision,
                 'survey.id': item[1].code,
-                # TODO (jkp 2017-09-28) Change to better format once datalab
-                # is updated to handle. Suggest %Y-%m.
                 'survey.date': item[1].start_date.strftime('%m-%Y'),
                 'survey.label.id': item[1].label.code,
                 'indicator.id': item[2],
@@ -309,7 +303,7 @@ class DatalabData:
                 keep = True
             elif not survey_list and indicator is not None:
                 keep = this_indicator == indicator
-            elif survey_list and char_grp is None:
+            elif survey_list and indicator is None:
                 keep = this_survey in survey_list
             else:
                 survey_match = this_survey in survey_list
