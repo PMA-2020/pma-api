@@ -1,3 +1,9 @@
+v0.1.8, 10 October 2017
+ * Fix characteristic group bug in /datalab/data
+ * Move precision to top level under 'chartOptions'
+ * All values returned after rounding
+ * Dataset update
+
 v0.1.7, 2 October 2017
  * Empty CSV download is now a 204 server response
  * Implemented server-side caching for /datalab/init

@@ -320,6 +320,9 @@ rendering visualizations.
 Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characteristicGroup=none`
 ```
 {
+  "chartOptions": {
+    "precision": 1
+  },
   "metadata": {
     "datasetMetadata": [
       {
@@ -335,7 +338,7 @@ Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characte
         "type": "ui"
       }
     ],
-    "version": "0.1.5"
+    "version": "0.1.8"
   },
   "queryInput": {
     "characteristicGroups": [
@@ -382,7 +385,6 @@ Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characte
         {
           "characteristic.id": "none",
           "characteristic.label.id": "J-N_aTkS",
-          "precision": 1,
           "value": 15.4
         }
       ]
@@ -398,7 +400,6 @@ Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characte
         {
           "characteristic.id": "none",
           "characteristic.label.id": "J-N_aTkS",
-          "precision": null,
           "value": 16.1
         }
       ]
@@ -419,6 +420,9 @@ to return chronologically sorted data, and also include a `date` attribute for
 Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characteristicGroup=none&overTime=true`
 ```
 {
+  "chartOptions": {
+    "precision": 1
+  },
   "metadata": {
     "datasetMetadata": [
       {
@@ -434,7 +438,7 @@ Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characte
         "type": "ui"
       }
     ],
-    "version": "0.1.5"
+    "version": "0.1.8"
   },
   "queryInput": {
     "characteristicGroups": [
@@ -479,14 +483,12 @@ Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characte
       "geography.label.id": "w748V1ul",
       "values": [
         {
-          "precision": 1,
           "survey.date": "2013-10-03",
           "survey.id": "GH2013PMA",
           "survey.label.id": "lq0db_sX",
           "value": 15.4
         },
         {
-          "precision": null,
           "survey.date": "2014-01-01",
           "survey.id": "GH2014PMA",
           "survey.label.id": "2Ea5SlF4",
