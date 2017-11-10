@@ -52,11 +52,14 @@ class DatalabData:
     def data_to_time_series(sorted_data):
         """Transform a sorted list of data into time series."""
         curr_char = None
+        curr_geo = None
         results = []
         next_series = {}
         for obj in sorted_data:
-            if obj['characteristic.id'] != curr_char:
-                if curr_char is not None:
+            new_char = obj['characteristic.id'] != curr_char
+            new_geo = obj['geography.id'] != curr_geo
+            if new_char or new_geo:
+                if curr_char is not None and curr_geo is not None:
                     results.append(next_series)
                 next_series = {
                     'characteristic.id': obj.pop('characteristic.id'),
@@ -76,6 +79,7 @@ class DatalabData:
                     ]
                 }
                 curr_char = next_series['characteristic.id']
+                curr_geo = next_series['geography.id']
             else:
                 next_series['values'].append({
                     'survey.id': obj.pop('survey.id'),
