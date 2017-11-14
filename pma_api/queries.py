@@ -130,7 +130,8 @@ class DatalabData:
         return results
 
     @staticmethod
-    def filter_readable(survey_codes, indicator_code, char_grp_code):
+    def filter_readable(survey_codes, indicator_code, char_grp_code,
+                        lang=None):
         """Get filtered Datalab data and return readable columns.
 
         Args:
@@ -138,6 +139,7 @@ class DatalabData:
                 comma
             indicator_code (str): An indicator code
             char_grp_code (str): A characteristic group code
+            lang (str): The language, if specified.
 
         Filters the data based on the function arguments.
 
@@ -172,9 +174,9 @@ class DatalabData:
                 'value': value,
                 'survey.id': item[1].code,
                 'survey.date': item[1].start_date.strftime('%m-%Y'),
-                'indicator.label': item[2].label.english,
-                'characteristicGroup.label': item[3].label.english,
-                'characteristic.label': item[4].label.english
+                'indicator.label': item[2].label.to_string(lang),
+                'characteristicGroup.label': item[3].label.to_string(lang),
+                'characteristic.label': item[4].label.to_string(lang)
             }
             json_results.append(this_dict)
         return json_results

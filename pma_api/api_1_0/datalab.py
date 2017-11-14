@@ -21,7 +21,9 @@ def get_datalab_data():
     over_time = True if over_time.lower() == 'true' else False
     response_format = request.args.get('format', None)
     if response_format == 'csv':
-        json_list = DatalabData.filter_readable(survey, indicator, char_grp)
+        lang = request.args.get('lang')
+        json_list = DatalabData.filter_readable(survey, indicator, char_grp,
+                                                lang)
         return QuerySetApiResult(json_list, response_format)
     json_list = DatalabData.filter_minimal(survey, indicator, char_grp,
                                            over_time)
