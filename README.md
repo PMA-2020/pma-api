@@ -502,3 +502,5 @@ Example: `/v1/datalab/data?survey=GH2013PMA,GH2014PMA&indicator=mcpr_aw&characte
 ##### CSV download
 - `format=csv`
 Add `format=csv` to the query parameters to get a csv download.
+- `lang=LC`
+Add `lang=LC` where `LC` is the language code (e.g. `en` or `fr`) for the data download. This is optional, and the default is English.
