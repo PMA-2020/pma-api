@@ -68,7 +68,6 @@ class QuerySetApiResult(ApiResult):
     @staticmethod
     def csv_response(record_list):
         """CSV Response."""
-        # TODO (jkp 2017-09-05) Handle error (empty record_list)
         string_io = StringIO()
         header = record_list[0].keys()
         writer = DictWriter(f=string_io, fieldnames=header)

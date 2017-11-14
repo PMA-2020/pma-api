@@ -52,11 +52,14 @@ class DatalabData:
     def data_to_time_series(sorted_data):
         """Transform a sorted list of data into time series."""
         curr_char = None
+        curr_geo = None
         results = []
         next_series = {}
         for obj in sorted_data:
-            if obj['characteristic.id'] != curr_char:
-                if curr_char is not None:
+            new_char = obj['characteristic.id'] != curr_char
+            new_geo = obj['geography.id'] != curr_geo
+            if new_char or new_geo:
+                if curr_char is not None and curr_geo is not None:
                     results.append(next_series)
                 next_series = {
                     'characteristic.id': obj.pop('characteristic.id'),
@@ -76,6 +79,7 @@ class DatalabData:
                     ]
                 }
                 curr_char = next_series['characteristic.id']
+                curr_geo = next_series['geography.id']
             else:
                 next_series['values'].append({
                     'survey.id': obj.pop('survey.id'),
@@ -124,6 +128,59 @@ class DatalabData:
         if next_series:
             results.append(next_series)
         return results
+
+    @staticmethod
+    def filter_readable(survey_codes, indicator_code, char_grp_code,
+                        lang=None):
+        """Get filtered Datalab data and return readable columns.
+
+        Args:
+            survey_codes (str): A list of survey codes joined together by a
+                comma
+            indicator_code (str): An indicator code
+            char_grp_code (str): A characteristic group code
+            lang (str): The language, if specified.
+
+        Filters the data based on the function arguments.
+
+        Returns:
+            A list of simple python objects, one for each record found by
+            applying the various filters.
+        """
+        chr1 = DatalabData.char1
+        grp1, grp2 = DatalabData.char_grp1, DatalabData.char_grp2
+        select_args = (Data, Survey, Indicator, grp1, chr1)
+        filtered = DatalabData.all_joined(*select_args)
+        if survey_codes is not None:
+            survey_sql = DatalabData.survey_list_to_sql(survey_codes)
+            filtered = filtered.filter(survey_sql)
+        if indicator_code is not None:
+            filtered = filtered.filter(Indicator.code == indicator_code)
+        if char_grp_code is not None:
+            filtered = filtered.filter(grp1.code == char_grp_code)
+        # TODO (jkp, begin=2017-08-28): This will be grp2.code == 'none'
+        # eventually when the Data show "none" for char_grp2 in excel import
+        # Remove E711 from .pycodestyle
+        # pylint: disable=singleton-comparison
+        filtered = filtered.filter(grp2.code == None)
+        results = filtered.all()
+        json_results = []
+        for item in results:
+            precision = item[0].precision
+            if precision is None:
+                precision = 1
+            value = round(item[0].value, precision)
+            this_dict = {
+                'value': value,
+                'survey.id': item[1].code,
+                'survey.date': item[1].start_date.strftime('%m-%Y'),
+                'indicator.label': item[2].label.to_string(lang),
+                'characteristicGroup.label': item[3].label.to_string(lang),
+                'characteristic.label': item[4].label.to_string(lang)
+            }
+            json_results.append(this_dict)
+        return json_results
+
 
     @staticmethod
     def filter_minimal(survey_codes, indicator_code, char_grp_code, over_time):

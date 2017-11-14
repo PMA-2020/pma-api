@@ -19,6 +19,12 @@ def get_datalab_data():
     char_grp = request.args.get('characteristicGroup', None)
     over_time = request.args.get('overTime', 'false')
     over_time = True if over_time.lower() == 'true' else False
+    response_format = request.args.get('format', None)
+    if response_format == 'csv':
+        lang = request.args.get('lang')
+        json_list = DatalabData.filter_readable(survey, indicator, char_grp,
+                                                lang)
+        return QuerySetApiResult(json_list, response_format)
     json_list = DatalabData.filter_minimal(survey, indicator, char_grp,
                                            over_time)
     precisions = list(x['precision'] for x in json_list if x['precision'] is
@@ -26,9 +32,6 @@ def get_datalab_data():
     min_precision = min(precisions) if precisions else DEFAULT_PRECISION
     for item in json_list:
         item['value'] = round(item['value'], min_precision)
-    response_format = request.args.get('format', None)
-    if response_format == 'csv':
-        return QuerySetApiResult(json_list, response_format)
     if over_time:
         json_obj = DatalabData.data_to_time_series(json_list)
     else:
