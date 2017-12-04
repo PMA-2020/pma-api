@@ -94,12 +94,12 @@ class ApiModel(db.Model):
         empty_fk_id = fk_id == '' or fk_id is None
         if not empty_fk_id:
             kwargs[target_key] = fk_id
+        elif empty_code and not required:
+            kwargs[target_key] = None
         else:
             record = model.query.filter_by(code=code).first()
             if record:
                 kwargs[target_key] = record.id
-            elif not required:
-                kwargs[target_key] = None
             else:
                 msg = 'No record with code "{}" in "{}"'
                 msg = msg.format(code, model.__tablename__)

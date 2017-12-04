@@ -6,3 +6,4 @@ env
 dev
 tags
 test/files/ignored/*
+*.swp

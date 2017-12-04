@@ -31,7 +31,7 @@ def get_file_by_glob(pattern):
     return found[0]
 
 
-SRC_DATA = get_file_by_glob('./data/api_data*.xlsx')
+API_DATA = get_file_by_glob('./data/api_data*.xlsx')
 UI_DATA = get_file_by_glob('./data/ui_data*.xlsx')
 
 
@@ -82,7 +82,24 @@ def init_from_source(path, model):
         db.session.commit()
 
 
-def init_from_sheet(ws, model):
+def init_data(wb):
+    """Put all the data from the workbook into the database."""
+    survey = {}
+    indicator = {}
+    characteristic = {}
+    for record in Survey.query.all():
+        survey[record.code] = record.id
+    for record in Indicator.query.all():
+        indicator[record.code] = record.id
+    for record in Characteristic.query.all():
+        characteristic[record.code] = record.id
+    for ws in wb.sheets():
+        if ws.name.startswith('data'):
+            init_from_sheet(ws, Data, survey=survey, indicator=indicator,
+                            characteristic=characteristic)
+
+
+def init_from_sheet(ws, model, **kwargs):
     """Initialize DB table data from XLRD Worksheet.
 
     Initialize table data from source data associated with the corresponding
@@ -92,6 +109,10 @@ def init_from_sheet(ws, model):
         ws (xlrd.sheet.Sheet): XLRD worksheet object.
         model (class): SqlAlchemy model class.
     """
+    if model == Data:
+        survey = kwargs['survey']
+        indicator = kwargs['indicator']
+        characteristic = kwargs['characteristic']
     header = None
     for i, row in enumerate(ws.get_rows()):
         row = [r.value for r in row]
@@ -99,6 +120,19 @@ def init_from_sheet(ws, model):
             header = row
         else:
             row_dict = {k: v for k, v in zip(header, row)}
+            if model == Data:
+                survey_code = row_dict.get('survey_code')
+                survey_id = survey.get(survey_code)
+                row_dict['survey_id'] = survey_id
+                indicator_code = row_dict.get('indicator_code')
+                indicator_id = indicator.get(indicator_code)
+                row_dict['indicator_id'] = indicator_id
+                char1_code = row_dict.get('char1_code')
+                char1_id = characteristic.get(char1_code)
+                row_dict['char1_id'] = char1_id
+                char2_code = row_dict.get('char2_code')
+                char2_id = characteristic.get(char2_code)
+                row_dict['char2_id'] = char2_id
             try:
                 record = model(**row_dict)
             except:
@@ -120,9 +154,7 @@ def init_from_workbook(wb, queue):
     with xlrd.open_workbook(wb) as book:
         for sheetname, model in queue:
             if sheetname == 'data':  # actually done last
-                for ws in book.sheets():
-                    if ws.name.startswith('data'):
-                        init_from_sheet(ws, model)
+                init_data(book)
             else:
                 ws = book.sheet_by_name(sheetname)
                 init_from_sheet(ws, model)
@@ -152,7 +184,7 @@ def initdb(overwrite=False):
             db.drop_all()
         db.create_all()
         if overwrite:
-            init_from_workbook(wb=SRC_DATA, queue=ORDERED_MODEL_MAP)
+            init_from_workbook(wb=API_DATA, queue=ORDERED_MODEL_MAP)
             init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
             caching.cache_datalab_init(app)
 
@@ -165,7 +197,7 @@ def translations():
         db.session.query(SourceData).delete()
         db.session.query(Translation).delete()
         db.session.commit()
-        init_from_workbook(wb=SRC_DATA, queue=TRANSLATION_MODEL_MAP)
+        init_from_workbook(wb=API_DATA, queue=TRANSLATION_MODEL_MAP)
         init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
 
 
