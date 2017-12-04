@@ -1,6 +1,9 @@
 """Application configuration classes."""
 import os
-basedir = os.path.abspath(os.path.dirname(__file__))
+from os.path import abspath, dirname, join
+
+
+basedir = abspath(join(dirname(__file__), '..'))
 
 
 class Config:

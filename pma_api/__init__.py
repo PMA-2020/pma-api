@@ -1,16 +1,10 @@
 """Definition of application object."""
 from flask import Blueprint, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
-from config import config
-
-
-db = SQLAlchemy()
-
-
-# pylint: disable=wrong-import-position
 from .app import PmaApiFlask
+from .config import config
+from .models import db
 from .response import QuerySetApiResult
 
 
