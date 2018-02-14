@@ -199,6 +199,7 @@ def translations():
         db.session.commit()
         init_from_workbook(wb=API_DATA, queue=TRANSLATION_MODEL_MAP)
         init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
+        cache_responses()
 
 
 @manager.command
