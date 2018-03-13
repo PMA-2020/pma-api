@@ -1,3 +1,4 @@
+"""EnglishString & Translation model."""
 from . import db
 from ..utils import next64
 
@@ -139,6 +140,7 @@ class Translation(db.Model):
         record for UI data. Otherwise, gets the english code and (2) Calls
         super init.
         """
+        self.prune_ignored_fields(kwargs)
         if kwargs.get('english_code'):
             english = EnglishString.insert_or_update(
                 kwargs['english'], kwargs['english_code'].lower())
@@ -160,10 +162,10 @@ class Translation(db.Model):
             corresponding solutions:
             
             A) It is possible that there is no match anywhere in the dataset 
-            used to initialize the database. Does the English text (i.e. 
-            'english' in "Erroneous Data") exist in any other portion of the 
-            dataset (e.g. 'survey', 'indicator', 'characteristic', 
-            'characteristic group', 'country', 'geography')?
+            used to initialize the database. Does the English text (i.e. what 
+            is shown in 'english' in 'Erroneous Data' above) exist in any 
+            other portion of the dataset (e.g. 'survey', 'indicator', 
+            'characteristic', 'characteristic group', 'country', 'geography')?
             
             B) It is possible that the database was not initialized properly 
             prior to attempting to update these translations. If updating the 
@@ -179,6 +181,16 @@ class Translation(db.Model):
             raise AttributeError(msg)
         kwargs.pop('english')
         super(Translation, self).__init__(**kwargs)
+
+    @staticmethod
+    def prune_ignored_fields(kwargs):
+        """Prune ignored fields.
+
+        Args:
+            **kwargs: Keyword arguments.
+        """
+        from pma_api.models.api_base import prune_ignored_fields
+        prune_ignored_fields(kwargs)
 
     @staticmethod
     def languages():

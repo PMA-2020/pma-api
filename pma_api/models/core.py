@@ -1,8 +1,10 @@
+"""Core models."""
 from flask import url_for
 
 from . import db
 from .api_base import ApiModel
 from ..utils import next64
+from copy import copy
 
 
 class Indicator(ApiModel):
@@ -340,16 +342,28 @@ class Data(ApiModel):
         parameter names to model field names, (2) Reformats any empty strings,
         (3) Sets a randomly generated code string, and (4) Calls super init.
         """
+        kwargs_copy = copy(kwargs)
         if kwargs:
             kwargs['is_total'] = bool(kwargs['is_total'])
             self.set_kwargs_id(kwargs, 'survey_code', 'survey_id', Survey)
-            self.set_kwargs_id(kwargs, 'indicator_code', 'indicator_id',
-                               Indicator)
-            self.set_kwargs_id(kwargs, 'char1_code', 'char1_id',
-                               Characteristic, False)
-            self.set_kwargs_id(kwargs, 'char2_code', 'char2_id',
-                               Characteristic, False)
-            self.empty_to_none(kwargs)
+            try:
+                self.set_kwargs_id(kwargs, 'indicator_code', 'indicator_id',
+                                   Indicator)
+                self.set_kwargs_id(kwargs, 'char1_code', 'char1_id',
+                                   Characteristic, False)
+                self.set_kwargs_id(kwargs, 'char2_code', 'char2_id',
+                                   Characteristic, False)
+                self.empty_to_none(kwargs)
+            except KeyError as err:
+                msg = """
+                {}
+
+                Error occured while trying to store the following data:
+                {}
+                """.format(str(err),
+                           ', '.join(['{}: {}'.format(k, v)
+                                      for k, v in kwargs_copy.items()]))
+                raise KeyError(msg)
             kwargs['code'] = next64()
             super(Data, self).__init__(**kwargs)
 
@@ -814,4 +828,3 @@ class Geography(ApiModel):
     def __repr__(self):
         """Return a representation of this object."""
         return '<Geography "{}">'.format(self.label.english)
-

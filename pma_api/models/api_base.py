@@ -1,7 +1,20 @@
+"""Abstract base model."""
 from datetime import datetime
 
 from . import db
 from .string import EnglishString
+
+
+def prune_ignored_fields(kwargs):
+    """Prune ignored fields.
+
+    Args:
+        **kwargs: Keyword arguments.
+    """
+    to_pop = [k for k in kwargs.keys() if
+              k.startswith(ApiModel.ignore_field_prefix)]
+    for key in to_pop:
+        kwargs.pop(key)
 
 
 class ApiModel(db.Model):
@@ -24,10 +37,7 @@ class ApiModel(db.Model):
         Args:
             **kwargs: Keyword arguments.
         """
-        to_pop = [k for k in kwargs.keys() if
-                  k.startswith(ApiModel.ignore_field_prefix)]
-        for key in to_pop:
-            kwargs.pop(key)
+        prune_ignored_fields(kwargs)
 
     @staticmethod
     def update_kwargs_date(kwargs, source_key, fstr):
