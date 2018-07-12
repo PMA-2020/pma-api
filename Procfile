@@ -1,1 +1,2 @@
-web: gunicorn run:app
+web: make serve-production
+release: make db

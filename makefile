@@ -80,13 +80,19 @@ db:
 translations:
 	${MANAGE} initdb --translations
 
-production:
+production:  # connects to server
 	heroku run bash --app pma-api
 
-staging:
+staging:  # connects to server
 	heroku run bash --app pma-api-staging
 
-gunicorn:
+production-push:
+	git checkout production && git push trunk production
+	
+staging-push:
+	git checkout staging && git push trunk staging
+
+serve-production:
 	gunicorn run:app
 
 
