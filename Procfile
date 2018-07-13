@@ -1,2 +1,2 @@
 web: make serve-production
-release: make db
+release: make db-production
