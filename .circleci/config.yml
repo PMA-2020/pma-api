@@ -43,7 +43,7 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      # Used 'env' for virtuale environment name per PMA2020 convention, as opposed to CircleCI's default name 'venv'.
+      # Used 'env' for virtual environment name per PMA2020 convention, as opposed to CircleCI's default name 'venv'.
       - run:
           name: install dependencies
           command: |
