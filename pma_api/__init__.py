@@ -26,6 +26,7 @@ def create_app(config_name):
     Returns:
         Flask: Configured Flask application.
     """
+    # noinspection PyShadowingNames
     app = PmaApiFlask(__name__)
     app.config.from_object(config[config_name])
 
@@ -34,8 +35,16 @@ def create_app(config_name):
     app.register_blueprint(root)
 
     from .api_1_0 import api as api_1_0_blueprint
+    from .api_1_0.collection import get_resources
     app.register_blueprint(api_1_0_blueprint, url_prefix='/v1')
 
-    app.add_url_rule('/', view_func=lambda: 'To be implemented.')
+    # TODO: (jef/jkp 2017-08-29) Investigate mimetypes in accept headers.
+    # See: flask.pocoo.org/snippets/45/ Needs: Nothing?
+    request_headers = 'application/json'  # default for now
+    if request_headers == 'text/html':
+        # Also can re-route to /docs
+        app.add_url_rule('/', view_func=lambda: 'Documentation')
+    else:
+        app.add_url_rule('/', view_func=lambda: get_resources())
 
     return app

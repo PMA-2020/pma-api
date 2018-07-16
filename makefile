@@ -104,10 +104,16 @@ staging:  # connects to server shell
 	heroku run bash --app pma-api-staging
 
 production-push:
-	git checkout production && git push trunk production
+	git checkout production && \
+	git push trunk production
 	
 staging-push:
-	git checkout staging && git push trunk staging --force
+	git status && \
+	printf "\nGit status should have reported 'nothing to commit, working tree clean'. Otherwise you should cancel this command, make sure changes are committed, and run it again.\n\n" && \
+	git checkout develop && \
+	git branch -D staging && \
+	git checkout -b staging && \
+	git push -u trunk staging --force
 
 push-production: production-push
 

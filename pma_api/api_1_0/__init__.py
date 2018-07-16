@@ -1,13 +1,11 @@
 """API Routes."""
-from flask import Blueprint, jsonify
+from flask import Blueprint
 
-from ..queries import DatalabData
 
 api = Blueprint('api', __name__)
 
 # pylint: disable=wrong-import-position
 from . import collection, datalab
-from ..response import QuerySetApiResult
 
 
 @api.route('/')
@@ -22,5 +20,5 @@ def root():
     # See: flask.pocoo.org/snippets/45/ Needs: Nothing?
     request_headers = 'application/json'  # default for now
     if request_headers == 'text/html':
-        return 'Documentation.'
+        return 'Documentation.'  # Also can re-route to /docs
     return collection.get_resources()
