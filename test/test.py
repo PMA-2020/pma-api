@@ -3,6 +3,11 @@
 """Unit tests."""
 import os
 import unittest
+from sys import stderr
+
+from sqlalchemy.exc import OperationalError as OperationalError1
+from psycopg2 import OperationalError as OperationalError2
+from sqlalchemy.util.queue import Empty as EmptyError
 
 from manage import app
 
@@ -35,10 +40,17 @@ class TestRoutes(unittest.TestCase):
 
     def test_routes(self):
         """Smoke test routes to ensure no runtime errors.."""
-        routes = [route.rule for route in app.url_map.iter_rules()
-                  if self.valid_route(route.rule)]
-        for route in routes:
-            self.app.get(route)
+        try:
+            routes = [route.rule for route in app.url_map.iter_rules()
+                      if self.valid_route(route.rule)]
+            for route in routes:
+                self.app.get(route)
+        except (EmptyError, OperationalError1, OperationalError2) as err:
+            message = '\n\nAn error occurred while trying to connect to the ' \
+                      'database. Is it running?\n\nOriginal error message:\n'
+            template = 'An exception of type {0} occurred. Arguments:\n{1!r}'
+            message += template.format(type(err).__name__, err.args)
+            print(message, file=stderr)
 
 
 # class TestDB(unittest.TestCase):  # TODO: Adapt from tutorial.

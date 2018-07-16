@@ -17,13 +17,10 @@ DOC_TEST=${PYDOCSTYLE} ${TEST}
 
 MANAGE=${PYTHON} manage.py
 
-DEV_SERVE=gunicorn --bind 0.0.0.0:5000 run:app \
-	--access-logfile logs/access-logfile.log \
-	--error-logfile logs/error-logfile.log \
-	--capture-output \
-	--pythonpath python3
-
-.PHONY: lint linttest lintall pylint pylinttest pylintall code codetest codeall doc doctest docall test testdoc serve shell db translations production staging gunicorn tags ltags serve-dev serve-production
+.PHONY: lint linttest lintall pylint pylinttest pylintall code codetest \
+codeall doc doctest docall test testdoc serve shell db translations \
+production staging gunicorn tags ltags serve-dev serve-production \
+serve-dev-network-accessible circleci-validate-config
 
 # ALL LINTING
 lint:
@@ -76,6 +73,18 @@ testdoc:
 serve:
 	${MANAGE} runserver
 
+serve-dev: serve
+
+serve-dev-network-accessible:
+	gunicorn --bind 0.0.0.0:5000 run:app \
+	--access-logfile logs/access-logfile.log \
+	--error-logfile logs/error-logfile.log \
+	--capture-output \
+	--pythonpath python3
+
+serve-production:
+	gunicorn run:app
+
 shell:
 	${MANAGE} shell
 
@@ -88,10 +97,10 @@ db-production:
 translations:
 	${MANAGE} initdb --translations
 
-production:  # connects to server
+production:  # connects to server shell
 	heroku run bash --app pma-api
 
-staging:  # connects to server
+staging:  # connects to server shell
 	heroku run bash --app pma-api-staging
 
 production-push:
@@ -104,11 +113,12 @@ push-production: production-push
 
 push-staging: staging-push
 
-serve-production:
-	gunicorn run:app
 
-serve-dev:
-	${DEV_SERVE}
+# DEVOPS
+circleci-validate-config:
+	echo Make sure that Docker is running, or this command will fail. && \
+	circleci config validate
+
 
 # CTAGS
 tags:
