@@ -20,7 +20,7 @@ MANAGE=${PYTHON} manage.py
 .PHONY: lint linttest lintall pylint pylinttest pylintall code codetest \
 codeall doc doctest docall test testdoc serve shell db translations \
 production staging gunicorn tags ltags serve-dev serve-production \
-serve-dev-network-accessible
+serve-dev-network-accessible circleci-validate-config
 
 # ALL LINTING
 lint:
@@ -112,6 +112,12 @@ staging-push:
 push-production: production-push
 
 push-staging: staging-push
+
+
+# DEVOPS
+circleci-validate-config:
+	echo Make sure that Docker is running, or this command will fail. && \
+	circleci config validate
 
 
 # CTAGS

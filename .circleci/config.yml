@@ -5,14 +5,22 @@
 version: 2 # use CircleCI 2.0
 jobs:
   build:
+    branches:
+      only:
+        - develop
+        - master
+        - /pr*/
+
     # working_directory no longer required: https://discuss.circleci.com/t/working-directory-is-no-longer-required-defaults-to-project/14363/2
     # working_directory: ~/repo
 
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:3.6.1 # primary container where `steps` are run
-        environment: # environment variables for pma-api?
+      # primary container where `steps` are run
+      - image: circleci/python:3.6.1 # 2 spaces after this -
+        # environment variables for pma-api?
+        environment:
           APP_SETTINGS: production
           FLASK_APP: production
           # Do I need '+psycopg2'? Do I need port ':5432'?
@@ -25,8 +33,9 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # As of 2018/07/16, our Heroku deployment is on 9.6.9, and local on ~9.6.0.0.
       # - image: circleci/postgres:9.4
-      - image: circleci/postgres:9.6.2
-        environment: # environment variables for database, https://hub.docker.com/_/postgres/
+      - image: circleci/postgres:9.6.2 # 2 spaces after this -
+      # environment variables for database, https://hub.docker.com/_/postgres/
+        environment:
           # POSTGRES_USER: root
           # POSTGRES_DB: circle_test
           POSTGRES_USER: pmaapi
@@ -34,17 +43,19 @@ jobs:
           # POSTGRES_PASSWORD: pmaapi
 
     steps:
-      - checkout # special step to check out source code to the working directory
+      # special step to check out source code to the working directory
+      - checkout
 
       # Download and cache dependencies
-      - restore_cache: # restores saved dependency cache if the Branch key template or requirements.txt files have not changed since the previous run
+      # restores saved dependency cache if the Branch key template or requirements.txt files have not changed since the previous run
+      - restore_cache: # 4 spaces after this -
           keys:
-          - v1-dependencies-{{ checksum "requirements.txt" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+            - v1-dependencies-{{ checksum "requirements.txt" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
 
-      # Used 'env' for virtuale environment name per PMA2020 convention, as opposed to CircleCI's default name 'venv'.
-      - run:
+      # Used 'env' for virtual environment name per PMA2020 convention, as opposed to CircleCI's default name 'venv'.
+      - run: # 4 spaces after this -
           name: install dependencies
           command: |
             python3 -m venv env
@@ -61,11 +72,11 @@ jobs:
           command: |
             . env/bin/activate
             make db
-        environment: # do I need this here if it's already in the Python image?
-          # Do I need '+psycopg2'? Do I need port ':5432'?
-          # DATABASE_URL: "postgres://ubuntu@localhost:5432/db_name"
-          # DATABASE_URL: postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi
-          DATABASE_URL: postgresql+psycopg2://pmaapi@localhost/pmaapi
+          environment: # do I need this here if it's already in the Python image?
+            # Do I need '+psycopg2'? Do I need port ':5432'?
+            # DATABASE_URL: "postgres://ubuntu@localhost:5432/db_name"
+            # DATABASE_URL: postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi
+            DATABASE_URL: postgresql+psycopg2://pmaapi@localhost/pmaapi
 
 #      # Is this useful for our setup?
 #      - run:
