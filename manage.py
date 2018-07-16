@@ -191,7 +191,7 @@ def initdb(overwrite=False):
 
 @manager.command
 def translations():
-    """Import anew all translations into the database."""
+    """Import all translations into the database."""
     with app.app_context():
         # TODO (jkp 2017-09-28) make this ONE transaction instead of many.
         db.session.query(SourceData).delete()

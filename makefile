@@ -17,8 +17,13 @@ DOC_TEST=${PYDOCSTYLE} ${TEST}
 
 MANAGE=${PYTHON} manage.py
 
+DEV_SERVE=gunicorn --bind 0.0.0.0:5000 run:app \
+	--access-logfile logs/access-logfile.log \
+	--error-logfile logs/error-logfile.log \
+	--capture-output \
+	--pythonpath python3
 
-.PHONY: lint linttest lintall pylint pylinttest pylintall code codetest codeall doc doctest docall test testdoc serve shell db translations production staging gunicorn tags ltags
+.PHONY: lint linttest lintall pylint pylinttest pylintall code codetest codeall doc doctest docall test testdoc serve shell db translations production staging gunicorn tags ltags serve-dev serve-production
 
 # ALL LINTING
 lint:
@@ -77,18 +82,33 @@ shell:
 db:
 	${MANAGE} initdb --overwrite
 
+db-production:
+	python3 manage.py initdb --overwrite
+
 translations:
 	${MANAGE} initdb --translations
 
-production:
+production:  # connects to server
 	heroku run bash --app pma-api
 
-staging:
+staging:  # connects to server
 	heroku run bash --app pma-api-staging
 
-gunicorn:
+production-push:
+	git checkout production && git push trunk production
+	
+staging-push:
+	git checkout staging && git push trunk staging --force
+
+push-production: production-push
+
+push-staging: staging-push
+
+serve-production:
 	gunicorn run:app
 
+serve-dev:
+	${DEV_SERVE}
 
 # CTAGS
 tags:

@@ -2,8 +2,9 @@ __pycache__
 .idea
 .DS_Store
 *~$*
-env
-dev
+env/
+dev/
+logs/
 tags
 test/files/ignored/*
 *.swp

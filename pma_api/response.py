@@ -74,7 +74,10 @@ class QuerySetApiResult(ApiResult):
         writer.writeheader()
         writer.writerows((item for item in record_list))
         result = string_io.getvalue()
-        return Response(result, mimetype='text/csv')
+        response = Response(result, mimetype='text/csv')
+        response.headers['Content-Disposition'] = \
+            'attachment; filename=data.csv'
+        return response
 
     @staticmethod
     def json_response(record_list, extra_metadata, **kwargs):
