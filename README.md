@@ -1,3 +1,5 @@
+#### `master` [![CircleCI](https://circleci.com/gh/PMA-2020/pma-api/tree/master.svg?style=svg&circle-token=3cd5fffe3dad1d27e6cc1000307bc299e2ef3e77)](https://circleci.com/gh/PMA-2020/pma-api/tree/master) |  `develop` [![CircleCI](https://circleci.com/gh/PMA-2020/pma-api/tree/develop.svg?style=svg&circle-token=3cd5fffe3dad1d27e6cc1000307bc299e2ef3e77)](https://circleci.com/gh/PMA-2020/pma-api/tree/develop)
+
 # About the PMA API
 This is the PMA2020 API. You can access it at: http://api.pma2020.org
 
@@ -545,4 +547,4 @@ This can be done via CLI or GUI tool, such as recommended previously.
 `make push-staging`
 
 ### Pushing to production
-`make push-zproduction
+`make push-production`
