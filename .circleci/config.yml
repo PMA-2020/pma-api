@@ -1,43 +1,28 @@
 # Python CircleCI 2.0 configuration file
 #
 # Check https://circleci.com/docs/2.0/language-python/ for more details
+# Examples https://circleci.com/docs/2.0/sample-config/
 #
-version: 2 # use CircleCI 2.0
+version: 2 # Uses CircleCI 2.0
 jobs:
   build:
-    branches:
-      only:
-        - develop
-        - master
-        - /pr*/
-
-    # working_directory no longer required: https://discuss.circleci.com/t/working-directory-is-no-longer-required-defaults-to-project/14363/2
-    # working_directory: ~/repo
-
     docker:
-      # specify the version you desire here
-      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      # primary container where `steps` are run
+      # Primary container where `steps` are run
+      # - use `-browsers` prefix for selenium tests, e.g. `circleci/python:3.6.1-browsers`
       - image: circleci/python:3.6.1 # 2 spaces after this -
-        # environment variables for pma-api?
         environment:
+          # Separate environment variables should not matter for CircleCI build, because Heroku has its own env variables setup.
+          # For more information, however, on dynamic env variables, see: https://discuss.circleci.com/t/per-branch-env-vars/13214
           APP_SETTINGS: production
           FLASK_APP: production
-          # Do I need '+psycopg2'? Do I need port ':5432'?
-          # DATABASE_URL: "postgres://ubuntu@localhost:5432/db_name"
-          # DATABASE_URL: postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi
           DATABASE_URL: postgresql+psycopg2://pmaapi@localhost/pmaapi
+          # DATABASE_URL: postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # As of 2018/07/16, our Heroku deployment is on 9.6.9, and local on ~9.6.0.0.
-      # - image: circleci/postgres:9.4
+      # Specify service dependencies here as separate images/machines if necessary.
+      # - Documented at https://circleci.com/docs/2.0/circleci-images/
+      # - As of 2018/07/16, our Heroku deployment is on 9.6.9, and local on ~9.6.0.0.
       - image: circleci/postgres:9.6.2 # 2 spaces after this -
-      # environment variables for database, https://hub.docker.com/_/postgres/
         environment:
-          # POSTGRES_USER: root
-          # POSTGRES_DB: circle_test
           POSTGRES_USER: pmaapi
           POSTGRES_DB: pmaapi
           # POSTGRES_PASSWORD: pmaapi
@@ -72,23 +57,8 @@ jobs:
           command: |
             . env/bin/activate
             make db
-          environment: # do I need this here if it's already in the Python image?
-            # Do I need '+psycopg2'? Do I need port ':5432'?
-            # DATABASE_URL: "postgres://ubuntu@localhost:5432/db_name"
-            # DATABASE_URL: postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi
+          environment:
             DATABASE_URL: postgresql+psycopg2://pmaapi@localhost/pmaapi
-
-#      # Is this useful for our setup?
-#      - run:
-#          name: Waiting for Postgres to be ready
-#          command: |
-#            for i in `seq 1 10`;
-#            do
-#              nc -z localhost 5432 && echo Success && exit 0
-#              echo -n .
-#              sleep 1
-#            done
-#            echo Failed waiting for Postgres && exit 1
 
       - run:
           name: run tests
@@ -96,8 +66,56 @@ jobs:
             . env/bin/activate
             make test
 
-      - store_artifacts:  # TODO: what is this?
+      - store_artifacts:
           path: test-reports
           destination: test-reports
 
-# See https://circleci.com/docs/2.0/deployment-integrations/ for deploy examples
+  # CI deployment setup notes
+  # - https://circleci.com/docs/2.0/deployment-integrations/#heroku
+  # - https://circleci.com/docs/2.0/project-walkthrough/#deploying-to-heroku
+  # - https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project
+  deploy-staging:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Deploy staging branch staging server.
+          command: |
+            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME_STAGING.git master -f
+
+  deploy-production:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Deploy production branch production server.
+          command: |
+            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME_PRODUCTION.git master -f
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - master
+                - develop
+                - /pr*/
+                - staging
+                - production
+      - deploy-production:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - production
+      - deploy-staging:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - staging
