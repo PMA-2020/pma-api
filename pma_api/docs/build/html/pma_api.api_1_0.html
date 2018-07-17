@@ -1,0 +1,450 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pma_api.api_1_0 package &mdash; PMA API 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PMA API
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="content/features/searching.html">Searching the Site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/usage/using_the_api.html">Using the API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PMA API</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>pma_api.api_1_0 package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/pma_api.api_1_0.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pma-api-api-1-0-package">
+<h1>pma_api.api_1_0 package<a class="headerlink" href="#pma-api-api-1-0-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pma_api.api_1_0.caching">
+<span id="pma-api-api-1-0-caching-module"></span><h2>pma_api.api_1_0.caching module<a class="headerlink" href="#module-pma_api.api_1_0.caching" title="Permalink to this headline">¶</a></h2>
+<p>Caching.</p>
+<dl class="function">
+<dt id="pma_api.api_1_0.caching.cache_datalab_init">
+<code class="descclassname">pma_api.api_1_0.caching.</code><code class="descname">cache_datalab_init</code><span class="sig-paren">(</span><em>app</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.caching.cache_datalab_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add /v1/datalab/init to the server cache.</p>
+<p>This method checks the cache. If there is nothing cached or if the md5s do
+not match, then a new cached response is generated and saved.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>app (Flask): The Flask app. There must be a current app context.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.api_1_0.collection">
+<span id="pma-api-api-1-0-collection-module"></span><h2>pma_api.api_1_0.collection module<a class="headerlink" href="#module-pma_api.api_1_0.collection" title="Permalink to this headline">¶</a></h2>
+<p>Routes for API collections.</p>
+<dl class="function">
+<dt id="pma_api.api_1_0.collection.data_refined_query">
+<code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">data_refined_query</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.data_refined_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refine data query.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>args: List of args. If ‘survey’ present,
+filter by survey entities.</dd>
+<dt>Returns:</dt>
+<dd>dict: Filtered query data.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.api_1_0.collection.get_characteristic_group">
+<code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_characteristic_group</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_characteristic_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Characteristic Groups resource entity.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>code (str): Identification for resource entity.</dd>
+<dt>Returns:</dt>
+<dd>json: Entity of resource.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.api_1_0.collection.get_characteristic_groups">
+<code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_characteristic_groups</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_characteristic_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Characteristic Groups resource collection.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>json: Collection for resource.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.api_1_0.collection.get_countries">
+<code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_countries</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_countries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Country resource collection GET method.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>json: Collection for resource.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.api_1_0.collection.get_country">
+<code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_country</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_country" title="Permalink to this definition">¶</a></dt>
+<dd><p>Country resource entity GET method.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>code (str): Identification for resource entity.</dd>
+<dt>Returns:</dt>
+<dd>json: Entity of resource.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.api_1_0.collection.get_data">
+<code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Data resource collection.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>json: Collection for resource.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.api_1_0.collection.get_datum">
+<code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_datum</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_datum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get data resource entity.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>code (str): Identification for resource entity.</dd>
+<dt>Returns:</dt>
+<dd>json: Entity of resource.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.api_1_0.collection.get_indicator">
+<code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_indicator</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_indicator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Indicator resource entity.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>code (str): Identification for resource entity.</dd>
+<dt>Returns:</dt>
+<dd>json: Entity of resource.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.api_1_0.collection.get_indicators">
+<code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_indicators</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_indicators" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Indicator resource collection.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>json: Collection for resource.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.api_1_0.collection.get_resources">
+<code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_resources</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_resources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return API resource routes.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>json: List of resources.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.api_1_0.collection.get_survey">
+<code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_survey</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_survey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Survey resource entity GET method.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>code (str): Identification for resource entity.</dd>
+<dt>Returns:</dt>
+<dd>json: Entity of resource.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.api_1_0.collection.get_surveys">
+<code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_surveys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_surveys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Survey resource collection GET method.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>json: Collection for resource.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.api_1_0.collection.get_text">
+<code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_text</code><span class="sig-paren">(</span><em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Text resource entity.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>code (str): Identification for resource entity.</dd>
+<dt>Returns:</dt>
+<dd>json: Entity of resource.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.api_1_0.collection.get_texts">
+<code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_texts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_texts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Text resource collection.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>json: Collection for resource.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.api_1_0.datalab">
+<span id="pma-api-api-1-0-datalab-module"></span><h2>pma_api.api_1_0.datalab module<a class="headerlink" href="#module-pma_api.api_1_0.datalab" title="Permalink to this headline">¶</a></h2>
+<p>Routes related to the datalab.</p>
+<dl class="function">
+<dt id="pma_api.api_1_0.datalab.get_datalab_combos">
+<code class="descclassname">pma_api.api_1_0.datalab.</code><code class="descname">get_datalab_combos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.datalab.get_datalab_combos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab client endpoint for querying validmetadata combinations.</p>
+<dl class="docutils">
+<dt>The structural metadata for Datalab are:</dt>
+<dd><ul class="first last simple">
+<li>Country survey rounds</li>
+<li>Indicators</li>
+<li>Characteristics for data disaggregation</li>
+</ul>
+</dd>
+<dt>A valid structural metadata combination is a combination for which data</dt>
+<dd>exists. That is to say that when these metadata are used together as query
+parameters on the ‘datalab/data’ endpoint, actual data will be returned
+rather than nothing at all.</dd>
+<dt>Returns:</dt>
+<dd>json: List of valid metadata combinations.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.api_1_0.datalab.get_datalab_data">
+<code class="descclassname">pma_api.api_1_0.datalab.</code><code class="descname">get_datalab_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.datalab.get_datalab_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab client endpoint for querying data.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>json: Queried data.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.api_1_0.datalab.get_datalab_init">
+<code class="descclassname">pma_api.api_1_0.datalab.</code><code class="descname">get_datalab_init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.datalab.get_datalab_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab client endpoint for app initialization.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>json: All of the necessary elements to render initial view of Datalab.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.api_1_0">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pma_api.api_1_0" title="Permalink to this headline">¶</a></h2>
+<p>API Routes.</p>
+<dl class="function">
+<dt id="pma_api.api_1_0.root">
+<code class="descclassname">pma_api.api_1_0.</code><code class="descname">root</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.root" title="Permalink to this definition">¶</a></dt>
+<dd><p>Root route.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>func: get_resources() if ‘application/json’
+func: redirect to docs if ‘text/html’</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, James Pringle, Joe Flack.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

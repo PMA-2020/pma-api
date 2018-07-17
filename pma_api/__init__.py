@@ -1,5 +1,7 @@
 """Definition of application object."""
-from flask import Blueprint, jsonify
+import os
+
+from flask import Blueprint, jsonify, redirect, request
 from flask_cors import CORS
 
 from .app import PmaApiFlask
@@ -11,13 +13,53 @@ from .response import QuerySetApiResult
 root = Blueprint('root', __name__)
 
 
+@root.route('/')
+def root_route():
+    """Root route.
+
+    .. :quickref: Root; Redirects to resources list or documentation depending
+     on MIME type.
+
+    Returns:
+        func: get_resources() if 'application/json'
+        func: redirect to docs if 'text/html'
+    """
+    request_headers = request.accept_mimetypes\
+        .best_match(['application/json', 'text/html'])
+
+    if request_headers == 'text/html':
+        return redirect('http://api-docs.pma2020.org', code=302)
+    else:
+        from .api_1_0.collection import get_resources as res
+        return res() if request_headers == 'application/json' else res()
+
+
+@root.route('/docs')
+def documentation():
+    """Documentation.
+
+    .. :quickref: Docs; Redirects to official documentation.
+
+    Returns:
+        redirect(): Redirects to official documentation.
+
+    """
+    return redirect('http://api-docs.pma2020.org', code=302)
+
 @root.route('/version')
 def show_version():
-    """Show API version data."""
+    """Show API version data.
+
+    .. :quickref: Version; API versioning data.
+
+    Returns:
+        String: Version number.
+
+    """
     return jsonify(QuerySetApiResult.metadata())
 
 
-def create_app(config_name):
+def create_app(config_name=os.getenv('FLASK_CONFIG', 'default')):
     """Create configured Flask application.
 
     Args:
@@ -35,16 +77,6 @@ def create_app(config_name):
     app.register_blueprint(root)
 
     from .api_1_0 import api as api_1_0_blueprint
-    from .api_1_0.collection import get_resources
     app.register_blueprint(api_1_0_blueprint, url_prefix='/v1')
-
-    # TODO: (jef/jkp 2017-08-29) Investigate mimetypes in accept headers.
-    # See: flask.pocoo.org/snippets/45/ Needs: Nothing?
-    request_headers = 'application/json'  # default for now
-    if request_headers == 'text/html':
-        # Also can re-route to /docs
-        app.add_url_rule('/', view_func=lambda: 'Documentation')
-    else:
-        app.add_url_rule('/', view_func=lambda: get_resources())
 
     return app

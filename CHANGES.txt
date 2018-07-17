@@ -1,3 +1,9 @@
+v1.0.0, 23 July 2018
+ * Added dedicated docs, accessible at http://api-docs.pma2020.org
+ * Default route now redirects to docs.
+ * Added continuous integration
+ * Versioned to 1.0.0 to keep consistent with the API route version 'v1'.
+
 v0.1.9, 14 November 2017
  * Group /datalab/data over time correctly if only one characteristic
  * Better, more readable CSV downloads with other languages supported

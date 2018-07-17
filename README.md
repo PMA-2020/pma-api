@@ -4,7 +4,7 @@
 This is the PMA2020 API. You can access it at: http://api.pma2020.org
 
 # 1. User Documentation
-TODO
+User documentation is accessible at: http://api-docs.pma2020.org
 
 # 2. Developer Documentation
 ## 2.1. Using the API
