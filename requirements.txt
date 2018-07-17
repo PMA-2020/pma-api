@@ -1,3 +1,8 @@
+# About
+# - requirements.txt is for top-level dependencies
+# - requirements-lock.txt is for all dependencies, both top-level and those also installed as requirements higher-level dependencies
+# This style is used by NPM, i.e. package-lock.json. Can read up more on that to get background for the spirit of this change.
+# TODO: Can probably remove some of these listed here, as not all are "top-level"
 astroid==1.5.3
 click==6.7
 Flask==0.12.2
