@@ -15,6 +15,7 @@ jobs:
           # For more information, however, on dynamic env variables, see: https://discuss.circleci.com/t/per-branch-env-vars/13214
           APP_SETTINGS: production
           FLASK_APP: production
+          FLASK_CONFIG: production
           DATABASE_URL: postgresql+psycopg2://pmaapi@localhost/pmaapi
           # DATABASE_URL: postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi
 

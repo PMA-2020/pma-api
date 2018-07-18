@@ -24,7 +24,7 @@ serve-dev-network-accessible circleci-validate-config install-redis-osx \
 redis-osx-install start-redis redis-start build-docs open-docs create-docs \
 docs-create docs-build typical-sphinx-setup setup-docs docs-push push-docs \
 docs setup-docs-no-open build-docs-no-open docs-push-production \
-docs-push-staging
+docs-push-staging serve-dev-network-accessible circleci-validate-config logs logs-staging
 
 # ALL LINTING
 lint:
@@ -108,16 +108,30 @@ staging:  # connects to server shell
 	heroku run bash --app pma-api-staging
 
 production-push:
-	git checkout production && \
-	git push trunk production
+	git status && \
+	printf "\nGit status should have reported 'nothing to commit, working tree\
+	 clean'. Otherwise you should cancel this command, make sure changes are\
+	  committed, and run it again.\n\n" && \
+	git checkout master && \
+	git branch -D production && \
+	git checkout -b production && \
+	git push -u trunk production --force
 	
 staging-push:
 	git status && \
-	printf "\nGit status should have reported 'nothing to commit, working tree clean'. Otherwise you should cancel this command, make sure changes are committed, and run it again.\n\n" && \
+	printf "\nGit status should have reported 'nothing to commit, working \
+	tree clean'. Otherwise you should cancel this command, make sure changes \
+	are committed, and run it again.\n\n" && \
 	git checkout develop && \
 	git branch -D staging && \
 	git checkout -b staging && \
 	git push -u trunk staging --force
+
+logs:
+	heroku logs --app ppp-web
+
+logs-staging:
+	heroku logs --app ppp-web-staging
 
 push-production: production-push
 
