@@ -1,6 +1,7 @@
 """API Routes."""
 from flask import Blueprint
 
+from pma_api import root_route
 
 api = Blueprint('api', __name__)
 
@@ -12,13 +13,11 @@ from . import collection, datalab
 def root():
     """Root route.
 
+    .. :quickref: Root; Redirects to resources list or documentation depending
+     on MIME type.
+
     Returns:
         func: get_resources() if 'application/json'
-        func: get_docs() if 'text/html'
+        func: redirect to docs if 'text/html'
     """
-    # TODO: (jef/jkp 2017-08-29) Investigate mimetypes in accept headers.
-    # See: flask.pocoo.org/snippets/45/ Needs: Nothing?
-    request_headers = 'application/json'  # default for now
-    if request_headers == 'text/html':
-        return 'Documentation.'  # Also can re-route to /docs
-    return collection.get_resources()
+    return root_route()

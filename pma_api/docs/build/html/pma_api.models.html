@@ -1,0 +1,1359 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pma_api.models package &mdash; PMA API 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PMA API
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="content/features/searching.html">Searching the Site</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/usage/using_the_api.html">Using the API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PMA API</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>pma_api.models package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/pma_api.models.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pma-api-models-package">
+<h1>pma_api.models package<a class="headerlink" href="#pma-api-models-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pma_api.models.api_base">
+<span id="pma-api-models-api-base-module"></span><h2>pma_api.models.api_base module<a class="headerlink" href="#module-pma_api.models.api_base" title="Permalink to this headline">¶</a></h2>
+<p>Abstract base model.</p>
+<dl class="class">
+<dt id="pma_api.models.api_base.ApiModel">
+<em class="property">class </em><code class="descclassname">pma_api.models.api_base.</code><code class="descname">ApiModel</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.api_base.ApiModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask_sqlalchemy.Model</span></code></p>
+<p>Abstract base model.</p>
+<dl class="staticmethod">
+<dt id="pma_api.models.api_base.ApiModel.empty_to_none">
+<em class="property">static </em><code class="descname">empty_to_none</code><span class="sig-paren">(</span><em>kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.api_base.ApiModel.empty_to_none" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert any empty strings to None type.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs: Keyword arguments.</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pma_api.models.api_base.ApiModel.get_by_code">
+<em class="property">classmethod </em><code class="descname">get_by_code</code><span class="sig-paren">(</span><em>lookup</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.api_base.ApiModel.get_by_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an item by code or list of codes.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>lookup (str or seq of str): The codes to lookup</dd>
+<dt>Returns:</dt>
+<dd>The records that match that code</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.api_base.ApiModel.ignore_field_prefix">
+<code class="descname">ignore_field_prefix</code><em class="property"> = '__'</em><a class="headerlink" href="#pma_api.models.api_base.ApiModel.ignore_field_prefix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.api_base.ApiModel.namespace">
+<em class="property">static </em><code class="descname">namespace</code><span class="sig-paren">(</span><em>old_dict</em>, <em>prefix</em>, <em>index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.api_base.ApiModel.namespace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Namespaces keys in a dict by doing a prepend to key strings.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">old_dict (dict): The original dictionary.
+prefix (str): Prefix to prepend.
+index (int): Optional index to append after the prefix. This is to</p>
+<blockquote class="last">
+<div>handle situations where a field has one or more sibling fields
+that represent essentially the same variable,
+e.g. “characteristic1”, “characteristic2”.</div></blockquote>
+</dd>
+<dt>Returns:</dt>
+<dd>dict: Namespace formatted dictionary.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.api_base.ApiModel.prune_ignored_fields">
+<em class="property">static </em><code class="descname">prune_ignored_fields</code><span class="sig-paren">(</span><em>kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.api_base.ApiModel.prune_ignored_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prune ignored fields.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs: Keyword arguments.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.api_base.ApiModel.set_kwargs_id">
+<em class="property">static </em><code class="descname">set_kwargs_id</code><span class="sig-paren">(</span><em>kwargs</em>, <em>source_key</em>, <em>target_key</em>, <em>model</em>, <em>required=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.api_base.ApiModel.set_kwargs_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set id of data model field based on code.</p>
+<p>If the target key is present and it has a value, use that. Otherwise
+use the source key and do a lookup.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">source_key (str): Model ‘code’ field name.
+target_key (str): model ‘id’ field name.
+model (class): The corresponding SqlAlchemy model class.
+required (bool): True if target key should have an ID.
+<a href="#id5"><span class="problematic" id="id6">**</span></a>kwargs (dict): The keyword argument representation of query</p>
+<blockquote class="last">
+<div>parameters submitted by the API request.</div></blockquote>
+</dd>
+<dt>Raises:</dt>
+<dd><dl class="first last docutils">
+<dt>KeyError: If identification code for record was not supplied or did</dt>
+<dd>not resolve.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.api_base.ApiModel.update_kwargs_date">
+<em class="property">static </em><code class="descname">update_kwargs_date</code><span class="sig-paren">(</span><em>kwargs</em>, <em>source_key</em>, <em>fstr</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.api_base.ApiModel.update_kwargs_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update dates to correct format.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>kwargs (dict): Keyword arguments.
+source_key (str): The source date string.
+fstr (str): The format string for the date.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.api_base.ApiModel.update_kwargs_english">
+<em class="property">static </em><code class="descname">update_kwargs_english</code><span class="sig-paren">(</span><em>kwargs</em>, <em>source_key</em>, <em>target_key</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.api_base.ApiModel.update_kwargs_english" title="Permalink to this definition">¶</a></dt>
+<dd><p>Translate API query parameters to equivalent in model.</p>
+<p>API URL query parameters are in many case abstracted away from the
+models and underlying database. For example, ‘survey’ in the API would
+equate to ‘survey_id’ in the database model. Side effects: kwargs are
+modified so that new key of name matching ‘target_key’ argument is
+inserted, with value as the corresponding record id.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">source_key (str): The API query parameter.
+target_key (str): The equivalent model field.
+<a href="#id7"><span class="problematic" id="id8">**</span></a>kwargs (dict): The keyword argument representation of query</p>
+<blockquote class="last">
+<div>parameters submitted by the API request.</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.models.api_base.prune_ignored_fields">
+<code class="descclassname">pma_api.models.api_base.</code><code class="descname">prune_ignored_fields</code><span class="sig-paren">(</span><em>kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.api_base.prune_ignored_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prune ignored fields.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id9"><span class="problematic" id="id10">**</span></a>kwargs: Keyword arguments.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.models.core">
+<span id="pma-api-models-core-module"></span><h2>pma_api.models.core module<a class="headerlink" href="#module-pma_api.models.core" title="Permalink to this headline">¶</a></h2>
+<p>Core models.</p>
+<dl class="class">
+<dt id="pma_api.models.core.Characteristic">
+<em class="property">class </em><code class="descclassname">pma_api.models.core.</code><code class="descname">Characteristic</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Characteristic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pma_api.models.api_base.ApiModel" title="pma_api.models.api_base.ApiModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.models.api_base.ApiModel</span></code></a></p>
+<p>Characteristic model.</p>
+<dl class="attribute">
+<dt id="pma_api.models.core.Characteristic.char_grp">
+<code class="descname">char_grp</code><a class="headerlink" href="#pma_api.models.core.Characteristic.char_grp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Characteristic.char_grp_id">
+<code class="descname">char_grp_id</code><a class="headerlink" href="#pma_api.models.core.Characteristic.char_grp_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Characteristic.code">
+<code class="descname">code</code><a class="headerlink" href="#pma_api.models.core.Characteristic.code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.core.Characteristic.datalab_init_json">
+<code class="descname">datalab_init_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Characteristic.datalab_init_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab init json: Characteristic.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.core.Characteristic.full_json">
+<code class="descname">full_json</code><span class="sig-paren">(</span><em>lang=None</em>, <em>jns=False</em>, <em>index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Characteristic.full_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary ready to convert to JSON as response.</p>
+<p>This response contains fields of 1 or more related
+model(s) which are included along with fields for this model.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">lang (str): The language, if specified.
+jns (bool): If true, namespaces all dictionary keys with prefixed</p>
+<blockquote>
+<div>table name.</div></blockquote>
+<dl class="last docutils">
+<dt>index (int): Field index for fields that have multiple instances of</dt>
+<dd>itself, e.g. “characteristic1”, “characteristic2”.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict: API response ready to be JSONified.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Characteristic.id">
+<code class="descname">id</code><a class="headerlink" href="#pma_api.models.core.Characteristic.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Characteristic.label">
+<code class="descname">label</code><a class="headerlink" href="#pma_api.models.core.Characteristic.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Characteristic.label_id">
+<code class="descname">label_id</code><a class="headerlink" href="#pma_api.models.core.Characteristic.label_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.core.Characteristic.none_json">
+<em class="property">static </em><code class="descname">none_json</code><span class="sig-paren">(</span><em>jns=False</em>, <em>index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Characteristic.none_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary ready to convert to JSON as response.</p>
+<p>All values in this dictionary are set to none, serving the cases where
+no data is found or needs to be supplied.</p>
+<p>This response contains fields of 1 or more related
+model(s) which are included along with fields for this model.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>jns (bool): If true, namespaces all dictionary keys with prefixed</dt>
+<dd>table name.</dd>
+<dt>index (int): Field index for fields that have multiple instances of</dt>
+<dd>itself, e.g. “characteristic1”, “characteristic2”.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict: API response ready to be JSONified.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Characteristic.order">
+<code class="descname">order</code><a class="headerlink" href="#pma_api.models.core.Characteristic.order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pma_api.models.core.CharacteristicGroup">
+<em class="property">class </em><code class="descclassname">pma_api.models.core.</code><code class="descname">CharacteristicGroup</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.CharacteristicGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pma_api.models.api_base.ApiModel" title="pma_api.models.api_base.ApiModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.models.api_base.ApiModel</span></code></a></p>
+<p>CharacteristicGroup model.</p>
+<dl class="attribute">
+<dt id="pma_api.models.core.CharacteristicGroup.category">
+<code class="descname">category</code><a class="headerlink" href="#pma_api.models.core.CharacteristicGroup.category" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.CharacteristicGroup.category_id">
+<code class="descname">category_id</code><a class="headerlink" href="#pma_api.models.core.CharacteristicGroup.category_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.CharacteristicGroup.code">
+<code class="descname">code</code><a class="headerlink" href="#pma_api.models.core.CharacteristicGroup.code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.core.CharacteristicGroup.datalab_init_json">
+<code class="descname">datalab_init_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.CharacteristicGroup.datalab_init_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab init json: CharacteristicGroup.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.CharacteristicGroup.definition">
+<code class="descname">definition</code><a class="headerlink" href="#pma_api.models.core.CharacteristicGroup.definition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.CharacteristicGroup.definition_id">
+<code class="descname">definition_id</code><a class="headerlink" href="#pma_api.models.core.CharacteristicGroup.definition_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.core.CharacteristicGroup.full_json">
+<code class="descname">full_json</code><span class="sig-paren">(</span><em>lang=None</em>, <em>jns=False</em>, <em>index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.CharacteristicGroup.full_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary ready to convert to JSON as response.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">lang (str): The language, if specified.
+jns (bool): If true, namespaces all dictionary keys with prefixed</p>
+<blockquote>
+<div>table name.</div></blockquote>
+<dl class="last docutils">
+<dt>index (int): Field index for fields that have multiple instances of</dt>
+<dd>itself, e.g. “characteristic1”, “characteristic2”.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict: API response ready to be JSONified.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.CharacteristicGroup.id">
+<code class="descname">id</code><a class="headerlink" href="#pma_api.models.core.CharacteristicGroup.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.CharacteristicGroup.label">
+<code class="descname">label</code><a class="headerlink" href="#pma_api.models.core.CharacteristicGroup.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.CharacteristicGroup.label_id">
+<code class="descname">label_id</code><a class="headerlink" href="#pma_api.models.core.CharacteristicGroup.label_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.core.CharacteristicGroup.none_json">
+<em class="property">static </em><code class="descname">none_json</code><span class="sig-paren">(</span><em>jns=False</em>, <em>index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.CharacteristicGroup.none_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary ready to convert to JSON as response.</p>
+<p>All values in this dictionary are set to none, serving the cases where
+no data is found or needs to be supplied.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>jns (bool): If true, namespaces all dictionary keys with prefixed</dt>
+<dd>table name.</dd>
+<dt>index (int): Field index for fields that have multiple instances of</dt>
+<dd>itself, e.g. “characteristic1”, “characteristic2”.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict: API response ready to be JSONified.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.CharacteristicGroup.order">
+<code class="descname">order</code><a class="headerlink" href="#pma_api.models.core.CharacteristicGroup.order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pma_api.models.core.Country">
+<em class="property">class </em><code class="descclassname">pma_api.models.core.</code><code class="descname">Country</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Country" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pma_api.models.api_base.ApiModel" title="pma_api.models.api_base.ApiModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.models.api_base.ApiModel</span></code></a></p>
+<p>Country model.</p>
+<dl class="attribute">
+<dt id="pma_api.models.core.Country.api_schema">
+<code class="descname">api_schema</code><em class="property"> = {'fields': {'id': {'restrictions': {'type': &lt;class 'str'&gt;, 'size_min': 1, 'size_max': None, 'queryable': True}}, 'label': {'restrictions': {'type': &lt;class 'str'&gt;, 'size_min': 1, 'size_max': None, 'queryable': True}}, 'order': {'restrictions': {'type': &lt;class 'int'&gt;, 'size_min': 1, 'size_max': None, 'queryable': False}}, 'region': {'restrictions': {'type': &lt;class 'str'&gt;, 'size_min': 1, 'size_max': None, 'queryable': True}}, 'subregion': {'restrictions': {'type': &lt;class 'str'&gt;, 'size_min': 1, 'size_max': None, 'queryable': True}}}}</em><a class="headerlink" href="#pma_api.models.core.Country.api_schema" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Country.code">
+<code class="descname">code</code><a class="headerlink" href="#pma_api.models.core.Country.code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.core.Country.full_json">
+<code class="descname">full_json</code><span class="sig-paren">(</span><em>lang=None</em>, <em>jns=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Country.full_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary ready to convert to JSON as response.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">lang (str): The language, if specified.
+jns (bool): If true, namespaces all dictionary keys with prefixed</p>
+<blockquote class="last">
+<div>table name.</div></blockquote>
+</dd>
+<dt>Returns:</dt>
+<dd>dict: API response ready to be JSONified.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Country.id">
+<code class="descname">id</code><a class="headerlink" href="#pma_api.models.core.Country.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Country.label">
+<code class="descname">label</code><a class="headerlink" href="#pma_api.models.core.Country.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Country.label_id">
+<code class="descname">label_id</code><a class="headerlink" href="#pma_api.models.core.Country.label_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Country.order">
+<code class="descname">order</code><a class="headerlink" href="#pma_api.models.core.Country.order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Country.region">
+<code class="descname">region</code><a class="headerlink" href="#pma_api.models.core.Country.region" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Country.subregion">
+<code class="descname">subregion</code><a class="headerlink" href="#pma_api.models.core.Country.subregion" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.core.Country.to_json">
+<code class="descname">to_json</code><span class="sig-paren">(</span><em>lang=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Country.to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary ready to convert to JSON as response.</p>
+<p>Contains URL for resource entity.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>lang (str): The language, if specified.</dd>
+<dt>Returns:</dt>
+<dd>dict: API response ready to be JSONified.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.core.Country.url_for">
+<code class="descname">url_for</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Country.url_for" title="Permalink to this definition">¶</a></dt>
+<dd><p>Supply URL for resource entity.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>dict: Dict of key ‘url’ and value of URL for resource entity.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.core.Country.validate_keys">
+<em class="property">static </em><code class="descname">validate_keys</code><span class="sig-paren">(</span><em>request_args</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Country.validate_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate whether query parameters passed even exist to be queried.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>request_args (ImmutableMultiDict): API query parameters.</dd>
+<dt>Returns:</dt>
+<dd>tuple: (bool: Validity, str: Error message)</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.core.Country.validate_param_types">
+<em class="property">static </em><code class="descname">validate_param_types</code><span class="sig-paren">(</span><em>request_args</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Country.validate_param_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate query parameter types.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>request_args (ImmutableMultiDict): API query parameters.</dd>
+<dt>Returns</dt>
+<dd>bool: True if valid param types, else false.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.core.Country.validate_query">
+<em class="property">static </em><code class="descname">validate_query</code><span class="sig-paren">(</span><em>request_args</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Country.validate_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate query.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>request_args (ImmutableMultiDict): API query parameters.</dd>
+<dt>Returns:</dt>
+<dd>bool: True if valid query, else false.
+lit: List of error message strings.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.core.Country.validate_queryable">
+<em class="property">static </em><code class="descname">validate_queryable</code><span class="sig-paren">(</span><em>request_args</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Country.validate_queryable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate whether query parameters are allowed to be queried.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>request_args (ImmutableMultiDict): API query parameters.</dd>
+<dt>Returns:</dt>
+<dd>tuple: (bool: Validity, str: Error message)</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.core.Country.validate_types">
+<em class="property">static </em><code class="descname">validate_types</code><span class="sig-paren">(</span><em>request_args</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Country.validate_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate whether query parameter types are correct.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>request_args (ImmutableMultiDict): API query parameters.</dd>
+<dt>Returns:</dt>
+<dd>tuple: (bool: Validity, str: Error message)</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pma_api.models.core.Data">
+<em class="property">class </em><code class="descclassname">pma_api.models.core.</code><code class="descname">Data</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pma_api.models.api_base.ApiModel" title="pma_api.models.api_base.ApiModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.models.api_base.ApiModel</span></code></a></p>
+<p>Data model.</p>
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.char1">
+<code class="descname">char1</code><a class="headerlink" href="#pma_api.models.core.Data.char1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.char1_id">
+<code class="descname">char1_id</code><a class="headerlink" href="#pma_api.models.core.Data.char1_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.char2">
+<code class="descname">char2</code><a class="headerlink" href="#pma_api.models.core.Data.char2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.char2_id">
+<code class="descname">char2_id</code><a class="headerlink" href="#pma_api.models.core.Data.char2_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.code">
+<code class="descname">code</code><a class="headerlink" href="#pma_api.models.core.Data.code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.denom_uw">
+<code class="descname">denom_uw</code><a class="headerlink" href="#pma_api.models.core.Data.denom_uw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.denom_w">
+<code class="descname">denom_w</code><a class="headerlink" href="#pma_api.models.core.Data.denom_w" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.core.Data.full_json">
+<code class="descname">full_json</code><span class="sig-paren">(</span><em>lang=None</em>, <em>jns=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Data.full_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary ready to convert to JSON as response.</p>
+<p>This response contains fields of 1 or more related
+model(s) which are included along with fields for this model.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">lang (str): The language, if specified.
+jns (bool): If true, namespaces all dictionary keys with prefixed</p>
+<blockquote class="last">
+<div>table name.</div></blockquote>
+</dd>
+<dt>Returns:</dt>
+<dd>dict: API response ready to be JSONified.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.geo">
+<code class="descname">geo</code><a class="headerlink" href="#pma_api.models.core.Data.geo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.geo_id">
+<code class="descname">geo_id</code><a class="headerlink" href="#pma_api.models.core.Data.geo_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.id">
+<code class="descname">id</code><a class="headerlink" href="#pma_api.models.core.Data.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.indicator">
+<code class="descname">indicator</code><a class="headerlink" href="#pma_api.models.core.Data.indicator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.indicator_id">
+<code class="descname">indicator_id</code><a class="headerlink" href="#pma_api.models.core.Data.indicator_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.is_total">
+<code class="descname">is_total</code><a class="headerlink" href="#pma_api.models.core.Data.is_total" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.level_ci">
+<code class="descname">level_ci</code><a class="headerlink" href="#pma_api.models.core.Data.level_ci" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.lower_ci">
+<code class="descname">lower_ci</code><a class="headerlink" href="#pma_api.models.core.Data.lower_ci" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.precision">
+<code class="descname">precision</code><a class="headerlink" href="#pma_api.models.core.Data.precision" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.survey">
+<code class="descname">survey</code><a class="headerlink" href="#pma_api.models.core.Data.survey" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.survey_id">
+<code class="descname">survey_id</code><a class="headerlink" href="#pma_api.models.core.Data.survey_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.upper_ci">
+<code class="descname">upper_ci</code><a class="headerlink" href="#pma_api.models.core.Data.upper_ci" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Data.value">
+<code class="descname">value</code><a class="headerlink" href="#pma_api.models.core.Data.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pma_api.models.core.Geography">
+<em class="property">class </em><code class="descclassname">pma_api.models.core.</code><code class="descname">Geography</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Geography" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pma_api.models.api_base.ApiModel" title="pma_api.models.api_base.ApiModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.models.api_base.ApiModel</span></code></a></p>
+<p>Geography model.</p>
+<dl class="attribute">
+<dt id="pma_api.models.core.Geography.code">
+<code class="descname">code</code><a class="headerlink" href="#pma_api.models.core.Geography.code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Geography.id">
+<code class="descname">id</code><a class="headerlink" href="#pma_api.models.core.Geography.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Geography.label">
+<code class="descname">label</code><a class="headerlink" href="#pma_api.models.core.Geography.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Geography.label_id">
+<code class="descname">label_id</code><a class="headerlink" href="#pma_api.models.core.Geography.label_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.core.Geography.none_json">
+<em class="property">static </em><code class="descname">none_json</code><span class="sig-paren">(</span><em>jns=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Geography.none_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary ready to convert to JSON as response.</p>
+<p>All values in this dictionary are set to none, serving the cases where
+no data is found or needs to be supplied.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>jns (bool): If true, namespaces all dictionary keys with prefixed</dt>
+<dd>table name.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict: API response ready to be JSONified.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Geography.order">
+<code class="descname">order</code><a class="headerlink" href="#pma_api.models.core.Geography.order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Geography.subheading">
+<code class="descname">subheading</code><a class="headerlink" href="#pma_api.models.core.Geography.subheading" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Geography.subheading_id">
+<code class="descname">subheading_id</code><a class="headerlink" href="#pma_api.models.core.Geography.subheading_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Geography.type">
+<code class="descname">type</code><a class="headerlink" href="#pma_api.models.core.Geography.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pma_api.models.core.Indicator">
+<em class="property">class </em><code class="descclassname">pma_api.models.core.</code><code class="descname">Indicator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Indicator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pma_api.models.api_base.ApiModel" title="pma_api.models.api_base.ApiModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.models.api_base.ApiModel</span></code></a></p>
+<p>Indicator model.</p>
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.code">
+<code class="descname">code</code><a class="headerlink" href="#pma_api.models.core.Indicator.code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.core.Indicator.datalab_init_json">
+<code class="descname">datalab_init_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Indicator.datalab_init_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab init json: Indicator.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.definition">
+<code class="descname">definition</code><a class="headerlink" href="#pma_api.models.core.Indicator.definition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.definition_id">
+<code class="descname">definition_id</code><a class="headerlink" href="#pma_api.models.core.Indicator.definition_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.denominator">
+<code class="descname">denominator</code><a class="headerlink" href="#pma_api.models.core.Indicator.denominator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.domain">
+<code class="descname">domain</code><a class="headerlink" href="#pma_api.models.core.Indicator.domain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.domain_id">
+<code class="descname">domain_id</code><a class="headerlink" href="#pma_api.models.core.Indicator.domain_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.favorite_order">
+<code class="descname">favorite_order</code><a class="headerlink" href="#pma_api.models.core.Indicator.favorite_order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.core.Indicator.full_json">
+<code class="descname">full_json</code><span class="sig-paren">(</span><em>lang=None</em>, <em>jns=False</em>, <em>endpoint=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Indicator.full_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary ready to convert to JSON as response.</p>
+<p>This response contains fields of 1 or more related
+model(s) which are included along with fields for this model.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">lang (str): The language, if specified.
+jns (bool): If true, namespaces all dictionary keys with prefixed</p>
+<blockquote>
+<div>table name, e.g. indicator.id.</div></blockquote>
+<p class="last">endpoint (str): If supplied, provides URL for entity in response.</p>
+</dd>
+<dt>Returns:</dt>
+<dd>dict: API response ready to be JSONified.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.id">
+<code class="descname">id</code><a class="headerlink" href="#pma_api.models.core.Indicator.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.is_favorite">
+<code class="descname">is_favorite</code><a class="headerlink" href="#pma_api.models.core.Indicator.is_favorite" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.label">
+<code class="descname">label</code><a class="headerlink" href="#pma_api.models.core.Indicator.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.label_id">
+<code class="descname">label_id</code><a class="headerlink" href="#pma_api.models.core.Indicator.label_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.level1">
+<code class="descname">level1</code><a class="headerlink" href="#pma_api.models.core.Indicator.level1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.level1_id">
+<code class="descname">level1_id</code><a class="headerlink" href="#pma_api.models.core.Indicator.level1_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.level2">
+<code class="descname">level2</code><a class="headerlink" href="#pma_api.models.core.Indicator.level2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.level2_id">
+<code class="descname">level2_id</code><a class="headerlink" href="#pma_api.models.core.Indicator.level2_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.measurement_type">
+<code class="descname">measurement_type</code><a class="headerlink" href="#pma_api.models.core.Indicator.measurement_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.order">
+<code class="descname">order</code><a class="headerlink" href="#pma_api.models.core.Indicator.order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Indicator.type">
+<code class="descname">type</code><a class="headerlink" href="#pma_api.models.core.Indicator.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pma_api.models.core.Survey">
+<em class="property">class </em><code class="descclassname">pma_api.models.core.</code><code class="descname">Survey</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Survey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pma_api.models.api_base.ApiModel" title="pma_api.models.api_base.ApiModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.models.api_base.ApiModel</span></code></a></p>
+<p>Survey model.</p>
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.code">
+<code class="descname">code</code><a class="headerlink" href="#pma_api.models.core.Survey.code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.country">
+<code class="descname">country</code><a class="headerlink" href="#pma_api.models.core.Survey.country" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.country_id">
+<code class="descname">country_id</code><a class="headerlink" href="#pma_api.models.core.Survey.country_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.core.Survey.datalab_init_json">
+<code class="descname">datalab_init_json</code><span class="sig-paren">(</span><em>reduced=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Survey.datalab_init_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab init json: Survey.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.end_date">
+<code class="descname">end_date</code><a class="headerlink" href="#pma_api.models.core.Survey.end_date" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.core.Survey.full_json">
+<code class="descname">full_json</code><span class="sig-paren">(</span><em>lang=None</em>, <em>jns=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Survey.full_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary ready to convert to JSON as response.</p>
+<p>This response contains fields of 1 or more related
+model(s) which are included along with fields for this model.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">lang (str): The language, if specified.
+jns (bool): If true, namespaces all dictionary keys with prefixed</p>
+<blockquote class="last">
+<div>table name.</div></blockquote>
+</dd>
+<dt>Returns:</dt>
+<dd>dict: API response ready to be JSONified.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.geography">
+<code class="descname">geography</code><a class="headerlink" href="#pma_api.models.core.Survey.geography" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.geography_id">
+<code class="descname">geography_id</code><a class="headerlink" href="#pma_api.models.core.Survey.geography_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.id">
+<code class="descname">id</code><a class="headerlink" href="#pma_api.models.core.Survey.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.label">
+<code class="descname">label</code><a class="headerlink" href="#pma_api.models.core.Survey.label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.label_id">
+<code class="descname">label_id</code><a class="headerlink" href="#pma_api.models.core.Survey.label_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.order">
+<code class="descname">order</code><a class="headerlink" href="#pma_api.models.core.Survey.order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.partner">
+<code class="descname">partner</code><a class="headerlink" href="#pma_api.models.core.Survey.partner" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.partner_id">
+<code class="descname">partner_id</code><a class="headerlink" href="#pma_api.models.core.Survey.partner_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.pma_code">
+<code class="descname">pma_code</code><a class="headerlink" href="#pma_api.models.core.Survey.pma_code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.round">
+<code class="descname">round</code><a class="headerlink" href="#pma_api.models.core.Survey.round" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.start_date">
+<code class="descname">start_date</code><a class="headerlink" href="#pma_api.models.core.Survey.start_date" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.type">
+<code class="descname">type</code><a class="headerlink" href="#pma_api.models.core.Survey.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.core.Survey.url_for">
+<code class="descname">url_for</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Survey.url_for" title="Permalink to this definition">¶</a></dt>
+<dd><p>Supply URL for resource entity.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>dict: Dict of key ‘url’ and value of URL for resource entity.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.core.Survey.year">
+<code class="descname">year</code><a class="headerlink" href="#pma_api.models.core.Survey.year" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.models.meta">
+<span id="pma-api-models-meta-module"></span><h2>pma_api.models.meta module<a class="headerlink" href="#module-pma_api.models.meta" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pma_api.models.meta.Cache">
+<em class="property">class </em><code class="descclassname">pma_api.models.meta.</code><code class="descname">Cache</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.meta.Cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask_sqlalchemy.Model</span></code></p>
+<p>Cache for API responses.</p>
+<dl class="classmethod">
+<dt id="pma_api.models.meta.Cache.get">
+<em class="property">classmethod </em><code class="descname">get</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.meta.Cache.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a record by key.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.meta.Cache.key">
+<code class="descname">key</code><a class="headerlink" href="#pma_api.models.meta.Cache.key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.meta.Cache.mimetype">
+<code class="descname">mimetype</code><a class="headerlink" href="#pma_api.models.meta.Cache.mimetype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.meta.Cache.source_data_md5">
+<code class="descname">source_data_md5</code><a class="headerlink" href="#pma_api.models.meta.Cache.source_data_md5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.meta.Cache.value">
+<code class="descname">value</code><a class="headerlink" href="#pma_api.models.meta.Cache.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pma_api.models.meta.SourceData">
+<em class="property">class </em><code class="descclassname">pma_api.models.meta.</code><code class="descname">SourceData</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.meta.SourceData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask_sqlalchemy.Model</span></code></p>
+<p>Metadata.</p>
+<dl class="attribute">
+<dt id="pma_api.models.meta.SourceData.blob">
+<code class="descname">blob</code><a class="headerlink" href="#pma_api.models.meta.SourceData.blob" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.meta.SourceData.created_on">
+<code class="descname">created_on</code><a class="headerlink" href="#pma_api.models.meta.SourceData.created_on" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pma_api.models.meta.SourceData.get_current_api_data">
+<em class="property">classmethod </em><code class="descname">get_current_api_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.meta.SourceData.get_current_api_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the record for the most recent API data.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.meta.SourceData.id">
+<code class="descname">id</code><a class="headerlink" href="#pma_api.models.meta.SourceData.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.meta.SourceData.md5_checksum">
+<code class="descname">md5_checksum</code><a class="headerlink" href="#pma_api.models.meta.SourceData.md5_checksum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.meta.SourceData.name">
+<code class="descname">name</code><a class="headerlink" href="#pma_api.models.meta.SourceData.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.meta.SourceData.to_json">
+<code class="descname">to_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.meta.SourceData.to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary ready to convert to JSON as response.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>dict: API response ready to be JSONified.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.meta.SourceData.type">
+<code class="descname">type</code><a class="headerlink" href="#pma_api.models.meta.SourceData.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.models.string">
+<span id="pma-api-models-string-module"></span><h2>pma_api.models.string module<a class="headerlink" href="#module-pma_api.models.string" title="Permalink to this headline">¶</a></h2>
+<p>EnglishString &amp; Translation model.</p>
+<dl class="class">
+<dt id="pma_api.models.string.EnglishString">
+<em class="property">class </em><code class="descclassname">pma_api.models.string.</code><code class="descname">EnglishString</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.string.EnglishString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask_sqlalchemy.Model</span></code></p>
+<p>EnglishString model.</p>
+<dl class="attribute">
+<dt id="pma_api.models.string.EnglishString.code">
+<code class="descname">code</code><a class="headerlink" href="#pma_api.models.string.EnglishString.code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.string.EnglishString.datalab_init_json">
+<code class="descname">datalab_init_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.string.EnglishString.datalab_init_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab init json: EnglishString.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.string.EnglishString.english">
+<code class="descname">english</code><a class="headerlink" href="#pma_api.models.string.EnglishString.english" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.string.EnglishString.id">
+<code class="descname">id</code><a class="headerlink" href="#pma_api.models.string.EnglishString.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.string.EnglishString.insert_or_update">
+<em class="property">static </em><code class="descname">insert_or_update</code><span class="sig-paren">(</span><em>english</em>, <em>code</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.string.EnglishString.insert_or_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert or update an English record.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>english (str): The string in English to insert.
+code (str): The code for the string.</dd>
+<dt>Returns:</dt>
+<dd>The EnglishString record inserted or updated.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.string.EnglishString.insert_unique">
+<em class="property">static </em><code class="descname">insert_unique</code><span class="sig-paren">(</span><em>english</em>, <em>code=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.string.EnglishString.insert_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert a unique record into the database.</p>
+<p>Creates a code and combines with English text to as the parameters for
+new record.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>english (str): The string in English to insert.
+code (str): The code for the string. None if it should be random.</dd>
+<dt>Returns:</dt>
+<dd>The new EnglishString record.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.string.EnglishString.to_json">
+<code class="descname">to_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.string.EnglishString.to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary ready to convert to JSON as response.</p>
+<p>Contains URL for resource entity.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>dict: API response ready to be JSONified.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.string.EnglishString.to_string">
+<code class="descname">to_string</code><span class="sig-paren">(</span><em>lang=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.string.EnglishString.to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return string in specified language if supplied, else English.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>lang (str): The language, if specified.</dd>
+<dt>Returns:</dt>
+<dd>str: The text.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.string.EnglishString.translations">
+<code class="descname">translations</code><a class="headerlink" href="#pma_api.models.string.EnglishString.translations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pma_api.models.string.Translation">
+<em class="property">class </em><code class="descclassname">pma_api.models.string.</code><code class="descname">Translation</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.string.Translation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask_sqlalchemy.Model</span></code></p>
+<p>Translation model.</p>
+<dl class="attribute">
+<dt id="pma_api.models.string.Translation.english_id">
+<code class="descname">english_id</code><a class="headerlink" href="#pma_api.models.string.Translation.english_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.string.Translation.id">
+<code class="descname">id</code><a class="headerlink" href="#pma_api.models.string.Translation.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.string.Translation.language_code">
+<code class="descname">language_code</code><a class="headerlink" href="#pma_api.models.string.Translation.language_code" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.string.Translation.languages">
+<em class="property">static </em><code class="descname">languages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.string.Translation.languages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Languages list.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.string.Translation.languages_info">
+<code class="descname">languages_info</code><em class="property"> = {'english': {'code': 'en', 'label': 'English', 'active': True, 'string_records': 'english'}, 'french': {'code': 'fr', 'label': 'French', 'active': True, 'string_records': 'To be implemented.'}}</em><a class="headerlink" href="#pma_api.models.string.Translation.languages_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.string.Translation.prune_ignored_fields">
+<em class="property">static </em><code class="descname">prune_ignored_fields</code><span class="sig-paren">(</span><em>kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.string.Translation.prune_ignored_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prune ignored fields.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><a href="#id11"><span class="problematic" id="id12">**</span></a>kwargs: Keyword arguments.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.string.Translation.translation">
+<code class="descname">translation</code><a class="headerlink" href="#pma_api.models.string.Translation.translation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.models">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pma_api.models" title="Permalink to this headline">¶</a></h2>
+<p>Model definitions.</p>
+<p>This file defines the doorway for other components into the models
+sub-package.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, James Pringle, Joe Flack.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

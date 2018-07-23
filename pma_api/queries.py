@@ -135,8 +135,7 @@ class DatalabData:
         """Get filtered Datalab data and return readable columns.
 
         Args:
-            survey_codes (str): A list of survey codes joined together by a
-                comma
+            survey_codes (str): A list of survey codes joined together by a comma
             indicator_code (str): An indicator code
             char_grp_code (str): A characteristic group code
             lang (str): The language, if specified.
@@ -187,8 +186,7 @@ class DatalabData:
         """Get filtered Datalab data and return minimal columns.
 
         Args:
-            survey_codes (str): A list of survey codes joined together by a
-                comma
+            survey_codes (str): A list of survey codes joined together by a comma
             indicator_code (str): An indicator code
             char_grp_code (str): A characteristic group code
 
@@ -279,9 +277,9 @@ class DatalabData:
             full_sql = sql_exprs[0]
         return full_sql
 
+    # pylint: disable=too-many-locals
     @staticmethod
     def combos_all(survey_list, indicator, char_grp):
-        # pylint: disable=too-many-locals
         """Get lists of all valid datalab selections.
 
         Based on a current selection in the datalab, this method returns lists
@@ -289,11 +287,9 @@ class DatalabData:
         the datalab.
 
         Args:
-            survey_list (list of str): A list of survey codes. An empty list if
-                not provided.
+            survey_list (list of str): A list of survey codes. An empty list if not provided.
             indicator (str): An indicator code or None if not provided.
-            char_grp(str): An characteristic group code or None if not
-                provided.
+            char_grp(str): An characteristic group code or None if not provided.
 
         Returns:
             A dictionary with a survey list, an indicator list, and a

@@ -1,5 +1,5 @@
 """Routes for API collections."""
-from flask import request, url_for
+from flask import request, url_for, redirect
 
 from . import api
 from ..response import QuerySetApiResult
@@ -9,6 +9,8 @@ from ..models import Country, EnglishString, Survey, Indicator, Data
 @api.route('/countries')
 def get_countries():
     """Country resource collection GET method.
+
+    .. :quickref: Countries; Get collection of countries.
 
     Returns:
         json: Collection for resource.
@@ -21,6 +23,8 @@ def get_countries():
 @api.route('/countries/<code>')
 def get_country(code):
     """Country resource entity GET method.
+
+    .. :quickref: Countries; Access a specific country by its code.
 
     Args:
         code (str): Identification for resource entity.
@@ -38,6 +42,8 @@ def get_country(code):
 def get_surveys():
     """Survey resource collection GET method.
 
+    .. :quickref: Survey rounds; Get collection of survey rounds.
+
     Returns:
         json: Collection for resource.
     """
@@ -51,6 +57,8 @@ def get_surveys():
 @api.route('/surveys/<code>')
 def get_survey(code):
     """Survey resource entity GET method.
+
+    .. :quickref: Survey rounds; Access a specific survey round by its code
 
     Args:
         code (str): Identification for resource entity.
@@ -67,6 +75,8 @@ def get_survey(code):
 def get_indicators():
     """Get Indicator resource collection.
 
+    .. :quickref: Indicators; Get collection of available indicators.
+
     Returns:
         json: Collection for resource.
     """
@@ -78,6 +88,8 @@ def get_indicators():
 @api.route('/indicators/<code>')
 def get_indicator(code):
     """Get Indicator resource entity.
+
+    .. :quickref: Indicators; Access a specific indicator by its code
 
     Args:
         code (str): Identification for resource entity.
@@ -94,6 +106,8 @@ def get_indicator(code):
 def get_data():
     """Get Data resource collection.
 
+    .. :quickref: Data; Access de-identified survey data.
+
     Returns:
         json: Collection for resource.
     """
@@ -105,8 +119,9 @@ def get_data():
 def data_refined_query(args):
     """Refine data query.
 
-    *Args:
-        survey (str): If present, filter by survey entities.
+    Args:
+        args: List of args. If 'survey' present,
+        filter by survey entities.
 
     Returns:
         dict: Filtered query data.
@@ -121,6 +136,8 @@ def data_refined_query(args):
 @api.route('/data/<code>')
 def get_datum(code):
     """Get data resource entity.
+
+    .. :quickref: Data; Access a specific datum by its code.
 
     Args:
         code (str): Identification for resource entity.
@@ -137,6 +154,9 @@ def get_datum(code):
 def get_texts():
     """Get Text resource collection.
 
+    .. :quickref: Text; Get collection of various text related to surveys and
+     metadata.
+
     Returns:
         json: Collection for resource.
     """
@@ -148,6 +168,8 @@ def get_texts():
 @api.route('/texts/<code>')
 def get_text(code):
     """Get Text resource entity.
+
+    .. :quickref: Text; Access a specific piece of text by its code
 
     Args:
         code (str): Identification for resource entity.
@@ -165,6 +187,9 @@ def get_text(code):
 def get_characteristic_groups():
     """Get Characteristic Groups resource collection.
 
+    .. :quickref: Characteristic groups; Get collection of characteristic
+     groups for disaggregation of data.
+
     Returns:
         json: Collection for resource.
     """
@@ -175,6 +200,9 @@ def get_characteristic_groups():
 @api.route('/characteristicGroups/<code>')
 def get_characteristic_group(code):
     """Get Characteristic Groups resource entity.
+
+    .. :quickref: Characteristic groups; Access a specific characteristic
+     group by its code.
 
     Args:
         code (str): Identification for resource entity.
@@ -188,6 +216,9 @@ def get_characteristic_group(code):
 @api.route('/resources')
 def get_resources():
     """Return API resource routes.
+
+    .. :quickref: Resources list; Lists all of the available API resources and
+     their URLs.
 
     Returns:
         json: List of resources.

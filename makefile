@@ -20,7 +20,11 @@ MANAGE=${PYTHON} manage.py
 .PHONY: lint linttest lintall pylint pylinttest pylintall code codetest \
 codeall doc doctest docall test testdoc serve shell db translations \
 production staging gunicorn tags ltags serve-dev serve-production \
-serve-dev-network-accessible circleci-validate-config
+serve-dev-network-accessible circleci-validate-config install-redis-osx \
+redis-osx-install start-redis redis-start build-docs open-docs create-docs \
+docs-create docs-build typical-sphinx-setup setup-docs docs-push push-docs \
+docs setup-docs-no-open build-docs-no-open docs-push-production \
+docs-push-staging
 
 # ALL LINTING
 lint:
@@ -119,12 +123,68 @@ push-production: production-push
 
 push-staging: staging-push
 
+push-docs: docs-push
+
 
 # DEVOPS
 circleci-validate-config:
 	echo Make sure that Docker is running, or this command will fail. && \
 	circleci config validate
 
+# Docs
+typical-sphinx-setup:
+	sphinx-quickstart
+
+open-docs:
+	open pma_api/docs/build/html/index.html
+
+build-docs-no-open:
+	(cd pma_api/docs && \
+	make html)
+
+build-docs:
+	make build-docs-no-open && \
+	make open-docs
+
+# About Sphinx API-Doc
+# usage: sphinx-apidoc [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> [EXCLUDE_PATTERN, ...]
+#
+# Look recursively in <MODULE_PATH> for Python modules and packages and create
+# one reST file with automodule directives per package in the <OUTPUT_PATH>. The
+# <EXCLUDE_PATTERN>s can be file and/or directory patterns that will be excluded
+# from generation. Note: By default this script will not overwrite already
+# created files.
+#  -f, --force           overwrite existing files
+#  -o DESTDIR, --output-dir DESTDIR directory to place all output
+#
+# I replaced this command: (cd pma_api/docs && sphinx-apidoc -f -o source/ ../pma_api/ && \
+
+setup-docs-no-open:
+	(cd pma_api/docs && \
+	sphinx-apidoc -f -o source/ .. && \
+	make html) && \
+	printf "\nAbout WARNING: You may get a warning about pma_api.rst not being in a toctree. Ignore this.\n\n"
+
+setup-docs:
+	make setup-docs-no-open && \
+	make open-docs
+
+#docs-push-production:
+#	make setup-docs && \
+#	aws s3 sync pma_api/docs/build/html s3://api-docs.pma2020.org --region us-west-2 --profile work
+
+docs-push-production:
+	aws s3 sync pma_api/docs/build/html s3://api-docs.pma2020.org --region us-west-2 --profile work
+
+docs-push-staging:
+	aws s3 sync pma_api/docs/build/html s3://api-docs-staging.pma2020.org --region us-west-2 --profile work
+
+docs-push: docs-push-production
+
+create-docs: build-docs
+docs-create: build-docs
+docs-build: build-docs
+docs: build-docs
 
 # CTAGS
 tags:
