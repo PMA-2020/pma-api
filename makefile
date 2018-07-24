@@ -115,7 +115,13 @@ production-push:
 	git checkout master && \
 	git branch -D production && \
 	git checkout -b production && \
-	git push -u trunk production --force
+	git push -u trunk production --force && \
+	git branch -D NULL && \
+	git checkout develop && \
+	git checkout -b NULL && \
+	clear && \
+	git status && \
+	git branch
 	
 staging-push:
 	git status && \
@@ -125,7 +131,13 @@ staging-push:
 	git checkout develop && \
 	git branch -D staging && \
 	git checkout -b staging && \
-	git push -u trunk staging --force
+	git push -u trunk staging --force && \
+	git branch -D NULL && \
+	git checkout develop && \
+	git checkout -b NULL && \
+	clear && \
+	git status && \
+	git branch
 
 logs:
 	heroku logs --app ppp-web
