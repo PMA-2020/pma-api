@@ -164,13 +164,8 @@ typical-sphinx-setup:
 open-docs:
 	open pma_api/docs/build/html/index.html
 
-build-docs-no-open:
-	(cd pma_api/docs && \
-	make html)
-
-build-docs:
-	make build-docs-no-open && \
-	make open-docs
+readme-to-docs:
+	cp README.md pma_api/docs/source/content/developers/for_developers.md
 
 # About Sphinx API-Doc
 # usage: sphinx-apidoc [OPTIONS] -o <OUTPUT_PATH> <MODULE_PATH> [EXCLUDE_PATTERN, ...]
@@ -185,14 +180,16 @@ build-docs:
 #
 # I replaced this command: (cd pma_api/docs && sphinx-apidoc -f -o source/ ../pma_api/ && \
 
-setup-docs-no-open:
+build-docs-no-open:
+	rm -rf pma_api/docs/build/ && \
+	make readme-to-docs && \
 	(cd pma_api/docs && \
 	sphinx-apidoc -f -o source/ .. && \
 	make html) && \
-	printf "\nAbout WARNING: You may get a warning about pma_api.rst not being in a toctree. Ignore this.\n\n"
+	printf "\nAbout WARNINGs\nNot all warnings should be ignored, but you can ignore the following.\n- pma_api.rst not being in a toctree.\n<autoflask>:1: WARNING: duplicate label...\n\n"
 
-setup-docs:
-	make setup-docs-no-open && \
+build-docs:
+	make build-docs-no-open && \
 	make open-docs
 
 #docs-push-production:
@@ -205,7 +202,9 @@ docs-push-production:
 docs-push-staging:
 	aws s3 sync pma_api/docs/build/html s3://api-docs-staging.pma2020.org --region us-west-2 --profile work
 
-docs-push: docs-push-production
+docs-push:
+	make docs-push-staging && \
+	make docs-push-production
 
 create-docs: build-docs
 docs-create: build-docs

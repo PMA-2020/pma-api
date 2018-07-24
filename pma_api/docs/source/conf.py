@@ -17,13 +17,13 @@ import os
 import sys
 import time
 
+from recommonmark.parser import CommonMarkParser
+from recommonmark.transform import AutoStructify
 
 # from .....pma_api import __version__
 
-# TODO: Overkill?
 sys.path.insert(0, os.path.abspath('../../..'))
-sys.path.insert(0, os.path.abspath('../..'))
-sys.path.insert(0, os.path.abspath('.'))
+
 
 # -- Project information -----------------------------------------------------
 
@@ -32,6 +32,8 @@ author = 'James Pringle, Joe Flack'
 year = time.strftime('%Y')
 # noinspection PyShadowingBuiltins
 copyright = year + ', ' + author
+github_doc_root = \
+    'https://github.com/PMA-2020/pma-api/tree/master/pma_api/docs'
 
 
 __version__ = '1.0.0'
@@ -67,9 +69,8 @@ templates_path = ['_templates']
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-from recommonmark.parser import CommonMarkParser
 source_parsers = {
-    '.md': CommonMarkParser
+    '.md': CommonMarkParser,
 }
 source_suffix = ['.rst', '.md']
 # source_suffix = '.rst'
@@ -181,3 +182,9 @@ texinfo_documents = [
 
 
 # -- Extension configuration -------------------------------------------------
+def setup(app):
+    app.add_config_value('recommonmark_config', {
+            'url_resolver': lambda url: github_doc_root + url,
+            'auto_toc_tree_section': 'Contents',
+            }, True)
+    app.add_transform(AutoStructify)

@@ -14,10 +14,17 @@ def root():
     """Root route.
 
     .. :quickref: Root; Redirects to resources list or documentation depending
-     on MIME type.
+     on MIME type
+
+    Args:
+        n/a
 
     Returns:
         func: get_resources() if 'application/json'
-        func: redirect to docs if 'text/html'
+        func: redirect() to docs if 'text/html'
+
+    Details:
+        Redirects implicitly if MIME type does not explicitly match what is
+        expected.
     """
     return root_route()

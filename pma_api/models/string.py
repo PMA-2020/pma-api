@@ -187,7 +187,7 @@ class Translation(db.Model):
         """Prune ignored fields.
 
         Args:
-            **kwargs: Keyword arguments.
+            kwargs (dict): Keyword arguments.
         """
         from pma_api.models.api_base import prune_ignored_fields
         prune_ignored_fields(kwargs)

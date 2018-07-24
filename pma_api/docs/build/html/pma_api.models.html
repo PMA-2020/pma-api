@@ -80,11 +80,11 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="content/features/searching.html">Searching the Site</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/usage/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/usage/using_the_api.html">Using the API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/users/endpoints.html">Endpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Using the API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/developers/for_developers.html">Developer Documentation</a></li>
 </ul>
 
             
@@ -168,7 +168,7 @@
 <dd><p>Convert any empty strings to None type.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs: Keyword arguments.</dd>
+<dd>kwargs (dict): Keyword arguments.</dd>
 </dl>
 </dd></dl>
 
@@ -195,14 +195,12 @@
 <dd><p>Namespaces keys in a dict by doing a prepend to key strings.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><p class="first">old_dict (dict): The original dictionary.
+<dd>old_dict (dict): The original dictionary.
 prefix (str): Prefix to prepend.
-index (int): Optional index to append after the prefix. This is to</p>
-<blockquote class="last">
-<div>handle situations where a field has one or more sibling fields
+index (int): Optional index to append after the prefix. This is to
+handle situations where a field has one or more sibling fields
 that represent essentially the same variable,
-e.g. “characteristic1”, “characteristic2”.</div></blockquote>
-</dd>
+e.g. “characteristic1”, “characteristic2”.</dd>
 <dt>Returns:</dt>
 <dd>dict: Namespace formatted dictionary.</dd>
 </dl>
@@ -214,7 +212,7 @@ e.g. “characteristic1”, “characteristic2”.</div></blockquote>
 <dd><p>Prune ignored fields.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><a href="#id3"><span class="problematic" id="id4">**</span></a>kwargs: Keyword arguments.</dd>
+<dd>kwargs (dict): Keyword arguments.</dd>
 </dl>
 </dd></dl>
 
@@ -226,14 +224,12 @@ e.g. “characteristic1”, “characteristic2”.</div></blockquote>
 use the source key and do a lookup.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><p class="first">source_key (str): Model ‘code’ field name.
+<dd>source_key (str): Model ‘code’ field name.
 target_key (str): model ‘id’ field name.
 model (class): The corresponding SqlAlchemy model class.
 required (bool): True if target key should have an ID.
-<a href="#id5"><span class="problematic" id="id6">**</span></a>kwargs (dict): The keyword argument representation of query</p>
-<blockquote class="last">
-<div>parameters submitted by the API request.</div></blockquote>
-</dd>
+kwargs (dict): The keyword argument representation of query
+parameters submitted by the API request.</dd>
 <dt>Raises:</dt>
 <dd><dl class="first last docutils">
 <dt>KeyError: If identification code for record was not supplied or did</dt>
@@ -266,12 +262,10 @@ modified so that new key of name matching ‘target_key’ argument is
 inserted, with value as the corresponding record id.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><p class="first">source_key (str): The API query parameter.
+<dd>source_key (str): The API query parameter.
 target_key (str): The equivalent model field.
-<a href="#id7"><span class="problematic" id="id8">**</span></a>kwargs (dict): The keyword argument representation of query</p>
-<blockquote class="last">
-<div>parameters submitted by the API request.</div></blockquote>
-</dd>
+kwargs (dict): The keyword argument representation of query
+parameters submitted by the API request.</dd>
 </dl>
 </dd></dl>
 
@@ -283,7 +277,7 @@ target_key (str): The equivalent model field.
 <dd><p>Prune ignored fields.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><a href="#id9"><span class="problematic" id="id10">**</span></a>kwargs: Keyword arguments.</dd>
+<dd>kwargs (dict): Keyword arguments.</dd>
 </dl>
 </dd></dl>
 
@@ -325,15 +319,11 @@ target_key (str): The equivalent model field.
 model(s) which are included along with fields for this model.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><p class="first">lang (str): The language, if specified.
-jns (bool): If true, namespaces all dictionary keys with prefixed</p>
-<blockquote>
-<div>table name.</div></blockquote>
-<dl class="last docutils">
-<dt>index (int): Field index for fields that have multiple instances of</dt>
-<dd>itself, e.g. “characteristic1”, “characteristic2”.</dd>
-</dl>
-</dd>
+<dd>lang (str): The language, if specified.
+jns (bool): If true, namespaces all dictionary keys with prefixed
+table name.
+index (int): Field index for fields that have multiple instances of
+itself, e.g. “characteristic1”, “characteristic2”.</dd>
 <dt>Returns:</dt>
 <dd>dict: API response ready to be JSONified.</dd>
 </dl>
@@ -364,13 +354,10 @@ no data is found or needs to be supplied.</p>
 model(s) which are included along with fields for this model.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>jns (bool): If true, namespaces all dictionary keys with prefixed</dt>
-<dd>table name.</dd>
-<dt>index (int): Field index for fields that have multiple instances of</dt>
-<dd>itself, e.g. “characteristic1”, “characteristic2”.</dd>
-</dl>
-</dd>
+<dd>jns (bool): If true, namespaces all dictionary keys with prefixed
+table name.
+index (int): Field index for fields that have multiple instances of
+itself, e.g. “characteristic1”, “characteristic2”.</dd>
 <dt>Returns:</dt>
 <dd>dict: API response ready to be JSONified.</dd>
 </dl>
@@ -425,15 +412,11 @@ model(s) which are included along with fields for this model.</p>
 <dd><p>Return dictionary ready to convert to JSON as response.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><p class="first">lang (str): The language, if specified.
-jns (bool): If true, namespaces all dictionary keys with prefixed</p>
-<blockquote>
-<div>table name.</div></blockquote>
-<dl class="last docutils">
-<dt>index (int): Field index for fields that have multiple instances of</dt>
-<dd>itself, e.g. “characteristic1”, “characteristic2”.</dd>
-</dl>
-</dd>
+<dd>lang (str): The language, if specified.
+jns (bool): If true, namespaces all dictionary keys with prefixed
+table name.
+index (int): Field index for fields that have multiple instances of
+itself, e.g. “characteristic1”, “characteristic2”.</dd>
 <dt>Returns:</dt>
 <dd>dict: API response ready to be JSONified.</dd>
 </dl>
@@ -462,13 +445,10 @@ jns (bool): If true, namespaces all dictionary keys with prefixed</p>
 no data is found or needs to be supplied.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>jns (bool): If true, namespaces all dictionary keys with prefixed</dt>
-<dd>table name.</dd>
-<dt>index (int): Field index for fields that have multiple instances of</dt>
-<dd>itself, e.g. “characteristic1”, “characteristic2”.</dd>
-</dl>
-</dd>
+<dd>jns (bool): If true, namespaces all dictionary keys with prefixed
+table name.
+index (int): Field index for fields that have multiple instances of
+itself, e.g. “characteristic1”, “characteristic2”.</dd>
 <dt>Returns:</dt>
 <dd>dict: API response ready to be JSONified.</dd>
 </dl>
@@ -502,11 +482,9 @@ no data is found or needs to be supplied.</p>
 <dd><p>Return dictionary ready to convert to JSON as response.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><p class="first">lang (str): The language, if specified.
-jns (bool): If true, namespaces all dictionary keys with prefixed</p>
-<blockquote class="last">
-<div>table name.</div></blockquote>
-</dd>
+<dd>lang (str): The language, if specified.
+jns (bool): If true, namespaces all dictionary keys with prefixed
+table name.</dd>
 <dt>Returns:</dt>
 <dd>dict: API response ready to be JSONified.</dd>
 </dl>
@@ -676,11 +654,9 @@ lit: List of error message strings.</dd>
 model(s) which are included along with fields for this model.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><p class="first">lang (str): The language, if specified.
-jns (bool): If true, namespaces all dictionary keys with prefixed</p>
-<blockquote class="last">
-<div>table name.</div></blockquote>
-</dd>
+<dd>lang (str): The language, if specified.
+jns (bool): If true, namespaces all dictionary keys with prefixed
+table name.</dd>
 <dt>Returns:</dt>
 <dd>dict: API response ready to be JSONified.</dd>
 </dl>
@@ -786,11 +762,8 @@ jns (bool): If true, namespaces all dictionary keys with prefixed</p>
 no data is found or needs to be supplied.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>jns (bool): If true, namespaces all dictionary keys with prefixed</dt>
-<dd>table name.</dd>
-</dl>
-</dd>
+<dd>jns (bool): If true, namespaces all dictionary keys with prefixed
+table name.</dd>
 <dt>Returns:</dt>
 <dd>dict: API response ready to be JSONified.</dd>
 </dl>
@@ -872,12 +845,10 @@ no data is found or needs to be supplied.</p>
 model(s) which are included along with fields for this model.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><p class="first">lang (str): The language, if specified.
-jns (bool): If true, namespaces all dictionary keys with prefixed</p>
-<blockquote>
-<div>table name, e.g. indicator.id.</div></blockquote>
-<p class="last">endpoint (str): If supplied, provides URL for entity in response.</p>
-</dd>
+<dd>lang (str): The language, if specified.
+jns (bool): If true, namespaces all dictionary keys with prefixed
+table name, e.g. indicator.id.
+endpoint (str): If supplied, provides URL for entity in response.</dd>
 <dt>Returns:</dt>
 <dd>dict: API response ready to be JSONified.</dd>
 </dl>
@@ -979,11 +950,9 @@ jns (bool): If true, namespaces all dictionary keys with prefixed</p>
 model(s) which are included along with fields for this model.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><p class="first">lang (str): The language, if specified.
-jns (bool): If true, namespaces all dictionary keys with prefixed</p>
-<blockquote class="last">
-<div>table name.</div></blockquote>
-</dd>
+<dd>lang (str): The language, if specified.
+jns (bool): If true, namespaces all dictionary keys with prefixed
+table name.</dd>
 <dt>Returns:</dt>
 <dd>dict: API response ready to be JSONified.</dd>
 </dl>
@@ -1280,7 +1249,7 @@ code (str): The code for the string. None if it should be random.</dd>
 <dd><p>Prune ignored fields.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd><a href="#id11"><span class="problematic" id="id12">**</span></a>kwargs: Keyword arguments.</dd>
+<dd>kwargs (dict): Keyword arguments.</dd>
 </dl>
 </dd></dl>
 

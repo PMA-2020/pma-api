@@ -80,10 +80,11 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="content/usage/using_the_api.html">Using the API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/users/endpoints.html">Endpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Using the API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/developers/for_developers.html">Developer Documentation</a></li>
 </ul>
 
             
@@ -311,22 +312,22 @@ query_values (str): A list of codes joined by comma</dd>
 
 <dl class="attribute">
 <dt id="pma_api.queries.DatalabData.char1">
-<code class="descname">char1</code><em class="property"> = &lt;AliasedClass at 0x10ec01da0; Characteristic&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char1" title="Permalink to this definition">¶</a></dt>
+<code class="descname">char1</code><em class="property"> = &lt;AliasedClass at 0x10ecf9128; Characteristic&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pma_api.queries.DatalabData.char2">
-<code class="descname">char2</code><em class="property"> = &lt;AliasedClass at 0x10ec93dd8; Characteristic&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char2" title="Permalink to this definition">¶</a></dt>
+<code class="descname">char2</code><em class="property"> = &lt;AliasedClass at 0x10ed5e1d0; Characteristic&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pma_api.queries.DatalabData.char_grp1">
-<code class="descname">char_grp1</code><em class="property"> = &lt;AliasedClass at 0x10ec93eb8; CharacteristicGroup&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char_grp1" title="Permalink to this definition">¶</a></dt>
+<code class="descname">char_grp1</code><em class="property"> = &lt;AliasedClass at 0x10ed87278; CharacteristicGroup&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char_grp1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pma_api.queries.DatalabData.char_grp2">
-<code class="descname">char_grp2</code><em class="property"> = &lt;AliasedClass at 0x10ec93f98; CharacteristicGroup&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char_grp2" title="Permalink to this definition">¶</a></dt>
+<code class="descname">char_grp2</code><em class="property"> = &lt;AliasedClass at 0x10ed87358; CharacteristicGroup&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char_grp2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
@@ -607,6 +608,8 @@ char_grp (str): A characteristic group code</dd>
 <code class="descclassname">pma_api.</code><code class="descname">documentation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.documentation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Documentation.</p>
 <dl class="docutils">
+<dt>Args:</dt>
+<dd>n/a</dd>
 <dt>Returns:</dt>
 <dd>redirect(): Redirects to official documentation.</dd>
 </dl>
@@ -617,9 +620,14 @@ char_grp (str): A characteristic group code</dd>
 <code class="descclassname">pma_api.</code><code class="descname">root_route</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.root_route" title="Permalink to this definition">¶</a></dt>
 <dd><p>Root route.</p>
 <dl class="docutils">
+<dt>Args:</dt>
+<dd>n/a</dd>
 <dt>Returns:</dt>
 <dd>func: get_resources() if ‘application/json’
-func: redirect to docs if ‘text/html’</dd>
+func: redirect() to docs if ‘text/html’</dd>
+<dt>Details:</dt>
+<dd>Redirects implicitly if MIME type does not explicitly match what is
+expected.</dd>
 </dl>
 </dd></dl>
 
@@ -628,8 +636,37 @@ func: redirect to docs if ‘text/html’</dd>
 <code class="descclassname">pma_api.</code><code class="descname">show_version</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.show_version" title="Permalink to this definition">¶</a></dt>
 <dd><p>Show API version data.</p>
 <dl class="docutils">
+<dt>Args:</dt>
+<dd>n/a</dd>
 <dt>Returns:</dt>
 <dd>String: Version number.</dd>
+<dt>Details:</dt>
+<dd>Displays API’s 2-part semantic version number. ALso displays versioning
+for datasets used.</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-endpoint-version">
+<div class="code-block-caption"><span class="caption-text">GET /v1/version</span><a class="headerlink" href="#example-of-endpoint-version" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+   <span class="nt">&quot;datasetMetadata&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span> <span class="s2">&quot;Fri, 13 Jul 2018 20:25:42 GMT&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;hash&quot;</span><span class="p">:</span> <span class="s2">&quot;339ce036bdee399d449f95a1d4b3bb8f&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;api_data-2018.03.19-v29-SAS&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;api&quot;</span>
+     <span class="p">},</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span> <span class="s2">&quot;Fri, 13 Jul 2018 20:25:43 GMT&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;hash&quot;</span><span class="p">:</span> <span class="s2">&quot;469542a93241da0af80269b6d7352600&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ui_data-2017.10.02-v4-jef&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;ui&quot;</span>
+     <span class="p">}</span>
+   <span class="p">],</span>
+   <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1.9&quot;</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 

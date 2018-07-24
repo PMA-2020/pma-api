@@ -1,0 +1,345 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Using the API &mdash; PMA API 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Developer Documentation" href="../developers/for_developers.html" />
+    <link rel="prev" title="Endpoints" href="endpoints.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PMA API
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="endpoints.html">Endpoints</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Using the API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#navigation">Navigation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#resource-lists">Resource Lists</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#navigating-api-versions">Navigating API Versions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#syntax">Syntax</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-query-string">The Query String</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#special-character-meanings">Special Character Meanings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#character-escaping">Character Escaping</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#data-types">Data Types</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#primitives">Primitives</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lists">Lists</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#query-parameters">Query Parameters</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#filtering">Filtering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fields">Fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#format">Format</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developers/for_developers.html">Developer Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PMA API</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Using the API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/content/users/usage.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="using-the-api">
+<span id="using-the-api"></span><h1>Using the API<a class="headerlink" href="#using-the-api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="navigation">
+<span id="navigation"></span><h2>Navigation<a class="headerlink" href="#navigation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="resource-lists">
+<span id="resource-lists"></span><h3>Resource Lists<a class="headerlink" href="#resource-lists" title="Permalink to this headline">¶</a></h3>
+<p>Resource roots are endpoints that return a list of resources and URLs to those
+resources. The resource list for common endpoints can be found at <code class="docutils literal notranslate"><span class="pre">/v#</span></code> or
+<code class="docutils literal notranslate"><span class="pre">/v#/resources</span></code>, and the resource list for application-specific endpoints can
+be found at <code class="docutils literal notranslate"><span class="pre">/v#/datalab</span></code> or <code class="docutils literal notranslate"><span class="pre">v#/datalab/resources</span></code>, where “#” is the API
+version number.</p>
+</div>
+<div class="section" id="navigating-api-versions">
+<span id="navigating-api-versions"></span><h3>Navigating API Versions<a class="headerlink" href="#navigating-api-versions" title="Permalink to this headline">¶</a></h3>
+<p>Leaving <code class="docutils literal notranslate"><span class="pre">/v#/</span></code> out of your API query URLs will default to the most recent,
+stable API verison. To prevent unexpected results, it is advised to always
+supply a version number.</p>
+</div>
+</div>
+<div class="section" id="syntax">
+<span id="syntax"></span><h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="the-query-string">
+<span id="the-query-string"></span><h3>The Query String<a class="headerlink" href="#the-query-string" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="special-character-meanings">
+<span id="special-character-meanings"></span><h4>Special Character Meanings<a class="headerlink" href="#special-character-meanings" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li>Forward-slash, <code class="docutils literal notranslate"><span class="pre">/</span></code>: Only for URL pathing.</li>
+<li>Back-slash, <code class="docutils literal notranslate"><span class="pre">\</span></code>: For character escaping (Available in <a class="reference external" href="https://github.com/PMA-2020/pma-api/releases/tag/2.0.0">upcoming release</a>.)</li>
+<li>Question mark, <code class="docutils literal notranslate"><span class="pre">?</span></code>: For specifying query parameters.</li>
+<li>Ampersand, <code class="docutils literal notranslate"><span class="pre">&amp;</span></code>: Query parameter delimiter.</li>
+<li>Equals-sign, <code class="docutils literal notranslate"><span class="pre">=</span></code>: Keyword query parameter assignment operator.</li>
+<li>Comma, <code class="docutils literal notranslate"><span class="pre">,</span></code>: List item delimiter.</li>
+</ul>
+</div>
+<div class="section" id="character-escaping">
+<span id="character-escaping"></span><h4>Character Escaping<a class="headerlink" href="#character-escaping" title="Permalink to this headline">¶</a></h4>
+<p>Available in <a class="reference external" href="https://github.com/PMA-2020/pma-api/releases/tag/2.0.0">upcoming release</a>.</p>
+</div>
+</div>
+<div class="section" id="data-types">
+<span id="data-types"></span><h3>Data Types<a class="headerlink" href="#data-types" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="primitives">
+<span id="primitives"></span><h4>Primitives<a class="headerlink" href="#primitives" title="Permalink to this headline">¶</a></h4>
+<p>In an API query URL string, specific data types should be used as follows and
+should be specified witout quotation marks (<code class="docutils literal notranslate"><span class="pre">&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">'</span></code>).</p>
+<div class="section" id="string">
+<span id="string"></span><h5>String<a class="headerlink" href="#string" title="Permalink to this headline">¶</a></h5>
+<p>Example: <code class="docutils literal notranslate"><span class="pre">/v1/datalab/data?survey=GH2013PMA</span></code>.</p>
+</div>
+<div class="section" id="integer">
+<span id="integer"></span><h5>Integer<a class="headerlink" href="#integer" title="Permalink to this headline">¶</a></h5>
+<p>Example: <code class="docutils literal notranslate"><span class="pre">/v1/datalab/data?precision=1</span></code>.</p>
+</div>
+<div class="section" id="float">
+<span id="float"></span><h5>Float<a class="headerlink" href="#float" title="Permalink to this headline">¶</a></h5>
+<p>Example: <code class="docutils literal notranslate"><span class="pre">/v1/datalab/data?value=15.4</span></code>.</p>
+</div>
+<div class="section" id="boolean">
+<span id="boolean"></span><h5>Boolean<a class="headerlink" href="#boolean" title="Permalink to this headline">¶</a></h5>
+<p>Booleans can be any upper or lower case variant of ‘true’ or ‘false’. Values
+“1”, “0”, “null”, “none” are examples of non-booleans.
+Example: <code class="docutils literal notranslate"><span class="pre">/v1/datalab/indicator?isFavorite=true</span></code>.</p>
+</div>
+<div class="section" id="null">
+<span id="null"></span><h5>Null<a class="headerlink" href="#null" title="Permalink to this headline">¶</a></h5>
+<p>Null can be any upper or lower case variant of ‘null’.  Values “0” and “none”
+are examples of non-null values.
+Example: <code class="docutils literal notranslate"><span class="pre">/v1/datalab/indicator?isFavorite=null</span></code>.</p>
+</div>
+<div class="section" id="none">
+<span id="none"></span><h5>None<a class="headerlink" href="#none" title="Permalink to this headline">¶</a></h5>
+<p>None can be any upper or lower case variant of ‘none’.  Values “0” and “null”
+are examples of non-none values.
+Example: <code class="docutils literal notranslate"><span class="pre">/v1/data?char1.id=none</span></code></p>
+</div>
+</div>
+<div class="section" id="lists">
+<span id="lists"></span><h4>Lists<a class="headerlink" href="#lists" title="Permalink to this headline">¶</a></h4>
+<p>Lists are simply comma separated strings without qotation marks (<code class="docutils literal notranslate"><span class="pre">&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">'</span></code>).
+Example: <code class="docutils literal notranslate"><span class="pre">/v1/datalab/combos?survey=GH2013PMA,GH2014PMA</span></code></p>
+</div>
+</div>
+<div class="section" id="query-parameters">
+<span id="query-parameters"></span><h3>Query Parameters<a class="headerlink" href="#query-parameters" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="filtering">
+<span id="filtering"></span><h4>Filtering<a class="headerlink" href="#filtering" title="Permalink to this headline">¶</a></h4>
+<p>Available in <a class="reference external" href="https://github.com/PMA-2020/pma-api/releases/tag/2.0.0">upcoming release</a>.</p>
+</div>
+<div class="section" id="fields">
+<span id="fields"></span><h4>Fields<a class="headerlink" href="#fields" title="Permalink to this headline">¶</a></h4>
+<p>Available in <a class="reference external" href="https://github.com/PMA-2020/pma-api/releases/tag/2.0.0">upcoming release</a>.</p>
+</div>
+<div class="section" id="format">
+<span id="format"></span><h4>Format<a class="headerlink" href="#format" title="Permalink to this headline">¶</a></h4>
+<p>Available in <a class="reference external" href="https://github.com/PMA-2020/pma-api/releases/tag/2.0.0">upcoming release</a>.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../developers/for_developers.html" class="btn btn-neutral float-right" title="Developer Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="endpoints.html" class="btn btn-neutral" title="Endpoints" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, James Pringle, Joe Flack.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

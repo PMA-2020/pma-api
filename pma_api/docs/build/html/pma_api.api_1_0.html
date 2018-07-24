@@ -80,11 +80,11 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="content/features/searching.html">Searching the Site</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/usage/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/usage/using_the_api.html">Using the API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/users/endpoints.html">Endpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Using the API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/developers/for_developers.html">Developer Documentation</a></li>
 </ul>
 
             
@@ -179,8 +179,9 @@ not match, then a new cached response is generated and saved.</p>
 <dd><p>Refine data query.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>args: List of args. If ‘survey’ present,
-filter by survey entities.</dd>
+<dd>args: List of args. If ‘survey’ present, filter by survey entities.</dd>
+<dt>Query Args:</dt>
+<dd>None</dd>
 <dt>Returns:</dt>
 <dd>dict: Filtered query data.</dd>
 </dl>
@@ -193,8 +194,21 @@ filter by survey entities.</dd>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>code (str): Identification for resource entity.</dd>
+<dt>Query Args:</dt>
+<dd>None</dd>
 <dt>Returns:</dt>
 <dd>json: Entity of resource.</dd>
+<dt>Details:</dt>
+<dd>Access a specific PMA2020 characteristic group for the disaggregation
+of data, by its code.</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-instance-characteristicgroup">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/characteristicGroups/CODE">http://api.pma2020.org/v1/characteristicGroups/CODE</a></span><a class="headerlink" href="#example-of-instance-characteristicgroup" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span><span class="nt">&quot;Documentation example not available.&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 
@@ -203,8 +217,15 @@ filter by survey entities.</dd>
 <code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_characteristic_groups</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_characteristic_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get Characteristic Groups resource collection.</p>
 <dl class="docutils">
+<dt>Args:</dt>
+<dd>Non-REST, Python API for function has no arguments.</dd>
+<dt>Query Args:</dt>
+<dd>None</dd>
 <dt>Returns:</dt>
 <dd>json: Collection for resource.</dd>
+<dt>Details:</dt>
+<dd>Get a list of available PMA2020 characteristic groups for the
+disaggregation of data. <strong>Unavailable in current version of API.</strong></dd>
 </dl>
 </dd></dl>
 
@@ -213,8 +234,37 @@ filter by survey entities.</dd>
 <code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_countries</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_countries" title="Permalink to this definition">¶</a></dt>
 <dd><p>Country resource collection GET method.</p>
 <dl class="docutils">
+<dt>Args:</dt>
+<dd>Non-REST, Python API for function has no arguments.</dd>
+<dt>Query Args:</dt>
+<dd>None</dd>
 <dt>Returns:</dt>
 <dd>json: Collection for resource.</dd>
+<dt>Details:</dt>
+<dd>Gets a list of all PMA2020 countries with publicly available data.</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-collection-countries">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/countries">http://api.pma2020.org/v1/countries</a></span><a class="headerlink" href="#example-of-collection-countries" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+   <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;...&quot;</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;resultSize&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+   <span class="nt">&quot;results&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;BF&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Burkina Faso&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;order&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+       <span class="nt">&quot;region&quot;</span><span class="p">:</span> <span class="s2">&quot;Africa&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;subregion&quot;</span><span class="p">:</span> <span class="s2">&quot;Western Africa&quot;</span>
+     <span class="p">},</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">]</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 
@@ -225,8 +275,21 @@ filter by survey entities.</dd>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>code (str): Identification for resource entity.</dd>
+<dt>Query Args:</dt>
+<dd>None</dd>
 <dt>Returns:</dt>
 <dd>json: Entity of resource.</dd>
+<dt>Details:</dt>
+<dd>Access a specific PMA2020 country with publicly available data, by its
+code.</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-instance-country">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/countries/CODE">http://api.pma2020.org/v1/countries/CODE</a></span><a class="headerlink" href="#example-of-instance-country" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span><span class="nt">&quot;Documentation example not available.&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 
@@ -235,8 +298,22 @@ filter by survey entities.</dd>
 <code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get Data resource collection.</p>
 <dl class="docutils">
+<dt>Args:</dt>
+<dd>Non-REST, Python API for function has no arguments.</dd>
+<dt>Query Args:</dt>
+<dd>None</dd>
 <dt>Returns:</dt>
 <dd>json: Collection for resource.</dd>
+<dt>Details:</dt>
+<dd>Query de-identified PMA2020 survey data.</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-collection-data">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/data">http://api.pma2020.org/v1/data</a></span><a class="headerlink" href="#example-of-collection-data" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span><span class="nt">&quot;Documentation example not available.&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 
@@ -247,8 +324,20 @@ filter by survey entities.</dd>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>code (str): Identification for resource entity.</dd>
+<dt>Query Args:</dt>
+<dd>None</dd>
 <dt>Returns:</dt>
 <dd>json: Entity of resource.</dd>
+<dt>Details:</dt>
+<dd>Access a specific data record, by its code.</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-instance-datum">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/data/CODE">http://api.pma2020.org/v1/data/CODE</a></span><a class="headerlink" href="#example-of-instance-datum" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span><span class="nt">&quot;Documentation example not available.&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 
@@ -259,8 +348,40 @@ filter by survey entities.</dd>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>code (str): Identification for resource entity.</dd>
+<dt>Query Args:</dt>
+<dd>None</dd>
 <dt>Returns:</dt>
 <dd>json: Entity of resource.</dd>
+<dt>Details:</dt>
+<dd>Access a specific PMA2020 indicator with publicly available data, by
+its code.</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-instance-indicator">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/indicators/CODE">http://api.pma2020.org/v1/indicators/CODE</a></span><a class="headerlink" href="#example-of-instance-indicator" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+   <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;...&quot;</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;resultSize&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+   <span class="nt">&quot;results&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;definition&quot;</span><span class="p">:</span> <span class="s2">&quot;Percent of women ages 15–49 who are using (or whose partners are using) any contraceptive method at the time of the survey&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;denominator&quot;</span><span class="p">:</span> <span class="s2">&quot;All women, ages 15-49&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;domain&quot;</span><span class="p">:</span> <span class="s2">&quot;Women&#39;s reproductive health&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;favoriteOrder&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+     <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;cp_all&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;isFavorite&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+     <span class="nt">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Current use of any contraceptive method (all women)&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;level1&quot;</span><span class="p">:</span> <span class="s2">&quot;Family planning utilization&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;level2&quot;</span><span class="p">:</span> <span class="s2">&quot;Contraceptive use&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;measurementType&quot;</span><span class="p">:</span> <span class="s2">&quot;percent&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;order&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+     <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;indicator&quot;</span>
+   <span class="p">}</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 
@@ -269,8 +390,45 @@ filter by survey entities.</dd>
 <code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_indicators</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_indicators" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get Indicator resource collection.</p>
 <dl class="docutils">
+<dt>Args:</dt>
+<dd>Non-REST, Python API for function has no arguments.</dd>
+<dt>Query Args:</dt>
+<dd>None</dd>
 <dt>Returns:</dt>
 <dd>json: Collection for resource.</dd>
+<dt>Details:</dt>
+<dd>Gets a list of all PMA2020 indicators with publicly available data.</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-collection-indicators">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/indicators">http://api.pma2020.org/v1/indicators</a></span><a class="headerlink" href="#example-of-collection-indicators" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+   <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;...&quot;</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;resultSize&quot;</span><span class="p">:</span> <span class="mi">112</span><span class="p">,</span>
+   <span class="nt">&quot;results&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;definition&quot;</span><span class="p">:</span> <span class="s2">&quot;Percent of women ages 15–49 who are using (or whose partners are using) any contraceptive method at the time of the survey&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;denominator&quot;</span><span class="p">:</span> <span class="s2">&quot;All women, ages 15-49&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;domain&quot;</span><span class="p">:</span> <span class="s2">&quot;Women&#39;s reproductive health&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;favoriteOrder&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+       <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;cp_all&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;isFavorite&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+       <span class="nt">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Current use of any contraceptive method (all women)&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;level1&quot;</span><span class="p">:</span> <span class="s2">&quot;Family planning utilization&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;level2&quot;</span><span class="p">:</span> <span class="s2">&quot;Contraceptive use&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;measurementType&quot;</span><span class="p">:</span> <span class="s2">&quot;percent&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;order&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+       <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;indicator&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://api.pma2020.org/v1/indicators/cp_all&quot;</span>
+     <span class="p">},</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">]</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 
@@ -279,8 +437,74 @@ filter by survey entities.</dd>
 <code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_resources</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_resources" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return API resource routes.</p>
 <dl class="docutils">
+<dt>Args:</dt>
+<dd>Non-REST, Python API for function has no arguments.</dd>
+<dt>Query Args:</dt>
+<dd>None</dd>
 <dt>Returns:</dt>
 <dd>json: List of resources.</dd>
+<dt>Details:</dt>
+<dd>The resources object returned is split up into two main parts–results,
+and metadata. The metadata object contains information about the
+datasets used, including the client-specific “ui” dataset. The results
+object is the main object, which returns a list of resources,
+consisting of the resource name and its URL. The resource can then be
+accessed by using the literal URL string shown.</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-collection-resources">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/resources">http://api.pma2020.org/v1/resources</a></span><a class="headerlink" href="#example-of-collection-resources" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+   <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;datasetMetadata&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="p">{</span>
+         <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span> <span class="s2">&quot;Fri, 13 Jul 2018 20:25:42 GMT&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;hash&quot;</span><span class="p">:</span> <span class="s2">&quot;339ce036bdee399d449f95a1d4b3bb8f&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;api_data-2018.03.19-v29-SAS&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;api&quot;</span>
+       <span class="p">},</span>
+       <span class="p">{</span>
+         <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span> <span class="s2">&quot;Fri, 13 Jul 2018 20:25:43 GMT&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;hash&quot;</span><span class="p">:</span> <span class="s2">&quot;469542a93241da0af80269b6d7352600&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ui_data-2017.10.02-v4-jef&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;ui&quot;</span>
+       <span class="p">}</span>
+     <span class="p">],</span>
+     <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1.9&quot;</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;resultSize&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+   <span class="nt">&quot;results&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;resources&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="p">{</span>
+         <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;countries&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;resource&quot;</span><span class="p">:</span> <span class="s2">&quot;http://api.pma2020.org/v1/countries&quot;</span>
+       <span class="p">},</span>
+       <span class="p">{</span>
+         <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;surveys&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;resource&quot;</span><span class="p">:</span> <span class="s2">&quot;http://api.pma2020.org/v1/surveys&quot;</span>
+       <span class="p">},</span>
+       <span class="p">{</span>
+         <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;texts&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;resource&quot;</span><span class="p">:</span> <span class="s2">&quot;http://api.pma2020.org/v1/texts&quot;</span>
+       <span class="p">},</span>
+       <span class="p">{</span>
+         <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;indicators&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;resource&quot;</span><span class="p">:</span> <span class="s2">&quot;http://api.pma2020.org/v1/indicators&quot;</span>
+       <span class="p">},</span>
+       <span class="p">{</span>
+         <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;resource&quot;</span><span class="p">:</span> <span class="s2">&quot;http://api.pma2020.org/v1/data&quot;</span>
+       <span class="p">},</span>
+       <span class="p">{</span>
+         <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;characteristicGroups&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;resource&quot;</span><span class="p">:</span> <span class="s2">&quot;http://api.pma2020.org/v1/characteristicGroups&quot;</span>
+       <span class="p">}</span>
+     <span class="p">]</span>
+   <span class="p">}</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 
@@ -291,8 +515,41 @@ filter by survey entities.</dd>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>code (str): Identification for resource entity.</dd>
+<dt>Query Args:</dt>
+<dd>None</dd>
 <dt>Returns:</dt>
 <dd>json: Entity of resource.</dd>
+<dt>Details:</dt>
+<dd>Access a specific PMA2020 country survey round with publicly
+available data, by its code.</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-instance-survey">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/surveys/PMA2013_GHR1">http://api.pma2020.org/v1/surveys/PMA2013_GHR1</a></span><a class="headerlink" href="#example-of-instance-survey" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+   <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;...&quot;</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;resultSize&quot;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span>
+   <span class="nt">&quot;results&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;country.id&quot;</span><span class="p">:</span> <span class="s2">&quot;GH&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;country.label&quot;</span><span class="p">:</span> <span class="s2">&quot;Ghana&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;country.order&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+     <span class="nt">&quot;country.region&quot;</span><span class="p">:</span> <span class="s2">&quot;Africa&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;country.subregion&quot;</span><span class="p">:</span> <span class="s2">&quot;Western Africa&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;end_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2013-10-01&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;PMA2013_GHR1&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;order&quot;</span><span class="p">:</span> <span class="mi">101</span><span class="p">,</span>
+     <span class="nt">&quot;pma_code&quot;</span><span class="p">:</span> <span class="s2">&quot;GHR1&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;round&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+     <span class="nt">&quot;start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2013-09-01&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;PMA2020&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;year&quot;</span><span class="p">:</span> <span class="mi">2013</span>
+   <span class="p">}</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 
@@ -301,8 +558,46 @@ filter by survey entities.</dd>
 <code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_surveys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_surveys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Survey resource collection GET method.</p>
 <dl class="docutils">
+<dt>Args:</dt>
+<dd>Non-REST, Python API for function has no arguments.</dd>
+<dt>Query Args:</dt>
+<dd>None</dd>
 <dt>Returns:</dt>
 <dd>json: Collection for resource.</dd>
+<dt>Details:</dt>
+<dd>Gets a list of all PMA2020 country survey rounds with publicly
+available data.</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-collection-surveys">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/surveys">http://api.pma2020.org/v1/surveys</a></span><a class="headerlink" href="#example-of-collection-surveys" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+   <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;...&quot;</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;resultSize&quot;</span><span class="p">:</span> <span class="mi">48</span><span class="p">,</span>
+   <span class="nt">&quot;results&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;country.id&quot;</span><span class="p">:</span> <span class="s2">&quot;GH&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;country.label&quot;</span><span class="p">:</span> <span class="s2">&quot;Ghana&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;country.order&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+       <span class="nt">&quot;country.region&quot;</span><span class="p">:</span> <span class="s2">&quot;Africa&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;country.subregion&quot;</span><span class="p">:</span> <span class="s2">&quot;Western Africa&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;end_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2013-10-01&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;PMA2013_GHR1&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;order&quot;</span><span class="p">:</span> <span class="mi">101</span><span class="p">,</span>
+       <span class="nt">&quot;pma_code&quot;</span><span class="p">:</span> <span class="s2">&quot;GHR1&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;round&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+       <span class="nt">&quot;start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2013-09-01&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;PMA2020&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;year&quot;</span><span class="p">:</span> <span class="mi">2013</span>
+     <span class="p">},</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">]</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 
@@ -313,8 +608,31 @@ filter by survey entities.</dd>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>code (str): Identification for resource entity.</dd>
+<dt>Query Args:</dt>
+<dd>None</dd>
 <dt>Returns:</dt>
 <dd>json: Entity of resource.</dd>
+<dt>Details:</dt>
+<dd>Access a specific piece of text related to surveys and metadata, by its
+code.</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-instance-text">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/texts/6EA0At85">http://api.pma2020.org/v1/texts/6EA0At85</a></span><a class="headerlink" href="#example-of-instance-text" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+   <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;...&quot;</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;resultSize&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+   <span class="nt">&quot;results&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;6EA0At85&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;langCode&quot;</span><span class="p">:</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
+     <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Kinshasa Province&quot;</span>
+   <span class="p">}</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 
@@ -323,8 +641,56 @@ filter by survey entities.</dd>
 <code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">get_texts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.get_texts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get Text resource collection.</p>
 <dl class="docutils">
+<dt>Args:</dt>
+<dd>Non-REST, Python API for function has no arguments.</dd>
+<dt>Query Args:</dt>
+<dd>None</dd>
 <dt>Returns:</dt>
 <dd>json: Collection for resource.</dd>
+<dt>Details:</dt>
+<dd>Get a list of various texts related to surveys and metadata. Default
+language displayed is English (en).</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-collection-texts">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/texts">http://api.pma2020.org/v1/texts</a></span><a class="headerlink" href="#example-of-collection-texts" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+   <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;...&quot;</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;resultSize&quot;</span><span class="p">:</span> <span class="mi">515</span><span class="p">,</span>
+   <span class="nt">&quot;results&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;6EA0At85&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;langCode&quot;</span><span class="p">:</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Kinshasa Province&quot;</span>
+     <span class="p">},</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;K9pC3w90&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;langCode&quot;</span><span class="p">:</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;2013 Round 1&quot;</span>
+     <span class="p">},</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;0G2e7W61&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;langCode&quot;</span><span class="p">:</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Household / female questionnaire&quot;</span>
+     <span class="p">},</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;noFfI-js&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;langCode&quot;</span><span class="p">:</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Marital status&quot;</span>
+     <span class="p">},</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;qWyhZCgY&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;langCode&quot;</span><span class="p">:</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Married vs unmarried&quot;</span>
+     <span class="p">},</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">]</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 
@@ -337,19 +703,187 @@ filter by survey entities.</dd>
 <code class="descclassname">pma_api.api_1_0.datalab.</code><code class="descname">get_datalab_combos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.datalab.get_datalab_combos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Datalab client endpoint for querying validmetadata combinations.</p>
 <dl class="docutils">
-<dt>The structural metadata for Datalab are:</dt>
-<dd><ul class="first last simple">
+<dt>Args:</dt>
+<dd>Non-REST, Python API for function has no arguments.</dd>
+<dt>Query Args:</dt>
+<dd>survey (string | list): The country survey round(s). If more than one,
+this query parameter is comma delimited with no enclosing brackets, as
+shown in example. Not required.
+indicator: (string): A single indicator. Not required.
+characteristicGroup (string): A single characteristic group. Not
+required.</dd>
+<dt>Returns:</dt>
+<dd>json: List of valid metadata combinations.</dd>
+<dt>Details:</dt>
+<dd><p class="first">The structural metadata for Datalab are…</p>
+<ul class="simple">
 <li>Country survey rounds</li>
 <li>Indicators</li>
 <li>Characteristics for data disaggregation</li>
 </ul>
+<p class="last">A valid structural metadata combination is a combination for which data
+exists. That is to say that when these metadata are used together as
+query parameters on the ‘datalab/data’ endpoint, actual data will be
+returned rather than nothing at all. While none of the query arguments
+are marked as required, a normal use case uses 1 or 2 of the three
+parameters available to this endpoint. For 0 or 3 of the
+afforementioned parameters, the “/datalab/init” and “/datalab/data”
+endpoints should typically be used respectively.</p>
 </dd>
-<dt>A valid structural metadata combination is a combination for which data</dt>
-<dd>exists. That is to say that when these metadata are used together as query
-parameters on the ‘datalab/data’ endpoint, actual data will be returned
-rather than nothing at all.</dd>
-<dt>Returns:</dt>
-<dd>json: List of valid metadata combinations.</dd>
+<dt>Examples:</dt>
+<dd><p class="first"><strong>1) /v1/datalab/combos?survey=&lt;surveys&gt;</strong>
+Query by survey. Get a list of indicator and characteristic
+combinations which have one or more stored data point associated with
+any of the provided surveys. From this list provided, the client
+application should have enough information to filter valid data is
+aggregated further by specified indicator(s) and characteristic(s),
+without the need for any further API calls.</p>
+<div class="literal-block-wrapper docutils container" id="example-of-collection-datalab-combos-2">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/datalab/combos?survey=PMA2013_GHR1">http://api.pma2020.org/v1/datalab/combos?survey=PMA2013_GHR1</a>,PMA2014_GHR2&amp;</span><a class="headerlink" href="#example-of-collection-datalab-combos-2" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+   <span class="nt">&quot;characteristicGroup.id&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="s2">&quot;age_5yr_int&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;beds&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;edu_GH&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">],</span>
+   <span class="nt">&quot;indicator.id&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="s2">&quot;IUD_all&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;IUD_mar&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;condom_all&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">],</span>
+   <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;datasetMetadata&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="s2">&quot;...&quot;</span>
+     <span class="p">],</span>
+     <span class="nt">&quot;queryParameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="nt">&quot;survey&quot;</span><span class="p">:</span> <span class="s2">&quot;PMA2013_GHR1,PMA2014_GHR2&quot;</span>
+     <span class="p">},</span>
+     <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1.9&quot;</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;survey.id&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="s2">&quot;PMA2013_CDR1_Kinshasa&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;PMA2013_GHR1&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;PMA2014_BFR1&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">]</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p><strong>2) /v1/datalab?indicator=&lt;id&gt;</strong>
+Query by indicator. In this example,</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/datalab/combos?indicator=mcp_all">http://api.pma2020.org/v1/datalab/combos?indicator=mcp_all</a></span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+   <span class="nt">&quot;characteristicGroup.id&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="s2">&quot;age_5yr_int&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;edu_BF&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;edu_CD&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">],</span>
+   <span class="nt">&quot;indicator.id&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="s2">&quot;IUD_all&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;IUD_mar&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;condom_all&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">],</span>
+   <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;datasetMetadata&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="s2">&quot;...&quot;</span>
+     <span class="p">],</span>
+     <span class="nt">&quot;queryParameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="nt">&quot;indicator&quot;</span><span class="p">:</span> <span class="s2">&quot;mcp_all&quot;</span>
+     <span class="p">},</span>
+     <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1.9&quot;</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;survey.id&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="s2">&quot;PMA2013_CDR1_Kinshasa&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;PMA2013_GHR1&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;PMA2014_BFR1&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">]</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p><strong>3) /v1/datalab?characteristicGroup=&lt;id&gt;</strong>
+Query by characteristic group. In this example,</p>
+<div class="literal-block-wrapper docutils container" id="example-of-collection-datalab-combos-3">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/datalab/combos?characteristicGroup=wealth_quintile">http://api.pma2020.org/v1/datalab/combos?characteristicGroup=wealth_quintile</a></span><a class="headerlink" href="#example-of-collection-datalab-combos-3" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+   <span class="nt">&quot;characteristicGroup.id&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="s2">&quot;age_5yr_int&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;beds&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;edu_BF&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">],</span>
+   <span class="nt">&quot;indicator.id&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="s2">&quot;IUD_all&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;IUD_mar&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;condom_all&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">],</span>
+   <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;datasetMetadata&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="s2">&quot;...&quot;</span>
+     <span class="p">],</span>
+     <span class="nt">&quot;queryParameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="nt">&quot;characteristicGroup&quot;</span><span class="p">:</span> <span class="s2">&quot;wealth_quintile&quot;</span>
+     <span class="p">},</span>
+     <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1.9&quot;</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;survey.id&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="s2">&quot;PMA2013_CDR1_Kinshasa&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;PMA2013_GHR1&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;PMA2014_CDR2_Kinshasa&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">]</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p><strong>4) /v1/datalab/combos?&lt;resource_1&gt;=&lt;id&gt;&amp;&lt;resource_2&gt;=&lt;id&gt;</strong>
+Query by 2 of 3 key resources, survey being “Ghana 2013 survey round 1”
+, and indicator being “current use of any contraceptive method (all
+women)”.</p>
+<div class="literal-block-wrapper last docutils container" id="example-of-collection-datalab-combos-1">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/datalab/combos?survey=PMA2013_GHR1&amp;indicator=mcp_all">http://api.pma2020.org/v1/datalab/combos?survey=PMA2013_GHR1&amp;indicator=mcp_all</a></span><a class="headerlink" href="#example-of-collection-datalab-combos-1" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+   <span class="nt">&quot;characteristicGroup.id&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="s2">&quot;age_5yr_int&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;edu_GH&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;marital_status&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">],</span>
+   <span class="nt">&quot;indicator.id&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="s2">&quot;IUD_all&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;IUD_mar&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;condom_all&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">],</span>
+   <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;datasetMetadata&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="s2">&quot;...&quot;</span>
+     <span class="p">],</span>
+     <span class="nt">&quot;queryParameters&quot;</span><span class="p">:</span> <span class="p">{</span>
+       <span class="nt">&quot;indicator&quot;</span><span class="p">:</span> <span class="s2">&quot;mcp_all&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;survey&quot;</span><span class="p">:</span> <span class="s2">&quot;PMA2013_GHR1&quot;</span>
+     <span class="p">},</span>
+     <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1.9&quot;</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;survey.id&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="s2">&quot;PMA2013_CDR1_Kinshasa&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;PMA2013_GHR1&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;PMA2014_BFR1&quot;</span><span class="p">,</span>
+     <span class="s2">&quot;...&quot;</span>
+   <span class="p">]</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 
@@ -358,18 +892,177 @@ rather than nothing at all.</dd>
 <code class="descclassname">pma_api.api_1_0.datalab.</code><code class="descname">get_datalab_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.datalab.get_datalab_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Datalab client endpoint for querying data.</p>
 <dl class="docutils">
+<dt>Args:</dt>
+<dd>Non-REST, Python API for function has no arguments.</dd>
+<dt>Query Args:</dt>
+<dd>survey (string | list): The country survey round(s). If more than one,
+this query parameter is comma delimited with no enclosing brackets, as
+shown in example. Not required.
+indicator: (string): A single indicator.  Not required.
+characteristicGroup (string): A single characteristic group. Not
+required.
+overTime (bool): If “true”, this endpoint looks for data to be plotted
+or disaggregated over a time dimension. If “false”, the data is only
+disaggregated by the characteristic group. Default value for this query
+argument if left out is “false”. Not required.
+format (string): Only accepts the string “csv”. This will return a CSV
+file. Not required.
+lang (string): Accepts 2 letter language code, e.g. “EN” for English,
+or “FR” for French. This is used in tandem with “format=csv”. Default
+value is “EN”. Not required.</dd>
 <dt>Returns:</dt>
 <dd>json: Queried data.</dd>
+<dt>Details:</dt>
+<dd><p class="first">Returns lists of all specific, key resources (surveys, indicators, and
+characteristics), all of which have at least one stored data point
+associated. In addition to “results” and “metadata” object, which are
+common to other endpoints, this endpoint also returns a “queryInput”
+object, which provides additional attributes for all of the query
+parameters which were passed in the request.</p>
+<p class="last">While no parameters are technically required, it is expected that some
+be provided. For the Datalab client use case, all query parameters are
+typically used. The historical function of this endpoint is for the
+purpose of data visualization.</p>
+</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-collection-datalab-data">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/datalab/data?survey=PMA2014_BFR1,PMA2015_BFR2&amp;indicator=cp_mar&amp;characteristicGroup=parity&amp;overTime=false">http://api.pma2020.org/v1/datalab/data?survey=PMA2014_BFR1,PMA2015_BFR2&amp;indicator=cp_mar&amp;characteristicGroup=parity&amp;overTime=false</a></span><a class="headerlink" href="#example-of-collection-datalab-data" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+   <span class="nt">&quot;chartOptions&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;precision&quot;</span><span class="p">:</span> <span class="mi">1</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;datasetMetadata&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="p">{</span>
+         <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span> <span class="s2">&quot;Fri, 13 Jul 2018 20:25:42 GMT&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;hash&quot;</span><span class="p">:</span> <span class="s2">&quot;339ce036bdee399d449f95a1d4b3bb8f&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;api_data-2018.03.19-v29-SAS&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;api&quot;</span>
+       <span class="p">},</span>
+       <span class="p">{</span>
+         <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span> <span class="s2">&quot;Fri, 13 Jul 2018 20:25:43 GMT&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;hash&quot;</span><span class="p">:</span> <span class="s2">&quot;469542a93241da0af80269b6d7352600&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ui_data-2017.10.02-v4-jef&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;ui&quot;</span>
+       <span class="p">}</span>
+     <span class="p">],</span>
+     <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1.9&quot;</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;queryInput&quot;</span><span class="p">:</span> <span class="p">{</span>
+     <span class="nt">&quot;characteristicGroups&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="p">{</span>
+         <span class="nt">&quot;definition.id&quot;</span><span class="p">:</span> <span class="s2">&quot;PAphCZZd&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;parity&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;IArHyBju&quot;</span>
+       <span class="p">}</span>
+     <span class="p">],</span>
+     <span class="nt">&quot;indicators&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="p">{</span>
+         <span class="nt">&quot;definition.id&quot;</span><span class="p">:</span> <span class="s2">&quot;E6R-TrTt&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;cp_mar&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;rniE-48x&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;indicator&quot;</span>
+       <span class="p">}</span>
+     <span class="p">],</span>
+     <span class="nt">&quot;surveys&quot;</span><span class="p">:</span> <span class="p">[</span>
+       <span class="p">{</span>
+         <span class="nt">&quot;country.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;cizmJ6Gv&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;geography.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;w748V1ul&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;PMA2014_BFR1&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;QY-mwT2K&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;partner.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;YlzQ41YY&quot;</span>
+       <span class="p">},</span>
+       <span class="p">{</span>
+         <span class="nt">&quot;country.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;cizmJ6Gv&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;geography.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;w748V1ul&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;PMA2015_BFR2&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;RQ1bUBVJ&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;partner.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;YlzQ41YY&quot;</span>
+       <span class="p">}</span>
+     <span class="p">]</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;resultSize&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+   <span class="nt">&quot;results&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;country.id&quot;</span><span class="p">:</span> <span class="s2">&quot;BF&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;country.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;cizmJ6Gv&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;geography.id&quot;</span><span class="p">:</span> <span class="s2">&quot;bf_national&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;geography.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;w748V1ul&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;survey.id&quot;</span><span class="p">:</span> <span class="s2">&quot;PMA2014_BFR1&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;survey.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;QY-mwT2K&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;values&quot;</span><span class="p">:</span> <span class="p">[</span>
+         <span class="p">{</span>
+           <span class="nt">&quot;characteristic.id&quot;</span><span class="p">:</span> <span class="s2">&quot;0-1_children&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;characteristic.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;4CoX8mVz&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mf">14.7</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+           <span class="nt">&quot;characteristic.id&quot;</span><span class="p">:</span> <span class="s2">&quot;2-3_children&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;characteristic.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;XEcza0o1&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mf">19.8</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+           <span class="nt">&quot;characteristic.id&quot;</span><span class="p">:</span> <span class="s2">&quot;4_children&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;characteristic.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;FaUxMgNn&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mf">18.8</span>
+         <span class="p">}</span>
+       <span class="p">]</span>
+     <span class="p">},</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;country.id&quot;</span><span class="p">:</span> <span class="s2">&quot;BF&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;country.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;cizmJ6Gv&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;geography.id&quot;</span><span class="p">:</span> <span class="s2">&quot;bf_national&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;geography.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;w748V1ul&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;survey.id&quot;</span><span class="p">:</span> <span class="s2">&quot;PMA2015_BFR2&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;survey.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;RQ1bUBVJ&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;values&quot;</span><span class="p">:</span> <span class="p">[</span>
+         <span class="p">{</span>
+           <span class="nt">&quot;characteristic.id&quot;</span><span class="p">:</span> <span class="s2">&quot;0-1_children&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;characteristic.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;4CoX8mVz&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mf">16.8</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+           <span class="nt">&quot;characteristic.id&quot;</span><span class="p">:</span> <span class="s2">&quot;2-3_children&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;characteristic.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;XEcza0o1&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mf">25.6</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+           <span class="nt">&quot;characteristic.id&quot;</span><span class="p">:</span> <span class="s2">&quot;4_children&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;characteristic.label.id&quot;</span><span class="p">:</span> <span class="s2">&quot;FaUxMgNn&quot;</span><span class="p">,</span>
+           <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mf">19.9</span>
+         <span class="p">}</span>
+       <span class="p">]</span>
+     <span class="p">}</span>
+   <span class="p">]</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="pma_api.api_1_0.datalab.get_datalab_init">
 <code class="descclassname">pma_api.api_1_0.datalab.</code><code class="descname">get_datalab_init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.datalab.get_datalab_init" title="Permalink to this definition">¶</a></dt>
-<dd><p>Datalab client endpoint for app initialization.</p>
+<dd><p>Datalab client endpoint for app initialization, minified.</p>
 <dl class="docutils">
+<dt>Args:</dt>
+<dd>Non-REST, Python API for function has no arguments.</dd>
+<dt>Query Args:</dt>
+<dd>None</dd>
 <dt>Returns:</dt>
 <dd>json: All of the necessary elements to render initial view of Datalab.</dd>
+<dt>Details:</dt>
+<dd>Datalab client endpoint for app initialization, minified.</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-collection-datalab-init">
+<div class="code-block-caption"><span class="caption-text">GET <a class="reference external" href="http://api.pma2020.org/v1/datalab/init">http://api.pma2020.org/v1/datalab/init</a></span><a class="headerlink" href="#example-of-collection-datalab-init" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span><span class="nt">&quot;A significant of minified data is returned.&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
 </dl>
 </dd></dl>
 
@@ -382,9 +1075,14 @@ rather than nothing at all.</dd>
 <code class="descclassname">pma_api.api_1_0.</code><code class="descname">root</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.root" title="Permalink to this definition">¶</a></dt>
 <dd><p>Root route.</p>
 <dl class="docutils">
+<dt>Args:</dt>
+<dd>n/a</dd>
 <dt>Returns:</dt>
 <dd>func: get_resources() if ‘application/json’
-func: redirect to docs if ‘text/html’</dd>
+func: redirect() to docs if ‘text/html’</dd>
+<dt>Details:</dt>
+<dd>Redirects implicitly if MIME type does not explicitly match what is
+expected.</dd>
 </dl>
 </dd></dl>
 
