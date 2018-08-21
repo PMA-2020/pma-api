@@ -1,0 +1,315 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Developer Documentation &mdash; PMA API 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="Using the API" href="../users/usage.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PMA API
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../users/endpoints.html">Endpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users/usage.html">Using the API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Developer Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#master-circleci-develop-circleci"><code class="docutils literal notranslate"><span class="pre">master</span></code>  |  <code class="docutils literal notranslate"><span class="pre">develop</span></code> </a></li>
+<li class="toctree-l2"><a class="reference internal" href="#relational-database-diagram">Relational Database Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage-endpoint-info-and-other-user-documentation">Usage, endpoint info, and other user documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#system-dependencies">System dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clone-the-project">Clone the project</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#virtual-environment-optional-but-recommended">Virtual environment <em>(optional, but recommended)</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#install-project-dependencies">Install project dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-the-database-optional">Create the database <em>(optional)</em></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#running-locally">Running locally</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#server-management">Server management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pushing-to-staging">Pushing to staging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pushing-to-production">Pushing to production</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PMA API</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Developer Documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/content/developers/for_developers.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="developer-documentation">
+<span id="developer-documentation"></span><h1>Developer Documentation<a class="headerlink" href="#developer-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="master-circleci-develop-circleci">
+<span id="master-circleci-develop-circleci"></span><h2><code class="docutils literal notranslate"><span class="pre">master</span></code> <a class="reference external" href="https://circleci.com/gh/PMA-2020/pma-api/tree/master"><img alt="CircleCI" src="https://circleci.com/gh/PMA-2020/pma-api/tree/master.svg?style=svg&amp;circle-token=3cd5fffe3dad1d27e6cc1000307bc299e2ef3e77" /></a> |  <code class="docutils literal notranslate"><span class="pre">develop</span></code> <a class="reference external" href="https://circleci.com/gh/PMA-2020/pma-api/tree/develop"><img alt="CircleCI" src="https://circleci.com/gh/PMA-2020/pma-api/tree/develop.svg?style=svg&amp;circle-token=3cd5fffe3dad1d27e6cc1000307bc299e2ef3e77" /></a><a class="headerlink" href="#master-circleci-develop-circleci" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="relational-database-diagram">
+<span id="relational-database-diagram"></span><h2>Relational Database Diagram<a class="headerlink" href="#relational-database-diagram" title="Permalink to this headline">¶</a></h2>
+<p><img src="https://raw.githubusercontent.com/joeflack4/pma-api/develop/pma_api/docs/source/_static/apiClassDiagramV4.png" data-canonical-src="https://raw.githubusercontent.com/joeflack4/pma-api/develop/pma_api/docs/source/_static/apiClassDiagramV4.png" width="620" height="513" /></p>
+</div>
+<div class="section" id="usage-endpoint-info-and-other-user-documentation">
+<span id="usage-endpoint-info-and-other-user-documentation"></span><h2>Usage, endpoint info, and other user documentation<a class="headerlink" href="#usage-endpoint-info-and-other-user-documentation" title="Permalink to this headline">¶</a></h2>
+<p>Extensive user documentation is available at either of the following sites:</p>
+<ul class="simple">
+<li>http://api.pma2020.org</li>
+<li>http://api-docs.pma2020.org</li>
+</ul>
+</div>
+<div class="section" id="installation">
+<span id="installation"></span><h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="system-dependencies">
+<span id="system-dependencies"></span><h3>System dependencies<a class="headerlink" href="#system-dependencies" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference external" href="https://www.python.org/downloads/">Python3</a></li>
+<li>SQLite: There are several options. We reccomend <a class="reference external" href="https://www.sqlite.org/download.html">this</a> for CLI, or <a class="reference external" href="https://sqlitebrowser.org/">this</a> for GUI.</li>
+</ul>
+</div>
+<div class="section" id="clone-the-project">
+<span id="clone-the-project"></span><h3>Clone the project<a class="headerlink" href="#clone-the-project" title="Permalink to this headline">¶</a></h3>
+<ol class="simple">
+<li>Change directory to <code class="docutils literal notranslate"><span class="pre">PATH</span></code> where you want to clone: <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">PATH</span></code></li>
+<li>Clone: <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/PMA-2020/pma-api.git</span></code></li>
+</ol>
+</div>
+<div class="section" id="virtual-environment-optional-but-recommended">
+<span id="virtual-environment-optional-but-recommended"></span><h3>Virtual environment <em>(optional, but recommended)</em><a class="headerlink" href="#virtual-environment-optional-but-recommended" title="Permalink to this headline">¶</a></h3>
+<p>A Python virtual environment is a way to isolate applications and their dependencies from one another in order to avoid conflicts. We recommend that you install virtualenv. <a class="reference external" href="https://virtualenv.pypa.io/en/stable/">The virtualenv documentation</a> has installation steps as well as more information about the usefulness of virtual environments. Here’s a summary of the installation steps:</p>
+<ol class="simple">
+<li>Install <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code> globally: <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">virtualenv</span></code></li>
+<li>Change directory to where <code class="docutils literal notranslate"><span class="pre">pma-api</span></code> was cloned: <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">PATH/pma-api</span></code></li>
+<li>Create a virtual environment called <code class="docutils literal notranslate"><span class="pre">env</span></code>: <code class="docutils literal notranslate"><span class="pre">virtualenv</span> <span class="pre">env</span></code></li>
+</ol>
+</div>
+<div class="section" id="install-project-dependencies">
+<span id="install-project-dependencies"></span><h3>Install project dependencies<a class="headerlink" href="#install-project-dependencies" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code></li>
+</ul>
+</div>
+<div class="section" id="create-the-database-optional">
+<span id="create-the-database-optional"></span><h3>Create the database <em>(optional)</em><a class="headerlink" href="#create-the-database-optional" title="Permalink to this headline">¶</a></h3>
+<ol class="simple">
+<li>Create the database via the following <code class="docutils literal notranslate"><span class="pre">makefile</span></code> command: <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">db</span></code>
+<em>This will execute a script that populates a database using data taken from the <code class="docutils literal notranslate"><span class="pre">data</span></code> directory. In a properly set up staging or production environment, PostgreSQL will be used. In a development environment, SQLite is used. This step is considered optional in a development environment as there should already be an up-to-date <code class="docutils literal notranslate"><span class="pre">dev.db</span></code> in the root directory.</em></li>
+<li>Examine database to verify that all looks well. <em>(optional)</em>
+This can be done via CLI or GUI tool, such as recommended previously.</li>
+</ol>
+</div>
+</div>
+<div class="section" id="running-locally">
+<span id="running-locally"></span><h2>Running locally<a class="headerlink" href="#running-locally" title="Permalink to this headline">¶</a></h2>
+<ol class="simple">
+<li>Run <code class="docutils literal notranslate"><span class="pre">pma-api</span></code> on a local server process via the following makefile command: <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">serve</span></code></li>
+<li>Verify that it is running in the browser by going to: <code class="docutils literal notranslate"><span class="pre">http://localhost:5000/v1/resources</span></code></li>
+<li>Navigate the API further by either (a) utilizing the URL links shown in the browser, or (b) looking at the available endpoints in the <a class="reference external" href="https://www.github.com/PMA-2020/pma-api">pma-api documentation</a>.</li>
+<li>Read the <a class="reference external" href="https://www.github.com/PMA-2020/pma-api">pma-api documentation</a> for more information on use.</li>
+</ol>
+</div>
+<div class="section" id="server-management">
+<span id="server-management"></span><h2>Server management<a class="headerlink" href="#server-management" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pushing-to-staging">
+<span id="pushing-to-staging"></span><h3>Pushing to staging<a class="headerlink" href="#pushing-to-staging" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">push-staging</span></code></p>
+</div>
+<div class="section" id="pushing-to-production">
+<span id="pushing-to-production"></span><h3>Pushing to production<a class="headerlink" href="#pushing-to-production" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">push-production</span></code></p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../users/usage.html" class="btn btn-neutral" title="Using the API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, James Pringle, Joe Flack.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

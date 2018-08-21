@@ -62,7 +62,7 @@ class Indicator(ApiModel):
         Args:
             lang (str): The language, if specified.
             jns (bool): If true, namespaces all dictionary keys with prefixed
-                table name, e.g. indicator.id.
+            table name, e.g. indicator.id.
             endpoint (str): If supplied, provides URL for entity in response.
 
         Returns:
@@ -147,9 +147,9 @@ class CharacteristicGroup(ApiModel):
         Args:
             lang (str): The language, if specified.
             jns (bool): If true, namespaces all dictionary keys with prefixed
-                table name.
+            table name.
             index (int): Field index for fields that have multiple instances of
-                itself, e.g. "characteristic1", "characteristic2".
+            itself, e.g. "characteristic1", "characteristic2".
 
         Returns:
             dict: API response ready to be JSONified.
@@ -176,9 +176,9 @@ class CharacteristicGroup(ApiModel):
 
         Args:
             jns (bool): If true, namespaces all dictionary keys with prefixed
-                table name.
+            table name.
             index (int): Field index for fields that have multiple instances of
-                itself, e.g. "characteristic1", "characteristic2".
+            itself, e.g. "characteristic1", "characteristic2".
 
         Returns:
             dict: API response ready to be JSONified.
@@ -241,9 +241,9 @@ class Characteristic(ApiModel):
         Args:
             lang (str): The language, if specified.
             jns (bool): If true, namespaces all dictionary keys with prefixed
-                table name.
+            table name.
             index (int): Field index for fields that have multiple instances of
-                itself, e.g. "characteristic1", "characteristic2".
+            itself, e.g. "characteristic1", "characteristic2".
 
         Returns:
             dict: API response ready to be JSONified.
@@ -288,9 +288,9 @@ class Characteristic(ApiModel):
 
         Args:
             jns (bool): If true, namespaces all dictionary keys with prefixed
-                table name.
+            table name.
             index (int): Field index for fields that have multiple instances of
-                itself, e.g. "characteristic1", "characteristic2".
+            itself, e.g. "characteristic1", "characteristic2".
 
         Returns:
             dict: API response ready to be JSONified.
@@ -376,7 +376,7 @@ class Data(ApiModel):
         Args:
             lang (str): The language, if specified.
             jns (bool): If true, namespaces all dictionary keys with prefixed
-                table name.
+            table name.
 
         Returns:
             dict: API response ready to be JSONified.
@@ -466,7 +466,7 @@ class Survey(ApiModel):
         Args:
             lang (str): The language, if specified.
             jns (bool): If true, namespaces all dictionary keys with prefixed
-                table name.
+            table name.
 
         Returns:
             dict: API response ready to be JSONified.
@@ -718,7 +718,7 @@ class Country(ApiModel):
         Args:
             lang (str): The language, if specified.
             jns (bool): If true, namespaces all dictionary keys with prefixed
-                table name.
+            table name.
 
         Returns:
             dict: API response ready to be JSONified.
@@ -812,7 +812,7 @@ class Geography(ApiModel):
 
         Args:
             jns (bool): If true, namespaces all dictionary keys with prefixed
-                table name.
+            table name.
 
         Returns:
             dict: API response ready to be JSONified.

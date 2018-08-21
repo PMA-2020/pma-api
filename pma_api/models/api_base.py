@@ -9,7 +9,7 @@ def prune_ignored_fields(kwargs):
     """Prune ignored fields.
 
     Args:
-        **kwargs: Keyword arguments.
+        kwargs (dict): Keyword arguments.
     """
     to_pop = [k for k in kwargs.keys() if
               k.startswith(ApiModel.ignore_field_prefix)]
@@ -35,7 +35,7 @@ class ApiModel(db.Model):
         """Prune ignored fields.
 
         Args:
-            **kwargs: Keyword arguments.
+            kwargs (dict): Keyword arguments.
         """
         prune_ignored_fields(kwargs)
 
@@ -65,8 +65,8 @@ class ApiModel(db.Model):
         Args:
             source_key (str): The API query parameter.
             target_key (str): The equivalent model field.
-            **kwargs (dict): The keyword argument representation of query
-                parameters submitted by the API request.
+            kwargs (dict): The keyword argument representation of query
+            parameters submitted by the API request.
         """
         english = kwargs.pop(source_key)
         if english:
@@ -91,8 +91,8 @@ class ApiModel(db.Model):
             target_key (str): model 'id' field name.
             model (class): The corresponding SqlAlchemy model class.
             required (bool): True if target key should have an ID.
-            **kwargs (dict): The keyword argument representation of query
-                parameters submitted by the API request.
+            kwargs (dict): The keyword argument representation of query
+            parameters submitted by the API request.
 
         Raises:
             KeyError: If identification code for record was not supplied or did
@@ -120,7 +120,7 @@ class ApiModel(db.Model):
         """Convert any empty strings to None type.
 
         Args:
-            **kwargs: Keyword arguments.
+            kwargs (dict): Keyword arguments.
         """
         for key in kwargs:
             if kwargs[key] == '':
@@ -134,9 +134,9 @@ class ApiModel(db.Model):
             old_dict (dict): The original dictionary.
             prefix (str): Prefix to prepend.
             index (int): Optional index to append after the prefix. This is to
-                handle situations where a field has one or more sibling fields
-                that represent essentially the same variable,
-                e.g. "characteristic1", "characteristic2".
+            handle situations where a field has one or more sibling fields
+            that represent essentially the same variable,
+            e.g. "characteristic1", "characteristic2".
 
         Returns:
             dict: Namespace formatted dictionary.

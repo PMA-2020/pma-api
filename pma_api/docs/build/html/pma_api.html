@@ -1,0 +1,732 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pma_api package &mdash; PMA API 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PMA API
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="content/users/endpoints.html">Endpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Using the API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/developers/for_developers.html">Developer Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PMA API</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>pma_api package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/pma_api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pma-api-package">
+<h1>pma_api package<a class="headerlink" href="#pma-api-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pma_api.api_1_0.html">pma_api.api_1_0 package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.api_1_0.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.api_1_0.html#module-pma_api.api_1_0.caching">pma_api.api_1_0.caching module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.api_1_0.html#module-pma_api.api_1_0.collection">pma_api.api_1_0.collection module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.api_1_0.html#module-pma_api.api_1_0.datalab">pma_api.api_1_0.datalab module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.api_1_0.html#module-pma_api.api_1_0">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pma_api.models.html">pma_api.models package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models.api_base">pma_api.models.api_base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models.core">pma_api.models.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models.meta">pma_api.models.meta module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models.string">pma_api.models.string module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pma_api.app">
+<span id="pma-api-app-module"></span><h2>pma_api.app module<a class="headerlink" href="#module-pma_api.app" title="Permalink to this headline">¶</a></h2>
+<p>Custom subclass for the PMA API.</p>
+<dl class="class">
+<dt id="pma_api.app.PmaApiFlask">
+<em class="property">class </em><code class="descclassname">pma_api.app.</code><code class="descname">PmaApiFlask</code><span class="sig-paren">(</span><em>import_name</em>, <em>static_path=None</em>, <em>static_url_path=None</em>, <em>static_folder='static'</em>, <em>template_folder='templates'</em>, <em>instance_path=None</em>, <em>instance_relative_config=False</em>, <em>root_path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.app.PmaApiFlask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask.app.Flask</span></code></p>
+<p>A PMA API subclass of the Flask object.</p>
+<dl class="method">
+<dt id="pma_api.app.PmaApiFlask.make_response">
+<code class="descname">make_response</code><span class="sig-paren">(</span><em>rv</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.app.PmaApiFlask.make_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle custom responses.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.config">
+<span id="pma-api-config-module"></span><h2>pma_api.config module<a class="headerlink" href="#module-pma_api.config" title="Permalink to this headline">¶</a></h2>
+<p>Application configuration classes.</p>
+<dl class="class">
+<dt id="pma_api.config.Config">
+<em class="property">class </em><code class="descclassname">pma_api.config.</code><code class="descname">Config</code><a class="headerlink" href="#pma_api.config.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base configuration.</p>
+<dl class="attribute">
+<dt id="pma_api.config.Config.CSRF_ENABLED">
+<code class="descname">CSRF_ENABLED</code><em class="property"> = True</em><a class="headerlink" href="#pma_api.config.Config.CSRF_ENABLED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.Config.SQLALCHEMY_TRACK_MODIFICATIONS">
+<code class="descname">SQLALCHEMY_TRACK_MODIFICATIONS</code><em class="property"> = False</em><a class="headerlink" href="#pma_api.config.Config.SQLALCHEMY_TRACK_MODIFICATIONS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.Config.TESTING">
+<code class="descname">TESTING</code><em class="property"> = False</em><a class="headerlink" href="#pma_api.config.Config.TESTING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.Config.WTF_CSRF_ENABLED">
+<code class="descname">WTF_CSRF_ENABLED</code><em class="property"> = True</em><a class="headerlink" href="#pma_api.config.Config.WTF_CSRF_ENABLED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pma_api.config.DevelopmentConfig">
+<em class="property">class </em><code class="descclassname">pma_api.config.</code><code class="descname">DevelopmentConfig</code><a class="headerlink" href="#pma_api.config.DevelopmentConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pma_api.config.Config" title="pma_api.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.config.Config</span></code></a></p>
+<p>Development configuration.</p>
+<dl class="attribute">
+<dt id="pma_api.config.DevelopmentConfig.DEBUG">
+<code class="descname">DEBUG</code><em class="property"> = True</em><a class="headerlink" href="#pma_api.config.DevelopmentConfig.DEBUG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.DevelopmentConfig.SQLALCHEMY_DATABASE_URI">
+<code class="descname">SQLALCHEMY_DATABASE_URI</code><em class="property"> = 'postgresql+psycopg2://pmaapi:pmaapi&#64;localhost/pmaapi'</em><a class="headerlink" href="#pma_api.config.DevelopmentConfig.SQLALCHEMY_DATABASE_URI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.DevelopmentConfig.SQLALCHEMY_ECHO">
+<code class="descname">SQLALCHEMY_ECHO</code><em class="property"> = True</em><a class="headerlink" href="#pma_api.config.DevelopmentConfig.SQLALCHEMY_ECHO" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.DevelopmentConfig.SQLITE_URI">
+<code class="descname">SQLITE_URI</code><em class="property"> = 'sqlite:////Users/joeflack4/projects/pma-api/dev.db'</em><a class="headerlink" href="#pma_api.config.DevelopmentConfig.SQLITE_URI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pma_api.config.ProductionConfig">
+<em class="property">class </em><code class="descclassname">pma_api.config.</code><code class="descname">ProductionConfig</code><a class="headerlink" href="#pma_api.config.ProductionConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pma_api.config.Config" title="pma_api.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.config.Config</span></code></a></p>
+<p>Production configuration.</p>
+<dl class="attribute">
+<dt id="pma_api.config.ProductionConfig.SQLALCHEMY_DATABASE_URI">
+<code class="descname">SQLALCHEMY_DATABASE_URI</code><em class="property"> = 'postgresql+psycopg2://pmaapi:pmaapi&#64;localhost/pmaapi'</em><a class="headerlink" href="#pma_api.config.ProductionConfig.SQLALCHEMY_DATABASE_URI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pma_api.config.StagingConfig">
+<em class="property">class </em><code class="descclassname">pma_api.config.</code><code class="descname">StagingConfig</code><a class="headerlink" href="#pma_api.config.StagingConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pma_api.config.Config" title="pma_api.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.config.Config</span></code></a></p>
+<p>Production configuration.</p>
+<dl class="attribute">
+<dt id="pma_api.config.StagingConfig.SQLALCHEMY_DATABASE_URI">
+<code class="descname">SQLALCHEMY_DATABASE_URI</code><em class="property"> = 'postgresql+psycopg2://pmaapi:pmaapi&#64;localhost/pmaapi'</em><a class="headerlink" href="#pma_api.config.StagingConfig.SQLALCHEMY_DATABASE_URI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.queries">
+<span id="pma-api-queries-module"></span><h2>pma_api.queries module<a class="headerlink" href="#module-pma_api.queries" title="Permalink to this headline">¶</a></h2>
+<p>Queries.</p>
+<dl class="class">
+<dt id="pma_api.queries.DatalabData">
+<em class="property">class </em><code class="descclassname">pma_api.queries.</code><code class="descname">DatalabData</code><a class="headerlink" href="#pma_api.queries.DatalabData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>PmaData.</p>
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.all_joined">
+<em class="property">static </em><code class="descname">all_joined</code><span class="sig-paren">(</span><em>*select_args</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.all_joined" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab data joined.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.all_minimal">
+<em class="property">static </em><code class="descname">all_minimal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.all_minimal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all datalab data in the minimal style.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.api_list_to_sql_list">
+<em class="property">static </em><code class="descname">api_list_to_sql_list</code><span class="sig-paren">(</span><em>model</em>, <em>query_values</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.api_list_to_sql_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert generally query args to SQL.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>model (db.Model): A model object with a code attribute
+query_values (str): A list of codes joined by comma</dd>
+<dt>Results:</dt>
+<dd>The SQLAlchemy object that represents these OR’d together.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.queries.DatalabData.char1">
+<code class="descname">char1</code><em class="property"> = &lt;AliasedClass at 0x10ec36208; Characteristic&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.queries.DatalabData.char2">
+<code class="descname">char2</code><em class="property"> = &lt;AliasedClass at 0x10ec9d2b0; Characteristic&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.queries.DatalabData.char_grp1">
+<code class="descname">char_grp1</code><em class="property"> = &lt;AliasedClass at 0x10ecc7358; CharacteristicGroup&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char_grp1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.queries.DatalabData.char_grp2">
+<code class="descname">char_grp2</code><em class="property"> = &lt;AliasedClass at 0x10ecc7438; CharacteristicGroup&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char_grp2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.combos_all">
+<em class="property">static </em><code class="descname">combos_all</code><span class="sig-paren">(</span><em>survey_list</em>, <em>indicator</em>, <em>char_grp</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.combos_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get lists of all valid datalab selections.</p>
+<p>Based on a current selection in the datalab, this method returns lists
+of what should be clickable in each of the three selection areas of
+the datalab.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>survey_list (list of str): A list of survey codes. An empty list if not provided.
+indicator (str): An indicator code or None if not provided.
+char_grp(str): An characteristic group code or None if not provided.</dd>
+<dt>Returns:</dt>
+<dd>A dictionary with a survey list, an indicator list, and a
+characteristic group list.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.combos_char_grp">
+<em class="property">static </em><code class="descname">combos_char_grp</code><span class="sig-paren">(</span><em>char_grp_code</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.combos_char_grp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all valid combos of survey and indicator.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>char_grp_code (str): A characteristic group code</dd>
+<dt>Returns:</dt>
+<dd>A dictionary with two key names and list values.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.combos_indicator">
+<em class="property">static </em><code class="descname">combos_indicator</code><span class="sig-paren">(</span><em>indicator</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.combos_indicator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all valid combos of survey and characteristic group.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>indicator_code (str): An indicator code</dd>
+<dt>Returns:</dt>
+<dd>A dictionary with two key names and list values.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.combos_indicator_char_grp">
+<em class="property">static </em><code class="descname">combos_indicator_char_grp</code><span class="sig-paren">(</span><em>indicator_code</em>, <em>char_grp_code</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.combos_indicator_char_grp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all valid surveys from supplied arguments.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>indicator_code (str): An indicator code
+char_grp_code (str): A characteristic group code</dd>
+<dt>Returns:</dt>
+<dd>A list of surveys that have data for the supplied indicator and
+characteristic group</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.combos_survey_list">
+<em class="property">static </em><code class="descname">combos_survey_list</code><span class="sig-paren">(</span><em>survey_list</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.combos_survey_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all valid combos of indicator and characteristic groups.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>survey_list (str): A list of survey codes, comma separated</dd>
+<dt>Returns:</dt>
+<dd>An object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.data_to_series">
+<em class="property">static </em><code class="descname">data_to_series</code><span class="sig-paren">(</span><em>sorted_data</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.data_to_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a sorted list of data into series.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.data_to_time_series">
+<em class="property">static </em><code class="descname">data_to_time_series</code><span class="sig-paren">(</span><em>sorted_data</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.data_to_time_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a sorted list of data into time series.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.datalab_init">
+<em class="property">static </em><code class="descname">datalab_init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.datalab_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab Init.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.filter_minimal">
+<em class="property">static </em><code class="descname">filter_minimal</code><span class="sig-paren">(</span><em>survey_codes</em>, <em>indicator_code</em>, <em>char_grp_code</em>, <em>over_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.filter_minimal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get filtered Datalab data and return minimal columns.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>survey_codes (str): A list of survey codes joined together by a comma
+indicator_code (str): An indicator code
+char_grp_code (str): A characteristic group code</dd>
+</dl>
+<p>Filters the data based on the function arguments. The returned data
+are data value, the precision, the survey code, the indicator code,
+the characteristic group code, and the characteristic code.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>A list of simple python objects, one for each record found by
+applying the various filters.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.filter_readable">
+<em class="property">static </em><code class="descname">filter_readable</code><span class="sig-paren">(</span><em>survey_codes</em>, <em>indicator_code</em>, <em>char_grp_code</em>, <em>lang=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.filter_readable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get filtered Datalab data and return readable columns.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>survey_codes (str): A list of survey codes joined together by a comma
+indicator_code (str): An indicator code
+char_grp_code (str): A characteristic group code
+lang (str): The language, if specified.</dd>
+</dl>
+<p>Filters the data based on the function arguments.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>A list of simple python objects, one for each record found by
+applying the various filters.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.init_char_grp">
+<em class="property">static </em><code class="descname">init_char_grp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.init_char_grp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab init.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.init_chars">
+<em class="property">static </em><code class="descname">init_chars</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.init_chars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab init.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.init_indicators">
+<em class="property">static </em><code class="descname">init_indicators</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.init_indicators" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab init.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.init_languages">
+<em class="property">static </em><code class="descname">init_languages</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.init_languages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab init.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.init_strings">
+<em class="property">static </em><code class="descname">init_strings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.init_strings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab init.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.init_surveys">
+<em class="property">static </em><code class="descname">init_surveys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.init_surveys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab init.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.query_input">
+<em class="property">static </em><code class="descname">query_input</code><span class="sig-paren">(</span><em>survey</em>, <em>indicator</em>, <em>char_grp</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.query_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build up a dictionary of query input to return with API result.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>survey (str): A list of survey codes separated by a comma
+indicator (str): An indicator code
+char_grp (str): A characteristic group code</dd>
+<dt>Returns:</dt>
+<dd>A dictionary with lists of input data. Data is from datalab init.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.series_query">
+<em class="property">static </em><code class="descname">series_query</code><span class="sig-paren">(</span><em>survey_codes</em>, <em>indicator_code</em>, <em>char_grp_code</em>, <em>over_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.series_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the series based on supplied codes.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.queries.DatalabData.survey_list_to_sql">
+<em class="property">static </em><code class="descname">survey_list_to_sql</code><span class="sig-paren">(</span><em>survey_list</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.survey_list_to_sql" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn a list of surveys passed through URL to SQL.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>survey_list (str): A list of survey codes</dd>
+<dt>Returns:</dt>
+<dd>The SQLAlchemy object that represents these OR’d together.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.response">
+<span id="pma-api-response-module"></span><h2>pma_api.response module<a class="headerlink" href="#module-pma_api.response" title="Permalink to this headline">¶</a></h2>
+<p>Responses.</p>
+<dl class="class">
+<dt id="pma_api.response.ApiResult">
+<em class="property">class </em><code class="descclassname">pma_api.response.</code><code class="descname">ApiResult</code><span class="sig-paren">(</span><em>data</em>, <em>metadata=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.response.ApiResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A representation of a generic JSON API result.</p>
+<dl class="staticmethod">
+<dt id="pma_api.response.ApiResult.metadata">
+<em class="property">static </em><code class="descname">metadata</code><span class="sig-paren">(</span><em>extra_metadata=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.response.ApiResult.metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return metadata.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.response.ApiResult.to_response">
+<code class="descname">to_response</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.response.ApiResult.to_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a response from the data.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pma_api.response.QuerySetApiResult">
+<em class="property">class </em><code class="descclassname">pma_api.response.</code><code class="descname">QuerySetApiResult</code><span class="sig-paren">(</span><em>record_list</em>, <em>return_format</em>, <em>metadata=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.response.QuerySetApiResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pma_api.response.ApiResult" title="pma_api.response.ApiResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.response.ApiResult</span></code></a></p>
+<p>A representation of a list of records (Python dictionaries).</p>
+<dl class="staticmethod">
+<dt id="pma_api.response.QuerySetApiResult.csv_response">
+<em class="property">static </em><code class="descname">csv_response</code><span class="sig-paren">(</span><em>record_list</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.response.QuerySetApiResult.csv_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>CSV Response.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.response.QuerySetApiResult.json_response">
+<em class="property">static </em><code class="descname">json_response</code><span class="sig-paren">(</span><em>record_list</em>, <em>extra_metadata</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.response.QuerySetApiResult.json_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a list of records into a JSON response.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.response.QuerySetApiResult.to_response">
+<code class="descname">to_response</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.response.QuerySetApiResult.to_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the list of records into a response.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.utils">
+<span id="pma-api-utils-module"></span><h2>pma_api.utils module<a class="headerlink" href="#module-pma_api.utils" title="Permalink to this headline">¶</a></h2>
+<p>Assortment of utilities for application.</p>
+<dl class="function">
+<dt id="pma_api.utils.next64">
+<code class="descclassname">pma_api.utils.</code><code class="descname">next64</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.utils.next64" title="Permalink to this definition">¶</a></dt>
+<dd><p>Random string generator.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>str: Randomly generated string.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pma_api" title="Permalink to this headline">¶</a></h2>
+<p>Definition of application object.</p>
+<dl class="function">
+<dt id="pma_api.create_app">
+<code class="descclassname">pma_api.</code><code class="descname">create_app</code><span class="sig-paren">(</span><em>config_name='default'</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.create_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create configured Flask application.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>config_name (str): Name of the configuration to be used.</dd>
+<dt>Returns:</dt>
+<dd>Flask: Configured Flask application.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.documentation">
+<code class="descclassname">pma_api.</code><code class="descname">documentation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.documentation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Documentation.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>n/a</dd>
+<dt>Returns:</dt>
+<dd>redirect(): Redirects to official documentation.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.root_route">
+<code class="descclassname">pma_api.</code><code class="descname">root_route</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.root_route" title="Permalink to this definition">¶</a></dt>
+<dd><p>Root route.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>n/a</dd>
+<dt>Returns:</dt>
+<dd>func: get_resources() if ‘application/json’
+func: redirect() to docs if ‘text/html’</dd>
+<dt>Details:</dt>
+<dd>Redirects implicitly if MIME type does not explicitly match what is
+expected.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.show_version">
+<code class="descclassname">pma_api.</code><code class="descname">show_version</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.show_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show API version data.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>n/a</dd>
+<dt>Returns:</dt>
+<dd>String: Version number.</dd>
+<dt>Details:</dt>
+<dd>Displays API’s 2-part semantic version number. ALso displays versioning
+for datasets used.</dd>
+<dt>Example:</dt>
+<dd><div class="literal-block-wrapper first last docutils container" id="example-of-endpoint-version">
+<div class="code-block-caption"><span class="caption-text">GET /v1/version</span><a class="headerlink" href="#example-of-endpoint-version" title="Permalink to this code">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span> <span class="p">{</span>
+   <span class="nt">&quot;datasetMetadata&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span> <span class="s2">&quot;Fri, 13 Jul 2018 20:25:42 GMT&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;hash&quot;</span><span class="p">:</span> <span class="s2">&quot;339ce036bdee399d449f95a1d4b3bb8f&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;api_data-2018.03.19-v29-SAS&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;api&quot;</span>
+     <span class="p">},</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span> <span class="s2">&quot;Fri, 13 Jul 2018 20:25:43 GMT&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;hash&quot;</span><span class="p">:</span> <span class="s2">&quot;469542a93241da0af80269b6d7352600&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ui_data-2017.10.02-v4-jef&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;ui&quot;</span>
+     <span class="p">}</span>
+   <span class="p">],</span>
+   <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1.9&quot;</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, James Pringle, Joe Flack.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
