@@ -77,6 +77,9 @@ testdoc:
 serve:
 	${MANAGE} runserver
 
+serve-no-env:
+	python3 manage.py runserver
+
 serve-dev: serve
 
 serve-dev-network-accessible:
