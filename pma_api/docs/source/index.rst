@@ -47,13 +47,14 @@ API Details
 -----------
 .. include:: _templates/api_details.rst
 
-Database Diagram
-----------------
-.. image:: ./_static/apiClassDiagramV4.png
-    :width: 610px
-    :align: center
-    :height: 513px
-    :alt: Database diagram: https://raw.githubusercontent.com/joeflack4/pma-api/develop/pma_api/docs/source/_static/apiClassDiagramV4.png
+.. Currently disabled until up-to-date; Unindent below to uncomment
+    Database Diagram
+    ----------------
+    .. image:: ./_static/apiClassDiagramV4.png
+        :width: 610px
+        :align: center
+        :height: 513px
+        :alt: Database diagram: https://raw.githubusercontent.com/joeflack4/pma-api/develop/pma_api/docs/source/_static/apiClassDiagramV4.png
 
 Indices and tables
 ==================
