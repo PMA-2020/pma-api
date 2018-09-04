@@ -27,8 +27,9 @@ A Python virtual environment is a way to isolate applications and their dependen
 1. Install `virtualenv` globally: `python3 -m pip install virtualenv`
 2. Change directory to where `pma-api` was cloned: `cd PATH/pma-api`
 3. Create a virtual environment called `env`: `virtualenv env`
-
-**IMPORTANT**: If you do not create a virtual environment, makefile commands will not work. To get them to work without a virtual environment, in the makefile you would have to change `PYTHON=./env/bin/python3` to `PYTHON=python3`.
+4. Use the virtualenv every time you want to work on the project
+    4a. Activate the virtuale environment: `cd PATH/pma-api` && `source env/bin/activate`
+    4b. Deactivate when you're done. You can do this by closing the terminal session, or running: `deactivate`
 
 ### Install project dependencies
 - `python3 -m pip install -r requirements.txt`
@@ -41,7 +42,6 @@ This can be done via CLI or GUI tool, such as recommended previously.
 
 ## Running locally
 1. Run `pma-api` on a local server process via the following makefile command: `make serve`
-    - _If no virtual environment is set up, run `make serve-no-env` instead, or follow the stepped marked "IMPORTANT" under the "Virtual environment" setup step._
 2. Verify that it is running in the browser by going to: `http://localhost:5000/v1/resources`
 3. Navigate the API further by either (a) utilizing the URL links shown in the browser, or (b) looking at the available endpoints in the [pma-api documentation](https://www.github.com/PMA-2020/pma-api).
 4. Read the [pma-api documentation](https://www.github.com/PMA-2020/pma-api) for more information on use.
