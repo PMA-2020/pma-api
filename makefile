@@ -1,10 +1,9 @@
-PYTHON=./env/bin/python3
 SRC=./pma_api/
 TEST=./test/
 
-PYLINT=${PYTHON} -m pylint --output-format=colorized --reports=n
-PYCODESTYLE=${PYTHON} -m pycodestyle
-PYDOCSTYLE=${PYTHON} -m pydocstyle
+PYLINT=python3 -m pylint --output-format=colorized --reports=n
+PYCODESTYLE=python3 -m pycodestyle
+PYDOCSTYLE=python3 -m pydocstyle
 
 LINT_SRC=${PYLINT} ${SRC}
 LINT_TEST=${PYLINT} ${TEST}
@@ -15,8 +14,6 @@ CODE_TEST=${PYCODESTYLE} ${TEST}
 DOC_SRC=${PYDOCSTYLE} ${SRC}
 DOC_TEST=${PYDOCSTYLE} ${TEST}
 
-MANAGE=${PYTHON} manage.py
-
 .PHONY: lint linttest lintall pylint pylinttest pylintall code codetest \
 codeall doc doctest docall test testdoc serve shell db translations \
 production staging gunicorn tags ltags serve-dev serve-production \
@@ -24,7 +21,10 @@ serve-dev-network-accessible circleci-validate-config install-redis-osx \
 redis-osx-install start-redis redis-start build-docs open-docs create-docs \
 docs-create docs-build typical-sphinx-setup setup-docs docs-push push-docs \
 docs setup-docs-no-open build-docs-no-open docs-push-production \
-docs-push-staging serve-dev-network-accessible circleci-validate-config logs logs-staging
+docs-push-staging serve-dev-network-accessible circleci-validate-config logs \
+logs-staging virtualenv-make virtualenvwrapper-make virtualenv-activate \
+virtualenvwrapper-activate deactivate virtualenv-deactivate \
+virtualenvwrapper-deactivate
 
 # ALL LINTING
 lint:
@@ -67,17 +67,33 @@ docall: doc doctest
 
 # TESTING
 test:
-	${PYTHON} -m unittest discover -v
+	python3 -m unittest discover -v
 
 testdoc:
-	${PYTHON} -m test.test --doctests-only
+	python3 -m test.test --doctests-only
 
+
+# VIRTUAL ENVIRONMENTS
+virtualenv-make:
+	virtualenv env
+
+virtualenvwrapper-make:
+	mkvirtualenv pma-api
+
+virtualenv-activate:
+	source ./env/bin/activate
+
+virtualenvwrapper-activate:
+	workon pma-api
+
+deactivate:
+	deactivate
+
+virtualenv-deactivate: deactivate
+virtualenvwrapper-deactivate: deactivate
 
 # DB & SERVER MANAGEMENT
 serve:
-	${MANAGE} runserver
-
-serve-no-env:
 	python3 manage.py runserver
 
 serve-dev: serve
@@ -93,16 +109,16 @@ serve-production:
 	gunicorn run:app
 
 shell:
-	${MANAGE} shell
+	python3 manage.py shell
 
 db:
-	${MANAGE} initdb --overwrite
+	python3 manage.py initdb --overwrite
 
 db-production:
 	python3 manage.py initdb --overwrite
 
 translations:
-	${MANAGE} initdb --translations
+	python3 manage.py initdb --translations
 
 production:  # connects to server shell
 	heroku run bash --app pma-api
