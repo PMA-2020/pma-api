@@ -70,7 +70,7 @@ test:
 	python3 -m unittest discover -v
 
 testdoc:
-	python3 -m test.test --doctests-only
+	python3 -m test.test --doctests-on
 
 
 # VIRTUAL ENVIRONMENTS
