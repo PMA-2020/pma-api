@@ -21,7 +21,10 @@ serve-dev-network-accessible circleci-validate-config install-redis-osx \
 redis-osx-install start-redis redis-start build-docs open-docs create-docs \
 docs-create docs-build typical-sphinx-setup setup-docs docs-push push-docs \
 docs setup-docs-no-open build-docs-no-open docs-push-production \
-docs-push-staging serve-dev-network-accessible circleci-validate-config logs logs-staging
+docs-push-staging serve-dev-network-accessible circleci-validate-config logs \
+logs-staging virtualenv-make virtualenvwrapper-make virtualenv-activate \
+virtualenvwrapper-activate deactivate virtualenv-deactivate \
+virtualenvwrapper-deactivate
 
 # ALL LINTING
 lint:
@@ -67,8 +70,27 @@ test:
 	python3 -m unittest discover -v
 
 testdoc:
-	python3 -m test.test --doctests-only
+	python3 -m test.test --doctests-on
 
+
+# VIRTUAL ENVIRONMENTS
+virtualenv-make:
+	virtualenv env
+
+virtualenvwrapper-make:
+	mkvirtualenv pma-api
+
+virtualenv-activate:
+	source ./env/bin/activate
+
+virtualenvwrapper-activate:
+	workon pma-api
+
+deactivate:
+	deactivate
+
+virtualenv-deactivate: deactivate
+virtualenvwrapper-deactivate: deactivate
 
 # DB & SERVER MANAGEMENT
 serve:
