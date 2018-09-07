@@ -1,0 +1,16 @@
+.file-uploader .upload-origin {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.dropzone {
+    border: 2px dashed #0087F7;
+    border-radius: 5px;
+    background: white;
+    width: 300px;
+    padding: 30px;
+}
