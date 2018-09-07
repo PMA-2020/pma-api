@@ -1,11 +1,92 @@
+<!DOCTYPE html>
 <html>
-  <head>
+  <head lang="en">
+    <meta charset="UTF-8">
     <title>	PMA API Admin Portal </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/style.css"/>
+    <!-- styles -->
   </head>
-  
   <body>
-    PMA API Admin Portal
-  </body>	
-  
-
+      <div class="container">
+          <h1>PMA API Admin Portal</h1>
+          <p>Some description here...</p>
+          <form action="/file-upload" class="dropzone">
+            <div class="dz-message needsclick">
+              <label for="file-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="17" viewBox="0 0 20 17">
+                  <path d="M10 0l-5.2 4.9h3.3v5.1h3.8v-5.1h3.3l-5.2-4.9zm9.3 11.5l-3.2-2.1h-2l3.4 2.6h-3.5c-.1 0-.2.1-.2.1l-.8 2.3h-6l-.8-2.2c-.1-.1-.1-.2-.2-.2h-3.6l3.4-2.6h-2l-3.2 2.1c-.4.3-.7 1-.6 1.5l.6 3.1c.1.5.7.9 1.2.9h16.3c.6 0 1.1-.4 1.3-.9l.6-3.1c.1-.5-.2-1.2-.7-1.5z"></path>
+                </svg>
+                <span>Drop file here or click to upload</span>
+              </label>
+            </div>
+          </form>
+      </div>
+      <script
+          src="https://code.jquery.com/jquery-1.12.4.min.js"
+          integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+          crossorigin="anonymous"></script>
+      <script src="../static/dropzone.js"></script>
+      <script>
+          const json_response = [
+              {
+                "Upload date":"2018-12-03",
+                "Type":"Full",
+                "Name":"api_data-2018.12.03-v35-WA",
+                "Version":35,
+                "Active: Staging":true,
+                "Active: Production":false
+              },
+              {
+                "Upload date":"2018-10-15",
+                "Type":"Full",
+                "Name":"api_data-2018.10.15-v34-WA",
+                "Version":34,
+                "Active: Staging":false,
+                "Active: Production":true
+              },
+              {
+                "Upload date":"2018-09-18",
+                "Type":"Full",
+                "Name":"api_data-2018.09.18-v33-jkp",
+                "Version":33,
+                "Active: Staging":false,
+                "Active: Production":false
+              },
+              {
+                "Upload date":"2018-09-18",
+                "Type":"Full",
+                "Name":"api_data-2018.09.18-v32-BL",
+                "Version":32,
+                "Active: Staging":false,
+                "Active: Production":false
+              },
+              {
+                "Upload date":"2018-09-12",
+                "Type":"Full",
+                "Name":"api_data-2018.09.12-v31-SAS",
+                "Version":31,
+                "Active: Staging":false,
+                "Active: Production":false
+              },
+              {
+                "Upload date":"2018-09-05",
+                "Type":"Full",
+                "Name":"api_data-2018.09.05-v30-jef",
+                "Version":30,
+                "Active: Staging":false,
+                "Active: Production":false
+              },
+              {
+                "Upload date":"2018-03-19",
+                "Type":"Full",
+                "Name":"api_data-2018.03.19-v29-SAS",
+                "Version":29,
+                "Active: Staging":false,
+                "Active: Production":false
+              }
+          ];
+          
+      </script>
+  </body>
 </html>
