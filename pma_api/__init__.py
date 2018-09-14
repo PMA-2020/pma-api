@@ -1,7 +1,7 @@
 """Definition of application object."""
 import os
 
-from flask import Blueprint, jsonify, redirect, request
+from flask import Blueprint, jsonify, redirect, request,render_template
 from flask_cors import CORS
 
 from .app import PmaApiFlask
@@ -119,3 +119,30 @@ def create_app(config_name=os.getenv('FLASK_CONFIG', 'default')):
     app.register_blueprint(api_1_0_blueprint, url_prefix='/v1')
 
     return app
+
+
+@root.route('/admin')
+def admin_route():
+    """Route to admin portal for uploading and managing datasets.
+
+    .. :quickref: admin; Route to admin portal for uploading and managing
+    datasets.
+
+    Args: n/a
+
+    Query Args: n/a
+
+    Returns:
+        flask.render_template(): A rendered HTML template.
+
+    Examples: n/a
+
+    Details:
+        For more information on the features that will be added to this route,
+        take a look at: https://github.com/PMA-2020/pma-api/issues/32
+    """
+
+    # - Temporarily here just for reference -jef, 2018/09/04
+    # return QuerySetApiResult(json_obj, 'json', queryInput=query_input,
+    #                          chartOptions=chart_options)
+    return render_template('index.html')
