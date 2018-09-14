@@ -13,3 +13,4 @@ from .string import EnglishString, Translation
 from .core import (Characteristic, CharacteristicGroup, Country, Data,
                    Geography, Indicator, Survey)
 from .meta import Cache, SourceData
+from .dataset import Dataset

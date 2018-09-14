@@ -10,7 +10,7 @@ import xlrd
 from pma_api import create_app, db
 from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
                             Country, Data, EnglishString, Geography, Indicator,
-                            SourceData, Survey, Translation)
+                            SourceData, Survey, Translation, Dataset)
 import pma_api.api_1_0.caching as caching
 
 
@@ -53,7 +53,8 @@ TRANSLATION_MODEL_MAP = (
 
 
 def make_shell_context():
-    """Make shell context.
+    """Make shell context, for the ability to manipulate these models/tables
+    from the command line shell.
 
     Returns:
         dict: Context for application manager shell.
@@ -61,7 +62,8 @@ def make_shell_context():
     return dict(app=app, db=db, Country=Country, EnglishString=EnglishString,
                 Translation=Translation, Survey=Survey, Indicator=Indicator,
                 Data=Data, Characteristic=Characteristic, Cache=Cache,
-                CharacteristicGroup=CharacteristicGroup, SourceData=SourceData)
+                CharacteristicGroup=CharacteristicGroup, SourceData=SourceData,
+                Dataset=Dataset)
 
 
 def init_from_source(path, model):
