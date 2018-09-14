@@ -5,19 +5,14 @@ from . import db
 
 
 class Dataset(db.Model):
-    """"""
-
-
-'''
-url: string / varchar ~256
+    """url: string / varchar ~256
 datasetDisplayName: string / varchar ~256
 uploadDate: dateTime?, string / varchar ~256?
 versionNumber: string / varchar ~256, semvar? int?
 datasetType: string / varchar; factor var of ('data', 'metadata', 'dataAndMetadata')
 datasetSubType: string / varchar ~256?; domain of, ('CCRR', 'METADATA_CLASS', 'all'/'full')
 isActiveStaging: boolean
-isActiveProduction: boolean
-'''
+isActiveProduction: boolean"""
 
     __tablename__ = 'dataset'
     ID = db.Column(db.Integer, primary_key=True)
