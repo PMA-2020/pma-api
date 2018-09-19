@@ -68,7 +68,8 @@ docall: doc doctest
 # TESTING
 test:
 	python3 -m unittest discover -v
-
+test-dataset:
+	python -m test.test_dataset
 testdoc:
 	python3 -m test.test --doctests-only
 
@@ -140,7 +141,7 @@ production-push:
 	clear && \
 	git status && \
 	git branch
-	
+
 staging-push:
 	git status && \
 	printf "\nGit status should have reported 'nothing to commit, working \

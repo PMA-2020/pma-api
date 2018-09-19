@@ -11,6 +11,8 @@ from sqlalchemy.util.queue import Empty as EmptyError
 
 from manage import app
 
+from pma_api.models.dataset import Dataset
+
 
 class TestRoutes(unittest.TestCase):
     """Test routes."""
@@ -78,6 +80,23 @@ class TestRoutes(unittest.TestCase):
 #         """Test empty database."""
 #         resp = self.app.get('/')
 #         assert b'No entries here so far' in resp.data
+
+
+class TestDataset(unittest.TestCase):
+     """Test that the dataset class works.
+
+     To run this test directly, issue this command from the root directory:
+        python test/pma_test.py TestDataset.test_dataset
+     """
+
+     def test_dataset(self):
+        """Test that the dataset class works."""
+         # 1. ceate a new Dataset() object
+        dataset = Dataset(file_path ='')
+
+         # 2. write it to DB
+         # 3. check to make sure it is there (assert something)
+        self.assertTrue(False)
 
 
 if __name__ == '__main__':
