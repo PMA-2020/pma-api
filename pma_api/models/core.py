@@ -593,10 +593,20 @@ class Country(ApiModel):
     }
 
     def __init__(self, **kwargs):
+    # def __init__(self, label_id, order, ):
         """Initialize instance of model.
 
         Does a few things: (1) Updates instance based on mapping from API query
         parameter names to model field names, and (2) calls super init.
+
+        Example Usage:
+            new_country = Country(
+                label_id='Burkina Faso',
+                order='1',
+                subregion='West Africa',
+                region='Africa',
+                code='BF'
+            )
         """
         self.update_kwargs_english(kwargs, 'label', 'label_id')
         super(Country, self).__init__(**kwargs)
