@@ -72,24 +72,6 @@ test:
 testdoc:
 	python3 -m test.test --doctests-on
 
-# VIRTUAL ENVIRONMENTS
-virtualenv-make:
-	virtualenv env
-
-virtualenvwrapper-make:
-	mkvirtualenv pma-api
-
-virtualenv-activate:
-	source ./env/bin/activate
-
-virtualenvwrapper-activate:
-	workon pma-api
-
-deactivate:
-	deactivate
-
-virtualenv-deactivate: deactivate
-virtualenvwrapper-deactivate: deactivate
 
 # VIRTUAL ENVIRONMENTS
 virtualenv-make:

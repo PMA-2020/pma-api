@@ -10,8 +10,6 @@ from sqlalchemy.util.queue import Empty as EmptyError
 
 from manage import app
 
-from pma_api.models.dataset import Dataset
-
 
 class TestRoutes(unittest.TestCase):
     """Test routes."""
@@ -60,25 +58,8 @@ class TestRoutes(unittest.TestCase):
             raise Exception(message)
 
 
-class TestDataset(unittest.TestCase):
-     """Test that the dataset class works.
-
-     To run this test directly, issue this command from the root directory:
-        python test/pma_test.py TestDataset.test_dataset
-     """
-
-     def test_dataset(self):
-        """Test that the dataset class works."""
-         # 1. ceate a new Dataset() object
-        dataset = Dataset(file_path ='')
-
-         # 2. write it to DB
-         # 3. check to make sure it is there (assert something)
-        pass
-
-
 if __name__ == '__main__':
-    from test.utils.doctest_unittest_runner import doctest_unittest_runner
+    from test import doctest_unittest_runner
     TEST_DIR = os.path.dirname(os.path.realpath(__file__)) + '/'
     doctest_unittest_runner(test_dir=TEST_DIR, relative_path_to_root='../',
                             package_names=['pma_api', 'test'])
