@@ -1,18 +1,16 @@
+"""Dataset model."""
+import datetime
+# from hashlib import md5
 import os
-
-
-from datetime import datetime
-from hashlib import md5
-
-
 
 from . import db
 
 
 class Dataset(db.Model):
     """
-    datasetType: string / varchar; factor var of ('data', 'metadata', 'full')
-    datasetSubType: string / varchar ~256?; domain of, ('CCRR', 'METADATA_CLASS', 'all'/'full')
+    dataset_type: string / varchar; factor var of ('data', 'metadata', 'full')
+    datasetSubType: string / varchar ~256?; domain of,
+    ('CCRR', 'METADATA_CLASS', 'all'/'full')
 
     Example usage:
            new_dataset = Dataset(file_path)
@@ -20,40 +18,40 @@ class Dataset(db.Model):
     __tablename__ = 'dataset'
     ID = db.Column(db.Integer, primary_key=True)
     data = db.Column(db.LargeBinary)
-    datasetDisplayName = db.Column(db.String, nullable=False)
-    uploadDate = db.Column(db.String, nullable=False)
-    versionNumber = db.Column(db.String, nullable=False, unique=True)
-    datasetType = db.Column(db.String, nullable=False)
-    isActiveStaging = db.Column(db.Boolean, nullable=False)
-    isActiveProduction = db.Column(db.Boolean, nullable=False)
+    dataset_display_name = db.Column(db.String, nullable=False)
+    upload_date = db.Column(db.String, nullable=False)
+    version_number = db.Column(db.String, nullable=False, unique=True)
+    dataset_type = db.Column(db.String, nullable=False)
+    is_active_staging = db.Column(db.Boolean, nullable=False)
+    is_active_production = db.Column(db.Boolean, nullable=False)
 
     def __init__(self, file_path):
         """Initialize instance of dataset"""
-        data = open(file_path, 'r')
-        data2 = data.read()
+        # data_file = open(file_path, 'rb', encoding='utf-8')
+        data_file = open(file_path, 'rb')
+        data_file2 = data_file.read()
 
-        datasetDisplayName = os.path.basename(file_path)
-        naming = datasetDisplayName.split('-')
-        uploadDate = naming[1]
-        versionNumber = naming[2]
-        datasetType = 'full'
-        isActiveStaging = False
-        isActiveProduction = False
+        dataset_display_name = os.path.basename(file_path)
+        naming = dataset_display_name.split('-')
+        upload_date = datetime.date.today()
+        version_number = naming[2]
+        dataset_type = 'full'
+        is_active_staging = False
+        is_active_production = False
 
         super(Dataset, self).__init__(
-            data=data,
-            datasetDisplayName=datasetDisplayName,
-            uploadDate=uploadDate,
-            versionNumber=versionNumber,
-            datasetType=datasetType,
-            isActiveStaging=isActiveStaging,
-            isActiveProduction=isActiveProduction
+            data=data_file2,
+            dataset_display_name=dataset_display_name,
+            upload_date=upload_date,
+            version_number=version_number,
+            dataset_type=dataset_type,
+            is_active_staging=is_active_staging,
+            is_active_production=is_active_production
         )
 
-        data.close()
-
+        data_file.close()
 
     @classmethod
-    def get(cls, ID):
+    def get(cls, _id):
         """Return a record by ID."""
-        return cls.query.filter_by(ID=ID).first()
+        return cls.query.filter_by(ID=_id).first()
