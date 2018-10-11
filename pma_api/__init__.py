@@ -8,7 +8,7 @@ from .app import PmaApiFlask
 from .config import config
 from .models import db
 from .response import QuerySetApiResult
-
+from .models import Dataset
 
 root = Blueprint('root', __name__)
 
@@ -145,4 +145,13 @@ def admin_route():
     # - Temporarily here just for reference -jef, 2018/09/04
     # return QuerySetApiResult(json_obj, 'json', queryInput=query_input,
     #                          chartOptions=chart_options)
-    return render_template('index.html')
+  
+
+    # datasets = Dataset.query.all()
+    # print('test')
+
+    # from pdb import set_trace
+    # set_trace()
+
+    return render_template('index.html', datasets = Dataset.query.all())
+

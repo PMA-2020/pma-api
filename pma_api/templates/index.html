@@ -66,64 +66,24 @@
       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
       <script src="../static/dropzone.js"></script>
       <script>
+
+          console.log("{{datasets}}")
+
+
           const json_response = [
-              {
-                "Upload date":"2018-12-03",
-                "Type":"Full",
-                "Name":"api_data-2018.12.03-v35-WA",
-                "Version":35,
-                "Active: Staging":true,
-                "Active: Production":false
-              },
-              {
-                "Upload date":"2018-10-15",
-                "Type":"Full",
-                "Name":"api_data-2018.10.15-v34-WA",
-                "Version":34,
-                "Active: Staging":false,
-                "Active: Production":true
-              },
-              {
-                "Upload date":"2018-09-18",
-                "Type":"Full",
-                "Name":"api_data-2018.09.18-v33-jkp",
-                "Version":33,
-                "Active: Staging":false,
-                "Active: Production":false
-              },
-              {
-                "Upload date":"2018-09-18",
-                "Type":"Full",
-                "Name":"api_data-2018.09.18-v32-BL",
-                "Version":32,
-                "Active: Staging":false,
-                "Active: Production":false
-              },
-              {
-                "Upload date":"2018-09-12",
-                "Type":"Full",
-                "Name":"api_data-2018.09.12-v31-SAS",
-                "Version":31,
-                "Active: Staging":false,
-                "Active: Production":false
-              },
-              {
-                "Upload date":"2018-09-05",
-                "Type":"Full",
-                "Name":"api_data-2018.09.05-v30-jef",
-                "Version":30,
-                "Active: Staging":false,
-                "Active: Production":false
-              },
-              {
-                "Upload date":"2018-03-19",
-                "Type":"Full",
-                "Name":"api_data-2018.03.19-v29-SAS",
-                "Version":29,
-                "Active: Staging":false,
-                "Active: Production":false
-              }
+              
+                {% for dataset in datasets %}
+                  {
+                  "Upload date": "{{dataset.upload_date}}",
+                  "Type":"{{dataset.dataset_type}}",
+                  "Name":"{{dataset.dataset_display_name}}",
+                  "Version":"{{dataset.version_number}}",
+                  "Active: Staging":"{{dataset.is_active_staging}}",
+                  "Active: Production":"{{dataset.is_active_production}}"
+                  },
+                {% endfor %}
           ];
+
           $(function() {
             let tbody = '';
             json_response.forEach(element => {

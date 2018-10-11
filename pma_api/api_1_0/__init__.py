@@ -6,7 +6,7 @@ from pma_api import root_route
 api = Blueprint('api', __name__)
 
 # pylint: disable=wrong-import-position
-from . import collection, datalab, admin
+from . import collection, datalab
 
 
 @api.route('/')
