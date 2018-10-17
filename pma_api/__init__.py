@@ -3,12 +3,15 @@ import os
 
 from flask import Blueprint, jsonify, redirect, request,render_template
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 
 from .app import PmaApiFlask
 from .config import config
 from .models import db
 from .response import QuerySetApiResult
 from .models import Dataset
+
+from .config import basedir
 
 root = Blueprint('root', __name__)
 
@@ -121,13 +124,14 @@ def create_app(config_name=os.getenv('FLASK_CONFIG', 'default')):
     return app
 
 
-@root.route('/admin')
+@root.route('/admin', methods = ['GET', 'POST'])
 def admin_route():
     """Route to admin portal for uploading and managing datasets.
 
     .. :quickref: admin; Route to admin portal for uploading and managing
     datasets.
 
+    GET REQUESTS
     Args: n/a
 
     Query Args: n/a
@@ -136,6 +140,12 @@ def admin_route():
         flask.render_template(): A rendered HTML template.
 
     Examples: n/a
+
+    POST REQUESTS
+    Receives a file uploaded, which is of the type:
+    ImmutableMultiDict([('file', <FileStorage: 'FILENAME' ('FILETYPE')>)])
+
+ImmutableMultiDict([('file', <FileStorage: 'api_data-2018.03.19-v29-SAS.xlsx' ('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')>)])
 
     Details:
         For more information on the features that will be added to this route,
@@ -152,6 +162,28 @@ def admin_route():
 
     # from pdb import set_trace
     # set_trace()
+    if request.method == 'POST':
+        file = request.files['file']      
+        # Method 1 - we save as a file and create new Dataset object by passing path
+        filename = secure_filename(file.filename)
+        upload_folder = basedir + '/temp_uploads'
 
+        
+
+
+        file.save(os.path.join(upload_folder, filename))
+        # filename = secure_filename(file.filename)
+        # file.save('/Users/richardnguyen5/Desktop' + filename)
+        # file_path = 'I dont know yet'
+        # new_dataset = Dataset(file_path=file_path)
+
+        # Method 2 - Just create new Dataset object by passing the actual file
+        new_dataset = Dataset(file_path=os.path.join(upload_folder, filename))
+        # from pdb import set_trace; set_trace()
+
+        db.session.add(new_dataset)
+        db.session.commit()
+
+    # elif request.method == 'GET':
     return render_template('index.html', datasets = Dataset.query.all())
 

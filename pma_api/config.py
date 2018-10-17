@@ -11,6 +11,7 @@ class Config:
     CSRF_ENABLED = True
     WTF_CSRF_ENABLED = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
 
 
 class StagingConfig(Config):

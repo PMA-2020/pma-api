@@ -2,6 +2,7 @@
 import datetime
 # from hashlib import md5
 import os
+from werkzeug.utils import secure_filename
 
 from . import db
 
@@ -25,13 +26,14 @@ class Dataset(db.Model):
     is_active_staging = db.Column(db.Boolean, nullable=False)
     is_active_production = db.Column(db.Boolean, nullable=False)
 
-    def __init__(self, file_path):
+    def __init__(self, file_path=None):
         """Initialize instance of dataset"""
-        # data_file = open(file_path, 'rb', encoding='utf-8')
-        data_file = open(file_path, 'rb')
-        data_file2 = data_file.read()
-
+        data_file = open(file_path, 'rb').read()
+        # data_file = open(file_path, 'rb')
+        # data_file2 = data_file.read()
         dataset_display_name = os.path.basename(file_path)
+
+        
         naming = dataset_display_name.split('-')
         upload_date = datetime.date.today()
         version_number = naming[2]
@@ -40,7 +42,8 @@ class Dataset(db.Model):
         is_active_production = False
 
         super(Dataset, self).__init__(
-            data=data_file2,
+            # data=data_file2,
+            data=data_file,
             dataset_display_name=dataset_display_name,
             upload_date=upload_date,
             version_number=version_number,
