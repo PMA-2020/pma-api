@@ -1,8 +1,10 @@
 """Definition of application object."""
 import os
+from sys import stderr
 
-from flask import Blueprint, jsonify, redirect, request,render_template
+from flask import Blueprint, jsonify, redirect, request, render_template
 from flask_cors import CORS
+from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
 from .app import PmaApiFlask
@@ -124,14 +126,17 @@ def create_app(config_name=os.getenv('FLASK_CONFIG', 'default')):
     return app
 
 
-@root.route('/admin', methods = ['GET', 'POST'])
+@root.route('/admin', methods=['GET', 'POST'])
 def admin_route():
     """Route to admin portal for uploading and managing datasets.
 
     .. :quickref: admin; Route to admin portal for uploading and managing
     datasets.
 
-    GET REQUESTS
+    For more information on the features that will be added to this route,
+        take a look at: https://github.com/PMA-2020/pma-api/issues/32
+
+    # GET REQUESTS
     Args: n/a
 
     Query Args: n/a
@@ -141,49 +146,35 @@ def admin_route():
 
     Examples: n/a
 
-    POST REQUESTS
-    Receives a file uploaded, which is of the type:
+    # POST REQUESTS
+    1. Receives a file uploaded, which is of the type:
     ImmutableMultiDict([('file', <FileStorage: 'FILENAME' ('FILETYPE')>)])
 
-ImmutableMultiDict([('file', <FileStorage: 'api_data-2018.03.19-v29-SAS.xlsx' ('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')>)])
+    2. Dataset download
+    TODO
 
-    Details:
-        For more information on the features that will be added to this route,
-        take a look at: https://github.com/PMA-2020/pma-api/issues/32
+    # Excepts: IntegrityError when same file is uploaded more than once.
     """
-
-    # - Temporarily here just for reference -jef, 2018/09/04
-    # return QuerySetApiResult(json_obj, 'json', queryInput=query_input,
-    #                          chartOptions=chart_options)
-  
-
-    # datasets = Dataset.query.all()
-    # print('test')
-
-    # from pdb import set_trace
-    # set_trace()
     if request.method == 'POST':
-        file = request.files['file']      
-        # Method 1 - we save as a file and create new Dataset object by passing path
-        filename = secure_filename(file.filename)
-        upload_folder = basedir + '/temp_uploads'
+        # TODO @Joe: Implement logic to handle download datset -jef 2018/10/19
 
-        
+        try:
+            file = request.files['file']
+            filename = secure_filename(file.filename)
+            upload_folder = basedir + '/temp_uploads'
+            file_path = os.path.join(upload_folder, filename)
+            file.save(file_path)
 
+            new_dataset = Dataset(file_path)
+            db.session.add(new_dataset)
+            db.session.commit()
 
-        file.save(os.path.join(upload_folder, filename))
-        # filename = secure_filename(file.filename)
-        # file.save('/Users/richardnguyen5/Desktop' + filename)
-        # file_path = 'I dont know yet'
-        # new_dataset = Dataset(file_path=file_path)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        except IntegrityError as err:  # occurs when same file is uploaded 2x
+            print(err, file=stderr)
+            # TODO @Joe: For some reason, it's returning the stacktrace to the
+            # user. - jef 2018/10/19
 
-        # Method 2 - Just create new Dataset object by passing the actual file
-        new_dataset = Dataset(file_path=os.path.join(upload_folder, filename))
-        # from pdb import set_trace; set_trace()
-
-        db.session.add(new_dataset)
-        db.session.commit()
-
-    # elif request.method == 'GET':
-    return render_template('index.html', datasets = Dataset.query.all())
-
+    elif request.method == 'GET':
+        return render_template('index.html', datasets=Dataset.query.all())
