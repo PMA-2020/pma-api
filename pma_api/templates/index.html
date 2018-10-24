@@ -27,7 +27,7 @@
           <div class="alert alert-primary" role="alert">
               Notification
           </div>
-          <table class="table table-bordered">
+          <table class="table table-bordered" id="datasets-table">
             <thead>
               <tr>
                 <th></th>
@@ -44,7 +44,7 @@
           </table>
 
             <div class="button-bar">
-                <a id="download-link" href="/admin?download=PLACEHOLDER">
+                <a id="download-link"  href="#">
                   <button type="button" class="btn btn-outline-dark" id="download-button"><i class="fas fa-download"></i></button>
                 </a>
 
@@ -94,11 +94,11 @@
           $(function() {
             let tbody = '';
             json_response.forEach(element => {
-                tbody += '<tr>';
-                tbody += '<td><input type="checkbox"></td>';
+                tbody += '<tr id="' + element["Name"] + '">';
+                tbody += '<td class="dataset-row-checkbox"><input type="checkbox"></td>';
                 tbody += '<td>'+element["Upload date"]+'</td>';
                 tbody += '<td>'+element["Type"]+'</td>';
-                tbody += '<td>'+element["Name"]+'</td>';
+                tbody += '<td class="dataset-row-datasetName">'+element["Name"]+'</td>';
                 tbody += '<td>'+element["Version"]+'</td>';
                 tbody += '<td>'+(element["Active: Staging"]?'<i class="fas fa-check"></i>':'<i class="fas fa-times"></i>')+'</td>';
                 tbody += '<td>'+(element["Active: Production"]?'<i class="fas fa-check"></i>':'<i class="fas fa-times"></i>')+'</td>';
@@ -107,12 +107,36 @@
             $('tbody').html(tbody);
 
             // Add functionality to dataset download button
-            let btn = document.getElementById('download-button');
-            btn.addEventListener('click', downloadDataset);
-            function downloadDataset() {
-              document.getElementById('download-form').submit()
-            }
+            let btn = $("#download-button");
+            btn.bind('click', downloadDataset);
 
+            function downloadDataset() {
+              let selectedDatasetNames = [];
+
+              const datasetsTableElement = document.getElementById('datasets-table');
+              for (var i = 1, row; row = datasetsTableElement.rows[i]; i++) {
+                let isSelected = false;
+                for (var j = 0, cell; cell = row.children[j]; j++) {
+                  if (cell.className === 'dataset-row-checkbox')
+                    isSelected = cell.firstChild.checked;
+                }
+                for (var j = 0, cell; cell = row.children[j]; j++) {
+                  if (cell.className === 'dataset-row-datasetName' && isSelected)
+                    selectedDatasetNames.push(cell.innerHTML)
+                }
+              }
+
+              if (selectedDatasetNames.length === 0) {
+                alert('Please first select a dataset to be downloaded.')
+              } else if (selectedDatasetNames.length > 1) {
+                alert('Can only download one dataset at a time. Please make ' +
+                  'sure that only one checkbox in the datasets table is ' +
+                  'selected and try agian.')
+              } else {
+                const downloadLinkElement = $("#download-link");
+                downloadLinkElement.attr("href", "/admin?download=" + selectedDatasetNames[0]);
+              }
+            }
           });
       </script>
   </body>
