@@ -183,6 +183,8 @@ def initdb(overwrite=False):
     """
     with app.app_context():
         if overwrite:
+            # TODO @richard: Drop by name specifically; list all tables to drop
+            # don't drop the dataset table - jef 2018/10/19
             db.drop_all()
         db.create_all()
         if overwrite:
