@@ -43,16 +43,20 @@
             </tbody>
           </table>
 
-          <form action="/admin" id="download-form" method="post">
             <div class="button-bar">
-                <button type="button" class="btn btn-outline-dark" id="download-button"><i class="fas fa-download"></i></button>
+                <a id="download-link" href="/admin?download=PLACEHOLDER">
+                  <button type="button" class="btn btn-outline-dark" id="download-button"><i class="fas fa-download"></i></button>
+                </a>
 
                 <div class="right-buttons">
+                  <a id="apply-staging-link" href="/admin?apply-staging=PLACEHOLDER">
                     <button type="button" class="btn btn-outline-dark" id="apply-staging">Apply dataset to staging</button>
+                  </a>
+                  <a id="apply-production-link" href="/admin?apply-production=PLACEHOLDER">
                     <button type="button" class="btn btn-outline-dark" id="apply-production">Apply dataset to production</button>
+                  </a>
                 </div>
             </div>
-          </form>
 
           <hr/>
           <form class="form-manual-testing">

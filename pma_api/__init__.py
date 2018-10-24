@@ -156,8 +156,6 @@ def admin_route():
     # Excepts: IntegrityError when same file is uploaded more than once.
     """
     if request.method == 'POST':
-        # TODO @Joe: Implement logic to handle download datset -jef 2018/10/19
-
         try:
             file = request.files['file']
             filename = secure_filename(file.filename)
@@ -177,4 +175,20 @@ def admin_route():
             # user. - jef 2018/10/19
 
     elif request.method == 'GET':
-        return render_template('index.html', datasets=Dataset.query.all())
+        # request.args won't actually look like this; need to search for a
+        # key called "download", and the value should be a valid ID representin
+        # a row in the datasets table.
+        #
+        # also, the javascript still needs to be implemented to populate the
+        # url query parameter with any check(ed) dataset(s).
+        if request.args == "ImmutableMultiDict([('download', '?')])":
+            # TODO @Joe: Implement logic to handle download datset -jef
+            pass
+        elif request.args == "ImmutableMultiDict([('apply-staging', '?')])":
+            # TODO
+            pass
+        elif request.args == "ImmutableMultiDict([('apply-production', '?')])":
+            # TODO
+            pass
+        else:
+            return render_template('index.html', datasets=Dataset.query.all())
