@@ -1,5 +1,6 @@
 """Definition of application object."""
 import os
+from io import BytesIO
 from sys import stderr
 
 from flask import Blueprint, jsonify, redirect, request, render_template, \
@@ -151,9 +152,6 @@ def admin_route():
     1. Receives a file uploaded, which is of the type:
     ImmutableMultiDict([('file', <FileStorage: 'FILENAME' ('FILETYPE')>)])
 
-    2. Dataset download
-    TODO
-
     # Excepts: IntegrityError when same file is uploaded more than once.
     """
     if request.method == 'POST':
@@ -176,18 +174,15 @@ def admin_route():
             # user. - jef 2018/10/19
 
     elif request.method == 'GET':
-        # request.args won't actually look like this; need to search for a
-        # key called "download", and the value should be a valid ID representin
-        # a row in the datasets table.
-        #
-        # also, the javascript still needs to be implemented to populate the
-        # url query parameter with any check(ed) dataset(s).
         if request.args:
             args = request.args.to_dict()
             if 'download' in args:
-                file_obj = None
-                file = None
-                return send_file(file)
+                file_obj = Dataset.query.filter_by(
+                    dataset_display_name=args['download']).first()
+                return send_file(
+                    filename_or_fp=BytesIO(file_obj.data),
+                    attachment_filename=file_obj.dataset_display_name,
+                    as_attachment=True)
             elif 'apply-staging' in args:
                 # add status 'applying-to-staging'
                 # send notification that it is in progress
