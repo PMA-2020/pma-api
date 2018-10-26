@@ -1,5 +1,5 @@
+"""Metadata table."""
 import os
-from datetime import datetime
 from hashlib import md5
 
 from . import db

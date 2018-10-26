@@ -183,7 +183,7 @@ def admin_route():
                     filename_or_fp=BytesIO(file_obj.data),
                     attachment_filename=file_obj.dataset_display_name,
                     as_attachment=True)
-            elif 'apply-staging' in args:
+            elif 'applyStaging' in args:
                 # add status 'applying-to-staging'
                 # send notification that it is in progress
                 # start a job to apply
@@ -194,7 +194,7 @@ def admin_route():
                 # when finished, update the status
                 return render_template('index.html',
                                        datasets=Dataset.query.all())
-            elif 'apply-production' in args:
+            elif 'applyProduction' in args:
                 # same as above
                 return render_template('index.html',
                                        datasets=Dataset.query.all())

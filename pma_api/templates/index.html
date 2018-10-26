@@ -49,11 +49,11 @@
                 </a>
 
                 <div class="right-buttons">
-                  <a id="apply-staging-link" href="/admin?apply-staging=PLACEHOLDER">
-                    <button type="button" class="btn btn-outline-dark" id="apply-staging">Apply dataset to staging</button>
+                  <a id="apply-staging-link" href="#">
+                    <button type="button" class="btn btn-outline-dark" id="apply-staging-button">Apply dataset to staging</button>
                   </a>
-                  <a id="apply-production-link" href="/admin?apply-production=PLACEHOLDER">
-                    <button type="button" class="btn btn-outline-dark" id="apply-production">Apply dataset to production</button>
+                  <a id="apply-production-link" href="#">
+                    <button type="button" class="btn btn-outline-dark" id="apply-production-button">Apply dataset to production</button>
                   </a>
                 </div>
             </div>
@@ -108,11 +108,8 @@
             });
             $('tbody').html(tbody);
 
-            // Add functionality to dataset download button
-            let btn = $("#download-button");
-            btn.bind('click', downloadDataset);
-
-            function downloadDataset() {
+            // Functionality for dataset control buttons
+            function selectedDatasetName() {
               let selectedDatasetNames = [];
 
               const datasetsTableElement = document.getElementById('datasets-table');
@@ -124,21 +121,47 @@
                 }
                 for (var j = 0, cell; cell = row.children[j]; j++) {
                   if (cell.className === 'dataset-row-datasetName' && isSelected)
-                    selectedDatasetNames.push(cell.innerHTML)
+                    selectedDatasetNames.push(cell.innerHTML);
                 }
               }
 
               if (selectedDatasetNames.length === 0) {
-                alert('Please first select a dataset to be downloaded.')
+                alert('Please first select a dataset.');
+                return '';
               } else if (selectedDatasetNames.length > 1) {
-                alert('Can only download one dataset at a time. Please make ' +
+                alert('More than one dataset selected. Please make ' +
                   'sure that only one checkbox in the datasets table is ' +
-                  'selected and try agian.')
+                  'selected and try agian.');
+                return '';
               } else {
-                const downloadLinkElement = $("#download-link");
-                downloadLinkElement.attr("href", "/admin?download=" + selectedDatasetNames[0]);
+                return selectedDatasetNames[0];
               }
             }
+
+            // Add functionality to dataset download button
+            $("#download-button").bind('click', downloadDataset);
+            function downloadDataset() {
+              let name = selectedDatasetName();
+              if (name != '')
+                $("#download-link").attr("href", "/admin?download=" + name);
+            }
+
+            // Add functionality to apply-staging button
+            $("#apply-staging-button").bind('click', applyStaging);
+            function applyStaging() {
+              let name = selectedDatasetName();
+              if (name != '')
+                $("#apply-staging-link").attr("href", "/admin?applyStaging=" + name);
+            }
+
+            // Add functionality to apply-production button
+            $("#apply-production-button").bind('click', applyProduction);
+            function applyProduction() {
+              let name = selectedDatasetName();
+              if (name != '')
+                $("#apply-production-link").attr("href", "/admin?applyProduction=" + name);
+            }
+
           });
       </script>
   </body>
