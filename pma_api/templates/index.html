@@ -113,6 +113,7 @@
             function downloadDataset() {
               let selectedDatasetNames = [];
 
+
               const datasetsTableElement = document.getElementById('datasets-table');
               for (var i = 1, row; row = datasetsTableElement.rows[i]; i++) {
                 let isSelected = false;
@@ -137,9 +138,6 @@
                 downloadLinkElement.attr("href", "/admin?download=" + selectedDatasetNames[0]);
               }
             }
-
-
-
 
           });
       </script>

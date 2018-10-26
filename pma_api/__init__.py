@@ -2,7 +2,8 @@
 import os
 from sys import stderr
 
-from flask import Blueprint, jsonify, redirect, request, render_template
+from flask import Blueprint, jsonify, redirect, request, render_template, \
+    send_file
 from flask_cors import CORS
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
@@ -181,14 +182,26 @@ def admin_route():
         #
         # also, the javascript still needs to be implemented to populate the
         # url query parameter with any check(ed) dataset(s).
-        if request.args == "ImmutableMultiDict([('download', '?')])":
-            # TODO @Joe: Implement logic to handle download datset -jef
-            pass
-        elif request.args == "ImmutableMultiDict([('apply-staging', '?')])":
-            # TODO
-            pass
-        elif request.args == "ImmutableMultiDict([('apply-production', '?')])":
-            # TODO
-            pass
+        if request.args:
+            args = request.args.to_dict()
+            if 'download' in args:
+                file_obj = None
+                file = None
+                return send_file(file)
+            elif 'apply-staging' in args:
+                # add status 'applying-to-staging'
+                # send notification that it is in progress
+                # start a job to apply
+                # - get url from env
+                # - implement the logic to 'apply-local' first without a button
+                # perhaps an 'upload' route
+                # check back every now and then
+                # when finished, update the status
+                return render_template('index.html',
+                                       datasets=Dataset.query.all())
+            elif 'apply-production' in args:
+                # same as above
+                return render_template('index.html',
+                                       datasets=Dataset.query.all())
         else:
             return render_template('index.html', datasets=Dataset.query.all())
