@@ -181,12 +181,41 @@ def initdb(overwrite=False):
     Args:
         overwrite (bool): Overwrite database if True, else update.
     """
+    #all_but_dataset = (Cache, Characteristic, CharacteristicGroup, Country, Data, EnglishString, Geography, Indicator, SourceData, Survey, Translation)
+
     with app.app_context():
         if overwrite:
             # TODO @richard: Drop by name specifically; list all tables to drop
             # don't drop the dataset table - jef 2018/10/19
-            db.drop_all()
-        db.create_all()
+            #db.drop_all()
+
+            db.metadata.drop_all(db.engine, tables=[
+                EnglishString.__table__,
+                Data.__table__,
+                Translation.__table__,
+                Indicator.__table__,
+                Characteristic.__table__,
+                CharacteristicGroup.__table__,
+                Survey.__table__,
+                Country.__table__,
+                Geography.__table__,
+                Cache.__table__
+                ])
+
+        #db.create_all()
+        db.metadata.create_all(db.engine, tables=[
+            EnglishString.__table__,
+            Data.__table__,
+            Translation.__table__,
+            Indicator.__table__,
+            Characteristic.__table__,
+            CharacteristicGroup.__table__,
+            Survey.__table__,
+            Country.__table__,
+            Geography.__table__,
+            Cache.__table__
+            ])
+
         if overwrite:
             init_from_workbook(wb=API_DATA, queue=ORDERED_MODEL_MAP)
             init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)

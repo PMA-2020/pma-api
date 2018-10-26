@@ -170,8 +170,10 @@ def admin_route():
                 os.remove(file_path)
         except IntegrityError as err:  # occurs when same file is uploaded 2x
             print(err, file=stderr)
+            # flash(err)
             # TODO @Joe: For some reason, it's returning the stacktrace to the
             # user. - jef 2018/10/19
+        render_template('index.html', datasets=Dataset.query.all())
 
     elif request.method == 'GET':
         if request.args:
