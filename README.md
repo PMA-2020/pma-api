@@ -32,20 +32,21 @@ A Python virtual environment is a way to isolate applications and their dependen
 - `python3 -m pip install -r requirements.txt`
 
 ### 5. Create the database
-1. Set up PostgreSQL DB
+#### 5.1. Set up PostgreSQL DB
 You can use a command line interface (e.g. _psql_) or graphical user interface (e.g. PgAadmin4) to set up the DB.
-- i. Create database a called 'pma-api'. `CREATE DATABASE pma-api;`
-- ii. Create a user called 'pma-api'. `CREATE USER pma-api;`
-- iii. Set a password for this user, by default 'pma-api'. You can change this later. `ALTER USER pma-api WITH PASSWORD 'pma-api';`
-- iv. Make user 'pma-api' a super user for DB 'pma-api'. `GRANT ALL PRIVILEGES ON DATABASE pma-api TO pma-api;`
-2. Environmental variables
-a. _Virtualenv_ setups: After installing the virtual environment, you should have a folder called `env`. Open up `env/bin/activate` in a text editor. Add the following text to the bottom of the file.
+i. Create database a called 'pma-api'. `CREATE DATABASE pma-api;`
+ii. Create a user called 'pma-api'. `CREATE USER pma-api;`
+iii. Set a password for this user, by default 'pma-api'. You can change this later. `ALTER USER pma-api WITH PASSWORD 'pma-api';`
+iv. Make user 'pma-api' a super user for DB 'pma-api'. `GRANT ALL PRIVILEGES ON DATABASE pma-api TO pma-api;`
+
+#### 5.2. Environmental variables
+a. **_Virtualenv_ setups:** After installing the virtual environment, you should have a folder called `env`. Open up `env/bin/activate` in a text editor. Add the following text to the bottom of the file.
 ```bash
 export APP_SETTINGS="development"
 export FLASK_APP="development"
 export DATABASE_URL="postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi"
 ```
-b. _Virtualenvwrapper_ setups: Add the following to your postactivate script. This is found in the root directory of wherever you installed virtualenvwrapper. Also, the text below assumes that you named your virtual environment "pma-api". If you are using virtualenvwrapper and named it something else, replace the text "pma-api" with whatever you named your environment.
+b. **_Virtualenvwrapper_ setups:** Add the following to your postactivate script. This is found in the root directory of wherever you installed virtualenvwrapper. Also, the text below assumes that you named your virtual environment "pma-api". If you are using virtualenvwrapper and named it something else, replace the text "pma-api" with whatever you named your environment.
 ```bash
 elif [ "$VIRTUAL_ENV" = "path/to/virtualenvs/pma-api" ]; then
 	export APP_SETTINGS="development"
@@ -53,21 +54,24 @@ elif [ "$VIRTUAL_ENV" = "path/to/virtualenvs/pma-api" ]; then
 	export DATABASE_URL="postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi"
 fi
 ```
-3. Seed data into DB `makefile` command: `make db`
-_This will execute a script that populates a database using data taken from the `data` directory._
-4. Examine database to verify that all looks well. _(optional)_
-This can be done via CLI or GUI tool, such as recommended previously.
+
+#### 5.3. Seed data into DB `makefile` command: `make db`
+Seed data into DB `makefile` command: `make db`. If you are on a Windows system or another system that cannot run makefiles, you can open up the makefile in a text editor and use it as a reference to run common commands. In the case of "`make db`", the equivalent command will be: `python3 manage.py initdb --overwrite`. This will execute a script that populates a database using data taken from the `data` directory.
+
+After running the command to seed data into DB, check the terminal to see if it was a success. If you do not see any error messages and one of the last lines says "COMMIT", this means the process was probably successful. 
 
 ## 6. Running locally
-1. Run `pma-api` on a local server process via the following makefile command: `make serve`
-    - _If no virtual environment is set up, run `make serve-no-env` instead, or follow the stepped marked "IMPORTANT" under the "Virtual environment" setup step._
+1. Run `pma-api` on a local server process via the following makefile command: `make serve`. The equivalent command is: `python3 manage.py runserver`.
 2. Verify that it is running in the browser by going to: `http://localhost:5000/v1/resources`
-3. Navigate the API further by either (a) utilizing the URL links shown in the browser, or (b) looking at the available endpoints in the [pma-api documentation](https://www.github.com/PMA-2020/pma-api).
-4. Read the [pma-api documentation](https://www.github.com/PMA-2020/pma-api) for more information on use.
+
+## Getting to know the API
+You can:
+i. Navigate the API further by either (a) utilizing the URL links shown in the browser, or (b) looking at the available endpoints in the [pma-api documentation](https://api.pma2020.org).
+ii. Read the [pma-api documentation](https://api.pma2020.org) for more information on use.
 
 ## Server management
 ### Pushing to staging
-`make push-staging`
+Run: `make push-staging`
 
 ### Pushing to production
-`make push-production`
+Run: `make push-production`
