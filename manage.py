@@ -11,7 +11,7 @@ from sqlalchemy.exc import DatabaseError
 from pma_api import create_app, db
 from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
                             Country, Data, EnglishString, Geography, Indicator,
-                            SourceData, Survey, Translation, Dataset)
+                            ApiMetadata, Survey, Translation, Dataset)
 import pma_api.api_1_0.caching as caching
 
 
@@ -63,8 +63,8 @@ def make_shell_context():
     return dict(app=app, db=db, Country=Country, EnglishString=EnglishString,
                 Translation=Translation, Survey=Survey, Indicator=Indicator,
                 Data=Data, Characteristic=Characteristic, Cache=Cache,
-                CharacteristicGroup=CharacteristicGroup, SourceData=SourceData,
-                Dataset=Dataset)
+                CharacteristicGroup=CharacteristicGroup,
+                ApiMetadata=ApiMetadata, Dataset=Dataset)
 
 
 def init_from_source(path, model):
@@ -173,7 +173,7 @@ def create_wb_metadata(wb_path):
     Args:
         wb_path (str) Path to Excel Workbook.
     """
-    record = SourceData(wb_path)
+    record = ApiMetadata(wb_path)
     db.session.add(record)
     db.session.commit()
 
@@ -186,16 +186,12 @@ def initdb(overwrite=False):
         overwrite (bool): Overwrite database if True, else update.
     """
     # all_but_dataset = (Cache, Characteristic, CharacteristicGroup, Country,
-    # Data, EnglishString, Geography, Indicator, SourceData, Survey,
+    # Data, EnglishString, Geography, Indicator, ApiMetadata, Survey,
     # Translation)
 
     with app.app_context():
-        if overwrite:
-            # TODO @richard: Drop by name specifically; list all tables to drop
-            # don't drop the dataset table - jef 2018/10/19
-            # db.drop_all()
-
-            db.metadata.drop_all(db.engine, tables=[
+        # Delete tables
+        non_persistent_tables = [
                 EnglishString.__table__,
                 Data.__table__,
                 Translation.__table__,
@@ -205,35 +201,29 @@ def initdb(overwrite=False):
                 Survey.__table__,
                 Country.__table__,
                 Geography.__table__,
-                Cache.__table__
-                ])
-
-        # db.create_all()
-        db.metadata.create_all(db.engine, tables=[
-            EnglishString.__table__,
-            Data.__table__,
-            Translation.__table__,
-            Indicator.__table__,
-            Characteristic.__table__,
-            CharacteristicGroup.__table__,
-            Survey.__table__,
-            Country.__table__,
-            Geography.__table__,
-            Cache.__table__
-            ])
-
+                Cache.__table__,
+                ApiMetadata.__table__]
         if overwrite:
-            # TODO: init_from_datasets_table if exists?
+            db.metadata.drop_all(db.engine, tables=non_persistent_tables)
+
+        # Create tables
+        stored_datasets = []
+        dataset_table_exists = True
+        try:
+            stored_datasets = Dataset.query.all()
+        except DatabaseError:
+            dataset_table_exists = False
+        if not stored_datasets:
+            dataset_table_exists = False
+        db.create_all()
+
+        # Seed database
+        if overwrite:
+            # TODO: init_from_datasets_table if exists instead?
             init_from_workbook(wb=API_DATA, queue=ORDERED_MODEL_MAP)
             init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
             caching.cache_datalab_init(app)
-
-        # If Dataset table does not exist, create and seed it.
-        try:
-            Dataset.query.all()
-        except DatabaseError:
-            db.metadata.create_all(db.engine, tables=[Dataset.__table__])
-            db.session.commit()
+        if not dataset_table_exists:
             new_dataset = Dataset(file_path=API_DATA)
             db.session.add(new_dataset)
             db.session.commit()
@@ -244,7 +234,7 @@ def translations():
     """Import all translations into the database."""
     with app.app_context():
         # TODO (jkp 2017-09-28) make this ONE transaction instead of many.
-        db.session.query(SourceData).delete()
+        db.session.query(ApiMetadata).delete()
         db.session.query(Translation).delete()
         db.session.commit()
         init_from_workbook(wb=API_DATA, queue=TRANSLATION_MODEL_MAP)

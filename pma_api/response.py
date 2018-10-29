@@ -35,11 +35,11 @@ class ApiResult:
     @staticmethod
     def metadata(extra_metadata=None):
         """Return metadata."""
-        from .models import SourceData
+        from .models import ApiMetadata
         obj = {
             'version': __version__,
             'datasetMetadata': [item.to_json() for item in
-                                SourceData.query.all()]
+                                ApiMetadata.query.all()]
         }
         if extra_metadata:
             obj.update(extra_metadata)

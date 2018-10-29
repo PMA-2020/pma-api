@@ -5,10 +5,10 @@ from hashlib import md5
 from . import db
 
 
-class SourceData(db.Model):
+class ApiMetadata(db.Model):
     """Metadata."""
 
-    __tablename__ = 'metadata'
+    __tablename__ = 'api_metadata'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String)
     type = db.Column(db.String, index=True)

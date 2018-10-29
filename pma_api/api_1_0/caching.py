@@ -2,7 +2,7 @@
 from flask import url_for
 
 from .. import db
-from ..models import Cache, SourceData
+from ..models import Cache, ApiMetadata
 
 
 KEY_DATALAB_INIT = 'v1/datalab/init'
@@ -17,7 +17,7 @@ def cache_datalab_init(app):
     Args:
         app (Flask): The Flask app. There must be a current app context.
     """
-    source_data_md5 = SourceData.get_current_api_data().md5_checksum
+    source_data_md5 = ApiMetadata.get_current_api_data().md5_checksum
     current_cache = Cache.get(KEY_DATALAB_INIT)
     if not current_cache or current_cache.source_data_md5 != source_data_md5:
         url = url_for('api.get_datalab_init')
