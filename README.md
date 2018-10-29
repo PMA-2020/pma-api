@@ -34,10 +34,10 @@ A Python virtual environment is a way to isolate applications and their dependen
 ### 5. Create the database
 #### 5.1. Set up PostgreSQL DB
 You can use a command line interface (e.g. _psql_) or graphical user interface (e.g. PgAadmin4) to set up the DB.
-i. Create database a called 'pma-api'. `CREATE DATABASE pma-api;`
-ii. Create a user called 'pma-api'. `CREATE USER pma-api;`
-iii. Set a password for this user, by default 'pma-api'. You can change this later. `ALTER USER pma-api WITH PASSWORD 'pma-api';`
-iv. Make user 'pma-api' a super user for DB 'pma-api'. `GRANT ALL PRIVILEGES ON DATABASE pma-api TO pma-api;`
+i. Create database a called 'pma-api'. `CREATE DATABASE pma-api;`  
+ii. Create a user called 'pma-api'. `CREATE USER pma-api;`  
+iii. Set a password for this user, by default 'pma-api'. You can change this later. `ALTER USER pma-api WITH PASSWORD 'pma-api';`  
+iv. Make user 'pma-api' a super user for DB 'pma-api'. `GRANT ALL PRIVILEGES ON DATABASE pma-api TO pma-api;`  
 
 #### 5.2. Environmental variables
 a. **_Virtualenv_ setups:** After installing the virtual environment, you should have a folder called `env`. Open up `env/bin/activate` in a text editor. Add the following text to the bottom of the file.
