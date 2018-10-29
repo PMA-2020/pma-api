@@ -21,23 +21,41 @@ Extensive user documentation is available at either of the following sites:
 1. Change directory to `PATH` where you want to clone: `cd PATH`
 2. Clone: `git clone https://github.com/PMA-2020/pma-api.git`
 
-### 3. Virtual environment _(optional, but recommended)_
+### 3. Virtual environment
 A Python virtual environment is a way to isolate applications and their dependencies from one another in order to avoid conflicts. We recommend that you install virtualenv. [The virtualenv documentation](https://virtualenv.pypa.io/en/stable/) has installation steps as well as more information about the usefulness of virtual environments. Here's a summary of the installation steps:
 
 1. Install `virtualenv` globally: `python3 -m pip install virtualenv`
 2. Change directory to where `pma-api` was cloned: `cd PATH/pma-api`
 3. Create a virtual environment called `env`: `virtualenv env`
 
-**IMPORTANT**: If you do not create a virtual environment, makefile commands will not work. To get them to work without a virtual environment, in the makefile you would have to change `PYTHON=./env/bin/python3` to `PYTHON=python3`.
-
 ### 4. Install project dependencies
 - `python3 -m pip install -r requirements.txt`
 
 ### 5. Create the database
-1. Set up postgres DB
-2. Seed data into DB `makefile` command: `make db`
+1. Set up PostgreSQL DB
+You can use a command line interface (e.g. _psql_) or graphical user interface (e.g. PgAadmin4) to set up the DB.
+- i. Create database a called 'pma-api'. `CREATE DATABASE pma-api;`
+- ii. Create a user called 'pma-api'. `CREATE USER pma-api;`
+- iii. Set a password for this user, by default 'pma-api'. You can change this later. `ALTER USER pma-api WITH PASSWORD 'pma-api';`
+- iv. Make user 'pma-api' a super user for DB 'pma-api'. `GRANT ALL PRIVILEGES ON DATABASE pma-api TO pma-api;`
+2. Environmental variables
+a. _Virtualenv_ setups: After installing the virtual environment, you should have a folder called `env`. Open up `env/bin/activate` in a text editor. Add the following text to the bottom of the file.
+```bash
+export APP_SETTINGS="development"
+export FLASK_APP="development"
+export DATABASE_URL="postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi"
+```
+b. _Virtualenvwrapper_ setups: Add the following to your postactivate script. This is found in the root directory of wherever you installed virtualenvwrapper. Also, the text below assumes that you named your virtual environment "pma-api". If you are using virtualenvwrapper and named it something else, replace the text "pma-api" with whatever you named your environment.
+```bash
+elif [ "$VIRTUAL_ENV" = "path/to/virtualenvs/pma-api" ]; then
+	export APP_SETTINGS="development"
+	export FLASK_APP="development"
+	export DATABASE_URL="postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi"
+fi
+```
+3. Seed data into DB `makefile` command: `make db`
 _This will execute a script that populates a database using data taken from the `data` directory._
-3. Examine database to verify that all looks well. _(optional)_
+4. Examine database to verify that all looks well. _(optional)_
 This can be done via CLI or GUI tool, such as recommended previously.
 
 ## 6. Running locally
