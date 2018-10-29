@@ -27,14 +27,8 @@ class Dataset(db.Model):
 
     def __init__(self, file_path):
         """Initialize instance of dataset"""
-
-
-
         data_file = open(file_path, 'rb').read()
-
         dataset_display_name = os.path.basename(file_path)
-        
-
         naming = dataset_display_name.split('-')
         upload_date = datetime.date.today()
         version_number = naming[2]
@@ -49,11 +43,7 @@ class Dataset(db.Model):
             version_number=version_number,
             dataset_type=dataset_type,
             is_active_staging=is_active_staging,
-            is_active_production=is_active_production
-        )
-
-
-        #data_file.close()
+            is_active_production=is_active_production)
 
     @classmethod
     def get(cls, _id):

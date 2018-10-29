@@ -6,6 +6,7 @@ import os
 
 from flask_script import Manager, Shell
 import xlrd
+from sqlalchemy.exc import DatabaseError
 
 from pma_api import create_app, db
 from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
@@ -111,6 +112,7 @@ def init_from_sheet(ws, model, **kwargs):
         ws (xlrd.sheet.Sheet): XLRD worksheet object.
         model (class): SqlAlchemy model class.
     """
+    survey, indicator, characteristic = '', '', ''
     if model == Data:
         survey = kwargs['survey']
         indicator = kwargs['indicator']
@@ -137,8 +139,10 @@ def init_from_sheet(ws, model, **kwargs):
                 row_dict['char2_id'] = char2_id
             try:
                 record = model(**row_dict)
-            except:
-                msg = 'Error when processing row {} of "{}". Cell values: {}'
+            except DatabaseError as err:
+                msg = 'Error when processing row {} of "{}". ' \
+                      'Cell values: {}\n\n' \
+                      'Original Error:\n' + str(err)
                 msg = msg.format(i+1, ws.name, row)
                 logging.error(msg)
                 raise
@@ -181,13 +185,15 @@ def initdb(overwrite=False):
     Args:
         overwrite (bool): Overwrite database if True, else update.
     """
-    #all_but_dataset = (Cache, Characteristic, CharacteristicGroup, Country, Data, EnglishString, Geography, Indicator, SourceData, Survey, Translation)
+    # all_but_dataset = (Cache, Characteristic, CharacteristicGroup, Country,
+    # Data, EnglishString, Geography, Indicator, SourceData, Survey,
+    # Translation)
 
     with app.app_context():
         if overwrite:
             # TODO @richard: Drop by name specifically; list all tables to drop
             # don't drop the dataset table - jef 2018/10/19
-            #db.drop_all()
+            # db.drop_all()
 
             db.metadata.drop_all(db.engine, tables=[
                 EnglishString.__table__,
@@ -202,7 +208,7 @@ def initdb(overwrite=False):
                 Cache.__table__
                 ])
 
-        #db.create_all()
+        # db.create_all()
         db.metadata.create_all(db.engine, tables=[
             EnglishString.__table__,
             Data.__table__,
@@ -217,9 +223,20 @@ def initdb(overwrite=False):
             ])
 
         if overwrite:
+            # TODO: init_from_datasets_table if exists?
             init_from_workbook(wb=API_DATA, queue=ORDERED_MODEL_MAP)
             init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
             caching.cache_datalab_init(app)
+
+        # If Dataset table does not exist, create and seed it.
+        try:
+            Dataset.query.all()
+        except DatabaseError:
+            db.metadata.create_all(db.engine, tables=[Dataset.__table__])
+            db.session.commit()
+            new_dataset = Dataset(file_path=API_DATA)
+            db.session.add(new_dataset)
+            db.session.commit()
 
 
 @manager.command
