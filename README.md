@@ -15,7 +15,7 @@ Extensive user documentation is available at either of the following sites:
 ## Installation
 ### 1. System dependencies
 - [Python3](https://www.python.org/downloads/)
-- PostgreSQL
+- [PostgreSQL](http://www.postgresqltutorial.com/install-postgresql/)
 
 ### 2. Clone the project
 1. Change directory to `PATH` where you want to clone: `cd PATH`
@@ -33,7 +33,7 @@ A Python virtual environment is a way to isolate applications and their dependen
 
 ### 5. Create the database
 #### 5.1. Set up PostgreSQL DB
-You can use a command line interface (e.g. _psql_) or graphical user interface (e.g. PgAadmin4) to set up the DB.
+You can use a command line interface (e.g. _psql_) or graphical user interface (e.g. [PgAadmin4](https://www.pgadmin.org/download/)) to set up the DB.
 i. Create database a called 'pma-api'. `CREATE DATABASE pma-api;`  
 ii. Create a user called 'pma-api'. `CREATE USER pma-api;`  
 iii. Set a password for this user, by default 'pma-api'. You can change this later. `ALTER USER pma-api WITH PASSWORD 'pma-api';`  
