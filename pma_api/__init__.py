@@ -4,7 +4,7 @@ from io import BytesIO
 from sys import stderr
 
 from flask import Blueprint, jsonify, redirect, request, render_template, \
-    send_file
+    send_file, flash
 from flask_cors import CORS
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
@@ -160,7 +160,11 @@ def admin_route():
             filename = secure_filename(file.filename)
             upload_folder = basedir + '/temp_uploads'
             file_path = os.path.join(upload_folder, filename)
-            file.save(file_path)
+            try:
+                file.save(file_path)
+            except FileNotFoundError:
+                # make the directory
+                file.save(file_path)
 
             new_dataset = Dataset(file_path)
             db.session.add(new_dataset)
@@ -169,11 +173,15 @@ def admin_route():
             if os.path.exists(file_path):
                 os.remove(file_path)
         except IntegrityError as err:  # occurs when same file is uploaded 2x
-            print(err, file=stderr)
-            # flash(err)
-            # TODO @Joe: For some reason, it's returning the stacktrace to the
-            # user. - jef 2018/10/19
-        render_template('index.html', datasets=Dataset.query.all())
+            # TODO @Bciar: The flash message is not appearing.
+            # docs - http://flask.pocoo.org/docs/1.0/patterns/flashing/
+            # tutorials
+            # - https://www.youtube.com/watch?v=rjIuZbG9190
+            # - https://www.tutorialspoint.com/flask/flask_message_flashing.htm
+            flash('Error: Dataset {} has already exists in the database.'
+                  .format(Dataset.dataset_display_name))
+            print(err, file=stderr)  # debug
+        return render_template('index.html', datasets=Dataset.query.all())
 
     elif request.method == 'GET':
         if request.args:
