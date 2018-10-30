@@ -14,7 +14,7 @@
       <div class="container">
           <h1>PMA API Admin Portal</h1>
           <p>Some description here...</p>
-          <form action="/admin" class="dropzone">
+          <form action="/admin" class="dropzone" id="myDropzone">
             <div class="dz-message needsclick">
               <label for="file-3">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="17" viewBox="0 0 20 17">
@@ -78,6 +78,12 @@
       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
       <script src="../static/dropzone.js"></script>
       <script>
+          Dropzone.autoDiscover = false;
+          var myDropzone = new Dropzone("#myDropzone");
+          myDropzone.on("complete", function(file) {
+              /* Maybe display some more file information on your page */
+              location.reload();
+          });
           // Get data for dataset table
           const json_response = [
             {% for dataset in datasets %}
@@ -162,7 +168,6 @@
               if (name != '')
                 $("#apply-production-link").attr("href", "/admin?applyProduction=" + name);
             }
-
           });
       </script>
   </body>
