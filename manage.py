@@ -3,10 +3,11 @@ import csv
 import glob
 import logging
 import os
+from sys import stderr
 
 from flask_script import Manager, Shell
 import xlrd
-from sqlalchemy.exc import DatabaseError
+from sqlalchemy.exc import DatabaseError, OperationalError
 
 from pma_api import create_app, db
 from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
@@ -17,6 +18,10 @@ import pma_api.api_1_0.caching as caching
 
 app = create_app(os.getenv('FLASK_CONFIG', 'default'))
 manager = Manager(app)
+connection_error = '\nError: Was not able to connect to the database. Please '\
+    'check that it is running, and your database URL / credentials are ' \
+    'correct.\n\n' \
+    'Original error message:\n{}'
 
 
 def get_file_by_glob(pattern):
@@ -190,63 +195,72 @@ def initdb(overwrite=False):
     # Translation)
 
     with app.app_context():
-        # Delete tables
-        non_persistent_tables = [
-                EnglishString.__table__,
-                Data.__table__,
-                Translation.__table__,
-                Indicator.__table__,
-                Characteristic.__table__,
-                CharacteristicGroup.__table__,
-                Survey.__table__,
-                Country.__table__,
-                Geography.__table__,
-                Cache.__table__,
-                ApiMetadata.__table__]
-        if overwrite:
-            db.metadata.drop_all(db.engine, tables=non_persistent_tables)
-
-        # Create tables
-        stored_datasets = []
-        dataset_table_exists = True
         try:
-            stored_datasets = Dataset.query.all()
-        except DatabaseError:
-            dataset_table_exists = False
-        if not stored_datasets:
-            dataset_table_exists = False
-        db.create_all()
+            # Delete tables
+            non_persistent_tables = [
+                    EnglishString.__table__,
+                    Data.__table__,
+                    Translation.__table__,
+                    Indicator.__table__,
+                    Characteristic.__table__,
+                    CharacteristicGroup.__table__,
+                    Survey.__table__,
+                    Country.__table__,
+                    Geography.__table__,
+                    Cache.__table__,
+                    ApiMetadata.__table__]
+            if overwrite:
+                db.metadata.drop_all(db.engine, tables=non_persistent_tables)
 
-        # Seed database
-        if overwrite:
-            # TODO: init_from_datasets_table if exists instead?
-            init_from_workbook(wb=API_DATA, queue=ORDERED_MODEL_MAP)
-            init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
-            caching.cache_datalab_init(app)
-        if not dataset_table_exists:
-            new_dataset = Dataset(file_path=API_DATA)
-            db.session.add(new_dataset)
-            db.session.commit()
+            # Create tables
+            stored_datasets = []
+            dataset_table_exists = True
+            try:
+                stored_datasets = Dataset.query.all()
+            except DatabaseError:
+                dataset_table_exists = False
+            if not stored_datasets:
+                dataset_table_exists = False
+            db.create_all()
+
+            # Seed database
+            if overwrite:
+                # TODO: init_from_datasets_table if exists instead?
+                init_from_workbook(wb=API_DATA, queue=ORDERED_MODEL_MAP)
+                init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
+                caching.cache_datalab_init(app)
+            if not dataset_table_exists:
+                new_dataset = Dataset(file_path=API_DATA)
+                db.session.add(new_dataset)
+                db.session.commit()
+        except OperationalError as err:
+            print(connection_error.format(str(err)), file=stderr)
 
 
 @manager.command
 def translations():
     """Import all translations into the database."""
     with app.app_context():
-        # TODO (jkp 2017-09-28) make this ONE transaction instead of many.
-        db.session.query(ApiMetadata).delete()
-        db.session.query(Translation).delete()
-        db.session.commit()
-        init_from_workbook(wb=API_DATA, queue=TRANSLATION_MODEL_MAP)
-        init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
-        cache_responses()
+        try:
+            # TODO (jkp 2017-09-28) make this ONE transaction instead of many.
+            db.session.query(ApiMetadata).delete()
+            db.session.query(Translation).delete()
+            db.session.commit()
+            init_from_workbook(wb=API_DATA, queue=TRANSLATION_MODEL_MAP)
+            init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
+            cache_responses()
+        except OperationalError as err:
+            print(connection_error.format(str(err)), file=stderr)
 
 
 @manager.command
 def cache_responses():
     """Cache responses in the 'cache' table of DB."""
     with app.app_context():
-        caching.cache_datalab_init(app)
+        try:
+            caching.cache_datalab_init(app)
+        except OperationalError as err:
+            print(connection_error.format(str(err)), file=stderr)
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))

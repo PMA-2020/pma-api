@@ -4,7 +4,7 @@ from io import BytesIO
 from sys import stderr
 
 from flask import Blueprint, jsonify, redirect, request, render_template, \
-    send_file
+    send_file, flash
 from flask_cors import CORS
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
@@ -162,24 +162,20 @@ def admin_route():
             file_path = os.path.join(upload_folder, filename)
             try:
                 file.save(file_path)
-            except FileNotFoundError:
+            except FileNotFoundError as err:
                 # make the directory
-                file.save(file_path)
-            # file.save(file_path)
-
+                return jsonify({'success': False, 'message': 'Path not found for uploading a file.'})
             new_dataset = Dataset(file_path)
             db.session.add(new_dataset)
             db.session.commit()
 
             if os.path.exists(file_path):
                 os.remove(file_path)
+
+            return jsonify({'success': True})
         except IntegrityError as err:  # occurs when same file is uploaded 2x
-            print(err, file=stderr)
-            # flash(err)
-            # TODO @Joe: For some reason, it's returning the stacktrace to the
-            # user. - jef 2018/10/19
-        return jsonify({'success': True})
-            # render_template('index.html', datasets=Dataset.query.all())
+            print(err, file=stderr)  # debug
+            return jsonify({'success': False, 'message': 'Dataset has laready exists in the database'})
 
     elif request.method == 'GET':
         if request.args:

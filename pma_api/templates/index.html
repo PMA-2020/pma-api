@@ -24,7 +24,7 @@
               </label>
             </div>
           </form>
-          <div class="alert alert-primary" role="alert">
+          <div class="alert alert-primary" role="alert" id="message-bar">
               Notification
           </div>
           <table class="table table-bordered" id="datasets-table">
@@ -82,7 +82,16 @@
           var myDropzone = new Dropzone("#myDropzone");
           myDropzone.on("success", function(file) {
               /* Maybe display some more file information on your page */
-              location.reload();
+              const response = JSON.parse(file.xhr.response);
+              if (response.success) {
+                    location.reload();
+              } else {
+                    let err_message = 'error occurred from server';
+                    if (!!response.message)
+                        err_message = response.message;
+                    $('#message-bar').removeClass('alert-primary').addClass('alert-danger');
+                    $('#message-bar').html(err_message);
+              }
           });
           // Get data for dataset table
           const json_response = [
