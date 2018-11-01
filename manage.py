@@ -190,37 +190,24 @@ def initdb(overwrite=False):
     Args:
         overwrite (bool): Overwrite database if True, else update.
     """
-    # all_but_dataset = (Cache, Characteristic, CharacteristicGroup, Country,
-    # Data, EnglishString, Geography, Indicator, ApiMetadata, Survey,
-    # Translation)
-
     with app.app_context():
         try:
-            # Delete tables
-            non_persistent_tables = [
-                    EnglishString.__table__,
-                    Data.__table__,
-                    Translation.__table__,
-                    Indicator.__table__,
-                    Characteristic.__table__,
-                    CharacteristicGroup.__table__,
-                    Survey.__table__,
-                    Country.__table__,
-                    Geography.__table__,
-                    Cache.__table__,
-                    ApiMetadata.__table__]
+            # Delete all tables except for 'datasets'
             if overwrite:
-                db.metadata.drop_all(db.engine, tables=non_persistent_tables)
+                db.metadata.drop_all(db.engine, tables=[x.__table__ for x in [
+                    EnglishString,
+                    Data,
+                    Translation,
+                    Indicator,
+                    Characteristic,
+                    CharacteristicGroup,
+                    Survey,
+                    Country,
+                    Geography,
+                    Cache,
+                    ApiMetadata]])
 
             # Create tables
-            stored_datasets = []
-            dataset_table_exists = True
-            try:
-                stored_datasets = Dataset.query.all()
-            except DatabaseError:
-                dataset_table_exists = False
-            if not stored_datasets:
-                dataset_table_exists = False
             db.create_all()
 
             # Seed database
@@ -229,10 +216,15 @@ def initdb(overwrite=False):
                 init_from_workbook(wb=API_DATA, queue=ORDERED_MODEL_MAP)
                 init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
                 caching.cache_datalab_init(app)
-            if not dataset_table_exists:
+
+            # If DB is brand new, seed 'datasets' table too
+            database_is_brand_new = list(Dataset.query.all()) == []
+            if database_is_brand_new:
                 new_dataset = Dataset(file_path=API_DATA)
                 db.session.add(new_dataset)
                 db.session.commit()
+
+        # Print error if DB background process is not loaded
         except OperationalError as err:
             print(connection_error.format(str(err)), file=stderr)
 

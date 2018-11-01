@@ -1,10 +1,9 @@
 """Definition of application object."""
 import os
 from io import BytesIO
-from sys import stderr
 
 from flask import Blueprint, jsonify, redirect, request, render_template, \
-    send_file, flash
+    send_file
 from flask_cors import CORS
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
@@ -14,7 +13,6 @@ from .config import config
 from .models import db
 from .response import QuerySetApiResult
 from .models import Dataset
-
 from .config import basedir
 
 root = Blueprint('root', __name__)
@@ -149,10 +147,8 @@ def admin_route():
     Examples: n/a
 
     # POST REQUESTS
-    1. Receives a file uploaded, which is of the type:
+    Receives a file uploaded, which is of the type:
     ImmutableMultiDict([('file', <FileStorage: 'FILENAME' ('FILETYPE')>)])
-
-    # Excepts: IntegrityError when same file is uploaded more than once.
     """
     if request.method == 'POST':
         try:
@@ -160,22 +156,30 @@ def admin_route():
             filename = secure_filename(file.filename)
             upload_folder = basedir + '\\temp_uploads'
             file_path = os.path.join(upload_folder, filename)
+
             try:
                 file.save(file_path)
-            except FileNotFoundError as err:
-                # make the directory
-                return jsonify({'success': False, 'message': 'Path not found for uploading a file.'})
+            except FileNotFoundError:
+                os.mkdir(upload_folder)
+                file.save(file_path)
             new_dataset = Dataset(file_path)
             db.session.add(new_dataset)
-            db.session.commit()
 
+            try:
+                db.session.commit()
+            except IntegrityError:
+                msg = 'Error: A dataset named "{}" already exists in the ' \
+                      'database'.format(filename)
+                return jsonify({'success': False, 'message': msg})
+
+            # remove temp file
             if os.path.exists(file_path):
                 os.remove(file_path)
 
             return jsonify({'success': True})
-        except IntegrityError as err:  # occurs when same file is uploaded 2x
-            print(err, file=stderr)  # debug
-            return jsonify({'success': False, 'message': 'Dataset has laready exists in the database'})
+        except Exception as err:
+            msg = 'An unexpected error occurred:\n\n' + str(err)
+            return jsonify({'success': False, 'message': msg})
 
     elif request.method == 'GET':
         if request.args:
@@ -188,6 +192,7 @@ def admin_route():
                     attachment_filename=file_obj.dataset_display_name,
                     as_attachment=True)
             elif 'applyStaging' in args:
+                # TODO: @Joe/Richard
                 # add status 'applying-to-staging'
                 # send notification that it is in progress
                 # start a job to apply
@@ -199,8 +204,10 @@ def admin_route():
                 return render_template('index.html',
                                        datasets=Dataset.query.all())
             elif 'applyProduction' in args:
+                # TODO: @Joe/Richard
                 # same as above
                 return render_template('index.html',
                                        datasets=Dataset.query.all())
+
         else:
             return render_template('index.html', datasets=Dataset.query.all())
