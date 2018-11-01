@@ -80,7 +80,7 @@
       <script>
           Dropzone.autoDiscover = false;
           var myDropzone = new Dropzone("#myDropzone");
-          myDropzone.on("complete", function(file) {
+          myDropzone.on("success", function(file) {
               /* Maybe display some more file information on your page */
               location.reload();
           });

@@ -158,9 +158,14 @@ def admin_route():
         try:
             file = request.files['file']
             filename = secure_filename(file.filename)
-            upload_folder = basedir + '/temp_uploads'
+            upload_folder = basedir + '\\temp_uploads'
             file_path = os.path.join(upload_folder, filename)
-            file.save(file_path)
+            try:
+                file.save(file_path)
+            except FileNotFoundError:
+                # make the directory
+                file.save(file_path)
+            # file.save(file_path)
 
             new_dataset = Dataset(file_path)
             db.session.add(new_dataset)
@@ -173,7 +178,8 @@ def admin_route():
             # flash(err)
             # TODO @Joe: For some reason, it's returning the stacktrace to the
             # user. - jef 2018/10/19
-        render_template('index.html', datasets=Dataset.query.all())
+        return jsonify({'success': True})
+            # render_template('index.html', datasets=Dataset.query.all())
 
     elif request.method == 'GET':
         if request.args:
