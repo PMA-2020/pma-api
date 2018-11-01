@@ -23,8 +23,9 @@
               </label>
             </div>
           </form>
-          <div class="alert alert-primary" role="alert" id="message-bar">
-              Notification
+          <div class="alert alert-danger" role="alert" id="message-bar" style="display:none;position:relative">
+              <span style="position:absolute;top:1px;right:10px;cursor:pointer;">x</span>
+              <p></p>
           </div>
           <h2>Datasets</h2>
           <table class="table table-bordered" id="datasets-table">
@@ -84,13 +85,15 @@
               /* Maybe display some more file information on your page */
               const response = JSON.parse(file.xhr.response);
               if (response.success) {
+                    $('#message-bar').removeClass('alert-danger').addClass('alert-success').show();
+                    $('#message-bar').html('success!');
                     location.reload();
               } else {
                     let err_message = 'error occurred from server';
                     if (!!response.message)
                         err_message = response.message;
-                    $('#message-bar').removeClass('alert-primary').addClass('alert-danger');
-                    $('#message-bar').html(err_message);
+                    $('#message-bar').show();
+                    $('#message-bar p').html(err_message);
               }
           });
           // Get data for dataset table
@@ -179,6 +182,11 @@
               if (name != '')
                 $("#apply-production-link").attr("href", "/admin?applyProduction=" + name);
             }
+
+            // alert close button
+            $('#message-bar span').on('click', function(){
+                $('#message-bar').hide();
+            });
           });
       </script>
   </body>
