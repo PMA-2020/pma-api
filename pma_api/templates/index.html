@@ -26,6 +26,7 @@
           <div class="alert alert-primary" role="alert" id="message-bar">
               Notification
           </div>
+          <h2>Datasets</h2>
           <table class="table table-bordered" id="datasets-table">
             <thead>
               <tr>
@@ -100,13 +101,15 @@
               "Type":"{{dataset.dataset_type}}",
               "Name":"{{dataset.dataset_display_name}}",
               "Version":"{{dataset.version_number}}",
-              "Active: Staging":"{{dataset.is_active_staging}}",
-              "Active: Production":"{{dataset.is_active_production}}"
+              "Active: Staging": {% if dataset.is_active_staging %}true{% else %}false{% endif %},
+              "Active: Production": {% if dataset.is_active_production %}true{% else %}false{% endif %},
               },
             {% endfor %}
           ];
 
           // Render dataset table
+          {#const non_active = '<i class="fas fa-times"></i>';#}
+          const non_active = '';
           $(function() {
             let tbody = '';
             json_response.forEach(element => {
@@ -116,8 +119,8 @@
                 tbody += '<td>'+element["Type"]+'</td>';
                 tbody += '<td class="dataset-row-datasetName">'+element["Name"]+'</td>';
                 tbody += '<td>'+element["Version"]+'</td>';
-                tbody += '<td>'+(element["Active: Staging"]?'<i class="fas fa-check"></i>':'<i class="fas fa-times"></i>')+'</td>';
-                tbody += '<td>'+(element["Active: Production"]?'<i class="fas fa-check"></i>':'<i class="fas fa-times"></i>')+'</td>';
+                tbody += '<td>'+ (element["Active: Staging"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';
+                tbody += '<td>'+ (element["Active: Production"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';
                 tbody += '</tr>';
             });
             $('tbody').html(tbody);
