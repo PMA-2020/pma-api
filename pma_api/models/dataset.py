@@ -24,26 +24,23 @@ class Dataset(db.Model):
     dataset_type = db.Column(db.String, nullable=False)
     is_active_staging = db.Column(db.Boolean, nullable=False)
     is_active_production = db.Column(db.Boolean, nullable=False)
+    is_processing_staging = db.Column(db.Boolean, nullable=False)
+    is_processing_production = db.Column(db.Boolean, nullable=False)
 
     def __init__(self, file_path):
         """Initialize instance of dataset"""
-        data_file = open(file_path, 'rb').read()
         dataset_display_name = os.path.basename(file_path)
-        naming = dataset_display_name.split('-')
-        upload_date = datetime.date.today()
-        version_number = naming[2]
-        dataset_type = 'full'
-        is_active_staging = False
-        is_active_production = False
 
         super(Dataset, self).__init__(
-            data=data_file,
+            data=open(file_path, 'rb').read(),
             dataset_display_name=dataset_display_name,
-            upload_date=upload_date,
-            version_number=version_number,
-            dataset_type=dataset_type,
-            is_active_staging=is_active_staging,
-            is_active_production=is_active_production)
+            upload_date=datetime.date.today(),
+            version_number=dataset_display_name.split('-')[2],
+            dataset_type='full',  # TODO: allow for different types
+            is_active_staging=False,
+            is_active_production=False,
+            is_processing_staging=False,
+            is_processing_production=False)
 
     @classmethod
     def get(cls, _id):
