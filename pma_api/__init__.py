@@ -1,7 +1,9 @@
 """Definition of application object."""
 import os
+import platform
 from io import BytesIO
 
+import requests
 from flask import Blueprint, jsonify, redirect, request, render_template, \
     send_file
 from flask_cors import CORS
@@ -16,6 +18,13 @@ from .models import Dataset
 from .config import basedir
 
 root = Blueprint('root', __name__)
+
+
+def temp_folder_path():
+    """Get the path to temp upload folder."""
+    if platform.system() == 'Windows':
+        return basedir + '\\temp'
+    return basedir + '/temp/'
 
 
 @root.route('/')
@@ -154,13 +163,12 @@ def admin_route():
         try:
             file = request.files['file']
             filename = secure_filename(file.filename)
-            upload_folder = basedir + '\\temp_uploads'
-            file_path = os.path.join(upload_folder, filename)
+            file_path = os.path.join(temp_folder_path(), filename)
 
             try:
                 file.save(file_path)
             except FileNotFoundError:
-                os.mkdir(upload_folder)
+                os.mkdir(temp_folder_path())
                 file.save(file_path)
             new_dataset = Dataset(file_path)
             db.session.add(new_dataset)
@@ -184,6 +192,7 @@ def admin_route():
     elif request.method == 'GET':
         if request.args:
             args = request.args.to_dict()
+
             if 'download' in args:
                 file_obj = Dataset.query.filter_by(
                     dataset_display_name=args['download']).first()
@@ -191,21 +200,49 @@ def admin_route():
                     filename_or_fp=BytesIO(file_obj.data),
                     attachment_filename=file_obj.dataset_display_name,
                     as_attachment=True)
-            elif 'applyStaging' in args:
-                # TODO: @Joe/Richard
-                # add status 'applying-to-staging'
-                # send notification that it is in progress
-                # start a job to apply
-                # - get url from env
-                # - implement the logic to 'apply-local' first without a button
-                # perhaps an 'upload' route
-                # check back every now and then
-                # when finished, update the status
-                return render_template('index.html',
-                                       datasets=Dataset.query.all())
-            elif 'applyProduction' in args:
-                # TODO: @Joe/Richard
-                # same as above
+
+            # TODO: @Joe/Richard
+            elif 'applyStaging' or 'applyProduction' in args:
+                arg = 'applyStaging' if 'applyStaging' in args \
+                    else 'applyProduction'
+                # post_url = os.getenv('STAGING_URL') if 'applyStaging' in args
+                #     else os.getenv('APPLY_PRODUCTION')
+                # TODO: Make /upload route. Let's test in localhost first.
+                post_url = 'localhost:5000/upload'
+
+                dataset_obj = Dataset.query.filter_by(
+                    dataset_display_name=args[arg]).first()
+
+                # Maybe we can read file like this instead of temp saving it?
+                file = BytesIO(dataset_obj.data).read()
+                # file = os.path.join(temp_folder_path(), args[arg])
+
+                with open(file, 'w+b') as f:
+                    try:
+                        f.write(dataset_obj.data)
+                    except FileNotFoundError:
+                        os.mkdir(temp_folder_path())
+                        f.write(dataset_obj.data)
+
+                with open(file, 'rb') as f:
+                    # noinspection PyUnusedLocal
+                    r = requests.post(post_url, files={'file': f})
+                # remove file from disk after sending
+
+                # TODO
+                # I. Sending server
+                #   1. Set dataset's 'is_processing_staging/production' attr
+                #   to True.
+                #   2. On web page, give user notification that upload is in
+                #   progress. Tjos takes time and requires page refresh
+                #   3. Receive results when receiving server sends back a
+                #   notification of upload results.
+                #   4. Bciar: Automatically refresh page when receive results.
+
+                # II. Receiving server
+                #   1. Receives the file at the /upload route
+                #   2. Runs manage.py initdb --overwrite
+                #   3. Sends results (success/fail) to sending server
                 return render_template('index.html',
                                        datasets=Dataset.query.all())
 
