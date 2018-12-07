@@ -8,3 +8,5 @@ logs/
 tags
 ignored/
 *.swp
+.env
+redis-stable/

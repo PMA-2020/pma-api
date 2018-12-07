@@ -170,6 +170,8 @@ push-staging: staging-push
 
 push-docs: docs-push
 
+redis:
+	sh scripts/run-redis.sh
 
 # DEVOPS
 circleci-validate-config:
