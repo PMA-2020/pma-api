@@ -220,6 +220,8 @@ def initdb(overwrite=False):
             # If DB is brand new, seed 'datasets' table too
             database_is_brand_new = list(Dataset.query.all()) == []
             if database_is_brand_new:
+                # db.session.add(Dataset(file_path=glob('./data/api_data*.xlsx'
+                # )[0])).commit()
                 new_dataset = Dataset(file_path=API_DATA)
                 db.session.add(new_dataset)
                 db.session.commit()

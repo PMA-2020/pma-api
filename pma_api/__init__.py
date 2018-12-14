@@ -4,6 +4,7 @@ import platform
 from io import BytesIO
 
 import requests
+from celery import Celery
 from flask import Blueprint, jsonify, redirect, request, render_template, \
     send_file
 from flask_cors import CORS
@@ -124,6 +125,9 @@ def create_app(config_name=os.getenv('FLASK_CONFIG', 'default')):
     # noinspection PyShadowingNames
     app = PmaApiFlask(__name__)
     app.config.from_object(config[config_name])
+
+    celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+    celery.conf.update(app.config)
 
     CORS(app)
     db.init_app(app)

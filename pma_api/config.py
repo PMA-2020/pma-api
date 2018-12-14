@@ -11,7 +11,10 @@ class Config:
     CSRF_ENABLED = True
     WTF_CSRF_ENABLED = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
+
+    REDIS_URL = os.getenv('REDIS_URL')
+    CELERY_BROKER_URL = REDIS_URL
+    CELERY_RESULT_BACKEND = REDIS_URL
 
 
 class StagingConfig(Config):
