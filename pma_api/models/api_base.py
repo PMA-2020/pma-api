@@ -1,6 +1,7 @@
 """Abstract base model."""
 from datetime import datetime
 
+from pma_api.config import IGNORE_FIELD_PREFIX
 from . import db
 from .string import EnglishString
 
@@ -22,7 +23,7 @@ class ApiModel(db.Model):
 
     __abstract__ = True
 
-    ignore_field_prefix = '__'
+    ignore_field_prefix = IGNORE_FIELD_PREFIX
 
     def __init__(self, *args, **kwargs):
         """Perform common tasks on kwargs."""

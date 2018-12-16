@@ -3,7 +3,7 @@ from flask import url_for
 
 from . import db
 from .api_base import ApiModel
-from ..utils import next64
+from pma_api.utils import next64
 from copy import copy
 
 
@@ -592,8 +592,8 @@ class Country(ApiModel):
         }
     }
 
-    def __init__(self, **kwargs):
     # def __init__(self, label_id, order, ):
+    def __init__(self, **kwargs):
         """Initialize instance of model.
 
         Does a few things: (1) Updates instance based on mapping from API query

@@ -1,6 +1,6 @@
 """EnglishString & Translation model."""
 from . import db
-from ..utils import next64
+from pma_api.utils import next64
 
 
 class EnglishString(db.Model):
@@ -151,34 +151,9 @@ class Translation(db.Model):
         try:
             kwargs['english_id'] = english.id
         except AttributeError:
-            msg = """In trying to initialize translations (e.g. from the 
-            "translations" worksheet of an "api_data" file), an attempt was 
-            made to pull up the EnglishString id ('english') for the text 
-            provided in said translations.'
-            
-            Erroneous Data: {}
-            
-            Here are some possible reasons for this issue and their 
-            corresponding solutions:
-            
-            A) It is possible that there is no match anywhere in the dataset 
-            used to initialize the database. Does the English text (i.e. what 
-            is shown in 'english' in 'Erroneous Data' above) exist in any 
-            other portion of the dataset (e.g. 'survey', 'indicator', 
-            'characteristic', 'characteristic group', 'country', 'geography')?
-            
-            B) It is possible that the database was not initialized properly 
-            prior to attempting to update these translations. If updating the 
-            translations individually (e.g. "python manage.py translations"), 
-            try initializing the database first (e.g. "python manage.py 
-            --initdb overwrite" (note that this will overwrite and erase your
-            existing database))in order to fully populate the EnglishString 
-            table. The database initailization process should also handle 
-            updating the translations for you. If for any reason it does not, 
-            after initializing the database, you can re-initialized 
-            translations. 
-            """.format(kwargs)
-            raise AttributeError(msg)
+            new_record = EnglishString.insert_unique(kwargs['english'])
+            kwargs['english_id'] = new_record.id
+
         kwargs.pop('english')
         super(Translation, self).__init__(**kwargs)
 

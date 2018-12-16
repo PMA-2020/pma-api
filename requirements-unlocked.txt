@@ -1,10 +1,15 @@
+boto3
 celery
 Flask
+Flask-AlchemyDumps
 Flask-Cors
+Flask-Migrate
 Flask-Script
 Flask-SQLAlchemy
 gunicorn
-psycopg2
+psutil
+psycopg2-binary
+python-dotenv
 recommonmark
 redis
 Sphinx

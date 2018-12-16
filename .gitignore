@@ -2,11 +2,16 @@ __pycache__
 /.idea
 .DS_Store
 *~$*
+data/db_backups/
 env/
 dev/
 logs/
 tags
-ignored/
+ignored*/
+*ignored*.py
+*.pid
 *.swp
 .env
 redis-stable/
+temp/
+temp_uploads/
