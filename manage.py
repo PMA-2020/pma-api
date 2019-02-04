@@ -43,26 +43,27 @@ def initdb(overwrite: bool = False, api_file_path: str = '',
     """
     api_file = api_file_path if api_file_path else get_api_data()
     ui_file = ui_file_path if ui_file_path else get_ui_data()
-    # to-do - backup db
 
     try:
         results = initdb_from_wb(overwrite=overwrite,
                                  api_file_path=api_file,
                                  ui_file_path=ui_file,
                                  _app=app)
-    except PmaApiDbInteractionError as err:
-        raise err
-    except Exception as err:
+    except PmaApiDbInteractionError as e:
+        raise e
+    except Exception as e:
         # to-do - restore db
-        raise PmaApiDbInteractionError(err)
+        raise PmaApiDbInteractionError(e)
 
     warning_str = ''
     if results['warnings']:
         warning_str += '\nWarnings:'
         for k, v in results['warnings']:
             warning_str += '\n{}: {}'.format(k, v)
-    printout = '\n{}{}\n'.format(results['result'], warning_str)
-    print(printout)
+    result = 'Successfully initialized dataset.' if results['success'] \
+        else 'Failed to initialize dataset.'
+
+    print('\n', result, '\n', warning_str)
 
 
 @manager.command
@@ -77,12 +78,12 @@ def translations():
             init_from_workbook(wb=get_api_data(), queue=TRANSLATION_MODEL_MAP)
             init_from_workbook(wb=get_ui_data(), queue=TRANSLATION_MODEL_MAP)
             cache_responses()
-        except (StatementError, DatabaseError) as err:
-            print(connection_error.format(str(err)), file=stderr)
-        except RuntimeError as err:
+        except (StatementError, DatabaseError) as e:
+            print(connection_error.format(str(e)), file=stderr)
+        except RuntimeError as e:
             print('Error trying to execute caching. Is the server running?\n\n'
                   + '- Original error:\n'
-                  + type(err).__name__ + ': ' + str(err))
+                  + type(e).__name__ + ': ' + str(e))
 
 
 @manager.command
@@ -91,8 +92,8 @@ def cache_responses():
     with app.app_context():
         try:
             Cache.cache_datalab_init(app)
-        except (StatementError, DatabaseError) as err:
-            print(connection_error.format(str(err)), file=stderr)
+        except (StatementError, DatabaseError) as e:
+            print(connection_error.format(str(e)), file=stderr)
 
 
 @manager.command
@@ -122,7 +123,17 @@ def restore(path: str):
     Args:
         path (str): Path to backup file
     """
-    restore_db(path)
+    import inspect
+
+    if not path:
+        syntax = ' '.join([__file__,
+                           inspect.currentframe().f_code.co_name,
+                           '--path=PATH/TO/BACKUP'])
+        print('\nMust specify path: ' + syntax, file=stderr)
+        print('\nHere is a list of backups to choose from: \n',
+              dict_to_pretty_json(listbackups()))
+    else:
+        restore_db(path)
 
 
 @manager.command
@@ -146,4 +157,3 @@ if __name__ == '__main__':
     except PmaApiDbInteractionError as err:
 
         print(type(err).__name__ + ': ' + str(err), file=stderr)
-

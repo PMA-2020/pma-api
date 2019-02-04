@@ -165,7 +165,6 @@ def admin_route():
             return jsonify({'success': False, 'message': msg})
 
     elif request.method == 'GET':
-        from pma_api.tasks import apply_dataset_request
         if request.args:
             args = request.args.to_dict()
 
@@ -178,16 +177,24 @@ def admin_route():
                     as_attachment=True)
 
             # TODO: @Joe/Richard: Apply dataset.
-            elif 'applyStaging' or 'applyProduction' in args:
+            elif 'applyStaging' or 'applyProduction' or 'activate' in args:
                 dataset_name, server_url = '', ''
-                if 'applyStaging' in args:
-                    dataset_name = args['applyStaging']
-                    server_url = os.getenv('STAGING_URL')
-                elif 'applyProduction' in args:
-                    dataset_name = args['applyProduction']
-                    server_url = os.getenv('PRODUCTION_URL')
-                apply_dataset_request(dataset_name=dataset_name,
-                                      destination=server_url)
+                if 'activate' in args:
+                    # TODO: If already active, return 'already active!'
+                    # Should be doing this in the client anyway.
+                    from pma_api.tasks import apply_dataset_to_self
+                    dataset_name = args['activate']
+                    apply_dataset_to_self(dataset_name=dataset_name)
+                else:
+                    from pma_api.tasks import apply_dataset_request
+                    if 'applyStaging' in args:
+                        dataset_name = args['applyStaging']
+                        server_url = os.getenv('STAGING_URL')
+                    elif 'applyProduction' in args:
+                        dataset_name = args['applyProduction']
+                        server_url = os.getenv('PRODUCTION_URL')
+                    apply_dataset_request(dataset_name=dataset_name,
+                                          destination=server_url)
 
         datasets = Dataset.query.all()
 

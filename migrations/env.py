@@ -1,3 +1,7 @@
+"""Alembic environment
+
+https://alembic.sqlalchemy.org/en/latest/api/runtime.html#the-environment-context
+"""
 from __future__ import with_statement
 from alembic import context
 from sqlalchemy import engine_from_config, pool
@@ -58,7 +62,9 @@ def run_migrations_online():
     # this callback is used to prevent an auto-migration from being generated
     # when there are no changes to the schema
     # reference: http://alembic.zzzcomputing.com/en/latest/cookbook.html
+    # noinspection PyUnusedLocal,PyShadowingNames
     def process_revision_directives(context, revision, directives):
+        """Process revision directives"""
         if getattr(config.cmd_opts, 'autogenerate', False):
             script = directives[0]
             if script.upgrade_ops.is_empty():
@@ -73,6 +79,7 @@ def run_migrations_online():
     context.configure(connection=connection,
                       target_metadata=target_metadata,
                       process_revision_directives=process_revision_directives,
+                      compare_type=True,
                       **current_app.extensions['migrate'].configure_args)
     
     try:
@@ -83,6 +90,7 @@ def run_migrations_online():
         raise exception
     finally:
         connection.close()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

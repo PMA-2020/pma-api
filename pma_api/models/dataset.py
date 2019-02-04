@@ -20,7 +20,7 @@ class Dataset(db.Model):
     data = db.Column(db.LargeBinary)
     dataset_display_name = db.Column(db.String, nullable=False)
     upload_date = db.Column(db.String, nullable=False)
-    version_number = db.Column(db.String, nullable=False, unique=True)
+    version_number = db.Column(db.Integer, nullable=False, unique=True)
     dataset_type = db.Column(db.String, nullable=False)
     is_active = db.Column(db.Boolean, nullable=False)
     is_processing = db.Column(db.Boolean, nullable=False)
@@ -29,18 +29,26 @@ class Dataset(db.Model):
     is_processing_staging = db.Column(db.Boolean, nullable=False)
     is_processing_production = db.Column(db.Boolean, nullable=False)
 
-    def __init__(self, file_path):
-        """Initialize instance of dataset"""
-        dataset_display_name = os.path.basename(file_path)
+    def __init__(self, file_path: str, is_processing: bool = False):
+        """Initialize instance of dataset
+
+        Args:
+            file_path (str): Path to dataset file
+            is_processing (bool): Is this dataset currently being uploaded?
+        """
+        dataset_display_name: str = os.path.basename(file_path)
+
+        version: int = \
+            int(str(dataset_display_name.split('-')[2]).replace('v', ''))
 
         super(Dataset, self).__init__(
             data=open(file_path, 'rb').read(),
             dataset_display_name=dataset_display_name,
             upload_date=datetime.date.today(),
-            version_number=dataset_display_name.split('-')[2],
+            version_number=version,
             dataset_type='full',  # TODO: allow for different types
             is_active=False,
-            is_processing=False,
+            is_processing=is_processing,
             is_active_staging=False,
             is_active_production=False,
             is_processing_staging=False,
@@ -59,8 +67,14 @@ class Dataset(db.Model):
         file in the database, but none of its contents appear in any of the
         other tables.
         """
-        pass
+        Dataset.query.filter_by(ID=self.ID).update({
+            'is_active': True,
+            'is_processing': False})
+        db.session.commit()
 
     def register_processing(self):
         """Register dataset as being actively processed; being applied to db"""
-        pass
+        Dataset.query.filter_by(ID=self.ID).update({
+            'is_active': False,
+            'is_processing': True})
+        db.session.commit()

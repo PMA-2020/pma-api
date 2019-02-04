@@ -136,12 +136,14 @@ def apply_dataset_request(self, dataset_name: str, destination: str) -> dict:
 
 
 @celery.task(bind=True)
-def apply_dataset_to_self(self, dataset_name, dataset: FileStorage) -> dict:
+def apply_dataset_to_self(self, dataset_name, dataset: FileStorage = None) \
+        -> dict:
     """Applies a dataset to the this server.
 
     Args:
         dataset_name (str): Name of dataset.
-        dataset (FileStorage): Dataset to apply.
+        dataset (FileStorage): Dataset to apply. Not necessary if dataset
+        has already been uploaded to this server.
 
     Side effects:
         self: Updates state.
@@ -150,35 +152,38 @@ def apply_dataset_to_self(self, dataset_name, dataset: FileStorage) -> dict:
         dict: Results.
 
     """
-    # from run import app
+    result = {
+        'success': False,
+        'warnings': {}
+    }
+    ready = True if not dataset else False
 
-    upload_success = False
-    try:
-        # replace "upload" w/ a url call
-        upload(filename=dataset_name, file=dataset)
+    if not ready:
+        try:
+            # replace "upload" w/ a url call
+            upload(filename=dataset_name, file=dataset)
 
-        details = {'message': 'Uploaded dataset. Apply dataset pending.'}
-        self.update_state(state='PROGRESS', meta={'status': details})
-        upload_success = True
-    except ExistingDatasetError:
-        details = {'message': 'Dataset exists. Apply dataset pending.'}
-        self.update_state(state='ERROR', meta={'status': details})
-        upload_success = True
-    except Exception as err:
-        msg = 'An unexpected error occurred:\n\n' + str(err)
-        details = {'message': msg}
-        self.update_state(state='ERROR', meta={'status': details})
+            details = {'message': 'Uploaded dataset. Apply dataset pending.'}
+            self.update_state(state='PROGRESS', meta={'status': details})
+            ready = True
+        except ExistingDatasetError:
+            details = {'message': 'Dataset exists. Apply dataset pending.'}
+            self.update_state(state='ERROR', meta={'status': details})
+            ready = True
+        except Exception as err:
+            msg = 'An unexpected error occurred:\n\n' + str(err)
+            details = {'message': msg}
+            self.update_state(state='ERROR', meta={'status': details})
 
-    # if upload_success:
-    #     dataset_obj = Dataset.query.filter_by(
-    #         dataset_display_name=dataset_name).first()
-    #     file_path = os.path.join(data_folder_path(), dataset_name)
-    #     save_file_from_bytes(file_bytes=dataset_obj.data, file_path=file_path)
-    #     result = initdb_from_wb(overwrite=True, api_data=file_path,
-    #                             _app=app)
-    #     details = {'message': result}
-    print(upload_success)
+    if ready:
+        dataset_obj = Dataset.query.filter_by(
+            dataset_display_name=dataset_name).first()
+        file_path = os.path.join(data_folder_path(), dataset_name)
+        save_file_from_bytes(file_bytes=dataset_obj.data, file_path=file_path)
+        # TODO: with incremental uploads, set overwrite=False unless an
+        # overwrite param is specified (can add to admin portal ui)
+        result = initdb_from_wb(overwrite=True, api_file_path=file_path)
 
-    # Always returns 'none' for some reason:
+    # When async, Always returns 'none' for some reason:
     # status = self.AsyncResult(self.request.id).state
-    return details
+    return result

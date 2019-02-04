@@ -9,7 +9,7 @@ import os
 import subprocess
 
 import xlrd
-from flask import Flask
+from flask import Flask, current_app
 from sqlalchemy.exc import DatabaseError, OperationalError
 
 from pma_api import create_app, db
@@ -336,7 +336,8 @@ def create_wb_metadata(wb_path):
     db.session.commit()
 
 
-def initdb_from_wb(_app: Flask, api_file_path: str = get_api_data(),
+def initdb_from_wb(_app: Flask = current_app,
+                   api_file_path: str = get_api_data(),
                    ui_file_path: str = get_ui_data(),
                    overwrite: bool = False) -> dict:
     """Create the database.
@@ -350,7 +351,12 @@ def initdb_from_wb(_app: Flask, api_file_path: str = get_api_data(),
     Returns:
         dict: Results
     """
+    backup_db()
     warnings = {}
+    status = {
+        'success': False,
+        'warnings': warnings,
+    }
     with _app.app_context():
         try:
             # Delete all tables except for 'datasets'
@@ -371,6 +377,14 @@ def initdb_from_wb(_app: Flask, api_file_path: str = get_api_data(),
             # Create tables
             db.create_all()
 
+            dataset_name = os.path.basename(api_file_path)
+            dataset = Dataset.query.filter_by(
+                dataset_display_name=dataset_name).first()
+            if not dataset:
+                db.session.add(Dataset(file_path=api_file_path,
+                                       is_processing=True))
+            db.session.commit()
+
             # Seed database
             if overwrite:
                 # TODO: init_from_datasets_table if exists instead?
@@ -382,22 +396,20 @@ def initdb_from_wb(_app: Flask, api_file_path: str = get_api_data(),
                 except RuntimeError as err:
                     warnings['caching'] = caching_error.format(err)
 
+            # TODO: moving up & changing; verify works and remove this comment
             # If DB is brand new, seed 'datasets' table too
-            database_is_brand_new = list(Dataset.query.all()) == []
-            if database_is_brand_new:
-                # db.session.add(Dataset(file_path=glob('./data/api_file_path
-                # *.xlsx'
-                # )[0])).commit()
-                new_dataset = Dataset(file_path=api_file_path)
-                db.session.add(new_dataset)
-                db.session.commit()
+            # database_is_brand_new = list(Dataset.query.all()) == []
+            # if database_is_brand_new:
+            #     new_dataset = Dataset(file_path=api_file_path)
+            #     db.session.add(new_dataset)
+            #     db.session.commit()
+
+            dataset.register_active()
 
             try:
                 backup_db()
             except Exception as err:
                 warnings['backup'] = str(err)
-
-            msg = 'Successfully initialized database.'
 
         # Print error if DB background process is not loaded
         except OperationalError as err:
@@ -417,10 +429,9 @@ def initdb_from_wb(_app: Flask, api_file_path: str = get_api_data(),
                 msg = err
             raise PmaApiDbInteractionError(msg)
 
-        return {
-            'result': msg,
-            'warnings': warnings
-        }
+        backup_db()
+
+        return status
 
 
 def load_data_file(filepath: str):
