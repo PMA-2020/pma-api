@@ -25,7 +25,8 @@ docs-push-staging serve-dev-network-accessible circleci-validate-config logs \
 logs-staging virtualenv-make virtualenvwrapper-make virtualenv-activate \
 virtualenvwrapper-activate deactivate virtualenv-deactivate connect-staging \
 virtualenvwrapper-deactivate restore restore-test backup % connect-production \
-migrate_db migrate upgrade_db upgrade
+migrate_db migrate upgrade_db upgrade list-backups list list-api-data \
+list-datasets list-ui-data backup-source-files
 
 # ALL LINTING
 lint:
@@ -87,7 +88,7 @@ db-production: db
 translations:
 	python3 manage.py initdb --translations
 migrate_db:
-	python3 manage.py db migrate
+	@python3 manage.py db migrate
 	@echo
 	@echo Please follow up this command by checking the file just created in \
 	the migrations/versions directory.
@@ -97,8 +98,22 @@ migrate_db:
 	@echo https://flask-migrate.readthedocs.io/en/latest/
 migrate: migrate_db
 upgrade_db:
-	python3 manage.py db upgrade
+	@python3 manage.py db upgrade
 upgrade: upgrade_db
+list-ui-data:
+	@python3 manage.py list_ui_data
+list-datasets:
+	@python3 manage.py list_datasets
+list-api-data: list-datasets
+list:
+	@echo Backups:
+	@make list-backups
+	@echo
+	@echo Datasets:
+	@make list-datasets
+	@echo
+	@echo UI Data:
+	@make list-ui-data
 
 # Serve / Deploy
 serve:
@@ -187,7 +202,7 @@ open-docs:
 readme-to-docs:
 	cp README.md pma_api/docs/source/content/developers/for_developers.md
 build-docs-no-open:
-	rm -rf pma_api/docs/build/
+	rm -rf pma_api/docslocal/build/
 	make readme-to-docs
 	(cd pma_api/docs
 	sphinx-apidoc -f -o source/ ..
@@ -228,14 +243,16 @@ shell:
 	python3 manage.py shell
 
 # Backup
+backup-source-files:
+	@python3 manage.py backup_source_files
 backup:
-	python3 manage.py backup
+	@python3 manage.py backup
+	@make backup-source-files
 restore-test:
 	python manage.py restore --path=\
 	data/db_backups/pma-api-backup_2019-01-28_16-51-43.130543.dump
 restore:
 	@echo Please run the following command:
 	@echo python3 manage.py restore --path=PATH/TO/BACKUP
-#	python3 manage.py restore --path=$(filter-out $@,$(MAKECMDGOALS))
-#%:
-#	@:
+list-backups:
+	@python3 manage.py list_backups

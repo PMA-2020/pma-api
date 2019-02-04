@@ -14,8 +14,11 @@ from sqlalchemy.exc import DatabaseError, OperationalError
 
 from pma_api import create_app, db
 from pma_api.config import DATA_DIR, BACKUPS_DIR, Config, \
-    IGNORE_SHEET_PREFIX, DATA_SHEET_PREFIX, AWS_S3_BACKUPS_BUCKETNAME
-from pma_api.error import InvalidDataFileError, PmaApiDbInteractionError
+    IGNORE_SHEET_PREFIX, DATA_SHEET_PREFIX, AWS_S3_STORAGE_BUCKETNAME, \
+    S3_BACKUPS_DIR_PATH, S3_DATASETS_DIR_PATH, S3_UI_DATA_DIR_PATH, \
+    UI_DATA_DIR, DATASETS_DIR
+from pma_api.error import InvalidDataFileError, PmaApiDbInteractionError, \
+    PmaApiException
 from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
                             Country, Data, EnglishString, Geography, Indicator,
                             ApiMetadata, Survey, Translation, Dataset)
@@ -38,6 +41,7 @@ TRANSLATION_MODEL_MAP = (
     ('translation', Translation),
 )
 ORDERED_MODEL_MAP = METADATA_MODEL_MAP + DATA_MODEL_MAP
+FILE_LIST_IGNORES = ('.DS_Store', )
 connection_error = 'Was not able to connect to the database. Please '\
     'check that it is running, and your database URL / credentials are ' \
     'correct.\n\n' \
@@ -82,6 +86,7 @@ def aws_s3(func):
     Returns:
          function: The wrapped function
     """
+
     msg = '\nAccess was denied when attempting to interact with AWS S3. ' \
         'Please check the following: ' \
         '\n1. That you have set the following environment variables: ' \
@@ -95,10 +100,13 @@ def aws_s3(func):
 
     def wrap(*args, **kwargs):
         """Wrapped function"""
-        print('Executing: ' + func.__name__)
-
+        silent = kwargs and 'silent' in kwargs and kwargs['silent']
+        if not silent:
+            print('Executing: ' + func.__name__)
+        wrapper_kwargs_removed = \
+            {k: v for k, v in kwargs.items() if k != 'silent'}
         try:
-            return func(*args, **kwargs)
+            return func(*args, **wrapper_kwargs_removed)
         except ClientError as err:
             if 'Access Denied' in str(err) or 'AccessDenied' in str(err):
                 raise PmaApiDbInteractionError(msg)
@@ -560,10 +568,13 @@ def new_backup_path(ext: str = 'dump'):
     Returns:
         str: Default path of backup file at specific date and time
     """
+    import platform
+
     filename_base = 'pma-api-backup'
     datetime_str = str(datetime.now()).replace('/', '-').replace(':', '-')\
         .replace(' ', '_')
-    filename = filename_base + '_' + datetime_str + '.' + ext
+    op_sys = 'MacOS' if platform.system() == 'Darwin' else platform.system()
+    filename = '_'.join([filename_base, op_sys, datetime_str]) + '.' + ext
 
     return os.path.join(BACKUPS_DIR, filename)
 
@@ -724,8 +735,8 @@ def backup_local(path: str = '', method: str = 'dump'):
 
 
 @aws_s3
-def backup_to_s3(path: str):
-    """Given path to backup file on local file system, push backup to AWS S3
+def store_file_on_s3(path: str, storage_dir: str = ''):
+    """Given path to file on local file system, push file to AWS S3
 
     Prerequisites:
         Environmental variable setup: https://boto3.amazonaws.com/v1/
@@ -735,7 +746,8 @@ def backup_to_s3(path: str):
         - Uploads to cloud
 
     Args:
-        path (str): Path to local backup file
+        path (str): Path to local file
+        storage_dir (str): Subdirectory path where file should be stored
 
     Returns:
         str: File name of uploaded file
@@ -753,14 +765,51 @@ def backup_to_s3(path: str):
     if local_backup_first:
         backup_local(path)
     with open(path, 'rb') as f:
-        s3.Bucket(AWS_S3_BACKUPS_BUCKETNAME).put_object(Key=filename, Body=f)
+        filepath = storage_dir + filename
+        s3.Bucket(AWS_S3_STORAGE_BUCKETNAME).put_object(Key=filepath, Body=f)
     if local_backup_first:
         os.remove(path)
 
     return filename
 
 
-def backup_cloud(path_or_filename: str = ''):
+def backup_ui_data(path: str = get_ui_data()) -> str:
+    """Given path to file on local file system, push file to AWS S3
+
+    Args:
+        path (str): Path to local file
+
+    Returns:
+        str: File name of uploaded file
+    """
+    filename: str = store_file_on_s3(path=path,
+                                     storage_dir=S3_UI_DATA_DIR_PATH)
+
+    return filename
+
+
+def backup_datasets(path: str = get_api_data()) -> str:
+    """Given path to file on local file system, push file to AWS S3
+
+    Args:
+        path (str): Path to local file
+
+    Returns:
+        str: File name of uploaded file
+    """
+    filename: str = store_file_on_s3(path=path,
+                                     storage_dir=S3_DATASETS_DIR_PATH)
+
+    return filename
+
+
+def backup_source_files():
+    """Backup ui data and datasets"""
+    backup_ui_data()
+    backup_datasets()
+
+
+def backup_db_cloud(path_or_filename: str = ''):
     """Backs up database to the cloud
 
     If path_or_filename is a path, uploads from already stored backup at path.
@@ -787,7 +836,9 @@ def backup_cloud(path_or_filename: str = ''):
 
     if local_backup_first:
         backup_local(path)
-    filename = backup_to_s3(path)
+    filename: str = store_file_on_s3(
+        path=path,
+        storage_dir=S3_BACKUPS_DIR_PATH)
     if local_backup_first:
         os.remove(path)
 
@@ -806,7 +857,7 @@ def backup_db(path: str = '', method: str = 'dump'):
         - backup_cloud()
     """
     saved_path = backup_local(path, method)
-    backup_cloud(saved_path)
+    backup_db_cloud(saved_path)
 
 
 def restore_using_pgrestore(path: str):
@@ -882,7 +933,7 @@ def download_file_from_s3(filename: str, directory: str):
     download_path = os.path.join(directory, filename)
 
     try:
-        s3.Bucket(AWS_S3_BACKUPS_BUCKETNAME)\
+        s3.Bucket(AWS_S3_STORAGE_BUCKETNAME)\
             .download_file(filename, download_path)
     except ClientError as err:
         msg = 'The file requested was not found on AWS S3.\n' \
@@ -895,21 +946,118 @@ def download_file_from_s3(filename: str, directory: str):
 
 
 @aws_s3
-def list_files_from_s3() -> []:
-    """Download a file from AWS S3
+def list_s3_objects(bucket_name: str = AWS_S3_STORAGE_BUCKETNAME) -> []:
+    """List objects on AWS S3
+
+    Args:
+        bucket_name (str): Name of bucket holding object storage
 
     Returns:
-        list: List of files
+        list: List of S3 objects
     """
     import boto3
 
     s3 = boto3.resource('s3')
-    objects = s3.Bucket(AWS_S3_BACKUPS_BUCKETNAME).objects.all()
+    objects = s3.Bucket(bucket_name).objects.all()
 
     return [x.key for x in objects]
 
 
-def list_local_backups(path: str = BACKUPS_DIR) -> []:
+def list_filtered_s3_files(path: str) -> []:
+    """Gets list of S3 files w/ directories and path prefixes filtered out
+
+    Args:
+        path (str): Path to directory holding files
+
+    Returns:
+        list: Filenames
+    """
+    path2 = path + '/' if not path.endswith('/') else path
+    path3 = path2[1:] if path2.startswith('/') else path2
+    objects = list_s3_objects(silent=True)
+
+    filtered = [x for x in objects
+                if x.startswith(path3)
+                and x != path3]
+    formatted = [os.path.basename(x) for x in filtered]
+
+    return formatted
+
+
+def list_cloud_backups() -> [str]:
+    """List available cloud backups
+
+    Returns:
+        list: backups
+    """
+    files = list_filtered_s3_files(S3_BACKUPS_DIR_PATH)
+
+    return files
+
+
+def list_cloud_ui_data() -> [str]:
+    """List ui data spec files on AWS S3
+
+    Returns:
+        list: List of files
+    """
+    files = list_filtered_s3_files(S3_UI_DATA_DIR_PATH)
+
+    return files
+
+
+def list_cloud_datasets() -> [str]:
+    """List pma api dataset spec files on AWS S3
+
+    Returns:
+        list: List of files
+    """
+    files = list_filtered_s3_files(S3_DATASETS_DIR_PATH)
+
+    return files
+
+
+def list_local_files(path: str, name_contains: str = '') -> [str]:
+    """List applicable files in directory
+
+    Args:
+        path (str): Path to a directory containing files
+        name_contains (str): Additional filter to discard any files that do not
+        contain this string
+
+    Returns:
+        list: files
+    """
+    try:
+        all_files = os.listdir(path)
+    except FileNotFoundError:
+        msg = 'Path \'{}\' does not appear to exist.'.format(path)
+        raise PmaApiException(msg)
+
+    filenames = [x for x in all_files
+                 if x not in FILE_LIST_IGNORES
+                 and not os.path.isdir(os.path.join(path, x))]
+    filenames = [x for x in filenames if name_contains in x] if name_contains \
+        else filenames
+
+    return filenames
+
+
+def list_local_datasets(path: str = DATASETS_DIR) -> [str]:
+    """List available local datasets
+
+    Args:
+        path (str): Path to datasets directory
+
+    Returns:
+        list: datasets
+    """
+    filenames = list_local_files(path=path, name_contains='api_data')
+
+    return filenames
+
+
+def list_local_ui_data(path: str = UI_DATA_DIR) -> [str]:
     """List available local backups
 
     Args:
@@ -918,23 +1066,26 @@ def list_local_backups(path: str = BACKUPS_DIR) -> []:
     Returns:
         list: backups
     """
-    try:
-        filenames = os.listdir(path)
-    except FileNotFoundError:
-        filenames = []
+    filenames = list_local_files(path=path, name_contains='ui_data')
+
     return filenames
 
 
-def list_cloud_backups() -> []:
+def list_local_backups(path: str = BACKUPS_DIR) -> [str]:
     """List available local backups
+
+    Args:
+        path (str): Path to backups directory
 
     Returns:
         list: backups
     """
-    return list_files_from_s3()
+    filenames = list_local_files(path=path)
+
+    return filenames
 
 
-def list_backups() -> {}:
+def list_backups() -> {str: [str]}:
     """List available backups
 
     Returns:
@@ -944,6 +1095,32 @@ def list_backups() -> {}:
     return {
         'local': list_local_backups(),
         'cloud': list_cloud_backups()
+    }
+
+
+def list_ui_data() -> {str: [str]}:
+    """List available ui data spec files
+
+    Returns:
+        dict: available backups, of form...
+        {'local': [...], 'cloud': [...]
+    """
+    return {
+        'local': list_local_ui_data(),
+        'cloud': list_cloud_ui_data()
+    }
+
+
+def list_datasets() -> {str: [str]}:
+    """List available api data spec files
+
+    Returns:
+        dict: available backups, of form...
+        {'local': [...], 'cloud': [...]
+    """
+    return {
+        'local': list_local_datasets(),
+        'cloud': list_cloud_datasets()
     }
 
 
@@ -1034,4 +1211,4 @@ def delete_s3_file(filename: str):
     import boto3
 
     s3 = boto3.resource('s3')
-    s3.Object(AWS_S3_BACKUPS_BUCKETNAME, filename).delete()
+    s3.Object(AWS_S3_STORAGE_BUCKETNAME, filename).delete()

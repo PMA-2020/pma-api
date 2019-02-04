@@ -18,7 +18,8 @@ from pma_api.manage.server_mgmt import store_pid
 from pma_api.manage.db_mgmt import initdb_from_wb, init_from_workbook, \
     get_api_data, get_ui_data, TRANSLATION_MODEL_MAP, make_shell_context, \
     connection_error, write_data_file_to_db as write_data, backup_db, \
-    restore_db, list_backups as listbackups
+    restore_db, list_backups as listbackups, list_ui_data as listuidata, \
+    list_datasets as listdatasets, backup_source_files as backupsourcefiles
 from pma_api.models import Cache, ApiMetadata, Translation
 from pma_api.utils import dict_to_pretty_json
 
@@ -141,6 +142,33 @@ def list_backups():
     """List available backups"""
     pretty_json = dict_to_pretty_json(listbackups())
     print(pretty_json)
+
+
+@manager.command
+def list_ui_data():
+    """List available ui data"""
+    pretty_json = dict_to_pretty_json(listuidata())
+    print(pretty_json)
+
+
+@manager.command
+def list_datasets():
+    """List available datasets"""
+    pretty_json = dict_to_pretty_json(listdatasets())
+    print(pretty_json)
+
+@manager.command
+def list_source_files():
+    """List available source files: ui data and datasets"""
+    print('Datasets: ')
+    list_datasets()
+    print('UI data files: ')
+    list_ui_data()
+
+@manager.command
+def backup_source_files():
+    """Backup available source files: ui data and datasets"""
+    backupsourcefiles()
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))

@@ -11,6 +11,8 @@ PROJECT_ROOT_DIR = \
 load_dotenv(dotenv_path=Path(PROJECT_ROOT_DIR) / '.env')
 
 DATA_DIR = os.path.abspath(os.path.join(PROJECT_ROOT_DIR, 'data'))
+DATASETS_DIR = DATA_DIR
+UI_DATA_DIR = DATA_DIR
 BACKUPS_DIR = os.path.abspath(os.path.join(DATA_DIR, 'db_backups'))
 LOGS_DIR = os.path.abspath(os.path.join(PROJECT_ROOT_DIR, 'logs'))
 ERROR_LOG_PATH = os.path.join(LOGS_DIR, 'error-logfile.log')
@@ -28,7 +30,10 @@ IGNORE_SHEET_PREFIX = UNIVERSAL_IGNORE_PREFIX
 DATA_SHEET_PREFIX = 'data_'
 
 FLASK_CONFIG_ENV_KEY = 'FLASK_CONFIG'
-AWS_S3_BACKUPS_BUCKETNAME = os.getenv('BUCKET_NAME', 'pma-api-backups')
+AWS_S3_STORAGE_BUCKETNAME = os.getenv('BUCKET_NAME', 'pma-api-backups')
+S3_BACKUPS_DIR_PATH = 'database/backups/'
+S3_DATASETS_DIR_PATH = 'datasets/versions/'
+S3_UI_DATA_DIR_PATH = 'ui/versions/'
 
 
 def temp_folder_path() -> str:

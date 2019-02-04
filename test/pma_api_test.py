@@ -24,7 +24,7 @@ from manage import app, initdb
 from pma_api.tasks import apply_dataset_request
 from pma_api.manage.db_mgmt import write_data_file_to_db, restore_db_local, \
     new_backup_path, remove_stata_undefined_token_from_wb as \
-    remove_stata_undefined_token_from_wb_imported, backup_cloud, \
+    remove_stata_undefined_token_from_wb_imported, backup_db_cloud, \
     backup_local, restore_db_cloud, delete_s3_file, download_file_from_s3
 
 
@@ -295,7 +295,7 @@ class TestDbFunctions(PmaApiTest):
         """
         from pma_api.config import BACKUPS_DIR
 
-        filename = backup_cloud(path)
+        filename = backup_db_cloud(path)
 
         dl_path = download_file_from_s3(filename=filename,
                                         directory=BACKUPS_DIR)
