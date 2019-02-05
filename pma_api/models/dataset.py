@@ -24,10 +24,6 @@ class Dataset(db.Model):
     dataset_type = db.Column(db.String, nullable=False)
     is_active = db.Column(db.Boolean, nullable=False)
     is_processing = db.Column(db.Boolean, nullable=False)
-    is_active_staging = db.Column(db.Boolean, nullable=False)
-    is_active_production = db.Column(db.Boolean, nullable=False)
-    is_processing_staging = db.Column(db.Boolean, nullable=False)
-    is_processing_production = db.Column(db.Boolean, nullable=False)
 
     def __init__(self, file_path: str, is_processing: bool = False):
         """Initialize instance of dataset

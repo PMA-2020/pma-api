@@ -1052,7 +1052,9 @@ def list_local_datasets(path: str = DATASETS_DIR) -> [str]:
     Returns:
         list: datasets
     """
-    filenames = list_local_files(path=path, name_contains='api_data')
+    from_file_system: [str] = list_local_files(path=path, name_contains='api_data')
+    from_db: [str] = [x.dataset_display_name for x in Dataset.query.all()]
+    filenames: [str] = list(set(from_file_system + from_db))
 
     return filenames
 
