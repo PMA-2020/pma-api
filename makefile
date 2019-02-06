@@ -94,7 +94,13 @@ migrate_db:
 	the migrations/versions directory.
 	@echo
 	@echo From the documentation:
-	@echo The migration script needs to be reviewed and edited, as Alembic currently does not detect every change you make to your models. In particular, Alembic is currently unable to detect table name changes, column name changes, or anonymously named constraints. A detailed summary of limitations can be found in the Alembic autogenerate documentation. Once finalized, the migration script also needs to be added to version control.
+	@echo The migration script needs to be reviewed and edited, as Alembic \
+	currently does not detect every change you make to your models. In \
+	particular, Alembic is currently unable to detect table name changes, \
+	column name changes, or anonymously named constraints. A detailed summary \
+	of limitations can be found in the Alembic autogenerate documentation. \
+	Once finalized, the migration script also needs to be added to version \
+	control.
 	@echo https://flask-migrate.readthedocs.io/en/latest/
 migrate: migrate_db
 upgrade_db:

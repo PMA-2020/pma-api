@@ -143,7 +143,7 @@ def get_ui_data():
 
 
 def make_shell_context():
-    """Make shell context, for the ability to manipulate these models/tables
+    """Make shell context, for the ability to manipulate these db_models/tables
     from the command line shell.
 
     Returns:
@@ -320,7 +320,7 @@ def init_from_workbook(wb, queue):
 
     Args:
         wb (str): path to workbook file
-        queue (tuple): Order in which to load models.
+        queue (tuple): Order in which to load db_models.
     """
     with xlrd.open_workbook(wb) as book:
         book = format_book(book)

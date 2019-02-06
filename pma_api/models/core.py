@@ -1,4 +1,4 @@
-"""Core models."""
+"""Core db_models."""
 from flask import url_for
 
 from . import db

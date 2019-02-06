@@ -28,6 +28,13 @@ def create_app(config_name=os.getenv(FLASK_CONFIG_ENV_KEY, 'default')):
     CORS(app)
     db.init_app(app)
 
+    # debugging
+    # db2 = app.extensions['sqlalchemy'].db
+    #
+    # y = [cls for cls in db.Model._decl_class_registry.values()
+    #      if isinstance(cls, type) and issubclass(cls, db.Model)]
+    # debugging
+
     celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
     celery.conf.update(app.config)
 

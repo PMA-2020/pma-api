@@ -6,7 +6,7 @@
 # import unittest
 #
 # from pma_api import db, create_app
-# from pma_api.models import Dataset
+# from pma_api.db_models import Dataset
 #
 # from .config import TEST_STATIC_DIR
 #

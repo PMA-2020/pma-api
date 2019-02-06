@@ -228,7 +228,7 @@ use the source key and do a lookup.</p>
 target_key (str): model ‘id’ field name.
 model (class): The corresponding SqlAlchemy model class.
 required (bool): True if target key should have an ID.
-kwargs (dict): The keyword argument representation of query
+kwargs (dict): The keyword argument representation of interpolated_query
 parameters submitted by the API request.</dd>
 <dt>Raises:</dt>
 <dd><dl class="first last docutils">
@@ -254,17 +254,17 @@ fstr (str): The format string for the date.</dd>
 <dl class="staticmethod">
 <dt id="pma_api.models.api_base.ApiModel.update_kwargs_english">
 <em class="property">static </em><code class="descname">update_kwargs_english</code><span class="sig-paren">(</span><em>kwargs</em>, <em>source_key</em>, <em>target_key</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.api_base.ApiModel.update_kwargs_english" title="Permalink to this definition">¶</a></dt>
-<dd><p>Translate API query parameters to equivalent in model.</p>
-<p>API URL query parameters are in many case abstracted away from the
+<dd><p>Translate API interpolated_query parameters to equivalent in model.</p>
+<p>API URL interpolated_query parameters are in many case abstracted away from the
 models and underlying database. For example, ‘survey’ in the API would
 equate to ‘survey_id’ in the database model. Side effects: kwargs are
 modified so that new key of name matching ‘target_key’ argument is
 inserted, with value as the corresponding record id.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>source_key (str): The API query parameter.
+<dd>source_key (str): The API interpolated_query parameter.
 target_key (str): The equivalent model field.
-kwargs (dict): The keyword argument representation of query
+kwargs (dict): The keyword argument representation of interpolated_query
 parameters submitted by the API request.</dd>
 </dl>
 </dd></dl>
@@ -546,10 +546,10 @@ table name.</dd>
 <dl class="staticmethod">
 <dt id="pma_api.models.core.Country.validate_keys">
 <em class="property">static </em><code class="descname">validate_keys</code><span class="sig-paren">(</span><em>request_args</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Country.validate_keys" title="Permalink to this definition">¶</a></dt>
-<dd><p>Validate whether query parameters passed even exist to be queried.</p>
+<dd><p>Validate whether interpolated_query parameters passed even exist to be queried.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>request_args (ImmutableMultiDict): API query parameters.</dd>
+<dd>request_args (ImmutableMultiDict): API interpolated_query parameters.</dd>
 <dt>Returns:</dt>
 <dd>tuple: (bool: Validity, str: Error message)</dd>
 </dl>
@@ -558,10 +558,10 @@ table name.</dd>
 <dl class="staticmethod">
 <dt id="pma_api.models.core.Country.validate_param_types">
 <em class="property">static </em><code class="descname">validate_param_types</code><span class="sig-paren">(</span><em>request_args</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Country.validate_param_types" title="Permalink to this definition">¶</a></dt>
-<dd><p>Validate query parameter types.</p>
+<dd><p>Validate interpolated_query parameter types.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>request_args (ImmutableMultiDict): API query parameters.</dd>
+<dd>request_args (ImmutableMultiDict): API interpolated_query parameters.</dd>
 <dt>Returns</dt>
 <dd>bool: True if valid param types, else false.</dd>
 </dl>
@@ -570,12 +570,12 @@ table name.</dd>
 <dl class="staticmethod">
 <dt id="pma_api.models.core.Country.validate_query">
 <em class="property">static </em><code class="descname">validate_query</code><span class="sig-paren">(</span><em>request_args</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Country.validate_query" title="Permalink to this definition">¶</a></dt>
-<dd><p>Validate query.</p>
+<dd><p>Validate interpolated_query.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>request_args (ImmutableMultiDict): API query parameters.</dd>
+<dd>request_args (ImmutableMultiDict): API interpolated_query parameters.</dd>
 <dt>Returns:</dt>
-<dd>bool: True if valid query, else false.
+<dd>bool: True if valid interpolated_query, else false.
 lit: List of error message strings.</dd>
 </dl>
 </dd></dl>
@@ -583,10 +583,10 @@ lit: List of error message strings.</dd>
 <dl class="staticmethod">
 <dt id="pma_api.models.core.Country.validate_queryable">
 <em class="property">static </em><code class="descname">validate_queryable</code><span class="sig-paren">(</span><em>request_args</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Country.validate_queryable" title="Permalink to this definition">¶</a></dt>
-<dd><p>Validate whether query parameters are allowed to be queried.</p>
+<dd><p>Validate whether interpolated_query parameters are allowed to be queried.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>request_args (ImmutableMultiDict): API query parameters.</dd>
+<dd>request_args (ImmutableMultiDict): API interpolated_query parameters.</dd>
 <dt>Returns:</dt>
 <dd>tuple: (bool: Validity, str: Error message)</dd>
 </dl>
@@ -595,10 +595,10 @@ lit: List of error message strings.</dd>
 <dl class="staticmethod">
 <dt id="pma_api.models.core.Country.validate_types">
 <em class="property">static </em><code class="descname">validate_types</code><span class="sig-paren">(</span><em>request_args</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Country.validate_types" title="Permalink to this definition">¶</a></dt>
-<dd><p>Validate whether query parameter types are correct.</p>
+<dd><p>Validate whether interpolated_query parameter types are correct.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>request_args (ImmutableMultiDict): API query parameters.</dd>
+<dd>request_args (ImmutableMultiDict): API interpolated_query parameters.</dd>
 <dt>Returns:</dt>
 <dd>tuple: (bool: Validity, str: Error message)</dd>
 </dl>

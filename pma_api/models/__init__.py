@@ -1,6 +1,6 @@
 """Model definitions.
 
-This file defines the doorway for other components into the models
+This file defines the doorway for other components into the db_models
 sub-package.
 """
 from flask_sqlalchemy import SQLAlchemy

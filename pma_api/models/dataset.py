@@ -44,11 +44,7 @@ class Dataset(db.Model):
             version_number=version,
             dataset_type='full',  # TODO: allow for different types
             is_active=False,
-            is_processing=is_processing,
-            is_active_staging=False,
-            is_active_production=False,
-            is_processing_staging=False,
-            is_processing_production=False)
+            is_processing=is_processing)
 
     @classmethod
     def get(cls, _id):

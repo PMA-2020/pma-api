@@ -35,6 +35,8 @@ S3_BACKUPS_DIR_PATH = 'database/backups/'
 S3_DATASETS_DIR_PATH = 'datasets/versions/'
 S3_UI_DATA_DIR_PATH = 'ui/versions/'
 
+SQLALCHEMY_MODEL_ATTR_QUERY_IGNORES = ('_sa_instance_state', )
+
 
 def temp_folder_path() -> str:
     """Get the path to temp upload folder.

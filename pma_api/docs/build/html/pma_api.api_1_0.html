@@ -176,14 +176,14 @@ not match, then a new cached response is generated and saved.</p>
 <dl class="function">
 <dt id="pma_api.api_1_0.collection.data_refined_query">
 <code class="descclassname">pma_api.api_1_0.collection.</code><code class="descname">data_refined_query</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.api_1_0.collection.data_refined_query" title="Permalink to this definition">¶</a></dt>
-<dd><p>Refine data query.</p>
+<dd><p>Refine data interpolated_query.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>args: List of args. If ‘survey’ present, filter by survey entities.</dd>
 <dt>Query Args:</dt>
 <dd>None</dd>
 <dt>Returns:</dt>
-<dd>dict: Filtered query data.</dd>
+<dd>dict: Filtered interpolated_query data.</dd>
 </dl>
 </dd></dl>
 
@@ -707,7 +707,7 @@ language displayed is English (en).</dd>
 <dd>Non-REST, Python API for function has no arguments.</dd>
 <dt>Query Args:</dt>
 <dd>survey (string | list): The country survey round(s). If more than one,
-this query parameter is comma delimited with no enclosing brackets, as
+this interpolated_query parameter is comma delimited with no enclosing brackets, as
 shown in example. Not required.
 indicator: (string): A single indicator. Not required.
 characteristicGroup (string): A single characteristic group. Not
@@ -723,8 +723,8 @@ required.</dd>
 </ul>
 <p class="last">A valid structural metadata combination is a combination for which data
 exists. That is to say that when these metadata are used together as
-query parameters on the ‘datalab/data’ endpoint, actual data will be
-returned rather than nothing at all. While none of the query arguments
+interpolated_query parameters on the ‘datalab/data’ endpoint, actual data will be
+returned rather than nothing at all. While none of the interpolated_query arguments
 are marked as required, a normal use case uses 1 or 2 of the three
 parameters available to this endpoint. For 0 or 3 of the
 afforementioned parameters, the “/datalab/init” and “/datalab/data”
@@ -897,14 +897,14 @@ women)”.</p>
 <dd>Non-REST, Python API for function has no arguments.</dd>
 <dt>Query Args:</dt>
 <dd>survey (string | list): The country survey round(s). If more than one,
-this query parameter is comma delimited with no enclosing brackets, as
+this interpolated_query parameter is comma delimited with no enclosing brackets, as
 shown in example. Not required.
 indicator: (string): A single indicator.  Not required.
 characteristicGroup (string): A single characteristic group. Not
 required.
 overTime (bool): If “true”, this endpoint looks for data to be plotted
 or disaggregated over a time dimension. If “false”, the data is only
-disaggregated by the characteristic group. Default value for this query
+disaggregated by the characteristic group. Default value for this interpolated_query
 argument if left out is “false”. Not required.
 format (string): Only accepts the string “csv”. This will return a CSV
 file. Not required.
@@ -918,10 +918,10 @@ value is “EN”. Not required.</dd>
 characteristics), all of which have at least one stored data point
 associated. In addition to “results” and “metadata” object, which are
 common to other endpoints, this endpoint also returns a “queryInput”
-object, which provides additional attributes for all of the query
+object, which provides additional attributes for all of the interpolated_query
 parameters which were passed in the request.</p>
 <p class="last">While no parameters are technically required, it is expected that some
-be provided. For the Datalab client use case, all query parameters are
+be provided. For the Datalab client use case, all interpolated_query parameters are
 typically used. The historical function of this endpoint is for the
 purpose of data visualization.</p>
 </dd>
