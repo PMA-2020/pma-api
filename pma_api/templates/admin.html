@@ -38,9 +38,12 @@
                 <th>Type</th>
                 <th>Name</th>
                 <th>Version</th>
-                <th>Active</th>
-{#                <th>Active: Staging</th>#}
-{#                <th>Active: Production</th>#}
+{#                <th>Active</th>#}
+                <th>Active: Staging</th>
+                <th>Active: Production</th>
+                {% if this_env=='development' %}
+                  <th>Active: Dev</th>
+                {% endif %}
               </tr>
             </thead>
             <tbody>
@@ -55,23 +58,50 @@
                 </a>
 
                 <div class="right-buttons">
-{#                  <a id="apply-staging-link" href="#">#}
-{#                    <button type="button" class="btn btn-outline-dark" id="apply-staging-button">#}
-{#                      Apply dataset to staging#}
+                  <a id="apply-staging-link" href="#">
+                    <button type="button" class="btn btn-outline-dark" id="apply-staging-button">
+                      Activate on staging
+                    </button>
+                  </a>
+                  <a id="apply-production-link" href="#">
+                    <button type="button" class="btn btn-outline-dark" id="apply-production-button">
+                      Activate on production
+                    </button>
+                  </a>
+
+                  {% if this_env=='development' %}
+                    <a id="activate-dataset-link" href="#">
+                      <button type="button" class="btn btn-outline-dark" id="activate-dataset-button">
+                        Activate on dev
+                      </button>
+                    </a>
+                  {% endif %}
+
+{#                  <a id="activate-dataset-link" href="#">#}
+{#                    <button type="button" class="btn btn-outline-dark" id="activate-dataset-button">#}
+{#                      Activate Dataset#}
 {#                    </button>#}
 {#                  </a>#}
-{#                  <a id="apply-production-link" href="#">#}
-{#                    <button type="button" class="btn btn-outline-dark" id="apply-production-button">#}
-{#                      Apply dataset to production#}
-{#                    </button>#}
-{#                  </a>#}
-                  <a id="activate-dataset-link" href="#">
-                    <button type="button" class="btn btn-outline-dark" id="activate-dataset-button">
-                      Activate Dataset
+                  {#                TODO: temp#}
+                  <a id="testing-link" href="#">
+                    <button type="button" class="btn btn-outline-dark" id="testing-button">
+                      Test Async progress updates
                     </button>
                   </a>
                 </div>
             </div>
+
+            <div id="bootstrap-super-container"
+                 style="margin-top: 20px; margin-bottom: 5px; display: none;">
+              <div class="progress" id="bootstrap-bar-container">
+                <div class="progress-bar progress-bar-striped"
+                     id="bootstrap-bar"
+                     role="progressbar"
+                     aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"
+                     style="width: 0%;"/>
+              </div>
+            </div>
+            <div id="progress-msg" style="display: none;">...</div>
 
           <!--
           <hr/>
@@ -88,13 +118,22 @@
           </form>
           -->
       </div>
-      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-              integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+      <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+{#      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"#}
+{#        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>#}
       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
-              integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
-              integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
       <script src="../static/dropzone.js"></script>
+
+      {#      TODO: testing#}
+      <script src="//cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
+
       <script>
           Dropzone.autoDiscover = false;
           var myDropzone = new Dropzone("#myDropzone");
@@ -114,19 +153,24 @@
               }
           });
           // Get data for dataset table
+          // TODO: Fetch 'active' status from servers using new query
+          // TODO: Represent 'processing' by text 'processing'
           const json_response = [
             {% for dataset in datasets %}
               {
-                "Upload date" : "{{dataset.upload_date}}",
-                "Type" :"{{dataset.dataset_type}}",
-                "Name" :"{{dataset.dataset_display_name}}",
-                "Version" :"{{dataset.version_number}}",
-                "Active" : {% if dataset.is_active %}true{% else %}false{% endif %},
-                "Processing" : {% if dataset.is_processing %}true{% else %}false{% endif %},
+                "Upload date": "{{dataset.upload_date}}",
+                "Type": "{{dataset.dataset_type}}",
+                "Name": "{{dataset.dataset_display_name}}",
+                "Version": "{{dataset.version_number}}",
+                {#"Active": {% if dataset.is_active %}true{% else %}false{% endif %},#}
+                {#"Processing": {% if dataset.is_processing %}true{% else %}false{% endif %},#}
                 {#"Processing: Staging" : {% if dataset.is_processing_staging %}true{% else %}false{% endif %},#}
                 {#"Processing: Production" : {% if dataset.is_processing_production %}true{% else %}false{% endif %},#}
-                {#"Active: Staging" : {% if dataset.is_active_staging %}true{% else %}false{% endif %},#}
-                {#"Active: Production" : {% if dataset.is_active_production %}true{% else %}false{% endif %},#}
+                "Active: Staging": {% if this_env=='staging' %} {{ dataset.is_active }} {% else %} 'fetching' {% endif %},
+                "Active: Production": {% if this_env=='production' %} {{ dataset.is_active }} {% else %} 'fetching' {% endif %},
+                {% if this_env=='development' %}
+                  "Active: Dev": {% if dataset.is_active %}true{% else %}false{% endif %},
+                {% endif %}
               },
             {% endfor %}
           ];
@@ -143,9 +187,15 @@
                 tbody += '<td>'+element["Type"]+'</td>';
                 tbody += '<td class="dataset-row-datasetName">'+element["Name"]+'</td>';
                 tbody += '<td>'+element["Version"]+'</td>';
-                tbody += '<td>'+ (element["Active"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';
-                {#tbody += '<td>'+ (element["Active: Staging"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';#}
-                {#tbody += '<td>'+ (element["Active: Production"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';#}
+                {#tbody += '<td>'+ (element["Active"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';#}
+                {#tbody += '<td>'+ element["Active: Staging"] === 'fetching' ? 'fetching' : (element["Active: Staging"] ? '<i class="fas fa-check"></i>' : non_active) + '</td>';#}
+                tbody += '<td>'+ element["Active: Staging"] + '</td>';
+                tbody += '<td>'+ element["Active: Production"] + '</td>';
+                {#tbody += '<td>'+ (element["Active: Staging"] ? '<i class="fas fa-check"></i>' : non_active) + '</td>';#}
+                {#tbody += '<td>'+ (element["Active: Production"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';                #}
+                {% if this_env=='development' %}
+                  tbody += '<td>'+ (element["Active: Dev"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';
+                {% endif %}
                 tbody += '</tr>';
             });
             $('tbody').html(tbody);
@@ -181,20 +231,17 @@
               }
             }
 
+            // alert close button
+            $('#message-bar span').on('click', function(){
+                $('#message-bar').hide();
+            });
+
             // Add functionality to dataset download button
             $("#download-button").bind('click', downloadDataset);
             function downloadDataset() {
               let name = selectedDatasetName();
               if (name != '')
                 $("#download-link").attr("href", "/admin?download=" + name);
-            }
-
-            // Add functionality to activate-dataset button
-            $("#activate-dataset-button").bind('click', activateDataset);
-            function activateDataset() {
-              let name = selectedDatasetName();
-              if (name != '')
-                $("#activate-dataset-link").attr("href", "/admin?activate=" + name);
             }
 
             // Add functionality to apply-staging button
@@ -213,10 +260,73 @@
                 $("#apply-production-link").attr("href", "/admin?applyProduction=" + name);
             }
 
-            // alert close button
-            $('#message-bar span').on('click', function(){
-                $('#message-bar').hide();
-            });
+            var progressContainer = $('#progress');
+            var progressBar = $('#progress-bar');
+            var progressPct = $('#progress-pct');
+            var progressMsg = $('#progress-msg');
+            var progressResult = $('#progress-result');
+
+            var bootstrapContainer = $('#bootstrap-container');
+            var bootstrapBar = $('#bootstrap-bar');
+
+            // Add functionality to activate-dataset-dev button
+            $("#activate-dataset-button").bind('click', activateDataset);
+            function activateDataset() {
+              let name = selectedDatasetName();
+              initTask('/apply_dataset/' + name)
+            }
+
+            function initTask(postUrl) {
+              progressMsg.css('display', 'inherit');
+
+              $('#bootstrap-super-container').css('display', 'inherit');
+              {#bootstrapContainer.css('display', 'inherit');#}
+              {#bootstrapBar.css('display', 'inherit');#}
+
+              $.ajax({
+                type: 'POST',
+                url: postUrl,
+                success: function(data, status, request) {
+                  status_url = request.getResponseHeader('Location');
+                  updateTaskProgress(status_url);
+                },
+                error: function() {
+                  alert('Unexpected error occurred while processing task.');
+                }
+              });
+            }
+
+            function updateTaskProgress(statusUrl) {
+              // send GET request to status URL
+              $.getJSON(statusUrl, function(data) {
+                // update UI
+                percent = parseInt(data.current * 100 / data.total);
+                percentStr = percent + '%'
+
+                progressMsg.text(data.status);
+                bootstrapBar.text(percentStr)
+                bootstrapBar.css('width', percentStr)
+
+                if (data.state != 'PENDING' && data.state != 'PROGRESS') {
+                  if ('result' in data)
+                    progressMsg.text('Result: ' + data.result);
+                  else
+                    progressMsg.text('Result: ' + data.state);
+                }
+                else
+                  setTimeout(function() {
+                    updateTaskProgress(statusUrl);
+                  }, 500);  // rerun every 0.5 seconds
+              });
+            }
+
+            // TODO - temp
+            // Add functionality to testing-button
+            $("#testing-button").bind('click', testing);
+            function testing() {
+              initTask('/longtask')
+            }
+
           });
       </script>
   </body>

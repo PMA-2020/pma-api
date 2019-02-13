@@ -132,6 +132,7 @@ serve-dev-network-accessible:
 	--capture-output \
 	--pythonpath python3
 # serve-production: D="run in background, p="path to save file w/ process ID"
+# TODO: pass the port explicitly
 serve-production:
 	gunicorn run:app -D -p pma-api_process-id.pid
 connect-production:
@@ -262,3 +263,7 @@ restore:
 	@echo python3 manage.py restore --path=PATH/TO/BACKUP
 list-backups:
 	@python3 manage.py list_backups
+
+# Task ques
+celery:
+	celery worker --app=pma_api.tasks.celery --loglevel=info

@@ -71,13 +71,19 @@ class Config:
     DATABASE_PORT = os.getenv('DATABASE_PORT', '5432')
 
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
-    REDIS_URL = os.getenv('REDIS_URL')
-    CELERY_BROKER_URL = REDIS_URL
-    CELERY_RESULT_BACKEND = REDIS_URL
+    CELERY_BROKER_URL = os.getenv('MESSAGE_BROKER_URL')
+    CELERY_RESULT_BACKEND = CELERY_BROKER_URL
     STAGING_URL = os.getenv('STAGING_URL')
     PRODUCTION_URL = os.getenv('PRODUCTION_URL')
     LOCAL_DEVELOPMENT_URL = os.getenv('LOCAL_DEVELOPMENT_URL',
                                       'http://localhost:5000')
+
+    BROKER_TRANSPORT_OPTIONS = {
+        'max_retries': 3,
+        'interval_start': 0,
+        'interval_step': 0.2,
+        'interval_max': 0.2,
+    }
 
 
 class StagingConfig(Config):

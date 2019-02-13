@@ -1,8 +1,8 @@
 """Custom subclass for the PMA API."""
 from flask import Flask, Response
 
-from .models import Cache
-from .response import ApiResult
+from pma_api.models import Cache
+from pma_api.response import ApiResult
 
 
 class PmaApiFlask(Flask):

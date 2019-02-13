@@ -3,16 +3,28 @@ import json
 import os
 from io import BytesIO
 
-import celery
 import requests
+from celery import Celery
+from flask import current_app
 from werkzeug.datastructures import FileStorage
 
+from pma_api import create_app
 from pma_api.manage.db_mgmt import initdb_from_wb
 from pma_api.config import data_folder_path, temp_folder_path
 from pma_api.models import Dataset
-from pma_api.routes.root_routes import upload, ExistingDatasetError
+from pma_api.routes.administration import upload, ExistingDatasetError
+
 
 APPLY_DATASET_ROUTE = 'apply_dataset'
+
+try:
+    app = current_app
+    celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+    celery.conf.update(app.config)
+except RuntimeError:
+    app = create_app(os.getenv('FLASK_CONFIG', 'default'))
+    celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+    celery.conf.update(app.config)
 
 
 # I. Sending server
@@ -118,6 +130,7 @@ def apply_dataset_request(self, dataset_name: str, destination: str) -> dict:
     dataset_obj = Dataset.query.filter_by(
         dataset_display_name=dataset_name).first()
     file_path = os.path.join(temp_folder_path(), dataset_name)
+    # TODO: will this work in all circumstances?
     save_file_from_bytes(file_bytes=dataset_obj.data, file_path=file_path)
     #
 
@@ -187,3 +200,32 @@ def apply_dataset_to_self(self, dataset_name, dataset: FileStorage = None) \
     # When async, Always returns 'none' for some reason:
     # status = self.AsyncResult(self.request.id).state
     return result
+
+
+# TODO: temporary
+@celery.task(bind=True)
+def long_task(self):
+    """Background task that runs a long function with progress reports."""
+    import random
+    import time
+
+    verb = ['Starting up', 'Booting', 'Repairing', 'Loading', 'Checking']
+    adjective = ['master', 'radiant', 'silent', 'harmonic', 'fast']
+    noun = ['solar array', 'particle reshaper', 'cosmic ray', 'orbiter',
+            'bit']
+    message = ''
+    total = random.randint(10, 50)
+
+    for i in range(total):
+        if not message or random.random() < 0.25:
+            message = '{0} {1} {2}...'.format(random.choice(verb),
+                                              random.choice(adjective),
+                                              random.choice(noun))
+        self.update_state(state='PROGRESS',
+                          meta={'current': i, 'total': total,
+                                'status': message})
+        time.sleep(0.1)
+        print('Progress: ' + str(i))
+
+    return {'current': 100, 'total': 100, 'status': 'Task completed!',
+            'result': 42}

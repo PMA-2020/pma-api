@@ -23,7 +23,7 @@ resource_model_map = {
 }
 
 
-def models_to_dicts(models: [Model], ignores: () = IGNORES) -> [{}]:
+def models_to_dicts(models: [Model], ignores: () = IGNORES) -> [dict]:
     """Converts list of SqlAlchemy Model objects to dictionaries
 
     Args:
@@ -33,7 +33,7 @@ def models_to_dicts(models: [Model], ignores: () = IGNORES) -> [{}]:
     Returns:
         list(dict): List of dictionaries
     """
-    dicts: [{}] = [
+    dicts: [dict] = [
         {
             k: v
             for k, v in x.__dict__.items() if k not in ignores
@@ -94,6 +94,8 @@ def dynamic_route(resource: str) -> Union[QuerySetApiResult, str]:
     query_template_path = os.path.join(query_dir, 'python_query_template.py')
     query_tempfile_path = os.path.join(query_dir, 'python_query_tempfile.py')
 
+    # TODO: review https://nedbatchelder.com/blog/201206/
+    #  eval_really_is_dangerous.html
     arg_str = ''
     for k, v in request.args.items():
         # TODO 3: Lots of other conversions. Consider as well using the literal

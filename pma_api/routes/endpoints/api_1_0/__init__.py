@@ -1,7 +1,7 @@
 """API Routes."""
 from flask import Blueprint
 
-from pma_api.routes.root_routes import root as server_root
+from pma_api.routes import root as server_root
 
 api = Blueprint('api', __name__)
 

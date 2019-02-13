@@ -17,7 +17,7 @@ def create_app(config_name=os.getenv(FLASK_CONFIG_ENV_KEY, 'default')):
     Returns:
         Flask: Configured Flask application.
     """
-    from pma_api.routes.root_routes import root
+    from pma_api.routes import root
     from pma_api.app import PmaApiFlask
     from pma_api.config import config
 
@@ -27,16 +27,6 @@ def create_app(config_name=os.getenv(FLASK_CONFIG_ENV_KEY, 'default')):
 
     CORS(app)
     db.init_app(app)
-
-    # debugging
-    # db2 = app.extensions['sqlalchemy'].db
-    #
-    # y = [cls for cls in db.Model._decl_class_registry.values()
-    #      if isinstance(cls, type) and issubclass(cls, db.Model)]
-    # debugging
-
-    celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-    celery.conf.update(app.config)
 
     app.register_blueprint(root)
     from pma_api.routes.endpoints.api_1_0 import api as api_1_0_blueprint

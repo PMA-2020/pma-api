@@ -18,7 +18,7 @@ def interpolated_query(objects: [Model]) -> [Model]:
         PmaApiException: If attribute requested not found
     """
     try:
-        filtered_list = [_ for _ in objects if '$']
+        filtered_list = '$'
     except AttributeError:
         model_attrs = \
             [k for k in objects[0].__dict__.keys() if k not in IGNORES]

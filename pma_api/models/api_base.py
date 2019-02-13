@@ -2,8 +2,8 @@
 from datetime import datetime
 
 from pma_api.config import IGNORE_FIELD_PREFIX
-from . import db
-from .string import EnglishString
+from pma_api.models import db
+from pma_api.models.string import EnglishString
 
 
 def prune_ignored_fields(kwargs):

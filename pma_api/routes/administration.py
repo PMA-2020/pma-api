@@ -2,102 +2,16 @@
 from io import BytesIO
 import os
 
-from flask import Blueprint, jsonify, redirect, request, render_template, \
-    send_file
+from flask import jsonify, request, render_template, send_file, url_for
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
-root = Blueprint('root', __name__)
-
 from pma_api.error import ExistingDatasetError
 
-
-@root.route('/')
-def root_route():
-    """Root route.
-
-    .. :quickref: Root; Redirects to resources list or documentation depending
-     on MIME type
-
-    Args:
-        n/a
-
-    Returns:
-        func: get_resources() if 'application/json'
-        func: redirect() to docs if 'text/html'
-
-    Details:
-        Redirects implicitly if MIME type does not explicitly match what is
-        expected.
-    """
-    request_headers = request.accept_mimetypes\
-        .best_match(['application/json', 'text/html'])
-
-    if request_headers == 'text/html':
-        return redirect('http://api-docs.pma2020.org', code=302)
-    else:
-        from .endpoints.api_1_0.collection import get_resources as res
-        return res() if request_headers == 'application/json' else res()
+from pma_api.routes import root
 
 
-@root.route('/docs')
-def documentation():
-    """Documentation.
-
-    .. :quickref: Docs; Redirects to official documentation.
-
-    Args:
-        n/a
-
-    Returns:
-        redirect(): Redirects to official documentation.
-    """
-    return redirect('http://api-docs.pma2020.org', code=302)
-
-
-@root.route('/version')
-def show_version():
-    """Show API version data.
-
-    .. :quickref: Version; API versioning data.
-
-    Args:
-        n/a
-
-    Returns:
-        String: Version number.
-
-    Details:
-        Displays API's 2-part semantic version number. ALso displays versioning
-        for datasets used.
-
-    Example:
-        .. code-block:: json
-           :caption: GET /v1/version
-           :name: example-of-endpoint-version
-
-            {
-              "datasetMetadata": [
-                {
-                  "createdOn": "Fri, 13 Jul 2018 20:25:42 GMT",
-                  "hash": "339ce036bdee399d449f95a1d4b3bb8f",
-                  "name": "api_data-2018.03.19-v29-SAS",
-                  "type": "api"
-                },
-                {
-                  "createdOn": "Fri, 13 Jul 2018 20:25:43 GMT",
-                  "hash": "469542a93241da0af80269b6d7352600",
-                  "name": "ui_data-2017.10.02-v4-jef",
-                  "type": "ui"
-                }
-              ],
-              "version": "0.1.9"
-            }
-    """
-    from pma_api.response import QuerySetApiResult
-    return jsonify(QuerySetApiResult.metadata())
-
-
+# TODO: Turn into its own route
 def upload(filename: str, file):
     """Upload file into database
 
@@ -197,20 +111,78 @@ def admin_route():
                                           destination=server_url)
 
         datasets = Dataset.query.all()
+        this_env = os.getenv('APP_SETTINGS', 'development')
 
-        return render_template('admin.html', datasets=datasets)
+        return render_template('admin.html',
+                               datasets=datasets,
+                               this_env=this_env)
 
 
 @root.route('/apply_dataset', methods=['POST'])
-def apply_dataset_route():
-    """Apply dataset."""
+def apply_dataset_route(dataset_name: str):
+    """Apply dataset"""
     from pma_api.tasks import apply_dataset_to_self
 
-    results_list = []
+    # 1. TODO: upload dataset if needed
+    pass
 
-    for key, val in request.files.items():
-        result = apply_dataset_to_self(dataset_name=key, dataset=val)
-        results_list.append(result)
+    # 2. TODO: apply dataset - change from self to general
+    task = apply_dataset_to_self.apply_async(dataset_name=dataset_name)
 
-    results = results_list if len(results_list) > 1 else results_list[0]
-    return jsonify(results)
+    return jsonify({}), 202, {'Location': url_for('root.taskstatus',
+                                                  task_id=task.id)}
+
+    # results_list = []
+    #
+    # for key, val in request.files.items():
+    #     result = apply_dataset_to_self(dataset_name=key, dataset=val)
+    #     results_list.append(result)
+    #
+    # results = results_list if len(results_list) > 1 else results_list[0]
+    #
+    # return jsonify(results)
+
+
+@root.route('/status/<task_id>')
+def taskstatus(task_id):
+    """Get task status"""
+    from pma_api.tasks import long_task
+    task = long_task.AsyncResult(task_id)
+
+    if task.state == 'PENDING':
+        # job did not start yet
+        response = {
+            'state': task.state,
+            'current': 0,
+            'total': 1,
+            'status': 'Pending...'
+        }
+    elif task.state != 'FAILURE':
+        response = {
+            'state': task.state,
+            'current': task.info.get('current', 0),
+            'total': task.info.get('total', 1),
+            'status': task.info.get('status', '')
+        }
+        if 'result' in task.info:
+            response['result'] = task.info['result']
+    else:
+        # something went wrong in the background job
+        response = {
+            'state': task.state,
+            'current': 1,
+            'total': 1,
+            'status': str(task.info),  # this is the exception raised
+        }
+    return jsonify(response)
+
+
+# TODO: testing
+@root.route('/longtask', methods=['POST'])
+def longtask():
+    """Long task"""
+    from pma_api.tasks import long_task
+    task = long_task.apply_async()
+
+    return jsonify({}), 202, {'Location': url_for('root.taskstatus',
+                                                  task_id=task.id)}

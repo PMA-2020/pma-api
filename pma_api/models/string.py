@@ -1,5 +1,5 @@
 """EnglishString & Translation model."""
-from . import db
+from pma_api.models import db
 from pma_api.utils import next64
 
 

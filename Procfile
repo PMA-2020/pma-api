@@ -1,3 +1,3 @@
 web: make serve-production
-worker: celery worker --app=tasks.app
+worker: make celery
 release: make db-production

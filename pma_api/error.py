@@ -6,7 +6,7 @@ class PmaApiException(Exception):
 
 
 class PmaApiDbInteractionError(PmaApiException):
-    """Braod class for exceptions related to DB interactions"""
+    """Broad class for exceptions related to DB interactions"""
 
 
 class ExistingDatasetError(PmaApiException):

@@ -80,7 +80,7 @@ class QuerySetApiResult(ApiResult):
         return response
 
     @staticmethod
-    def _remove_bytes_values(record_list: [{}]) -> [{}]:
+    def _remove_bytes_values(record_list: [dict]) -> [dict]:
         """From a list of dicts, remove any dict value that is bytes.
 
         Args:
@@ -90,7 +90,7 @@ class QuerySetApiResult(ApiResult):
             list(dict): Records with any non-JSON-serializable bytes values
             replaced with the string 'bytes'
         """
-        formatted_list: [{}] = [
+        formatted_list: [dict] = [
             {
                 k: 'bytes' if isinstance(v, bytes) else
                 v
@@ -104,6 +104,8 @@ class QuerySetApiResult(ApiResult):
     @staticmethod
     def json_response(record_list, extra_metadata, **kwargs):
         """Convert a list of records into a JSON response."""
+        # TODO: instead of remove bytes values, convert bytes value to URL
+        #  to download file
         formatted_list = QuerySetApiResult._remove_bytes_values(record_list)
         obj = {
             **kwargs,
