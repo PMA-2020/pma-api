@@ -1,9 +1,9 @@
 """Dataset model."""
 import datetime
-# from hashlib import md5
 import os
 
-from . import db
+from pma_api.config import ACCEPTED_DATASET_EXTENSIONS as EXTENSIONS
+from pma_api.models import db
 
 
 class Dataset(db.Model):
@@ -32,10 +32,26 @@ class Dataset(db.Model):
             file_path (str): Path to dataset file
             is_processing (bool): Is this dataset currently being uploaded?
         """
-        dataset_display_name: str = os.path.basename(file_path)
+        path_with_ext: str = file_path if \
+            any(file_path.endswith('.' + x) for x in EXTENSIONS) \
+            else file_path + '.xlsx'
 
-        version: int = \
-            int(str(dataset_display_name.split('-')[2]).replace('v', ''))
+        # with ext:
+        filename: str = os.path.basename(path_with_ext)
+        # without ext:
+        # filename: str = os.path.splitext(os.path.basename(path_with_ext))[0]
+
+        filename_parts: list = filename.split('-')
+        dataset_display_name: str = filename_parts[0]
+
+        version_str: str = filename_parts[2]
+        for ext in EXTENSIONS:
+            suffix: str = '.' + ext
+            if version_str.endswith(suffix):
+                version_str = version_str.replace(suffix, '')
+                break
+        version: int = int(version_str.replace('v', '') if 'v' in version_str
+                           else version_str)
 
         super(Dataset, self).__init__(
             data=open(file_path, 'rb').read(),

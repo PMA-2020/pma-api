@@ -21,7 +21,7 @@ from sqlalchemy.util.queue import Empty as EmptyError
 
 from test.config import TEST_STATIC_DIR
 from manage import app, initdb
-from pma_api.tasks import apply_dataset_request
+from pma_api.tasks import activate_dataset_request
 from pma_api.manage.db_mgmt import write_data_file_to_db, restore_db_local, \
     new_backup_path, remove_stata_undefined_token_from_wb as \
     remove_stata_undefined_token_from_wb_imported, backup_db_cloud, \
@@ -153,7 +153,7 @@ class TestRoutes(PmaApiTest):
             raise Exception(msg)
 
 
-class TestApplyDataset(PmaApiTest):
+class TestApplyDataOnlyDataset(PmaApiTest):
     """Test that apply staging/production feature works"""
 
     def setUp(self):
@@ -180,8 +180,8 @@ class TestApplyDataset(PmaApiTest):
 
     def test_apply_dataset(self):
         """Test"""
-        apply_dataset_request(dataset_name='',
-                              destination=app.config.LOCAL_DEVELOPMENT_URL)
+        activate_dataset_request(dataset_name='',
+                                 destination_host_url=app.config.LOCAL_DEVELOPMENT_URL)
 
 
 # TODO

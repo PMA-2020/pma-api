@@ -93,3 +93,20 @@ def dict_to_pretty_json(dictionary: {}) -> '':
         sort_keys=True,
         indent=4,
         separators=(',', ': '))
+
+
+def join_url_parts(*args: str) -> str:
+    """Join parts of a url string
+
+    Parts of a URL string may come from different sources, so joining them
+    directly together may yield too many or too few '/' delimiters.
+
+    Args:
+        *args:
+
+    Returns:
+        str: Well-formed url
+    """
+    base_str = '/'.join(args)
+
+    return 'http://' + base_str.replace('http://', '').replace('//', '/')

@@ -60,6 +60,8 @@ class EnglishString(db.Model):
         record = EnglishString.query.filter_by(code=code).first()
         if record and record.english != english:
             record.english = english
+            # TODO: Resolve - Committing causes slow, but remove causes error
+            db.session.add(record)
             db.session.commit()
         elif not record:
             record = EnglishString.insert_unique(english, code)
@@ -85,6 +87,7 @@ class EnglishString(db.Model):
             code = next64()
         record = EnglishString(code=code, english=english)
         db.session.add(record)
+        # TODO: Resolve - Committing causes slow, but remove causes error
         db.session.commit()
         return record
 

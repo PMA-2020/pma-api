@@ -28,6 +28,7 @@ UNIVERSAL_IGNORE_PREFIX = '__'
 IGNORE_FIELD_PREFIX = UNIVERSAL_IGNORE_PREFIX
 IGNORE_SHEET_PREFIX = UNIVERSAL_IGNORE_PREFIX
 DATA_SHEET_PREFIX = 'data_'
+ACCEPTED_DATASET_EXTENSIONS = ('csv', 'xls', 'xlsx')
 
 FLASK_CONFIG_ENV_KEY = 'FLASK_CONFIG'
 AWS_S3_STORAGE_BUCKETNAME = os.getenv('BUCKET_NAME', 'pma-api-backups')
@@ -36,6 +37,9 @@ S3_DATASETS_DIR_PATH = 'datasets/versions/'
 S3_UI_DATA_DIR_PATH = 'ui/versions/'
 
 SQLALCHEMY_MODEL_ATTR_QUERY_IGNORES = ('_sa_instance_state', )
+LOCAL_DEVELOPMENT_URL = os.getenv('LOCAL_DEVELOPMENT_URL',
+                                  'http://localhost:5000')
+ASYNC_SECONDS_BETWEEN_STATUS_CHECKS = 5
 
 
 def temp_folder_path() -> str:
@@ -75,8 +79,7 @@ class Config:
     CELERY_RESULT_BACKEND = CELERY_BROKER_URL
     STAGING_URL = os.getenv('STAGING_URL')
     PRODUCTION_URL = os.getenv('PRODUCTION_URL')
-    LOCAL_DEVELOPMENT_URL = os.getenv('LOCAL_DEVELOPMENT_URL',
-                                      'http://localhost:5000')
+    LOCAL_DEVELOPMENT_URL = LOCAL_DEVELOPMENT_URL
 
     BROKER_TRANSPORT_OPTIONS = {
         'max_retries': 3,
@@ -99,7 +102,8 @@ class ProductionConfig(Config):
 class DevelopmentConfig(Config):
     """Development configuration."""
     DEBUG = True
-    SQLALCHEMY_ECHO = True
+    # SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = False  # TODO: temp
 
 
 config = {

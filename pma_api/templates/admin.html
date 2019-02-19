@@ -1,23 +1,34 @@
 <!DOCTYPE html>
-<!--suppress ALL -->
-<html>
+<html lang="en">
   <head lang="en">
     <meta charset="UTF-8">
-    <title>	PMA API Admin Portal </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <link rel="stylesheet" href="../static/style.css"/>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
-    <!-- styles -->
+
+    <title>	PMA API Admin Portal </title>
+
+    <link rel="shortcut icon"
+          href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet"
+          href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+          integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
+          crossorigin="anonymous">
   </head>
   <body>
       <div class="container">
           <h1>PMA API Admin Portal</h1>
           <br/>
-          <form action="/admin" class="dropzone" id="myDropzone">
+          <!--suppress HtmlUnknownTarget -->
+        <form action="/admin" class="dropzone" id="myDropzone">
             <div class="dz-message needsclick">
               <label for="file-3">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="17" viewBox="0 0 20 17">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="17"
+                     viewBox="0 0 20 17">
                   <path d="M10 0l-5.2 4.9h3.3v5.1h3.8v-5.1h3.3l-5.2-4.9zm9.3 11.5l-3.2-2.1h-2l3.4 2.6h-3.5c-.1 0-.2.1-.2.1l-.8 2.3h-6l-.8-2.2c-.1-.1-.1-.2-.2-.2h-3.6l3.4-2.6h-2l-3.2 2.1c-.4.3-.7 1-.6 1.5l.6 3.1c.1.5.7.9 1.2.9h16.3c.6 0 1.1-.4 1.3-.9l.6-3.1c.1-.5-.2-1.2-.7-1.5z"></path>
                 </svg>
                 <span> Drop 1 or more files here or click to upload</span>
@@ -25,8 +36,12 @@
             </div>
           </form>
           <div class="alert alert-danger" role="alert" id="message-bar"
-               style="display:none;position:relative">
-              <span style="position:absolute;top:1px;right:10px;cursor:pointer;">x</span>
+               style="display:none; position:relative">
+              <span style="
+                position:absolute; top:1px;
+                right:10px; cursor:pointer;">
+                x
+              </span>
               <p></p>
           </div>
           <h2>Datasets</h2>
@@ -52,26 +67,30 @@
 
             <div class="button-bar">
                 <a id="download-link"  href="#">
-                  <button type="button" class="btn btn-outline-dark" id="download-button">
+                  <button type="button" class="btn btn-outline-dark"
+                          id="download-button">
                     <i class="fas fa-download"></i>
                   </button>
                 </a>
 
                 <div class="right-buttons">
-                  <a id="apply-staging-link" href="#">
-                    <button type="button" class="btn btn-outline-dark" id="apply-staging-button">
+                  <a id="activate-staging-link" href="#">
+                    <button type="button" class="btn btn-outline-dark"
+                            id="activate-staging-button">
                       Activate on staging
                     </button>
                   </a>
-                  <a id="apply-production-link" href="#">
-                    <button type="button" class="btn btn-outline-dark" id="apply-production-button">
+                  <a id="activate-production-link" href="#">
+                    <button type="button" class="btn btn-outline-dark"
+                            id="activate-production-button">
                       Activate on production
                     </button>
                   </a>
 
                   {% if this_env=='development' %}
                     <a id="activate-dataset-link" href="#">
-                      <button type="button" class="btn btn-outline-dark" id="activate-dataset-button">
+                      <button type="button" class="btn btn-outline-dark"
+                              id="activate-dataset-button">
                         Activate on dev
                       </button>
                     </a>
@@ -84,7 +103,8 @@
 {#                  </a>#}
                   {#                TODO: temp#}
                   <a id="testing-link" href="#">
-                    <button type="button" class="btn btn-outline-dark" id="testing-button">
+                    <button type="button" class="btn btn-outline-dark"
+                            id="testing-button">
                       Test Async progress updates
                     </button>
                   </a>
@@ -98,7 +118,7 @@
                      id="bootstrap-bar"
                      role="progressbar"
                      aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"
-                     style="width: 0%;"/>
+                     style="width: 0;"></div>
               </div>
             </div>
             <div id="progress-msg" style="display: none;">...</div>
@@ -129,29 +149,35 @@
       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
         integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
         crossorigin="anonymous"></script>
-      <script src="../static/dropzone.js"></script>
+      <script src="{{ url_for('static', filename='dropzone.js') }}"></script>
 
       {#      TODO: testing#}
       <script src="//cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
 
+      <!--suppress JSUnresolvedVariable -->
       <script>
+          let progressMsg = $('#progress-msg');
+          let bootstrapBar = $('#bootstrap-bar');
+
           Dropzone.autoDiscover = false;
-          var myDropzone = new Dropzone("#myDropzone");
+          let myDropzone = new Dropzone("#myDropzone");
           myDropzone.on("success", function(file) {
-              /* Maybe display some more file information on your page */
-              const response = JSON.parse(file.xhr.response);
-              if (response.success) {
-                    $('#message-bar').removeClass('alert-danger').addClass('alert-success').show();
-                    $('#message-bar').html('success!');
-                    location.reload();
-              } else {
-                    let err_message = 'error occurred from server';
-                    if (!!response.message)
-                        err_message = response.message;
-                    $('#message-bar').show();
-                    $('#message-bar p').html(err_message);
-              }
+            const messageBar = $('#message-bar');
+            const response = JSON.parse(file.xhr.response);
+            if (response.success) {
+              messageBar.removeClass('alert-danger')
+              .addClass('alert-success').show();
+              messageBar.html('success!');
+              location.reload();
+            } else {
+              let err_message = 'error occurred from server';
+              if (!!response.message)
+                  err_message = response.message;
+              messageBar.show();
+              $('#message-bar p').html(err_message);
+            }
           });
+
           // Get data for dataset table
           // TODO: Fetch 'active' status from servers using new query
           // TODO: Represent 'processing' by text 'processing'
@@ -166,10 +192,16 @@
                 {#"Processing": {% if dataset.is_processing %}true{% else %}false{% endif %},#}
                 {#"Processing: Staging" : {% if dataset.is_processing_staging %}true{% else %}false{% endif %},#}
                 {#"Processing: Production" : {% if dataset.is_processing_production %}true{% else %}false{% endif %},#}
-                "Active: Staging": {% if this_env=='staging' %} {{ dataset.is_active }} {% else %} 'fetching' {% endif %},
-                "Active: Production": {% if this_env=='production' %} {{ dataset.is_active }} {% else %} 'fetching' {% endif %},
+                "Active: Staging": {% if this_env=='staging' %}
+                  {{ dataset.is_active }} {% else %}
+                  'fetching' {% endif %},
+                "Active: Production": {% if this_env=='production' %}
+                  {{ dataset.is_active }} {% else %}
+                  'fetching' {% endif %},
                 {% if this_env=='development' %}
-                  "Active: Dev": {% if dataset.is_active %}true{% else %}false{% endif %},
+                  "Active: Dev": {% if dataset.is_active %}
+                    true {% else %}
+                    false {% endif %},
                 {% endif %}
               },
             {% endfor %}
@@ -181,22 +213,24 @@
           $(function() {
             let tbody = '';
             json_response.forEach(element => {
-                tbody += '<tr id="' + element["Name"] + '">';
-                tbody += '<td class="dataset-row-checkbox"><input type="checkbox"></td>';
-                tbody += '<td>'+element["Upload date"]+'</td>';
-                tbody += '<td>'+element["Type"]+'</td>';
-                tbody += '<td class="dataset-row-datasetName">'+element["Name"]+'</td>';
-                tbody += '<td>'+element["Version"]+'</td>';
-                {#tbody += '<td>'+ (element["Active"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';#}
-                {#tbody += '<td>'+ element["Active: Staging"] === 'fetching' ? 'fetching' : (element["Active: Staging"] ? '<i class="fas fa-check"></i>' : non_active) + '</td>';#}
-                tbody += '<td>'+ element["Active: Staging"] + '</td>';
-                tbody += '<td>'+ element["Active: Production"] + '</td>';
-                {#tbody += '<td>'+ (element["Active: Staging"] ? '<i class="fas fa-check"></i>' : non_active) + '</td>';#}
-                {#tbody += '<td>'+ (element["Active: Production"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';                #}
-                {% if this_env=='development' %}
-                  tbody += '<td>'+ (element["Active: Dev"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';
-                {% endif %}
-                tbody += '</tr>';
+              tbody += '<tr id="' + element["Name"] + '">';
+              tbody += '<td class="dataset-row-checkbox"><input type="checkbox"></td>';
+              tbody += '<td>'+element["Upload date"]+'</td>';
+              tbody += '<td>'+element["Type"]+'</td>';
+              tbody += '<td class="dataset-row-datasetName">'+element["Name"]+'</td>';
+              tbody += '<td>'+element["Version"]+'</td>';
+              {#tbody += '<td>'+ (element["Active"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';#}
+              {#tbody += '<td>'+ element["Active: Staging"] === 'fetching' ? 'fetching' : (element["Active: Staging"] ? '<i class="fas fa-check"></i>' : non_active) + '</td>';#}
+              tbody += '<td>'+ element["Active: Staging"] + '</td>';
+              tbody += '<td>'+ element["Active: Production"] + '</td>';
+              {#tbody += '<td>'+ (element["Active: Staging"] ? '<i class="fas fa-check"></i>' : non_active) + '</td>';#}
+              {#tbody += '<td>'+ (element["Active: Production"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';                #}
+              {% if this_env=='development' %}
+                tbody += '<td>'+ (element["Active: Dev"] ?
+                  '<i class="fas fa-check"></i>' :
+                  non_active)+'</td>';
+              {% endif %}
+              tbody += '</tr>';
             });
             $('tbody').html(tbody);
 
@@ -205,14 +239,15 @@
               let selectedDatasetNames = [];
 
 
+              {#TODO: for (let i = 1, row = datasetsTableElement.rows[i]; i < datasetsTableElement.rows.length i++) {#}
               const datasetsTableElement = document.getElementById('datasets-table');
-              for (var i = 1, row; row = datasetsTableElement.rows[i]; i++) {
+              for (let i = 1, row; row = datasetsTableElement.rows[i]; i++) {
                 let isSelected = false;
-                for (var j = 0, cell; cell = row.children[j]; j++) {
+                for (let j = 0, cell; cell = row.children[j]; j++) {
                   if (cell.className === 'dataset-row-checkbox')
                     isSelected = cell.firstChild.checked;
                 }
-                for (var j = 0, cell; cell = row.children[j]; j++) {
+                for (let j = 0, cell; cell = row.children[j]; j++) {
                   if (cell.className === 'dataset-row-datasetName' && isSelected)
                     selectedDatasetNames.push(cell.innerHTML);
                 }
@@ -233,95 +268,148 @@
 
             // alert close button
             $('#message-bar span').on('click', function(){
-                $('#message-bar').hide();
+              $('#message-bar').hide();
             });
 
             // Add functionality to dataset download button
             $("#download-button").bind('click', downloadDataset);
             function downloadDataset() {
               let name = selectedDatasetName();
-              if (name != '')
+              if (name !== '')
                 $("#download-link").attr("href", "/admin?download=" + name);
             }
 
-            // Add functionality to apply-staging button
-            $("#apply-staging-button").bind('click', applyStaging);
-            function applyStaging() {
-              let name = selectedDatasetName();
-              if (name != '')
-                $("#apply-staging-link").attr("href", "/admin?applyStaging=" + name);
+            // Add functionality to activate-staging button
+            $("#activate-staging-button").bind('click', activateStaging);
+            function activateStaging() {
+              activateRequest('staging')
             }
 
-            // Add functionality to apply-production button
-            $("#apply-production-button").bind('click', applyProduction);
-            function applyProduction() {
-              let name = selectedDatasetName();
-              if (name != '')
-                $("#apply-production-link").attr("href", "/admin?applyProduction=" + name);
+            // Add functionality to activate-production button
+            $("#activate-production-button").bind('click', activateProduction);
+            function activateProduction() {
+              activateRequest('production')
             }
-
-            var progressContainer = $('#progress');
-            var progressBar = $('#progress-bar');
-            var progressPct = $('#progress-pct');
-            var progressMsg = $('#progress-msg');
-            var progressResult = $('#progress-result');
-
-            var bootstrapContainer = $('#bootstrap-container');
-            var bootstrapBar = $('#bootstrap-bar');
 
             // Add functionality to activate-dataset-dev button
             $("#activate-dataset-button").bind('click', activateDataset);
             function activateDataset() {
-              let name = selectedDatasetName();
-              initTask('/apply_dataset/' + name)
+              {#initTask('/activate_dataset/' + name)#}
+              activateRequest('development')
             }
 
-            function initTask(postUrl) {
+            function activateRequest(destinationEnv) {
+              let name = selectedDatasetName();
+              if (name !== '') {
+                const data = {
+                  destinationEnv: destinationEnv,
+                  datasetName: name
+                };
+                initTask('/activate_dataset_request', data)
+              }
+            }
+
+            function initTask(postUrl, data = {}) {
+              /* Initialize an asynchronous task
+              *
+              * Args:
+              *     postUrl (str): Destination of POST request
+              *     data (obj): JSON object to pass
+              */
               progressMsg.css('display', 'inherit');
 
               $('#bootstrap-super-container').css('display', 'inherit');
               {#bootstrapContainer.css('display', 'inherit');#}
               {#bootstrapBar.css('display', 'inherit');#}
 
-              $.ajax({
-                type: 'POST',
-                url: postUrl,
-                success: function(data, status, request) {
-                  status_url = request.getResponseHeader('Location');
-                  updateTaskProgress(status_url);
-                },
-                error: function() {
-                  alert('Unexpected error occurred while processing task.');
-                }
+              $.post(postUrl, data, function(data, status, request) {
+                const status_url =
+                  request.getResponseHeader('Content-Location');
+                updateTaskProgress(status_url);
+              }).fail(function() {
+                alert('Unexpected error occurred while processing task.');
               });
             }
 
+            function isEquivalent(a, b) {
+              // Create arrays of property names
+              const aProps = Object.getOwnPropertyNames(a);
+              const bProps = Object.getOwnPropertyNames(b);
+
+              // If number of properties is different, objs are diff
+              if (aProps.length !== bProps.length)
+                return false;
+
+              for (let i = 0; i < aProps.length; i++) {
+                // If values of same property are not equal, objs are diff
+                const propName = aProps[i];
+                if (a[propName] !== b[propName])
+                  return false;
+              }
+              // If we made it this far, objects are considered equivalent
+              return true;
+            }
+
+            let taskDataTimeSeries = [];
+            const secondsBetweenFetches = 0.5;
+
             function updateTaskProgress(statusUrl) {
-              // send GET request to status URL
               $.getJSON(statusUrl, function(data) {
-                // update UI
-                percent = parseInt(data.current * 100 / data.total);
-                percentStr = percent + '%'
+                const newData = taskDataTimeSeries.length === 0
+                  || !(isEquivalent(
+                    taskDataTimeSeries[taskDataTimeSeries.length - 1], data));
+                const state = data.state;
+                const receivedStatus =
+                  data.state === data.status ? '' : data.status;
+                const status =
+                  receivedStatus ? receivedStatus
+                    : data.state === 'PENDING' ? 'Starting up'
+                    : 'RECEIVED' ? 'Task has been received'
+                    : 'STARTED' ? 'Task progress has started'
+                    : 'REVOKED' ? 'Task was revoked'
+                    : 'RETRY' ? 'Retrying task'
+                    : 'SUCCESS' ? 'Completed successfully'
+                    : 'PROGRESS' ? 'Progressing'
+                    : 'FAILURE' ? 'Task failed'
+                    : '' ? 'An issue occurred while attempting to acquire ' +
+                      'information about task progress.'
+                    : 'Unknown task status';
+                let current = data.current;
+                let total = data.total;
 
-                progressMsg.text(data.status);
-                bootstrapBar.text(percentStr)
-                bootstrapBar.css('width', percentStr)
+                /* no-ops
+                  if (total === 100 && current >= 0 && current <= 100)
+                  else if (total === 1 && current <= 1)
+                  else if (total !== 1 && total !== 100) */
+                if (total === 100 && current <= 1) {
+                  current = current * 100;
+                  console.log('new');
+                  console.log(current);
+                } else if (total === 1 && current >= 0 && current <= 100)
+                  current = current / 100;
+                else if (!current || current === 0)
+                  current = 0;
 
-                if (data.state != 'PENDING' && data.state != 'PROGRESS') {
-                  if ('result' in data)
-                    progressMsg.text('Result: ' + data.result);
-                  else
-                    progressMsg.text('Result: ' + data.state);
+                const pctDecimal = parseInt(100 * current / total);
+                const percentStr = pctDecimal + '%';
+
+                if (newData) {
+                  taskDataTimeSeries.push(data);
+                  console.log('Progress update: ');
+                  console.log(data);
                 }
-                else
-                  setTimeout(function() {
-                    updateTaskProgress(statusUrl);
-                  }, 500);  // rerun every 0.5 seconds
+
+                progressMsg.text(status);
+                bootstrapBar.text(percentStr);
+                bootstrapBar.css('width', percentStr);
+
+                setTimeout(function() {
+                  updateTaskProgress(statusUrl);
+                }, secondsBetweenFetches * 1000);
               });
             }
 
             // TODO - temp
-            // Add functionality to testing-button
             $("#testing-button").bind('click', testing);
             function testing() {
               initTask('/longtask')

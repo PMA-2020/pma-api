@@ -3,41 +3,13 @@ from io import BytesIO
 import os
 
 from flask import jsonify, request, render_template, send_file, url_for
-from sqlalchemy.exc import IntegrityError
+from werkzeug.datastructures import FileStorage, ImmutableDict
 from werkzeug.utils import secure_filename
 
-from pma_api.error import ExistingDatasetError
+from pma_api.config import LOCAL_DEVELOPMENT_URL
+from pma_api.error import ExistingDatasetError, PmaApiException
 
 from pma_api.routes import root
-
-
-# TODO: Turn into its own route
-def upload(filename: str, file):
-    """Upload file into database
-
-    Args:
-        filename (str): File name.
-        file: File.
-    """
-    from pma_api.config import temp_folder_path
-    from pma_api.tasks import save_file_from_request
-    from pma_api.models import Dataset, db
-
-    file_path = os.path.join(temp_folder_path(), filename)
-    save_file_from_request(file=file, file_path=file_path)
-
-    new_dataset = Dataset(file_path)
-    db.session.add(new_dataset)
-    try:
-        db.session.commit()
-    except IntegrityError:
-        db.session.rollback()
-        raise ExistingDatasetError('Error: A dataset named "{}" already exists'
-                                   ' in DB.'.format(filename))
-
-    # remove temp file
-    if os.path.exists(file_path):
-        os.remove(file_path)
 
 
 @root.route('/admin', methods=['GET', 'POST'])
@@ -65,6 +37,7 @@ def admin_route():
     ImmutableMultiDict([('file', <FileStorage: 'FILENAME' ('FILETYPE')>)])
     """
     from pma_api.models import Dataset
+    from pma_api.tasks import upload
     # for uploads
     if request.method == 'POST':
         try:
@@ -96,19 +69,19 @@ def admin_route():
                 if 'activate' in args:
                     # TODO: If already active, return 'already active!'
                     # Should be doing this in the client anyway.
-                    from pma_api.tasks import apply_dataset_to_self
+                    from pma_api.tasks import activate_dataset_to_self
                     dataset_name = args['activate']
-                    apply_dataset_to_self(dataset_name=dataset_name)
+                    activate_dataset_to_self(dataset_name=dataset_name)
                 else:
-                    from pma_api.tasks import apply_dataset_request
+                    from pma_api.tasks import activate_dataset_request
                     if 'applyStaging' in args:
                         dataset_name = args['applyStaging']
                         server_url = os.getenv('STAGING_URL')
                     elif 'applyProduction' in args:
                         dataset_name = args['applyProduction']
                         server_url = os.getenv('PRODUCTION_URL')
-                    apply_dataset_request(dataset_name=dataset_name,
-                                          destination=server_url)
+                    activate_dataset_request(dataset_name=dataset_name,
+                                             destination_host_url=server_url)
 
         datasets = Dataset.query.all()
         this_env = os.getenv('APP_SETTINGS', 'development')
@@ -118,63 +91,110 @@ def admin_route():
                                this_env=this_env)
 
 
-@root.route('/apply_dataset', methods=['POST'])
-def apply_dataset_route(dataset_name: str):
-    """Apply dataset"""
-    from pma_api.tasks import apply_dataset_to_self
+@root.route('/activate_dataset_request', methods=['POST'])
+def activate_dataset_request() -> jsonify:
+    """Activate dataset to be uploaded and actively used on target server.
 
-    # 1. TODO: upload dataset if needed
-    pass
+    Params:
+        dataset_name (str): Name of dataset to send.
+        destination_host_url (str): URL of server to apply dataset.
 
-    # 2. TODO: apply dataset - change from self to general
-    task = apply_dataset_to_self.apply_async(dataset_name=dataset_name)
+    Returns:
+        json.jsonify: Results.
+    """
+    from pma_api.tasks import activate_dataset_request
 
-    return jsonify({}), 202, {'Location': url_for('root.taskstatus',
-                                                  task_id=task.id)}
+    dataset_name: str = request.form['datasetName']
+    destination_env: str = request.form['destinationEnv']
+    destination: str = \
+        os.getenv('PRODUCTION_URL') if destination_env == 'production' else \
+        os.getenv('STAGING_URL') if destination_env == 'staging' else \
+        LOCAL_DEVELOPMENT_URL
 
-    # results_list = []
+    # TODO: upload dataset if needed
+    dataset_needed = False
+    dataset: FileStorage = None if dataset_needed else None
     #
-    # for key, val in request.files.items():
-    #     result = apply_dataset_to_self(dataset_name=key, dataset=val)
-    #     results_list.append(result)
-    #
-    # results = results_list if len(results_list) > 1 else results_list[0]
-    #
-    # return jsonify(results)
+
+    # TODO - yield: init_wb, celery tasks and routes
+    task = activate_dataset_request.apply_async(kwargs={
+        'dataset_name': dataset_name,
+        'destination_host_url': destination,
+        'dataset': dataset})
+
+    response_data = jsonify({})
+    response_http_code = 202  # Accepted
+    response_headers = \
+        {'Content-Location': url_for('root.taskstatus', task_id=task.id)}
+
+    return response_data, response_http_code, response_headers
+
+
+@root.route('/activate_dataset', methods=['POST'])
+def activate_dataset_to_self() -> jsonify:
+    """Activate dataset to the this server.
+
+    Params:
+        dataset_name (str): Name of dataset.
+
+    Returns:
+        json.jsonify: Results.
+    """
+    from pma_api.tasks import activate_dataset_to_self, upload
+
+    form: ImmutableDict = request.form
+    files: ImmutableDict = request.files
+    dataset_name: str = None
+
+    if form:
+        dataset_name: str = form['datasetName'] if 'datasetName' in form \
+            else form['dataset_name']
+    elif files:
+        filenames = list(files.keys())
+        if len(filenames) > 1:
+            msg = 'Only one dataset may be activated at a time.'
+            raise PmaApiException(msg)
+        dataset_name: str = filenames[0]
+        dataset: FileStorage = files[dataset_name]
+        try:
+            upload(filename=dataset_name, file=dataset)
+        except ExistingDatasetError:
+            pass
+
+    task = activate_dataset_to_self.apply_async(kwargs={
+        'dataset_name': dataset_name})
+
+    response_data = jsonify({})
+    response_http_code = 202  # Accepted
+    response_headers = \
+        {'Content-Location': url_for('root.taskstatus', task_id=task.id)}
+
+    return response_data, response_http_code, response_headers
 
 
 @root.route('/status/<task_id>')
-def taskstatus(task_id):
-    """Get task status"""
-    from pma_api.tasks import long_task
-    task = long_task.AsyncResult(task_id)
+def taskstatus(task_id: str) -> jsonify:
+    """Get task status
 
-    if task.state == 'PENDING':
-        # job did not start yet
-        response = {
-            'state': task.state,
-            'current': 0,
-            'total': 1,
-            'status': 'Pending...'
-        }
-    elif task.state != 'FAILURE':
-        response = {
-            'state': task.state,
-            'current': task.info.get('current', 0),
-            'total': task.info.get('total', 1),
-            'status': task.info.get('status', '')
-        }
-        if 'result' in task.info:
-            response['result'] = task.info['result']
-    else:
-        # something went wrong in the background job
-        response = {
-            'state': task.state,
-            'current': 1,
-            'total': 1,
-            'status': str(task.info),  # this is the exception raised
-        }
-    return jsonify(response)
+    Args:
+        task_id (str): ID with which to look up task in task queue
+
+    Returns:
+        jsonify: Response object
+    """
+    from pma_api.tasks import celery
+    task = celery.AsyncResult(task_id)
+    info, state = task.info, task.state
+
+    if state == 'FAILURE':
+        return jsonify({'state': state, 'status': str(info), 'result': state,
+                        'current': 0, 'total': 1})
+
+    return jsonify({
+        'state': state,
+        'status': info['status'] if info and 'status' in info else state,
+        'current': info['current'] if info and 'current' in info else 0,
+        'total': info['total'] if info and 'total' in info else 1})
 
 
 # TODO: testing
@@ -184,5 +204,9 @@ def longtask():
     from pma_api.tasks import long_task
     task = long_task.apply_async()
 
-    return jsonify({}), 202, {'Location': url_for('root.taskstatus',
-                                                  task_id=task.id)}
+    response_data = jsonify({})
+    response_http_code = 202  # Accepted
+    response_headers = \
+        {'Content-Location': url_for('root.taskstatus', task_id=task.id)}
+
+    return response_data, response_http_code, response_headers
