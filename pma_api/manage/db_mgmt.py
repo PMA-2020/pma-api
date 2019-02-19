@@ -1,16 +1,18 @@
 """Database management"""
 import csv
-from copy import copy
-from datetime import datetime
 import glob
 import logging
 import ntpath
 import os
 import subprocess
+from copy import copy
+from datetime import datetime
+from time import time
+from typing import List
 
 import xlrd
 from flask import Flask, current_app
-from sqlalchemy.exc import DatabaseError, OperationalError
+from sqlalchemy.exc import DatabaseError, OperationalError, IntegrityError
 
 from pma_api import create_app, db
 from pma_api.config import DATA_DIR, BACKUPS_DIR, Config, \
@@ -18,7 +20,7 @@ from pma_api.config import DATA_DIR, BACKUPS_DIR, Config, \
     S3_BACKUPS_DIR_PATH, S3_DATASETS_DIR_PATH, S3_UI_DATA_DIR_PATH, \
     UI_DATA_DIR, DATASETS_DIR
 from pma_api.error import InvalidDataFileError, PmaApiDbInteractionError, \
-    PmaApiException
+    PmaApiException, ExistingDatasetError
 from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
                             Country, Data, EnglishString, Geography, Indicator,
                             ApiMetadata, Survey, Translation, Dataset)
@@ -32,7 +34,6 @@ METADATA_MODEL_MAP = (
     ('char_grp', CharacteristicGroup),
     ('char', Characteristic),
     ('indicator', Indicator),
-    ('translation', Translation),
 )
 DATA_MODEL_MAP = (
     ('data', Data),
@@ -40,7 +41,7 @@ DATA_MODEL_MAP = (
 TRANSLATION_MODEL_MAP = (
     ('translation', Translation),
 )
-ORDERED_MODEL_MAP = METADATA_MODEL_MAP + DATA_MODEL_MAP
+ORDERED_MODEL_MAP = TRANSLATION_MODEL_MAP + METADATA_MODEL_MAP + DATA_MODEL_MAP
 FILE_LIST_IGNORES = ('.DS_Store', )
 connection_error = 'Was not able to connect to the database. Please '\
     'check that it is running, and your database URL / credentials are ' \
@@ -63,6 +64,41 @@ db_mgmt_err = 'An error occurred during db management procedure. This is ' \
     'down the server as well.'
 db_not_exist_tell = 'database "{}" does not exist'\
     .format(os.getenv('DATABASE_NAME', 'pmaapi'))
+
+
+# TODO: Rename to TaskTracker?
+class ProgressUpdater:
+    """Tracks progress of task queue"""
+
+    def __init__(self, queue: List[str], callback=None):
+        """Tracks progress of task queue
+
+        Args:
+            queue (list): List of progress statements to display for each
+            iteration of the queue.
+            callback: Callback function to use for every iteration
+            of the queue. This callback must take a single dictionary as its
+            parameter, with the following schema...
+                {'status': str, 'current': float}
+            ...where the value of 'current' is a float with value between 0
+            and 1.
+        """
+        self.queue = queue
+        self.tot_sub_tasks: int = len(queue)
+        self.callback = callback
+
+    def next(self):
+        """Proceed to next task"""
+        if self.callback is not None:
+            current: float = 1 - (len(self.queue) / self.tot_sub_tasks)
+            self.callback.send({'status': self.queue.pop(0),
+                                'current': current})
+
+    def complete(self):
+        """Report task as complete"""
+        if self.callback is not None:
+            self.callback.send({'status': 'Completed',
+                                'current': float(1)})
 
 
 def aws_s3(func):
@@ -175,21 +211,21 @@ def init_from_source(path, model):
         db.session.commit()
 
 
-def init_data(wb):
-    """Put all the data from the workbook into the database."""
-    survey = {}
-    indicator = {}
-    characteristic = {}
-    for record in Survey.query.all():
-        survey[record.code] = record.id
-    for record in Indicator.query.all():
-        indicator[record.code] = record.id
-    for record in Characteristic.query.all():
-        characteristic[record.code] = record.id
-    for ws in wb.sheets():
-        if ws.name.startswith('data'):
-            init_from_sheet(ws, Data, survey=survey, indicator=indicator,
-                            characteristic=characteristic)
+def init_data(wb: xlrd.Book):
+    """Put all the data from the workbook into the database.
+
+    Args:
+        wb (xlrd.Book): A spreadsheet
+    """
+    survey = {x.code: x.id for x in Survey.query.all()}
+    indicator = {x.code: x.id for x in Indicator.query.all()}
+    characteristic = {x.code: x.id for x in Characteristic.query.all()}
+    data_sheets: List[xlrd.sheet] = \
+        [x for x in wb.sheets() if x.name.startswith('data')]
+
+    for ws in data_sheets:
+        init_from_sheet(ws, Data, survey=survey, indicator=indicator,
+                        characteristic=characteristic)
 
 
 def init_from_sheet(ws, model, **kwargs):
@@ -208,6 +244,7 @@ def init_from_sheet(ws, model, **kwargs):
         indicator = kwargs['indicator']
         characteristic = kwargs['characteristic']
     header = None
+
     for i, row in enumerate(ws.get_rows()):
         row = [r.value for r in row]
         if i == 0:
@@ -230,7 +267,7 @@ def init_from_sheet(ws, model, **kwargs):
             try:
                 record = model(**row_dict)
             except (DatabaseError, ValueError, AttributeError, KeyError,
-                    Exception) as err:
+                    IntegrityError, Exception) as err:
                 msg = 'Error when processing data import.\n' \
                     '- Worksheet name: {}\n' \
                     '- Row number: {}\n' \
@@ -240,7 +277,9 @@ def init_from_sheet(ws, model, **kwargs):
                 msg = msg.format(ws.name, i+1, row)
                 logging.error(msg)
                 raise PmaApiDbInteractionError(msg)
+
             db.session.add(record)
+
     db.session.commit()
 
 
@@ -315,21 +354,33 @@ def format_book(wb: xlrd.book.Book):
     return book
 
 
-def init_from_workbook(wb, queue):
+def init_from_workbook(wb: str, queue: (), progress_updater: ProgressUpdater):
     """Init from workbook.
 
     Args:
         wb (str): path to workbook file
         queue (tuple): Order in which to load db_models.
+        progress_updater (ProgressUpdater): Tracks progress of task queue
     """
     with xlrd.open_workbook(wb) as book:
         book = format_book(book)
-        for sheetname, model in queue:
-            if sheetname == 'data':  # actually done last
-                init_data(book)
-            else:
-                ws = book.sheet_by_name(sheetname)
-                init_from_sheet(ws, model)
+
+        # Init all structural metadata
+        for sheetname_alias, model in queue:
+            if sheetname_alias == 'data':
+                continue
+            progress_updater.next()
+            sheetname: str = sheetname_alias
+            ws = book.sheet_by_name(sheetname)
+            init_from_sheet(ws, model)
+        db.session.commit()
+
+        # Init data
+        # TODO: Find a way to make each data worksheet its own step
+        progress_updater.next()
+        init_data(book)
+
+    # Init administrative metadata
     create_wb_metadata(wb)
 
 
@@ -347,7 +398,8 @@ def create_wb_metadata(wb_path):
 def initdb_from_wb(_app: Flask = current_app,
                    api_file_path: str = get_api_data(),
                    ui_file_path: str = get_ui_data(),
-                   overwrite: bool = False) -> dict:
+                   overwrite: bool = False,
+                   callback=None) -> dict:
     """Create the database.
 
     Args:
@@ -355,20 +407,65 @@ def initdb_from_wb(_app: Flask = current_app,
         overwrite (bool): Overwrite database if True, else update.
         api_file_path (str): path to "API data file" spec xls file
         ui_file_path (str): path to "UIdata file" spec xls file
+        callback: Callback function for progress yields
+
+    Side effects:
+        Always:
+            - Creates tables
+            - Adds values to database
+            - Temporarily sets current dataset to 'processing'
+            - Backs up database: at the beginning and end
+        If overwrite:
+            - Deletes all tables except for 'datasets'
+            - Sets all other datasets to is_active=False
 
     Returns:
         dict: Results
     """
-    backup_db()
+    with xlrd.open_workbook(api_file_path) as wb:
+        data_sheets: List[xlrd.sheet] = \
+            [x for x in wb.sheets() if x.name.startswith('data')]
+        datasheet_names: List[str] = [x.name for x in data_sheets]
+
+    current_sub_tasks: List[str] = [
+        'Backing up database'] + (
+        ['Dropping tables'] if overwrite else []) + [
+        'Creating tables'] + [
+        'Uploading data for table: {}'
+            .format(x[0]) for x in METADATA_MODEL_MAP] + [
+        'Updating translations'] + [
+        'Uploading data for table: {}'
+            .format(x[0]) for x in datasheet_names] + [
+        'Updating translations'
+        'Creating cache',
+        'Backing up resulting database']
+    # tot_sub_tasks: int = len(current_sub_tasks)
+    progress = ProgressUpdater(queue=current_sub_tasks,
+                               callback=callback)
+
+    # TODO: Add this stuff to ProgressUpdater
     warnings = {}
     status = {
         'success': False,
+        'status': '',  # Current status message
+        'current': 0.00,  # Percent completed
+        'info': {
+            'time_elapsed': None,
+            'message': '',  # TODO: currently redundant
+            'percent': 0,  # TODO: currently redundant
+        },
         'warnings': warnings,
     }
+    start_time = time()
+
+    progress.next()
+    backup_path: str = backup_db()
+
     with _app.app_context():
         try:
             # Delete all tables except for 'datasets'
             if overwrite:
+                progress.next()
                 db.metadata.drop_all(db.engine, tables=[x.__table__ for x in [
                     EnglishString,
                     Data,
@@ -381,9 +478,14 @@ def initdb_from_wb(_app: Flask = current_app,
                     Geography,
                     Cache,
                     ApiMetadata]])
+                datasets: List[Dataset] = Dataset.query\
+                    .filter_by(is_active=True)
+                for dataset in datasets:
+                    dataset.is_active = False
 
             # Create tables
             db.create_all()
+            progress.next()
 
             dataset_name = os.path.basename(api_file_path)
             dataset = Dataset.query.filter_by(
@@ -395,35 +497,46 @@ def initdb_from_wb(_app: Flask = current_app,
 
             # Seed database
             if overwrite:
-                # TODO: init_from_datasets_table if exists instead?
-                init_from_workbook(wb=api_file_path, queue=ORDERED_MODEL_MAP)
+                # TODO: init_from_datasets_table if exists in db already?
+                init_from_workbook(wb=api_file_path,
+                                   queue=ORDERED_MODEL_MAP,
+                                   progress_updater=progress)
                 init_from_workbook(wb=ui_file_path,
-                                   queue=TRANSLATION_MODEL_MAP)
+                                   queue=TRANSLATION_MODEL_MAP,
+                                   progress_updater=progress)
+
+                progress.next()
                 try:
                     Cache.cache_datalab_init(_app)
                 except RuntimeError as err:
                     warnings['caching'] = caching_error.format(err)
 
-            # TODO: moving up & changing; verify works and remove this comment
-            # If DB is brand new, seed 'datasets' table too
-            # database_is_brand_new = list(Dataset.query.all()) == []
-            # if database_is_brand_new:
-            #     new_dataset = Dataset(file_path=api_file_path)
-            #     db.session.add(new_dataset)
-            #     db.session.commit()
-
             dataset.register_active()
 
+            progress.next()
             try:
-                backup_db()
+                backup_path: str = backup_db()
             except Exception as err:
                 warnings['backup'] = str(err)
 
         # Print error if DB background process is not loaded
         except OperationalError as err:
+            db.session.rollback()
+            restore_db(backup_path)
             msg = connection_error.format(str(err))
             raise PmaApiDbInteractionError(msg)
+        except IntegrityError as err:
+            db.session.rollback()
+            restore_db(backup_path)
+            if 'already exists' in str(err):
+                msg = 'Error: A dataset named "{}" already exists in DB.' \
+                    .format(dataset_name)
+                raise ExistingDatasetError(msg)
+            else:
+                raise err
         except AttributeError as err:
+            db.session.rollback()
+            restore_db(backup_path)
             if "'NoneType' object has no attribute 'drivername'" in str(err):
                 msg = (
                     'An error occurred while interacting with the database. '
@@ -437,7 +550,14 @@ def initdb_from_wb(_app: Flask = current_app,
                 msg = err
             raise PmaApiDbInteractionError(msg)
 
-        backup_db()
+        # noinspection PyTypeChecker
+        seconds_elapsed = str(int(time() - start_time)) + ' seconds'
+        status['info']['time_elapsed'] = seconds_elapsed
+        status['success'] = True
+        status['current'] = 1
+        status['status'] = 'Finished'
+
+        progress.complete()
 
         return status
 
@@ -855,9 +975,14 @@ def backup_db(path: str = '', method: str = 'dump'):
     Side effects:
         - backup_local()
         - backup_cloud()
+
+    Returns:
+        str: Path saved locally
     """
-    saved_path = backup_local(path, method)
+    saved_path: str = backup_local(path, method)
     backup_db_cloud(saved_path)
+
+    return saved_path
 
 
 def restore_using_pgrestore(path: str):
@@ -1052,7 +1177,8 @@ def list_local_datasets(path: str = DATASETS_DIR) -> [str]:
     Returns:
         list: datasets
     """
-    from_file_system: [str] = list_local_files(path=path, name_contains='api_data')
+    from_file_system: List[str] = \
+        list_local_files(path=path, name_contains='api_data')
     from_db: [str] = [x.dataset_display_name for x in Dataset.query.all()]
     filenames: [str] = list(set(from_file_system + from_db))
 

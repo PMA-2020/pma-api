@@ -58,10 +58,10 @@ class ApiModel(db.Model):
         """Translate API query parameters to equivalent in model.
 
         API URL query parameters are in many case abstracted away from the
-        db_models and underlying database. For example, 'survey' in the API would
-        equate to 'survey_id' in the database model. Side effects: kwargs are
-        modified so that new key of name matching 'target_key' argument is
-        inserted, with value as the corresponding record id.
+        db_models and underlying database. For example, 'survey' in the API
+        would equate to 'survey_id' in the database model. Side effects:
+        kwargs are modified so that new key of name matching 'target_key'
+        argument is inserted, with value as the corresponding record id.
 
         Args:
             source_key (str): The API query parameter.
