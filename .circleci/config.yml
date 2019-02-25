@@ -46,6 +46,7 @@ jobs:
           command: |
             python3 -m venv env
             . env/bin/activate
+            pip install --upgrade pip
             pip install -r requirements.txt
 
       - save_cache: # special step to save dependency cache
@@ -57,7 +58,7 @@ jobs:
           name: set up db
           command: |
             . env/bin/activate
-            make db
+            make release
           environment:
             POSTGRES_DB: pmaapi
             POSTGRES_USER: pmaapi

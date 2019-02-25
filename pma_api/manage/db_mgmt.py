@@ -66,16 +66,17 @@ db_not_exist_tell = 'database "{}" does not exist'\
     .format(os.getenv('DATABASE_NAME', 'pmaapi'))
 
 
-# TODO: Rename to TaskTracker?
-class ProgressUpdater:
+class TaskTracker:
     """Tracks progress of task queue"""
 
-    def __init__(self, queue: List[str], callback=None):
+    def __init__(self, queue: List[str], silent: bool = False, name: str = '',
+                 callback=None):
         """Tracks progress of task queue
 
         Args:
             queue (list): List of progress statements to display for each
             iteration of the queue.
+            silent (bool): Print progress statements?
             callback: Callback function to use for every iteration
             of the queue. This callback must take a single dictionary as its
             parameter, with the following schema...
@@ -83,22 +84,59 @@ class ProgressUpdater:
             ...where the value of 'current' is a float with value between 0
             and 1.
         """
-        self.queue = queue
-        self.tot_sub_tasks: int = len(queue)
+        self.queue: List[str] = queue
+        self.silent: bool = silent
+        self.name = name
         self.callback = callback
+        self.tot_sub_tasks: int = len(queue)
+        self.status: str = 'PENDING'
+        self.completion_ratio: float = float(0)
+
+    def _report(self, silence_status: bool = False,
+                silence_percent: bool = False):
+        """Report progress
+
+        Args:
+            silence_status (bool): Silence status?
+            silence_percent (bool): Silence percent?
+        """
+        if not self.silent:
+            pct: str = str(int(self.completion_ratio * 100)) + '%'
+            msg = ' '.join([
+                self.status if not silence_status else '',
+                '({})'.format(pct) if not silence_percent else ''
+            ])
+            print(msg)
+        if self.callback:
+            self.callback.send({'status': self.status,
+                                'current': self.completion_ratio})
+
+    def begin(self):
+        """Register and report task begin
+
+        Usage optional
+        """
+        self.completion_ratio: float = float(0)
+        self.status: str = 'Starting task: ' + \
+                           ' {}'.format(self.name) if self.name else ''
+        self._report(silence_percent=True)
 
     def next(self):
-        """Proceed to next task"""
-        if self.callback is not None:
-            current: float = 1 - (len(self.queue) / self.tot_sub_tasks)
-            self.callback.send({'status': self.queue.pop(0),
-                                'current': current})
+        """Register and report next sub-task begin"""
+        self.completion_ratio: float = \
+            1 - (len(self.queue) / self.tot_sub_tasks)
+        self.status: str = self.queue.pop(0)
+        self._report()
 
     def complete(self):
-        """Report task as complete"""
-        if self.callback is not None:
-            self.callback.send({'status': 'Completed',
-                                'current': float(1)})
+        """Register and report all sub-tasks and task itself complete
+
+        Usage optional
+        """
+        self.completion_ratio: float = float(1)
+        self.status: str = 'Completed' + \
+                           ' {}'.format(self.name) if self.name else ''
+        self._report()
 
 
 def aws_s3(func):
@@ -354,13 +392,14 @@ def format_book(wb: xlrd.book.Book):
     return book
 
 
-def init_from_workbook(wb: str, queue: (), progress_updater: ProgressUpdater):
+def init_from_workbook(wb: str, queue: (),
+                       progress_updater: TaskTracker = None):
     """Init from workbook.
 
     Args:
         wb (str): path to workbook file
         queue (tuple): Order in which to load db_models.
-        progress_updater (ProgressUpdater): Tracks progress of task queue
+        progress_updater (TaskTracker): Tracks progress of task queue
     """
     with xlrd.open_workbook(wb) as book:
         book = format_book(book)
@@ -440,8 +479,8 @@ def initdb_from_wb(_app: Flask = current_app,
         'Creating cache',
         'Backing up resulting database']
     # tot_sub_tasks: int = len(current_sub_tasks)
-    progress = ProgressUpdater(queue=current_sub_tasks,
-                               callback=callback)
+    progress = TaskTracker(queue=current_sub_tasks,
+                           callback=callback)
 
     # TODO: Add this stuff to ProgressUpdater
     warnings = {}
@@ -741,6 +780,27 @@ def backup_using_sql_file(path: str = new_backup_path(ext = 'sql')):
     return path
 
 
+def run_process(cmd: List[str]):
+    """Run a process
+
+    Helper function to run a process, for boilerplate reduction.
+
+    Args:
+        cmd (list): Arguments to be executed
+
+    Returns:
+        str, str: Output of stdout, output of stderr
+    """
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            universal_newlines=True)
+    proc.stderr.close()
+    proc.stdout.close()
+    proc.wait()
+
+    return proc.stdout.read(), proc.stderr.read()
+
+
 def backup_using_pgdump_gz(path: str = new_backup_path(ext = 'gz')):
     """Backup using pg_dump
 
@@ -1013,6 +1073,32 @@ def restore_using_pgrestore(path: str):
     proc.stderr.close()
     proc.stdout.close()
     proc.wait()
+
+
+def create_db():
+    """Create a brand new postgres database"""
+    from sqlalchemy import create_engine
+
+    # It is advised to use another user that can connect to a default
+    # database, and has CREATE DATABASE permissions, rather than use a
+    # superuser.
+    config = {
+        'user': 'postgres',
+        'password': 'postgres',
+        'host': 'localhost',
+        'port': 5432}
+    connection_template = \
+        'postgresql://{user}:{password}@{host}:{port}/{database}'
+    connection = (connection_template.format(
+        database='postgres',
+        **config))
+    db_name = current_app.config.get('DATABASE_NAME', 'pmaapi')
+
+    engine_default = create_engine(connection)
+    conn = engine_default.connect()
+    conn.execute("COMMIT")
+    conn.execute("CREATE DATABASE %s" % db_name)
+    conn.close()
 
 
 def drop_db(db_name: str = Config.DATABASE_NAME):

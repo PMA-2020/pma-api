@@ -16,6 +16,7 @@ UI_DATA_DIR = DATA_DIR
 BACKUPS_DIR = os.path.abspath(os.path.join(DATA_DIR, 'db_backups'))
 LOGS_DIR = os.path.abspath(os.path.join(PROJECT_ROOT_DIR, 'logs'))
 ERROR_LOG_PATH = os.path.join(LOGS_DIR, 'error-logfile.log')
+# noinspection PyUnresolvedReferences
 PID_FILE_PATH = os.path.join(PROJECT_ROOT_DIR, 'pma-api_process-id.pid')
 
 REFERENCES = {  # TODO: What this is used for should be implemented different
