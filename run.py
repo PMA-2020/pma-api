@@ -10,4 +10,4 @@ from pma_api.config import PROJECT_ROOT_DIR
 
 
 load_dotenv(dotenv_path=Path(PROJECT_ROOT_DIR) / '.env')
-app = create_app(os.getenv('FLASK_CONFIG', 'default'))
+app = create_app(os.getenv('ENV_NAME', 'default'))

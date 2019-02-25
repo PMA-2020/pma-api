@@ -30,7 +30,7 @@ try:
     celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
     celery.conf.update(app.config)
 except RuntimeError:
-    app = create_app(os.getenv('FLASK_CONFIG', 'default'))
+    app = create_app(os.getenv('ENV_NAME', 'default'))
     celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
     celery.conf.update(app.config)
 

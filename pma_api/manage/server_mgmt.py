@@ -2,11 +2,12 @@
 import os
 import signal
 import sys
+from typing import List
 
 import psutil
+from psutil._exceptions import ZombieProcess
 
-from pma_api.config import PID_FILE_PATH, FLASK_CONFIG_ENV_KEY, \
-    PROJECT_ROOT_DIR
+from pma_api.config import PID_FILE_PATH, PROJECT_ROOT_DIR
 from pma_api.manage.utils import run_proc_and_log_errs
 
 
@@ -53,7 +54,7 @@ def start_prod_server():
 
 def start_server():
     """Start server"""
-    env = os.getenv(FLASK_CONFIG_ENV_KEY, 'development')
+    env = os.getenv('ENV_NAME', 'development')
     if env == 'development':
         start_dev_server()
     else:
@@ -66,15 +67,27 @@ def get_server_pid():
     Returns:
         int: process id
     """
-    server_start_args = ' '.join(sys.argv)
+    server_start_args: str = ' '.join(sys.argv)
 
-    python_procs = [x for x in psutil.process_iter()
-                    if x.name().startswith('python')]
-    proc_init_commands = [' '.join(x.cmdline()) for x in python_procs]
+    python_procs: List[psutil.Process] = [
+        x for x in psutil.process_iter()
+        if x.name().startswith('python')]
+
+    active_procs: List[psutil.Process] = []
+    proc_init_commands: List[str] = []
+    for proc in python_procs:
+        try:
+            init_cmd: List[str] = proc.cmdline()
+            proc_init_commands.append(' '.join(init_cmd))
+            active_procs.append(proc)
+        except ZombieProcess:
+            continue
+
     server_procs_commands = \
         [x for x in proc_init_commands if server_start_args in x]
-    server_procs = [x for x in python_procs
-                    if ' '.join(x.cmdline()) in server_procs_commands]
+    server_procs = [
+        x for x in active_procs
+        if ' '.join(x.cmdline()) in server_procs_commands]
 
     return server_procs[0].pid
 

@@ -8,10 +8,13 @@ import subprocess
 from copy import copy
 from datetime import datetime
 from time import time
-from typing import List
+from typing import List, Tuple
 
 import xlrd
+import sqlalchemy
 from flask import Flask, current_app
+# noinspection PyProtectedMember
+from sqlalchemy.engine import Connection
 from sqlalchemy.exc import DatabaseError, OperationalError, IntegrityError
 
 from pma_api import create_app, db
@@ -20,7 +23,7 @@ from pma_api.config import DATA_DIR, BACKUPS_DIR, Config, \
     S3_BACKUPS_DIR_PATH, S3_DATASETS_DIR_PATH, S3_UI_DATA_DIR_PATH, \
     UI_DATA_DIR, DATASETS_DIR
 from pma_api.error import InvalidDataFileError, PmaApiDbInteractionError, \
-    PmaApiException, ExistingDatasetError
+    PmaApiException
 from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
                             Country, Data, EnglishString, Geography, Indicator,
                             ApiMetadata, Survey, Translation, Dataset)
@@ -42,6 +45,19 @@ TRANSLATION_MODEL_MAP = (
     ('translation', Translation),
 )
 ORDERED_MODEL_MAP = TRANSLATION_MODEL_MAP + METADATA_MODEL_MAP + DATA_MODEL_MAP
+OVERWRITE_DROP_TABLES: Tuple[db.Model] = (
+        x.__table__ for x in [
+            EnglishString,
+            Data,
+            Translation,
+            Indicator,
+            Characteristic,
+            CharacteristicGroup,
+            Survey,
+            Country,
+            Geography,
+            Cache,
+            ApiMetadata])
 FILE_LIST_IGNORES = ('.DS_Store', )
 connection_error = 'Was not able to connect to the database. Please '\
     'check that it is running, and your database URL / credentials are ' \
@@ -64,18 +80,26 @@ db_mgmt_err = 'An error occurred during db management procedure. This is ' \
     'down the server as well.'
 db_not_exist_tell = 'database "{}" does not exist'\
     .format(os.getenv('DATABASE_NAME', 'pmaapi'))
+env_access_err_tell = "'NoneType' object has no attribute 'drivername'"
+env_access_err_msg = \
+    'An error occurred while interacting with the database. This can often ' \
+    'happen when db related environmental variables (e.g. DATABASE_URL) are ' \
+    'not set or cannot be accessed. Please check that they are set and ' \
+    'being loaded correctly.\n\n' \
+    '- Original error:\n{}'
 
 
-# TODO: Rename to TaskTracker?
-class ProgressUpdater:
+class TaskTracker:
     """Tracks progress of task queue"""
 
-    def __init__(self, queue: List[str], callback=None):
+    def __init__(self, queue: List[str], silent: bool = False, name: str = '',
+                 callback=None):
         """Tracks progress of task queue
 
         Args:
             queue (list): List of progress statements to display for each
             iteration of the queue.
+            silent (bool): Print progress statements?
             callback: Callback function to use for every iteration
             of the queue. This callback must take a single dictionary as its
             parameter, with the following schema...
@@ -83,22 +107,59 @@ class ProgressUpdater:
             ...where the value of 'current' is a float with value between 0
             and 1.
         """
-        self.queue = queue
-        self.tot_sub_tasks: int = len(queue)
+        self.queue: List[str] = queue
+        self.silent: bool = silent
+        self.name = name
         self.callback = callback
+        self.tot_sub_tasks: int = len(queue)
+        self.status: str = 'PENDING'
+        self.completion_ratio: float = float(0)
+
+    def _report(self, silence_status: bool = False,
+                silence_percent: bool = False):
+        """Report progress
+
+        Args:
+            silence_status (bool): Silence status?
+            silence_percent (bool): Silence percent?
+        """
+        if not self.silent:
+            pct: str = str(int(self.completion_ratio * 100)) + '%'
+            msg = ' '.join([
+                self.status if not silence_status else '',
+                '({})'.format(pct) if not silence_percent else ''
+            ])
+            print(msg)
+        if self.callback:
+            self.callback.send({'status': self.status,
+                                'current': self.completion_ratio})
+
+    def begin(self):
+        """Register and report task begin
+
+        Usage optional
+        """
+        self.completion_ratio: float = float(0)
+        self.status: str = 'Starting task: ' + \
+                           ' {}'.format(self.name) if self.name else ''
+        self._report(silence_percent=True)
 
     def next(self):
-        """Proceed to next task"""
-        if self.callback is not None:
-            current: float = 1 - (len(self.queue) / self.tot_sub_tasks)
-            self.callback.send({'status': self.queue.pop(0),
-                                'current': current})
+        """Register and report next sub-task begin"""
+        self.completion_ratio: float = \
+            1 - (len(self.queue) / self.tot_sub_tasks)
+        self.status: str = self.queue.pop(0)
+        self._report()
 
     def complete(self):
-        """Report task as complete"""
-        if self.callback is not None:
-            self.callback.send({'status': 'Completed',
-                                'current': float(1)})
+        """Register and report all sub-tasks and task itself complete
+
+        Usage optional
+        """
+        self.completion_ratio: float = float(1)
+        self.status: str = 'Completed' + \
+                           ' {}'.format(self.name) if self.name else ''
+        self._report()
 
 
 def aws_s3(func):
@@ -136,8 +197,8 @@ def aws_s3(func):
 
     def wrap(*args, **kwargs):
         """Wrapped function"""
-        silent = kwargs and 'silent' in kwargs and kwargs['silent']
-        if not silent:
+        verbose = kwargs and 'verbose' in kwargs and kwargs['verbose']
+        if verbose:
             print('Executing: ' + func.__name__)
         wrapper_kwargs_removed = \
             {k: v for k, v in kwargs.items() if k != 'silent'}
@@ -152,7 +213,7 @@ def aws_s3(func):
     return wrap
 
 
-def get_file_by_glob(pattern):
+def get_data_file_by_glob(pattern):
     """Get file by glob.
 
     Args:
@@ -160,22 +221,25 @@ def get_file_by_glob(pattern):
 
     Returns:
         str: Path/to/first_file_found
+
+    Raises:
+        PmaApiException: If more was found than expected
     """
-    found = glob.glob(pattern)
-    try:
-        return found[0]
-    except IndexError:
-        return ''
+    found: List = glob.glob(pattern)
+    if len(found) > 1:
+        raise PmaApiException('Expected only 1 file to be found, but '
+                              'discovered the following: \n' + str(found))
+    return found[0] if found else ''
 
 
 def get_api_data():
     """Get API data."""
-    return get_file_by_glob(os.path.join(DATA_DIR, 'api_data*.xlsx'))
+    return get_data_file_by_glob(os.path.join(DATA_DIR, 'api_data*.xlsx'))
 
 
 def get_ui_data():
     """Get API data."""
-    return get_file_by_glob(os.path.join(DATA_DIR, 'ui_data*.xlsx'))
+    return get_data_file_by_glob(os.path.join(DATA_DIR, 'ui_data*.xlsx'))
 
 
 def make_shell_context():
@@ -185,7 +249,7 @@ def make_shell_context():
     Returns:
         dict: Context for application manager shell.
     """
-    return dict(app=create_app(os.getenv('FLASK_CONFIG', 'default')), db=db,
+    return dict(app=create_app(os.getenv('ENV_NAME', 'default')), db=db,
                 Country=Country, EnglishString=EnglishString,
                 Translation=Translation, Survey=Survey, Indicator=Indicator,
                 Data=Data, Characteristic=Characteristic, Cache=Cache,
@@ -354,13 +418,14 @@ def format_book(wb: xlrd.book.Book):
     return book
 
 
-def init_from_workbook(wb: str, queue: (), progress_updater: ProgressUpdater):
+def init_from_workbook(wb: str, queue: (),
+                       progress_updater: TaskTracker = None):
     """Init from workbook.
 
     Args:
         wb (str): path to workbook file
         queue (tuple): Order in which to load db_models.
-        progress_updater (ProgressUpdater): Tracks progress of task queue
+        progress_updater (TaskTracker): Tracks progress of task queue
     """
     with xlrd.open_workbook(wb) as book:
         book = format_book(book)
@@ -395,11 +460,52 @@ def create_wb_metadata(wb_path):
     db.session.commit()
 
 
-def initdb_from_wb(_app: Flask = current_app,
-                   api_file_path: str = get_api_data(),
-                   ui_file_path: str = get_ui_data(),
-                   overwrite: bool = False,
-                   callback=None) -> dict:
+def drop_tables(tables: Tuple[db.Model] = OVERWRITE_DROP_TABLES):
+    """Drop database tables
+
+    Side effects
+        - Drops database tables
+
+    Args:
+        tables list(db.Model): Tables to drop
+
+    Raises:
+        OperationalError: If encounters such an error that is not 'database
+        does not exist'
+    """
+    try:
+        db.metadata.drop_all(db.engine, tables=tables)
+    except OperationalError as err:
+        if db_not_exist_tell not in str(err):
+            raise err
+        create_db()
+        db.metadata.drop_all(db.engine, tables=tables)
+
+
+def get_datasheet_names(path: str) -> List[str]:
+    """Gets data sheet names from a workbook
+
+    Args:
+        path (str): Path to a workbook file
+
+    Returns:
+        list(str): List of datasheet names
+    """
+    with xlrd.open_workbook(path) as wb:
+        data_sheets: List[xlrd.sheet] = \
+            [x for x in wb.sheets() if x.name.startswith('data')]
+        datasheet_names: List[str] = [x.name for x in data_sheets]
+
+    return datasheet_names
+
+
+def initdb_from_wb(
+    _app: Flask = current_app,
+    api_file_path: str = get_api_data(),
+    ui_file_path: str = get_ui_data(),
+    overwrite: bool = False,
+    callback=None) \
+        -> dict:
     """Create the database.
 
     Args:
@@ -422,10 +528,8 @@ def initdb_from_wb(_app: Flask = current_app,
     Returns:
         dict: Results
     """
-    with xlrd.open_workbook(api_file_path) as wb:
-        data_sheets: List[xlrd.sheet] = \
-            [x for x in wb.sheets() if x.name.startswith('data')]
-        datasheet_names: List[str] = [x.name for x in data_sheets]
+    retore_msg = 'An issue occurred. Restoring database to state it was in ' \
+                 'prior to task initialization.'
 
     current_sub_tasks: List[str] = [
         'Backing up database'] + (
@@ -435,15 +539,15 @@ def initdb_from_wb(_app: Flask = current_app,
             .format(x[0]) for x in METADATA_MODEL_MAP] + [
         'Updating translations'] + [
         'Uploading data for table: {}'
-            .format(x[0]) for x in datasheet_names] + [
+            .format(x) for x in get_datasheet_names(api_file_path)] + [
         'Updating translations'
         'Creating cache',
         'Backing up resulting database']
     # tot_sub_tasks: int = len(current_sub_tasks)
-    progress = ProgressUpdater(queue=current_sub_tasks,
-                               callback=callback)
-
-    # TODO: Add this stuff to ProgressUpdater
+    progress = TaskTracker(queue=current_sub_tasks,
+                           callback=callback,
+                           name='Initialize database')
+    # TODO: Add this stuff to ProgressUpdater / TaskTracker
     warnings = {}
     status = {
         'success': False,
@@ -458,42 +562,24 @@ def initdb_from_wb(_app: Flask = current_app,
     }
     start_time = time()
 
-    progress.next()
-    backup_path: str = backup_db()
-
     with _app.app_context():
         try:
+            progress.begin()
+            progress.next()
+            backup_path: str = backup_db()
+
             # Delete all tables except for 'datasets'
             if overwrite:
                 progress.next()
-                db.metadata.drop_all(db.engine, tables=[x.__table__ for x in [
-                    EnglishString,
-                    Data,
-                    Translation,
-                    Indicator,
-                    Characteristic,
-                    CharacteristicGroup,
-                    Survey,
-                    Country,
-                    Geography,
-                    Cache,
-                    ApiMetadata]])
-                datasets: List[Dataset] = Dataset.query\
-                    .filter_by(is_active=True)
-                for dataset in datasets:
-                    dataset.is_active = False
+                drop_tables()
+                Dataset.register_all_inactive()
 
             # Create tables
-            db.create_all()
             progress.next()
-
-            dataset_name = os.path.basename(api_file_path)
-            dataset = Dataset.query.filter_by(
-                dataset_display_name=dataset_name).first()
-            if not dataset:
-                db.session.add(Dataset(file_path=api_file_path,
-                                       is_processing=True))
-            db.session.commit()
+            db.create_all()
+            dataset, warning = Dataset.process_new(api_file_path)
+            if warning:
+                warnings['dataset'] = warning
 
             # Seed database
             if overwrite:
@@ -519,35 +605,18 @@ def initdb_from_wb(_app: Flask = current_app,
             except Exception as err:
                 warnings['backup'] = str(err)
 
-        # Print error if DB background process is not loaded
-        except OperationalError as err:
+        except (OperationalError, AttributeError) as err:
             db.session.rollback()
             restore_db(backup_path)
-            msg = connection_error.format(str(err))
-            raise PmaApiDbInteractionError(msg)
-        except IntegrityError as err:
-            db.session.rollback()
-            restore_db(backup_path)
-            if 'already exists' in str(err):
-                msg = 'Error: A dataset named "{}" already exists in DB.' \
-                    .format(dataset_name)
-                raise ExistingDatasetError(msg)
-            else:
-                raise err
-        except AttributeError as err:
-            db.session.rollback()
-            restore_db(backup_path)
-            if "'NoneType' object has no attribute 'drivername'" in str(err):
-                msg = (
-                    'An error occurred while interacting with the database. '
-                    'This can often happen when db related environmental '
-                    'variables (e.g. DATABASE_URL) are not set or cannot be '
-                    'accessed. Please check that they are set and being '
-                    'loaded correctly.\n\n'
-                    '- Original error:\n'
-                    + type(err).__name__ + ': ' + str(err))
-            else:
-                msg = err
+            print(retore_msg)
+
+            msg: str = str(err)
+            if isinstance(err, OperationalError):
+                msg: str = connection_error.format(str(err))
+            elif isinstance(err, AttributeError):
+                if env_access_err_tell in str(err):
+                    msg: str = env_access_err_msg\
+                        .format(type(err).__name__ + ': ' + str(err))
             raise PmaApiDbInteractionError(msg)
 
         # noinspection PyTypeChecker
@@ -741,6 +810,27 @@ def backup_using_sql_file(path: str = new_backup_path(ext = 'sql')):
     return path
 
 
+def run_process(cmd: List[str]):
+    """Run a process
+
+    Helper function to run a process, for boilerplate reduction.
+
+    Args:
+        cmd (list): Arguments to be executed
+
+    Returns:
+        str, str: Output of stdout, output of stderr
+    """
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            universal_newlines=True)
+    proc.stderr.close()
+    proc.stdout.close()
+    proc.wait()
+
+    return proc.stdout.read(), proc.stderr.read()
+
+
 def backup_using_pgdump_gz(path: str = new_backup_path(ext = 'gz')):
     """Backup using pg_dump
 
@@ -835,8 +925,7 @@ def backup_local(path: str = '', method: str = 'dump'):
     local_backup_method_map = {
         'gz': backup_using_pgdump_gz,
         'dump': backup_using_pgdump_dump,
-        'sql': backup_using_sql_file
-    }
+        'sql': backup_using_sql_file}
     local_backup_func = local_backup_method_map[method]
     target_dir = os.path.dirname(path) if path else BACKUPS_DIR
 
@@ -1015,12 +1104,96 @@ def restore_using_pgrestore(path: str):
     proc.wait()
 
 
-def drop_db(db_name: str = Config.DATABASE_NAME):
+def superuser_dbms_connection() -> Connection:
+    """Connect to database management system as a super user
+
+    Returns:
+        sqlalchemy.engine.Connection: connection object
+    """
+    from sqlalchemy import create_engine
+
+    connection_url = os.getenv('DBMS_SUPERUSER_URL')
+    engine_default = create_engine(connection_url)
+    conn: sqlalchemy.engine.Connection = engine_default.connect()
+
+    return conn
+
+
+def view_db_connections() -> List[dict]:
+    """View active connections to a db
+
+    Returns:
+        list(dict): List of active connections in the form of dictionaries
+        containing information about connections
+    """
+    # noinspection PyProtectedMember
+    from sqlalchemy.engine import ResultProxy
+
+    try:
+        db_name: str = current_app.config.get('DATABASE_NAME', 'pmaapi')
+    except RuntimeError as err:
+        if 'Working outside of application context' not in str(err):
+            raise err
+        db_name: str = 'pmaapi'
+    statement = "SELECT * FROM pg_stat_activity WHERE datname = '%s'" \
+                % db_name
+    conn: Connection = superuser_dbms_connection()
+
+    conn.execute("COMMIT")
+    result: ResultProxy = conn.execute(statement)
+    conn.close()
+
+    active_connections: List[dict] = []
+    for row in result:
+        conn_info = {}
+        for key_val in row.items():
+            conn_info = {**conn_info, **{key_val[0]: key_val[1]}}
+        active_connections.append(conn_info)
+
+    return active_connections
+
+
+def create_db(name: str = 'pmaapi', with_schema: bool = True):
+    """Create a brand new database
+
+    Side effects:
+        - Creates database
+        - Creates database tables and schema (if with_schema)
+
+    Args:
+        name (str): Name of database to create
+        with_schema (bool): Also create all tables and initialize them?
+    """
+    db_name: str = current_app.config.get('DATABASE_NAME', name)
+    conn: Connection = superuser_dbms_connection()
+
+    conn.execute("COMMIT")
+    conn.execute("CREATE DATABASE %s" % db_name)
+    conn.close()
+
+    if with_schema:
+        db.create_all()
+
+
+def drop_db(db_name: str = Config.DATABASE_NAME, hard: bool = False):
     """Drop database
+
+    Side effects:
+        - Drops database
+        - Kills active connections (if 'hard')
 
     Args:
         db_name (str): Database name
+        hard (bool): Kill any active connections?
     """
+    import signal
+
+    if hard:
+        connections: List[dict] = view_db_connections()
+        process_ids: List[int] = [x['pid'] for x in connections]
+        for pid in process_ids:
+            os.kill(pid, signal.SIGTERM)
+
     cmd = 'dropdb {}'.format(db_name).split(' ')
 
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
@@ -1055,11 +1228,12 @@ def download_file_from_s3(filename: str, directory: str):
     from botocore.exceptions import ClientError
 
     s3 = boto3.resource('s3')
-    download_path = os.path.join(directory, filename)
+    download_to_path: str = S3_BACKUPS_DIR_PATH + filename
+    download_from_path: str = os.path.join(directory, filename)
 
     try:
         s3.Bucket(AWS_S3_STORAGE_BUCKETNAME)\
-            .download_file(filename, download_path)
+            .download_file(download_to_path, download_from_path)
     except ClientError as err:
         msg = 'The file requested was not found on AWS S3.\n' \
             if err.response['Error']['Code'] == '404' \
@@ -1067,7 +1241,7 @@ def download_file_from_s3(filename: str, directory: str):
         msg += '- File requested: ' + filename
         raise PmaApiDbInteractionError(msg)
 
-    return download_path
+    return download_from_path
 
 
 @aws_s3
@@ -1310,7 +1484,8 @@ def restore_db_local(path: str):
     if os.path.getsize(emergency_backup) == 0:  # no db existed
         os.remove(emergency_backup)
 
-    drop_db()
+    # noinspection PyBroadException
+    drop_db(hard=True)
 
     try:
         restore_using_pgrestore(path)

@@ -6,8 +6,9 @@ Subpackages
 
 .. toctree::
 
-    pma_api.api_1_0
+    pma_api.manage
     pma_api.models
+    pma_api.routes
 
 Submodules
 ----------
@@ -28,6 +29,22 @@ pma\_api.config module
     :undoc-members:
     :show-inheritance:
 
+pma\_api.error module
+---------------------
+
+.. automodule:: pma_api.error
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pma\_api.python\_query\_template module
+---------------------------------------
+
+.. automodule:: pma_api.python_query_template
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pma\_api.queries module
 -----------------------
 
@@ -40,6 +57,14 @@ pma\_api.response module
 ------------------------
 
 .. automodule:: pma_api.response
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pma\_api.tasks module
+---------------------
+
+.. automodule:: pma_api.tasks
     :members:
     :undoc-members:
     :show-inheritance:

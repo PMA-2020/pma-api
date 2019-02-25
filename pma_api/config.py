@@ -16,6 +16,7 @@ UI_DATA_DIR = DATA_DIR
 BACKUPS_DIR = os.path.abspath(os.path.join(DATA_DIR, 'db_backups'))
 LOGS_DIR = os.path.abspath(os.path.join(PROJECT_ROOT_DIR, 'logs'))
 ERROR_LOG_PATH = os.path.join(LOGS_DIR, 'error-logfile.log')
+# noinspection PyUnresolvedReferences
 PID_FILE_PATH = os.path.join(PROJECT_ROOT_DIR, 'pma-api_process-id.pid')
 
 REFERENCES = {  # TODO: What this is used for should be implemented different
@@ -30,7 +31,6 @@ IGNORE_SHEET_PREFIX = UNIVERSAL_IGNORE_PREFIX
 DATA_SHEET_PREFIX = 'data_'
 ACCEPTED_DATASET_EXTENSIONS = ('csv', 'xls', 'xlsx')
 
-FLASK_CONFIG_ENV_KEY = 'FLASK_CONFIG'
 AWS_S3_STORAGE_BUCKETNAME = os.getenv('BUCKET_NAME', 'pma-api-backups')
 S3_BACKUPS_DIR_PATH = 'database/backups/'
 S3_DATASETS_DIR_PATH = 'datasets/versions/'

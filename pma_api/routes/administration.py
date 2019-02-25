@@ -84,7 +84,7 @@ def admin_route():
                                              destination_host_url=server_url)
 
         datasets = Dataset.query.all()
-        this_env = os.getenv('APP_SETTINGS', 'development')
+        this_env = os.getenv('ENV_NAME', 'development')
 
         return render_template('admin.html',
                                datasets=datasets,

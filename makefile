@@ -26,7 +26,7 @@ logs-staging virtualenv-make virtualenvwrapper-make virtualenv-activate \
 virtualenvwrapper-activate deactivate virtualenv-deactivate connect-staging \
 virtualenvwrapper-deactivate restore restore-test backup % connect-production \
 migrate_db migrate upgrade_db upgrade list-backups list list-api-data \
-list-datasets list-ui-data backup-source-files
+list-datasets list-ui-data backup-source-files release
 
 # ALL LINTING
 lint:
@@ -36,7 +36,6 @@ linttest:
 lintall: lint linttest
 
 
-# PYLINT
 pylint:
 	${LINT_SRC}
 pylinttest:
@@ -61,11 +60,11 @@ docall: doc doctest
 
 # TESTING
 test:
-	python3 -m unittest discover -v
+	@python3 -m unittest discover -v
 test-dataset:
 	python -m test.test_dataset
 testdoc:
-	python3 -m test.test --doctests-only
+	@python3 -m test.test --doctests-only
 
 # VIRTUAL ENVIRONMENTS
 virtualenv-make:
@@ -83,10 +82,12 @@ virtualenvwrapper-deactivate: deactivate
 
 # DB
 db:
-	python3 manage.py initdb --overwrite
+	@python3 manage.py initdb --overwrite
 db-production: db
+release:
+	@python3 manage.py release
 translations:
-	python3 manage.py initdb --translations
+	@python3 manage.py initdb --translations
 migrate_db:
 	@python3 manage.py db migrate
 	@echo
@@ -104,7 +105,7 @@ migrate_db:
 	@echo https://flask-migrate.readthedocs.io/en/latest/
 migrate: migrate_db
 upgrade_db:
-	@python3 manage.py db upgrade
+	@python3 manage.py upgrade
 upgrade: upgrade_db
 list-ui-data:
 	@python3 manage.py list_ui_data
@@ -123,7 +124,7 @@ list:
 
 # Serve / Deploy
 serve:
-	python3 manage.py runserver
+	@python3 manage.py runserver
 serve-dev: serve
 serve-dev-network-accessible:
 	gunicorn --bind 0.0.0.0:5000 run:app \
@@ -211,8 +212,8 @@ readme-to-docs:
 build-docs-no-open:
 	rm -rf pma_api/docslocal/build/
 	make readme-to-docs
-	(cd pma_api/docs
-	sphinx-apidoc -f -o source/ ..
+	(cd pma_api/docs; \
+	sphinx-apidoc -f -o source/ ..; \
 	make html)
 	printf "\nAbout WARNINGs\nNot all warnings should be ignored, but you can
 	ignore the following.\n- pma_api.rst not being in a toctree.\n<autoflask>
@@ -247,7 +248,7 @@ ltags:
 
 # Manage / Troubleshoot
 shell:
-	python3 manage.py shell
+	@python3 manage.py shell
 
 # Backup
 backup-source-files:

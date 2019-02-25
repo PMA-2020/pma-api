@@ -1,6 +1,9 @@
 """Dataset model."""
 import datetime
 import os
+import sys
+from sqlalchemy.exc import IntegrityError
+from typing import List
 
 from pma_api.config import ACCEPTED_DATASET_EXTENSIONS as EXTENSIONS
 from pma_api.models import db
@@ -67,6 +70,39 @@ class Dataset(db.Model):
         """Return a record by ID."""
         return cls.query.filter_by(ID=_id).first()
 
+    @classmethod
+    def process_new(cls, path: str):
+        """Upload new dataset if does not exist, and register processing
+
+        Args:
+            path (str): Path to a dataset to be initialized and registered
+
+        Returns:
+            dataset (Dataset): The dataset registered as processing
+            warning (str): Warning message, if any.
+        """
+        warning: str = ''
+        dataset: Dataset = Dataset(file_path=path, is_processing=True)
+        try:
+            db.session.add(dataset)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            warning: str = (
+                'Warning: During DB initialization, it was found that a '
+                'dataset with version number {} has already been previously '
+                'uploaded to the database. Using that instead of the '
+                'dataset which was found in the file system: \n' + path +
+                '\n\n' +
+                'If there is any doubt that the dataset on the file system '
+                'is different/newer than the one previously uploaded, then '
+                'please increment the version number of the dataset shown, '
+                'and try again.'.format(dataset.version_number))
+            dataset: Dataset = Dataset.query.filter_by(
+                version_number=dataset.version_number).first()
+
+        return dataset, warning
+
     def register_active(self):
         """Register dataset as being actively in use in the database
 
@@ -82,7 +118,16 @@ class Dataset(db.Model):
 
     def register_processing(self):
         """Register dataset as being actively processed; being applied to db"""
-        Dataset.query.filter_by(ID=self.ID).update({
-            'is_active': False,
-            'is_processing': True})
+        dataset: Dataset = Dataset.query.filter_by(ID=self.ID)
+        dataset.update({'is_active': False, 'is_processing': True})
         db.session.commit()
+
+    @staticmethod
+    def register_all_inactive():
+        """Register all datasets as inactive
+
+        Used during database initialization
+        """
+        datasets: List[Dataset] = Dataset.query.filter_by(is_active=True)
+        for dataset in datasets:
+            dataset.is_active = False

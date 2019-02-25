@@ -27,6 +27,9 @@ A Python virtual environment is a way to isolate applications and their dependen
 1. Install `virtualenv` globally: `python3 -m pip install virtualenv`
 2. Change directory to where `pma-api` was cloned: `cd PATH/pma-api`
 3. Create a virtual environment called `env`: `virtualenv env`
+4. Use the virtualenv every time you want to work on the project
+    4a. Activate the virtuale environment: `cd PATH/pma-api` && `source env/bin/activate`
+    4b. Deactivate when you're done. You can do this by closing the terminal session, or running: `deactivate`
 
 ### 4. Install project dependencies
 - `python3 -m pip install -r requirements.txt`
@@ -42,16 +45,18 @@ iv. Make user 'pma-api' a super user for DB 'pma-api'. `GRANT ALL PRIVILEGES ON 
 #### 5.2. Environmental variables
 a. **_Virtualenv_ setups:** After installing the virtual environment, you should have a folder called `env`. Open up `env/bin/activate` in a text editor. Add the following text to the bottom of the file.
 ```bash
-export APP_SETTINGS="development"
-export FLASK_APP="development"
+export ENV_NAME="development"
 export DATABASE_URL="postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi"
+export STAGING_URL="http://api-staging.pma2020.org"
+export PRODUCTION_URL="http://api.pma2020.org"
 ```
 b. **_Virtualenvwrapper_ setups:** Add the following to your postactivate script. This is found in the root directory of wherever you installed virtualenvwrapper. Also, the text below assumes that you named your virtual environment "pma-api". If you are using virtualenvwrapper and named it something else, replace the text "pma-api" with whatever you named your environment.
 ```bash
 elif [ "$VIRTUAL_ENV" = "path/to/virtualenvs/pma-api" ]; then
-	export APP_SETTINGS="development"
-	export FLASK_APP="development"
+	export ENV_NAME="development"
 	export DATABASE_URL="postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi"
+	export STAGING_URL="http://api-staging.pma2020.org"
+	export PRODUCTION_URL="http://api.pma2020.org"
 fi
 ```
 

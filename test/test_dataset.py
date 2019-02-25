@@ -65,28 +65,28 @@
 #
 #
 # # TODO: Use this example from tutorial for the above test
-# # class TestDB(unittest.TestCase):
-# #     """Test database functionality.
-# #
-# #     Tutorial: http://flask.pocoo.org/docs/0.12/testing/
-# #     """
-# #
-# #     def setUp(self):
-# #         """Set up: (1) Put Flask app in test mode, (2) Create temp DB."""
-# #         import tempfile
-# #         from manage import initdb
-# #         self.db_fd, app.config['DATABASE'] = tempfile.mkstemp()
-# #         app.testing = True
-# #         self.app = app.test_client()
-# #         with app.app_context():
-# #             initdb()
-# #
-# #     def tearDown(self):
-# #         """Tear down: (1) Close temp DB."""
-# #         os.close(self.db_fd)
-# #         os.unlink(app.config['DATABASE'])
-# #
-# #     def test_empty_db(self):
-# #         """Test empty database."""
-# #         resp = self.app.get('/')
-# #         assert b'No entries here so far' in resp.data
+# class TestDB(unittest.TestCase):
+#     """Test database functionality.
+#
+#     Tutorial: http://flask.pocoo.org/docs/0.12/testing/
+#     """
+#
+#     def setUp(self):
+#         """Set up: (1) Put Flask app in test mode, (2) Create temp DB."""
+#         import tempfile
+#         from manage import initdb
+#         self.db_fd, app.config['DATABASE'] = tempfile.mkstemp()
+#         app.testing = True
+#         self.app = app.test_client()
+#         with app.app_context():
+#             initdb()
+#
+#     def tearDown(self):
+#         """Tear down: (1) Close temp DB."""
+#         os.close(self.db_fd)
+#         os.unlink(app.config['DATABASE'])
+#
+#     def test_empty_db(self):
+#         """Test empty database."""
+#         resp = self.app.get('/')
+#         assert b'No entries here so far' in resp.data

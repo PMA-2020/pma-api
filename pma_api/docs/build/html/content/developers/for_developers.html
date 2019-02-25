@@ -214,6 +214,9 @@
 <li>Install <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code> globally: <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">virtualenv</span></code></li>
 <li>Change directory to where <code class="docutils literal notranslate"><span class="pre">pma-api</span></code> was cloned: <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">PATH/pma-api</span></code></li>
 <li>Create a virtual environment called <code class="docutils literal notranslate"><span class="pre">env</span></code>: <code class="docutils literal notranslate"><span class="pre">virtualenv</span> <span class="pre">env</span></code></li>
+<li>Use the virtualenv every time you want to work on the project
+4a. Activate the virtuale environment: <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">PATH/pma-api</span></code> &amp;&amp; <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">env/bin/activate</span></code>
+4b. Deactivate when you’re done. You can do this by closing the terminal session, or running: <code class="docutils literal notranslate"><span class="pre">deactivate</span></code></li>
 </ol>
 </div>
 <div class="section" id="install-project-dependencies">
@@ -232,16 +235,18 @@ i. Create database a called ‘pma-api’. <code class="docutils literal notrans
 <div class="section" id="environmental-variables">
 <span id="environmental-variables"></span><h4>5.2. Environmental variables<a class="headerlink" href="#environmental-variables" title="Permalink to this headline">¶</a></h4>
 <p>a. <strong><em>Virtualenv</em> setups:</strong> After installing the virtual environment, you should have a folder called <code class="docutils literal notranslate"><span class="pre">env</span></code>. Open up <code class="docutils literal notranslate"><span class="pre">env/bin/activate</span></code> in a text editor. Add the following text to the bottom of the file.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">APP_SETTINGS</span><span class="o">=</span><span class="s2">&quot;development&quot;</span>
-<span class="nb">export</span> <span class="nv">FLASK_APP</span><span class="o">=</span><span class="s2">&quot;development&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">ENV_NAME</span><span class="o">=</span><span class="s2">&quot;development&quot;</span>
 <span class="nb">export</span> <span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi&quot;</span>
+<span class="nb">export</span> <span class="nv">STAGING_URL</span><span class="o">=</span><span class="s2">&quot;http://api-staging.pma2020.org&quot;</span>
+<span class="nb">export</span> <span class="nv">PRODUCTION_URL</span><span class="o">=</span><span class="s2">&quot;http://api.pma2020.org&quot;</span>
 </pre></div>
 </div>
 <p>b. <strong><em>Virtualenvwrapper</em> setups:</strong> Add the following to your postactivate script. This is found in the root directory of wherever you installed virtualenvwrapper. Also, the text below assumes that you named your virtual environment “pma-api”. If you are using virtualenvwrapper and named it something else, replace the text “pma-api” with whatever you named your environment.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="k">elif</span> <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$VIRTUAL_ENV</span><span class="s2">&quot;</span> <span class="o">=</span> <span class="s2">&quot;path/to/virtualenvs/pma-api&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    <span class="nb">export</span> <span class="nv">APP_SETTINGS</span><span class="o">=</span><span class="s2">&quot;development&quot;</span>
-    <span class="nb">export</span> <span class="nv">FLASK_APP</span><span class="o">=</span><span class="s2">&quot;development&quot;</span>
+    <span class="nb">export</span> <span class="nv">ENV_NAME</span><span class="o">=</span><span class="s2">&quot;development&quot;</span>
     <span class="nb">export</span> <span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi&quot;</span>
+    <span class="nb">export</span> <span class="nv">STAGING_URL</span><span class="o">=</span><span class="s2">&quot;http://api-staging.pma2020.org&quot;</span>
+    <span class="nb">export</span> <span class="nv">PRODUCTION_URL</span><span class="o">=</span><span class="s2">&quot;http://api.pma2020.org&quot;</span>
 <span class="k">fi</span>
 </pre></div>
 </div>
@@ -297,7 +302,7 @@ ii. Read the <a class="reference external" href="https://api.pma2020.org">pma-ap
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, James Pringle, Joe Flack.
+        &copy; Copyright 2019, James Pringle, Joe Flack
 
     </p>
   </div>
@@ -316,20 +321,13 @@ ii. Read the <a class="reference external" href="https://api.pma2020.org">pma-ap
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../',
-            VERSION:'1.0.0',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
 
   
 

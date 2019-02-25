@@ -1,0 +1,1036 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pma_api.manage package &mdash; PMA API 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PMA API
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="content/users/endpoints.html">Endpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Using the API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/developers/for_developers.html">Developer Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PMA API</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>pma_api.manage package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/pma_api.manage.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pma-api-manage-package">
+<h1>pma_api.manage package<a class="headerlink" href="#pma-api-manage-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pma_api.manage.db_mgmt">
+<span id="pma-api-manage-db-mgmt-module"></span><h2>pma_api.manage.db_mgmt module<a class="headerlink" href="#module-pma_api.manage.db_mgmt" title="Permalink to this headline">¶</a></h2>
+<p>Database management</p>
+<dl class="class">
+<dt id="pma_api.manage.db_mgmt.TaskTracker">
+<em class="property">class </em><code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">TaskTracker</code><span class="sig-paren">(</span><em>queue: List[str], silent: bool = False, name: str = '', callback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.TaskTracker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Tracks progress of task queue</p>
+<dl class="method">
+<dt id="pma_api.manage.db_mgmt.TaskTracker.begin">
+<code class="descname">begin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.TaskTracker.begin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register and report task begin</p>
+<p>Usage optional</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.manage.db_mgmt.TaskTracker.complete">
+<code class="descname">complete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.TaskTracker.complete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register and report all sub-tasks and task itself complete</p>
+<p>Usage optional</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.manage.db_mgmt.TaskTracker.next">
+<code class="descname">next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.TaskTracker.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register and report next sub-task begin</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.aws_s3">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">aws_s3</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.aws_s3" title="Permalink to this definition">¶</a></dt>
+<dd><p>AWS S3 Wrapper</p>
+<p>This wrapper is not to be called directly, but should be used in the
+following way:</p>
+<blockquote>
+<div><p>&#64;aws_s3
+def my_function_that_uses_s3(…):</p>
+<blockquote>
+<div>…</div></blockquote>
+</div></blockquote>
+<dl class="docutils">
+<dt>This wrapper provides the following functions:</dt>
+<dd><ul class="first last simple">
+<li>Offers guidance in the event of connection issues</li>
+<li>Prints out status update before calling function</li>
+</ul>
+</dd>
+<dt>Args:</dt>
+<dd>func (function): This will be the function wrapped, e.g.
+‘my_function_that_uses_s3’ in the above example.</dd>
+<dt>Returns:</dt>
+<dd>function: The wrapped function</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.backup_datasets">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">backup_datasets</code><span class="sig-paren">(</span><em>path: str = '/Users/joeflack4/projects/pma-api/data/api_data-2019.01.22-v36-jef.xlsx'</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pma_api.manage.db_mgmt.backup_datasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given path to file on local file system, push file to AWS S3</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to local file</dd>
+<dt>Returns:</dt>
+<dd>str: File name of uploaded file</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.backup_db">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">backup_db</code><span class="sig-paren">(</span><em>path: str = ''</em>, <em>method: str = 'dump'</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.backup_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Backup database locally and to the cloud</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to save file
+method (str): Method to back up file, e.g. ‘gz’, ‘dump’, etc</dd>
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>backup_local()</li>
+<li>backup_cloud()</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd>str: Path saved locally</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.backup_db_cloud">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">backup_db_cloud</code><span class="sig-paren">(</span><em>path_or_filename: str = ''</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.backup_db_cloud" title="Permalink to this definition">¶</a></dt>
+<dd><p>Backs up database to the cloud</p>
+<p>If path_or_filename is a path, uploads from already stored backup at path.
+Else if it is a path_or_filename, creates new backup and then uploads that.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path_or_filename (str): Either path to a backup file, or file name. If
+file name, will restore from local backup if file exists in default
+backups directory, else will restore from the cloud.</dd>
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>backup_local()</li>
+<li>backup_to_s3()</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.backup_local">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">backup_local</code><span class="sig-paren">(</span><em>path: str = ''</em>, <em>method: str = 'dump'</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.backup_local" title="Permalink to this definition">¶</a></dt>
+<dd><p>Backup database locally</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to save file
+method (str): Method to back up file, e.g. ‘gz’, ‘dump’, etc</dd>
+<dt>Returns:</dt>
+<dd>str: Path to backup file saved</dd>
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>Saves file at path</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.backup_source_files">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">backup_source_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.backup_source_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Backup ui data and datasets</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.backup_ui_data">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">backup_ui_data</code><span class="sig-paren">(</span><em>path: str = '/Users/joeflack4/projects/pma-api/data/ui_data-2017.10.02-v4-jef.xlsx'</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pma_api.manage.db_mgmt.backup_ui_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given path to file on local file system, push file to AWS S3</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to local file</dd>
+<dt>Returns:</dt>
+<dd>str: File name of uploaded file</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.backup_using_pgdump_dump">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">backup_using_pgdump_dump</code><span class="sig-paren">(</span><em>path: str = '/Users/joeflack4/projects/pma-api/data/db_backups/pma-api-backup_MacOS_2019-02-27_13-17-29.610893.dump'</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.backup_using_pgdump_dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Backup using pg_dump</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path of file to save</dd>
+<dt>Raises</dt>
+<dd>PmaApiDbInteractionError: If did not succeed</dd>
+<dt>Returns:</dt>
+<dd>str: path to backup file saved</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.backup_using_pgdump_gz">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">backup_using_pgdump_gz</code><span class="sig-paren">(</span><em>path: str = '/Users/joeflack4/projects/pma-api/data/db_backups/pma-api-backup_MacOS_2019-02-27_13-17-29.610883.gz'</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.backup_using_pgdump_gz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Backup using pg_dump</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path of file to save</dd>
+<dt>Raises</dt>
+<dd>PmaApiDbInteractionError: If did not succeed</dd>
+<dt>Returns:</dt>
+<dd>str: path to backup file saved</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.backup_using_sql_file">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">backup_using_sql_file</code><span class="sig-paren">(</span><em>path: str = '/Users/joeflack4/projects/pma-api/data/db_backups/pma-api-backup_MacOS_2019-02-27_13-17-29.610854.sql'</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.backup_using_sql_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Backup using sql file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to save file</dd>
+<dt>Returns:</dt>
+<dd>str: path to backup file saved</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.commit_data_file">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">commit_data_file</code><span class="sig-paren">(</span><em>file: xlrd.book.Book</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.commit_data_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write data file to db</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>file (xlrd.Book): workbook file to write to db</dd>
+<dt>Side effects:</dt>
+<dd>Writes data to db.
+- See: process_metadata(), process_data(), process_translations()</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.create_db">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">create_db</code><span class="sig-paren">(</span><em>name: str = 'pmaapi'</em>, <em>with_schema: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.create_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a brand new database</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>Creates database</li>
+<li>Creates database tables and schema (if with_schema)</li>
+</ul>
+</dd>
+<dt>Args:</dt>
+<dd>name (str): Name of database to create
+with_schema (bool): Also create all tables and initialize them?</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.create_wb_metadata">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">create_wb_metadata</code><span class="sig-paren">(</span><em>wb_path</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.create_wb_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create metadata for Excel Workbook files imported into the DB.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>wb_path (str) Path to Excel Workbook.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.delete_s3_file">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">delete_s3_file</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.delete_s3_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapped function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.download_file_from_s3">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">download_file_from_s3</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.download_file_from_s3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapped function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.drop_db">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">drop_db</code><span class="sig-paren">(</span><em>db_name: str = 'pmaapi'</em>, <em>hard: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.drop_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drop database</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>Drops database</li>
+<li>Kills active connections (if ‘hard’)</li>
+</ul>
+</dd>
+<dt>Args:</dt>
+<dd>db_name (str): Database name
+hard (bool): Kill any active connections?</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.drop_tables">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">drop_tables</code><span class="sig-paren">(</span><em>tables: Tuple[sqlalchemy.ext.declarative.api.Model] = &lt;generator object &lt;genexpr&gt;&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.drop_tables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drop database tables</p>
+<dl class="docutils">
+<dt>Side effects</dt>
+<dd><ul class="first last simple">
+<li>Drops database tables</li>
+</ul>
+</dd>
+<dt>Args:</dt>
+<dd>tables list(db.Model): Tables to drop</dd>
+<dt>Raises:</dt>
+<dd>OperationalError: If encounters such an error that is not ‘database
+does not exist’</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.format_book">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">format_book</code><span class="sig-paren">(</span><em>wb: xlrd.book.Book</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.format_book" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format workbook by making edits to prevent edge case errors</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>wb (xlrd.book.Book): workbook object</dd>
+<dt>Returns:</dt>
+<dd>xlrd.book.Book: Formatted workbook</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.get_api_data">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">get_api_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.get_api_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get API data.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.get_data_file_by_glob">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">get_data_file_by_glob</code><span class="sig-paren">(</span><em>pattern</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.get_data_file_by_glob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file by glob.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>pattern (str): A glob pattern.</dd>
+<dt>Returns:</dt>
+<dd>str: Path/to/first_file_found</dd>
+<dt>Raises:</dt>
+<dd>PmaApiException: If more was found than expected</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.get_datasheet_names">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">get_datasheet_names</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="headerlink" href="#pma_api.manage.db_mgmt.get_datasheet_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets data sheet names from a workbook</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to a workbook file</dd>
+<dt>Returns:</dt>
+<dd>list(str): List of datasheet names</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.get_ui_data">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">get_ui_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.get_ui_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get API data.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.init_data">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">init_data</code><span class="sig-paren">(</span><em>wb: xlrd.book.Book</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.init_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put all the data from the workbook into the database.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>wb (xlrd.Book): A spreadsheet</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.init_from_sheet">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">init_from_sheet</code><span class="sig-paren">(</span><em>ws</em>, <em>model</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.init_from_sheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize DB table data from XLRD Worksheet.</p>
+<p>Initialize table data from source data associated with the corresponding
+data model.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>ws (xlrd.sheet.Sheet): XLRD worksheet object.
+model (class): SqlAlchemy model class.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.init_from_source">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">init_from_source</code><span class="sig-paren">(</span><em>path</em>, <em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.init_from_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize DB table data from csv file.</p>
+<p>Initialize table data from csv source data files associated with the
+corresponding data model.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to csv data file.
+model (class): SqlAlchemy model class.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.init_from_workbook">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">init_from_workbook</code><span class="sig-paren">(</span><em>wb: str</em>, <em>queue: ()</em>, <em>progress_updater: pma_api.manage.db_mgmt.TaskTracker = None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.init_from_workbook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init from workbook.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>wb (str): path to workbook file
+queue (tuple): Order in which to load db_models.
+progress_updater (TaskTracker): Tracks progress of task queue</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.initdb_from_wb">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">initdb_from_wb</code><span class="sig-paren">(</span><em>_app: flask.app.Flask = &lt;LocalProxy unbound&gt;</em>, <em>api_file_path: str = '/Users/joeflack4/projects/pma-api/data/api_data-2019.01.22-v36-jef.xlsx'</em>, <em>ui_file_path: str = '/Users/joeflack4/projects/pma-api/data/ui_data-2017.10.02-v4-jef.xlsx'</em>, <em>overwrite: bool = False</em>, <em>callback=None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#pma_api.manage.db_mgmt.initdb_from_wb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the database.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>_app (Flask): Flask application for context
+overwrite (bool): Overwrite database if True, else update.
+api_file_path (str): path to “API data file” spec xls file
+ui_file_path (str): path to “UIdata file” spec xls file
+callback: Callback function for progress yields</dd>
+<dt>Side effects:</dt>
+<dd><dl class="first last docutils">
+<dt>Always:</dt>
+<dd><ul class="first last simple">
+<li>Creates tables</li>
+<li>Adds values to database</li>
+<li>Temporarily sets current dataset to ‘processing’</li>
+<li>Backs up database: at the beginning and end</li>
+</ul>
+</dd>
+<dt>If overwrite:</dt>
+<dd><ul class="first last simple">
+<li>Deletes all tables except for ‘datasets’</li>
+<li>Sets all other datasets to is_active=False</li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict: Results</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.list_backups">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_backups</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; {&lt;class 'str'&gt;: [&lt;class 'str'&gt;]}<a class="headerlink" href="#pma_api.manage.db_mgmt.list_backups" title="Permalink to this definition">¶</a></dt>
+<dd><p>List available backups</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>dict: available backups, of form…
+{‘local’: […], ‘cloud’: […]</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.list_cloud_backups">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_cloud_backups</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; [&lt;class 'str'&gt;]<a class="headerlink" href="#pma_api.manage.db_mgmt.list_cloud_backups" title="Permalink to this definition">¶</a></dt>
+<dd><p>List available cloud backups</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>list: backups</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.list_cloud_datasets">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_cloud_datasets</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; [&lt;class 'str'&gt;]<a class="headerlink" href="#pma_api.manage.db_mgmt.list_cloud_datasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>List pma api dataset spec files on AWS S3</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>list: List of files</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.list_cloud_ui_data">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_cloud_ui_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; [&lt;class 'str'&gt;]<a class="headerlink" href="#pma_api.manage.db_mgmt.list_cloud_ui_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>List ui data spec files on AWS S3</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>list: List of files</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.list_datasets">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_datasets</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; {&lt;class 'str'&gt;: [&lt;class 'str'&gt;]}<a class="headerlink" href="#pma_api.manage.db_mgmt.list_datasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>List available api data spec files</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>dict: available backups, of form…
+{‘local’: […], ‘cloud’: […]</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.list_filtered_s3_files">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_filtered_s3_files</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; []<a class="headerlink" href="#pma_api.manage.db_mgmt.list_filtered_s3_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets list of S3 files w/ directories and path prefixes filtered out</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to directory holding files</dd>
+<dt>Returns:</dt>
+<dd>list: Filenames</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.list_local_backups">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_local_backups</code><span class="sig-paren">(</span><em>path: str = '/Users/joeflack4/projects/pma-api/data/db_backups'</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'str'&gt;]<a class="headerlink" href="#pma_api.manage.db_mgmt.list_local_backups" title="Permalink to this definition">¶</a></dt>
+<dd><p>List available local backups</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to backups directory</dd>
+<dt>Returns:</dt>
+<dd>list: backups</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.list_local_datasets">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_local_datasets</code><span class="sig-paren">(</span><em>path: str = '/Users/joeflack4/projects/pma-api/data'</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'str'&gt;]<a class="headerlink" href="#pma_api.manage.db_mgmt.list_local_datasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>List available local datasets</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to datasets directory</dd>
+<dt>Returns:</dt>
+<dd>list: datasets</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.list_local_files">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_local_files</code><span class="sig-paren">(</span><em>path: str</em>, <em>name_contains: str = ''</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'str'&gt;]<a class="headerlink" href="#pma_api.manage.db_mgmt.list_local_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>List applicable files in directory</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to a directory containing files
+name_contains (str): Additional filter to discard any files that do not
+contain this string</dd>
+<dt>Returns:</dt>
+<dd>list: files</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.list_local_ui_data">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_local_ui_data</code><span class="sig-paren">(</span><em>path: str = '/Users/joeflack4/projects/pma-api/data'</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'str'&gt;]<a class="headerlink" href="#pma_api.manage.db_mgmt.list_local_ui_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>List available local backups</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to backups directory</dd>
+<dt>Returns:</dt>
+<dd>list: backups</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.list_s3_objects">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_s3_objects</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.list_s3_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapped function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.list_ui_data">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_ui_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; {&lt;class 'str'&gt;: [&lt;class 'str'&gt;]}<a class="headerlink" href="#pma_api.manage.db_mgmt.list_ui_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>List available ui data spec files</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>dict: available backups, of form…
+{‘local’: […], ‘cloud’: […]</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.load_data_file">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">load_data_file</code><span class="sig-paren">(</span><em>filepath: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.load_data_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data file into memory</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filepath (str): Path of file to load into memory</dd>
+<dt>Returns:</dt>
+<dd>xlrd.Book: workbook file object</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.make_shell_context">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">make_shell_context</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.make_shell_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make shell context, for the ability to manipulate these db_models/tables
+from the command line shell.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>dict: Context for application manager shell.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.new_backup_path">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">new_backup_path</code><span class="sig-paren">(</span><em>ext: str = 'dump'</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.new_backup_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Backup default path</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>ext (str): File extension to use</dd>
+<dt>Returns:</dt>
+<dd>str: Default path of backup file at specific date and time</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.process_data">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">process_data</code><span class="sig-paren">(</span><em>file: xlrd.book.Book</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.process_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read and write metadata from xlrd.Book into db</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>file (xlrd.Book): contains contents to write</dd>
+<dt>Side effects:</dt>
+<dd>Writes data to db.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.process_metadata">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">process_metadata</code><span class="sig-paren">(</span><em>file: xlrd.book.Book</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.process_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read and write data from xlrd.Book into db</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>file (xlrd.Book): contains contents to write</dd>
+<dt>Side effects:</dt>
+<dd>Writes data to db.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.process_translations">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">process_translations</code><span class="sig-paren">(</span><em>file: xlrd.book.Book</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.process_translations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read and write translations from xlrd.Book into db</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>file (xlrd.Book): contains contents to write</dd>
+<dt>Side effects:</dt>
+<dd>Writes data to db.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.remove_stata_undefined_token_from_wb">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">remove_stata_undefined_token_from_wb</code><span class="sig-paren">(</span><em>wb: xlrd.book.Book</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.remove_stata_undefined_token_from_wb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all instances of Stata undefined token ‘.’ from wb</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>wb (xlrd.book.Book): workbook object</dd>
+<dt>Returns:</dt>
+<dd>xlrd.book.Book: Formatted workbook</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.restore_db">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">restore_db</code><span class="sig-paren">(</span><em>path_or_filename: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.restore_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore database</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path_or_filename (str): Either path to a backup file, or file name. If
+file name, will restore from local backup if file exists in default
+backups directory, else will restore from the cloud.</dd>
+<dt>Side effects:</dt>
+<dd>Reverts database to state of backup file</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.restore_db_cloud">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">restore_db_cloud</code><span class="sig-paren">(</span><em>filename: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.restore_db_cloud" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore database</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filename (str): Name of file to restore</dd>
+<dt>Side effects:</dt>
+<dd>Reverts database to state of backup file</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.restore_db_local">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">restore_db_local</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.restore_db_local" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restore database</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to backup file</dd>
+<dt>Side effects:</dt>
+<dd>Reverts database to state of backup file</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.restore_using_pgrestore">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">restore_using_pgrestore</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.restore_using_pgrestore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Backup using pg_restore</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path of file to restore</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.run_process">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">run_process</code><span class="sig-paren">(</span><em>cmd: List[str]</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.run_process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a process</p>
+<p>Helper function to run a process, for boilerplate reduction.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>cmd (list): Arguments to be executed</dd>
+<dt>Returns:</dt>
+<dd>str, str: Output of stdout, output of stderr</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.store_file_on_s3">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">store_file_on_s3</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.store_file_on_s3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapped function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.superuser_dbms_connection">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">superuser_dbms_connection</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; sqlalchemy.engine.base.Connection<a class="headerlink" href="#pma_api.manage.db_mgmt.superuser_dbms_connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to database management system as a super user</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>sqlalchemy.engine.Connection: connection object</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.validate_data_file">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">validate_data_file</code><span class="sig-paren">(</span><em>file: xlrd.book.Book = None</em>, <em>filepath: str = ''</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.validate_data_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate data file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>file (xlrd.Book): Validate Workbook obj
+filepath (str): Validate Workbook file at path</dd>
+<dt>Raises:</dt>
+<dd>InvalidDataFileError: if file is not valid</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.view_db_connections">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">view_db_connections</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[dict]<a class="headerlink" href="#pma_api.manage.db_mgmt.view_db_connections" title="Permalink to this definition">¶</a></dt>
+<dd><p>View active connections to a db</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>list(dict): List of active connections in the form of dictionaries
+containing information about connections</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.write_data_file_to_db">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">write_data_file_to_db</code><span class="sig-paren">(</span><em>filepath: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.write_data_file_to_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load, validate, and commit data file to db</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filepath (str) Path of file to write</dd>
+<dt>Raises:</dt>
+<dd><ul class="first last simple">
+<li>See: validate_data_file()</li>
+</ul>
+</dd>
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>See: commit_data_file()</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.manage.server_mgmt">
+<span id="pma-api-manage-server-mgmt-module"></span><h2>pma_api.manage.server_mgmt module<a class="headerlink" href="#module-pma_api.manage.server_mgmt" title="Permalink to this headline">¶</a></h2>
+<p>Server management</p>
+<dl class="function">
+<dt id="pma_api.manage.server_mgmt.get_server_pid">
+<code class="descclassname">pma_api.manage.server_mgmt.</code><code class="descname">get_server_pid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.server_mgmt.get_server_pid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get process id of this server being run</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>int: process id</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.server_mgmt.start_dev_server">
+<code class="descclassname">pma_api.manage.server_mgmt.</code><code class="descname">start_dev_server</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.server_mgmt.start_dev_server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start development server</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.server_mgmt.start_prod_server">
+<code class="descclassname">pma_api.manage.server_mgmt.</code><code class="descname">start_prod_server</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.server_mgmt.start_prod_server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start production server</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.server_mgmt.start_server">
+<code class="descclassname">pma_api.manage.server_mgmt.</code><code class="descname">start_server</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.server_mgmt.start_server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start server</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.server_mgmt.stop_server">
+<code class="descclassname">pma_api.manage.server_mgmt.</code><code class="descname">stop_server</code><span class="sig-paren">(</span><em>pid: int = None</em>, <em>pid_file_path: str = '/Users/joeflack4/projects/pma-api/pma-api_process-id.pid'</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.server_mgmt.stop_server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop server</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>pid (int): Process id
+pid_file_path (str): Path to read/write pid file</dd>
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>Stops server</li>
+<li>Writes to pid file</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.server_mgmt.store_pid">
+<code class="descclassname">pma_api.manage.server_mgmt.</code><code class="descname">store_pid</code><span class="sig-paren">(</span><em>path: str = '/Users/joeflack4/projects/pma-api/pma-api_process-id.pid'</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.server_mgmt.store_pid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Store prcocess id</p>
+<p>This should be called in the module used to run the server, right before
+any lines to execute running server</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to file to store process id</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.manage.utils">
+<span id="pma-api-manage-utils-module"></span><h2>pma_api.manage.utils module<a class="headerlink" href="#module-pma_api.manage.utils" title="Permalink to this headline">¶</a></h2>
+<p>App management utilities</p>
+<dl class="function">
+<dt id="pma_api.manage.utils.log_process_stderr">
+<code class="descclassname">pma_api.manage.utils.</code><code class="descname">log_process_stderr</code><span class="sig-paren">(</span><em>stderr_obj</em>, <em>err_msg: str = None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.utils.log_process_stderr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log stderr output from process</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>stderr_obj: Stderr object
+err_msg (str): Custom error message</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.utils.run_proc_and_log_errs">
+<code class="descclassname">pma_api.manage.utils.</code><code class="descname">run_proc_and_log_errs</code><span class="sig-paren">(</span><em>cmd: list</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.utils.run_proc_and_log_errs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run process and log errors, if any</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>cmd (list): Command to be executed to run process</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.manage">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pma_api.manage" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, James Pringle, Joe Flack
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,6 +1,7 @@
 """Responses."""
 from io import StringIO
 from csv import DictWriter
+from typing import List
 
 from flask import Response, jsonify, make_response
 
@@ -80,7 +81,7 @@ class QuerySetApiResult(ApiResult):
         return response
 
     @staticmethod
-    def _remove_bytes_values(record_list: [dict]) -> [dict]:
+    def _remove_bytes_values(record_list: List[dict]) -> List[dict]:
         """From a list of dicts, remove any dict value that is bytes.
 
         Args:
@@ -90,16 +91,21 @@ class QuerySetApiResult(ApiResult):
             list(dict): Records with any non-JSON-serializable bytes values
             replaced with the string 'bytes'
         """
-        formatted_list: [dict] = [
-            {
-                k: 'bytes' if isinstance(v, bytes) else
-                v
-                for k, v in x.items()
-            }
-            for x in record_list
-        ]
+        try:
+            formatted_list: [dict] = [
+                {
+                    k: 'bytes' if isinstance(v, bytes) else
+                    v
+                    for k, v in x.items()
+                }
+                for x in record_list
+            ]
 
-        return formatted_list
+            return formatted_list
+
+        except AttributeError:
+            # record_list is not a List[dict]
+            return record_list
 
     @staticmethod
     def json_response(record_list, extra_metadata, **kwargs):

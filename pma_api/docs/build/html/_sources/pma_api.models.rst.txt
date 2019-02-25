@@ -20,6 +20,14 @@ pma\_api.models.core module
     :undoc-members:
     :show-inheritance:
 
+pma\_api.models.dataset module
+------------------------------
+
+.. automodule:: pma_api.models.dataset
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pma\_api.models.meta module
 ---------------------------
 

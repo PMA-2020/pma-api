@@ -1,14 +1,12 @@
 """Definition of application object."""
 import os
 
-from celery import Celery
 from flask_cors import CORS
 
-from pma_api.config import FLASK_CONFIG_ENV_KEY
 from pma_api.models import db
 
 
-def create_app(config_name=os.getenv(FLASK_CONFIG_ENV_KEY, 'default')):
+def create_app(config_name=os.getenv('ENV_NAME  ', 'default')):
     """Create configured Flask application.
 
     Args:

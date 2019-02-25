@@ -45,8 +45,7 @@ iv. Make user 'pma-api' a super user for DB 'pma-api'. `GRANT ALL PRIVILEGES ON 
 #### 5.2. Environmental variables
 a. **_Virtualenv_ setups:** After installing the virtual environment, you should have a folder called `env`. Open up `env/bin/activate` in a text editor. Add the following text to the bottom of the file.
 ```bash
-export APP_SETTINGS="development"
-export FLASK_APP="development"
+export ENV_NAME="development"
 export DATABASE_URL="postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi"
 export STAGING_URL="http://api-staging.pma2020.org"
 export PRODUCTION_URL="http://api.pma2020.org"
@@ -54,8 +53,7 @@ export PRODUCTION_URL="http://api.pma2020.org"
 b. **_Virtualenvwrapper_ setups:** Add the following to your postactivate script. This is found in the root directory of wherever you installed virtualenvwrapper. Also, the text below assumes that you named your virtual environment "pma-api". If you are using virtualenvwrapper and named it something else, replace the text "pma-api" with whatever you named your environment.
 ```bash
 elif [ "$VIRTUAL_ENV" = "path/to/virtualenvs/pma-api" ]; then
-	export APP_SETTINGS="development"
-	export FLASK_APP="development"
+	export ENV_NAME="development"
 	export DATABASE_URL="postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi"
 	export STAGING_URL="http://api-staging.pma2020.org"
 	export PRODUCTION_URL="http://api.pma2020.org"

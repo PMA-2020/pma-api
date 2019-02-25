@@ -1,7 +1,7 @@
 """API Routes."""
 from flask import Blueprint
 
-from pma_api.routes import root as server_root
+from pma_api.routes import root_route
 
 api = Blueprint('api', __name__)
 
@@ -27,4 +27,4 @@ def root():
         Redirects implicitly if MIME type does not explicitly match what is
         expected.
     """
-    return server_root()
+    return root_route()
