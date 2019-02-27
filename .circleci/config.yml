@@ -13,8 +13,9 @@ jobs:
         environment:
           # Separate environment variables should not matter for CircleCI build, because Heroku has its own env variables setup.
           # For more information, however, on dynamic env variables, see: https://discuss.circleci.com/t/per-branch-env-vars/13214
-          ENV_NAME: production
+          ENV_NAME: development
           DATABASE_URL: postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi
+
 
       # Specify service dependencies here as separate images/machines if necessary.
       # - Documented at https://circleci.com/docs/2.0/circleci-images/

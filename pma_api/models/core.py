@@ -490,8 +490,12 @@ class Survey(ApiModel):
         result.update(country_json)
         return result
 
-    def datalab_init_json(self, reduced=True):
-        """Datalab init json: Survey."""
+    def datalab_init_json(self, reduced: bool = True):
+        """Datalab init json: Survey
+
+        Args:
+            reduced (bool): Return more information if true
+        """
         to_return = {
             'id': self.code,
             'partner.label.id': self.partner.code,

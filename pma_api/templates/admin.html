@@ -192,16 +192,20 @@
                 {#"Processing": {% if dataset.is_processing %}true{% else %}false{% endif %},#}
                 {#"Processing: Staging" : {% if dataset.is_processing_staging %}true{% else %}false{% endif %},#}
                 {#"Processing: Production" : {% if dataset.is_processing_production %}true{% else %}false{% endif %},#}
-                "Active: Staging": {% if this_env=='staging' %}
-                  {{ dataset.is_active }} {% else %}
-                  'fetching' {% endif %},
-                "Active: Production": {% if this_env=='production' %}
-                  {{ dataset.is_active }} {% else %}
-                  'fetching' {% endif %},
+                "Active: Staging":
+                  {% if this_env=='staging' %}
+                    {{ 'true' if dataset.is_active else 'false' }}
+                  {% else %}
+                    'fetching'
+                  {% endif %},
+                "Active: Production":
+                  {% if this_env=='production' %}
+                    {{ 'true' if dataset.is_active else 'false' }}
+                  {% else %}
+                    'fetching'
+                  {% endif %},
                 {% if this_env=='development' %}
-                  "Active: Dev": {% if dataset.is_active %}
-                    true {% else %}
-                    false {% endif %},
+                  "Active: Dev": {{ 'true' if dataset.is_active else 'false' }}
                 {% endif %}
               },
             {% endfor %}
@@ -358,12 +362,13 @@
                 const newData = taskDataTimeSeries.length === 0
                   || !(isEquivalent(
                     taskDataTimeSeries[taskDataTimeSeries.length - 1], data));
+
                 const state = data.state;
                 const receivedStatus =
-                  data.state === data.status ? '' : data.status;
+                  state === data.status ? '' : data.status;
                 const status =
                   receivedStatus ? receivedStatus
-                    : data.state === 'PENDING' ? 'Starting up'
+                    : state === 'PENDING' ? 'Starting up'
                     : 'RECEIVED' ? 'Task has been received'
                     : 'STARTED' ? 'Task progress has started'
                     : 'REVOKED' ? 'Task was revoked'
@@ -374,9 +379,9 @@
                     : '' ? 'An issue occurred while attempting to acquire ' +
                       'information about task progress.'
                     : 'Unknown task status';
+
                 let current = data.current;
                 let total = data.total;
-
                 /* no-ops
                   if (total === 100 && current >= 0 && current <= 100)
                   else if (total === 1 && current <= 1)

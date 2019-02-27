@@ -37,7 +37,7 @@ def admin_route():
     ImmutableMultiDict([('file', <FileStorage: 'FILENAME' ('FILETYPE')>)])
     """
     from pma_api.models import Dataset
-    from pma_api.tasks import upload
+    from pma_api.task_utils import upload
     # for uploads
     if request.method == 'POST':
         try:
@@ -140,7 +140,8 @@ def activate_dataset_to_self() -> jsonify:
     Returns:
         json.jsonify: Results.
     """
-    from pma_api.tasks import activate_dataset_to_self, upload
+    from pma_api.tasks import activate_dataset_to_self
+    from pma_api.task_utils import upload
 
     form: ImmutableDict = request.form
     files: ImmutableDict = request.files

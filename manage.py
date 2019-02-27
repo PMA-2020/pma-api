@@ -14,7 +14,6 @@ from sqlalchemy.exc import StatementError, ProgrammingError, OperationalError
 
 from pma_api import create_app, db
 from pma_api.config import PROJECT_ROOT_DIR
-from pma_api.error import PmaApiDbInteractionError
 from pma_api.manage.server_mgmt import store_pid
 from pma_api.manage.db_mgmt import initdb_from_wb, init_from_workbook, \
     get_api_data, get_ui_data, TRANSLATION_MODEL_MAP, make_shell_context, \
@@ -31,8 +30,13 @@ manager = Manager(app)
 migrate = Migrate(app, db)
 
 
-@manager.option('--overwrite', help='Drop tables first?', action='store_true')
-def initdb(overwrite: bool = False, api_file_path: str = get_api_data(),
+@manager.option('--overwrite', action='store_true', help='Drop tables first?')
+@manager.option(
+    '--force', action='store_true',
+    help='Overwrite DB even if source data files present / '
+         'supplied are same versions as those active in DB?')
+def initdb(overwrite: bool = False, force: bool = False,
+           api_file_path: str = get_api_data(),
            ui_file_path: str = get_ui_data()):
     """Create the database.
 
@@ -41,6 +45,8 @@ def initdb(overwrite: bool = False, api_file_path: str = get_api_data(),
 
     Args:
         overwrite (bool): Overwrite database if True, else update.
+        force (bool): Overwrite DB even if source data files present /
+        supplied are same versions as those active in DB?'
         api_file_path (str): Path to API spec file; if not present, gets
         from default path
         ui_file_path (str): Path to UI spec file; if not present, gets
@@ -48,6 +54,7 @@ def initdb(overwrite: bool = False, api_file_path: str = get_api_data(),
     """
     results: dict = initdb_from_wb(
         overwrite=overwrite,
+        force=force,
         api_file_path=api_file_path,
         ui_file_path=ui_file_path,
         _app=app)
@@ -170,7 +177,7 @@ def backup_source_files():
     backupsourcefiles()
 
 
-# TODO: Get this to work
+# TODO: Get this to work. then move to utils
 def stderr_stdout_captured(func):
     """Capture stderr and stdout
 
@@ -198,13 +205,17 @@ def stderr_stdout_captured(func):
     return _err, _out, returned_value
 
 
-@manager.option('--attempt', help='Attempt number')
-@manager.option('--silent', help='Print progress updates?')
-def upgrade(attempt: int = None, silent: bool = False):
+# TODO: Address: ERROR [alembic.env] (psycopg2.ProgrammingError) column
+#  "is_active" of relation "dataset" already exists
+#  Maybe check alembic version in database?
+@manager.option('--silent', action='store_true',
+                help='Print progress updates?')
+def upgrade(_attempt: int = None, silent: bool = False):
     """Apply database migrations to database
 
     Args:
-        attempt (int): Number of attempt iteration
+        _attempt (int): Number of attempt iteration. Used only by function
+        during recursive attempts.
         silent (bool): Print progress updates?
     """
     progress = TaskTracker(name='Database schema migration', queue=[
@@ -213,16 +224,17 @@ def upgrade(attempt: int = None, silent: bool = False):
     already_complete = 'Database schema already up-to-date. No migration ' \
                        'necessary.'
     max_attempts = 3
-    this_attempt = attempt if attempt else 1
+    this_attempt = _attempt if _attempt else 1
 
     if this_attempt == 1 and not silent:
-        progress.begin()
+        progress.next()
 
     try:
         db.create_all()
         stderr_stdout_captured(
             flask_migrate_upgrade())
-        progress.complete()
+        if not silent:
+            progress.complete()
     except (ProgrammingError, OperationalError) as exc:
         if 'already exists' in str(exc):
             if not silent:
@@ -230,25 +242,42 @@ def upgrade(attempt: int = None, silent: bool = False):
         elif 'does not exist' in str(exc) and this_attempt < max_attempts:
             # indicates missing tables, indicating full schema not yet created
             create_db()
-            upgrade(attempt=this_attempt + 1)
+            upgrade(_attempt=this_attempt + 1)
         else:
             raise exc
 
 
-@manager.command
-def release():
-    """Perform steps necessary for a deployment"""
+@manager.option(
+    '--force', action='store_true',
+    help='Use "--force" option when running "initdb" sub-command?')
+@manager.option(
+    '--overwrite', action='store_true',
+    help='Use "--overwrite" option when running "initdb" sub-command?')
+@manager.option(
+    '--silent_upgrade', action='store_true',
+    help='Use "--silent" option when running "upgrade" sub-command?')
+def release(overwrite: bool = True, force: bool = False,
+            silent_upgrade: bool = True):
+    """Perform steps necessary for a deployment
+
+    Args:
+        force (bool): Use "--force" option when running "initdb" sub-command?
+        overwrite (bool): Use "--overwrite" option when running "initdb"
+        sub-command?
+        silent_upgrade (bool): Use "--silent" option when running "upgrade"
+        sub-command?
+    """
     progress = TaskTracker(name='Deployment release process', queue=[
         'Beginning schema migration',
-        'Initializing database'
+        'Initialize database'
     ])
-    progress.begin()
+    progress.next()
+    upgrade(silent=silent_upgrade)
 
     progress.next()
-    upgrade(silent=True)
+    initdb(overwrite=overwrite, force=force)
 
-    progress.next()
-    initdb(overwrite=True)
+    progress.complete()
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
@@ -257,9 +286,6 @@ manager.add_command('db', MigrateCommand)  # e.g. 'upgrade', 'migrate'
 
 if __name__ == '__main__':
     args = ' '.join(sys.argv)
-    if 'runserver' in args:
+    if 'runserver' in args:  # native Manager command
         store_pid()
-    try:
-        manager.run()
-    except PmaApiDbInteractionError as err:
-        print(type(err).__name__ + ': ' + str(err), file=stderr)
+    manager.run()

@@ -8,7 +8,7 @@ import subprocess
 from copy import copy
 from datetime import datetime
 from time import time
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 import xlrd
 import sqlalchemy
@@ -19,16 +19,19 @@ from sqlalchemy.exc import DatabaseError, OperationalError, IntegrityError
 
 from pma_api import create_app, db
 from pma_api.config import DATA_DIR, BACKUPS_DIR, Config, \
-    IGNORE_SHEET_PREFIX, DATA_SHEET_PREFIX, AWS_S3_STORAGE_BUCKETNAME, \
-    S3_BACKUPS_DIR_PATH, S3_DATASETS_DIR_PATH, S3_UI_DATA_DIR_PATH, \
-    UI_DATA_DIR, DATASETS_DIR
+    IGNORE_SHEET_PREFIX, DATA_SHEET_PREFIX, AWS_S3_STORAGE_BUCKETNAME as \
+    BUCKET, S3_BACKUPS_DIR_PATH, S3_DATASETS_DIR_PATH, S3_UI_DATA_DIR_PATH, \
+    UI_DATA_DIR, DATASETS_DIR, API_DATASET_FILE_PREFIX as API_PREFIX, \
+    UI_DATASET_FILE_PREFIX as UI_PREFIX, HEROKU_INSTANCE_APP_NAME as APP_NAME, \
+    REFERENCES, FILE_LIST_IGNORES
 from pma_api.error import InvalidDataFileError, PmaApiDbInteractionError, \
     PmaApiException
 from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
                             Country, Data, EnglishString, Geography, Indicator,
                             ApiMetadata, Survey, Translation, Dataset)
 from pma_api.utils import most_common
-from pma_api.manage.utils import log_process_stderr
+from pma_api.manage.utils import log_process_stderr, run_proc
+
 
 METADATA_MODEL_MAP = (
     ('geography', Geography),
@@ -58,7 +61,18 @@ OVERWRITE_DROP_TABLES: Tuple[db.Model] = (
             Geography,
             Cache,
             ApiMetadata])
-FILE_LIST_IGNORES = ('.DS_Store', )
+root_connection_info = {
+    'hostname': Config.DB_ROOT_HOST,
+    'port': Config.DB_ROOT_PORT,
+    'database': Config.DB_ROOT_NAME,
+    'username': Config.DB_ROOT_USER,
+    'password': Config.DB_ROOT_PASS}
+db_connection_info = {
+    'hostname': Config.DB_HOST,
+    'port': Config.DB_PORT,
+    'database': Config.DB_NAME,
+    'username': Config.DB_USER,
+    'password': Config.DB_PASS}
 connection_error = 'Was not able to connect to the database. Please '\
     'check that it is running, and your database URL / credentials are ' \
     'correct.\n\n' \
@@ -79,7 +93,7 @@ db_mgmt_err = 'An error occurred during db management procedure. This is ' \
     '. If closing such clients still does not solve the issue, try shutting ' \
     'down the server as well.'
 db_not_exist_tell = 'database "{}" does not exist'\
-    .format(os.getenv('DATABASE_NAME', 'pmaapi'))
+    .format(os.getenv('DB_NAME', 'pmaapi'))
 env_access_err_tell = "'NoneType' object has no attribute 'drivername'"
 env_access_err_msg = \
     'An error occurred while interacting with the database. This can often ' \
@@ -140,7 +154,7 @@ class TaskTracker:
         Usage optional
         """
         self.completion_ratio: float = float(0)
-        self.status: str = 'Starting task: ' + \
+        self.status: str = 'Task start: ' + \
                            ' {}'.format(self.name) if self.name else ''
         self._report(silence_percent=True)
 
@@ -148,6 +162,9 @@ class TaskTracker:
         """Register and report next sub-task begin"""
         self.completion_ratio: float = \
             1 - (len(self.queue) / self.tot_sub_tasks)
+        first_task: bool = int(self.completion_ratio) == 0
+        if first_task:
+            self.begin()
         self.status: str = self.queue.pop(0)
         self._report()
 
@@ -157,7 +174,7 @@ class TaskTracker:
         Usage optional
         """
         self.completion_ratio: float = float(1)
-        self.status: str = 'Completed' + \
+        self.status: str = 'Task complete: ' + \
                            ' {}'.format(self.name) if self.name else ''
         self._report()
 
@@ -175,6 +192,7 @@ def aws_s3(func):
     This wrapper provides the following functions:
         - Offers guidance in the event of connection issues
         - Prints out status update before calling function
+        - Suppresses buggy, unfixed resource warnings from boto3 S3 client
 
     Args:
         func (function): This will be the function wrapped, e.g.
@@ -203,7 +221,12 @@ def aws_s3(func):
         wrapper_kwargs_removed = \
             {k: v for k, v in kwargs.items() if k != 'silent'}
         try:
-            return func(*args, **wrapper_kwargs_removed)
+            from test import SuppressStdoutStderr
+
+            if verbose:
+                return func(*args, **wrapper_kwargs_removed)
+            with SuppressStdoutStderr():  # S3 has unfixed resource warnings
+                return func(*args, **wrapper_kwargs_removed)
         except ClientError as err:
             if 'Access Denied' in str(err) or 'AccessDenied' in str(err):
                 raise PmaApiDbInteractionError(msg)
@@ -234,12 +257,14 @@ def get_data_file_by_glob(pattern):
 
 def get_api_data():
     """Get API data."""
-    return get_data_file_by_glob(os.path.join(DATA_DIR, 'api_data*.xlsx'))
+    pattern: str = API_PREFIX + '*.xlsx'
+    return get_data_file_by_glob(os.path.join(DATA_DIR, pattern))
 
 
 def get_ui_data():
     """Get API data."""
-    return get_data_file_by_glob(os.path.join(DATA_DIR, 'ui_data*.xlsx'))
+    pattern: str = UI_PREFIX + '*.xlsx'
+    return get_data_file_by_glob(os.path.join(DATA_DIR, pattern))
 
 
 def make_shell_context():
@@ -504,6 +529,7 @@ def initdb_from_wb(
     api_file_path: str = get_api_data(),
     ui_file_path: str = get_ui_data(),
     overwrite: bool = False,
+    force: bool = False,
     callback=None) \
         -> dict:
     """Create the database.
@@ -511,6 +537,8 @@ def initdb_from_wb(
     Args:
         _app (Flask): Flask application for context
         overwrite (bool): Overwrite database if True, else update.
+        force (bool): Overwrite DB even if source data files present /
+        supplied are same versions as those active in DB?'
         api_file_path (str): path to "API data file" spec xls file
         ui_file_path (str): path to "UIdata file" spec xls file
         callback: Callback function for progress yields
@@ -530,7 +558,6 @@ def initdb_from_wb(
     """
     retore_msg = 'An issue occurred. Restoring database to state it was in ' \
                  'prior to task initialization.'
-
     current_sub_tasks: List[str] = [
         'Backing up database'] + (
         ['Dropping tables'] if overwrite else []) + [
@@ -547,6 +574,8 @@ def initdb_from_wb(
     progress = TaskTracker(queue=current_sub_tasks,
                            callback=callback,
                            name='Initialize database')
+    api_dataset_already_active = False
+    ui_dataset_already_active = False
     # TODO: Add this stuff to ProgressUpdater / TaskTracker
     warnings = {}
     status = {
@@ -564,12 +593,15 @@ def initdb_from_wb(
 
     with _app.app_context():
         try:
-            progress.begin()
             progress.next()
-            backup_path: str = backup_db()
+            try:
+                backup_path: str = backup_db()
+            except Exception as err:
+                warnings['backup_1'] = str(err)
 
             # Delete all tables except for 'datasets'
             if overwrite:
+
                 progress.next()
                 drop_tables()
                 Dataset.register_all_inactive()
@@ -603,7 +635,7 @@ def initdb_from_wb(
             try:
                 backup_path: str = backup_db()
             except Exception as err:
-                warnings['backup'] = str(err)
+                warnings['backup_2'] = str(err)
 
         except (OperationalError, AttributeError) as err:
             db.session.rollback()
@@ -748,7 +780,7 @@ def process_data(file: xlrd.Book):
     init_data(file)
 
 
-def new_backup_path(ext: str = 'dump'):
+def new_backup_path(ext: str = 'dump') -> str:
     """Backup default path
 
     Args:
@@ -760,183 +792,162 @@ def new_backup_path(ext: str = 'dump'):
     import platform
 
     filename_base = 'pma-api-backup'
-    datetime_str = str(datetime.now()).replace('/', '-').replace(':', '-')\
+    datetime_str: \
+        str = str(datetime.now()).replace('/', '-').replace(':', '-')\
         .replace(' ', '_')
     op_sys = 'MacOS' if platform.system() == 'Darwin' else platform.system()
-    filename = '_'.join([filename_base, op_sys, datetime_str]) + '.' + ext
+    env: str = os.getenv('ENV_NAME', 'development')
+    filename: str = '_'.join(
+        [filename_base, op_sys, env, datetime_str]
+    ) + '.' + ext
 
     return os.path.join(BACKUPS_DIR, filename)
 
 
-def backup_using_sql_file(path: str = new_backup_path(ext = 'sql')):
-    """Backup using sql file
+def grant_full_permissions_to_file(path):
+    """Grant access to file
+
+    Raises:
+        PmaApiException: If errors during process
+    """
+    cmd: List[str] = 'chmod 600 {}'\
+        .format(path)\
+        .split(' ')
+    output: Dict = run_proc(cmd)
+    errors: str = output['stderr']
+
+    if errors:
+        raise PmaApiException(errors)
+
+
+def update_pgpass(creds: str, path: str = os.path.expanduser('~/.pgpass')):
+    """Update pgpass file with credentials
+
+    Side effects:
+        - Updates file
+        - Creates file if does not exist
 
     Args:
-        path (str): Path to save file
+        creds (str): Url pattern string containing connection credentials
+        path (str): Path to pgpass file
+    """
+    cred_line: str = creds if creds.endswith('\n') else creds + '\n'
+
+    with open(path, 'r') as file:
+        contents: str = file.read()
+        exists: bool = creds in contents
+        cred_line = cred_line if contents.endswith('\n') else cred_line + '\n'
+    if not exists:
+        with open(path, 'a+') as file:
+            file.write(cred_line)
+
+
+def backup_local_using_heroku_postgres(path: str = new_backup_path(),
+                                       app_name: str = APP_NAME) \
+        -> str:
+    """Backup using Heroku PostgreSQL DB using Heroku CLI
+
+    Args:
+        path (str): Path of file to save
+        app_name (str): Name of app as recognized by Heroku
+
+    Side effects:
+        - Runs command: `heroku pg:backups:capture`
+        - Runs command: `heroku pg:backups:download`
+        - Downloads to file system
+        - Makes directory (if not exist)
+
+    Raises:
+        PmaApiDbInteractionError: If errors during process
 
     Returns:
         str: path to backup file saved
     """
-    import psycopg2
-    import sys
+    target_dir = os.path.dirname(path) if path else BACKUPS_DIR
+    if not os.path.exists(target_dir):
+        os.mkdir(target_dir)
 
-    con = None
-    table_names = []
+    cmd_str_base: str = \
+        'heroku pg:backups:capture --app={app}'
+    cmd_str: str = cmd_str_base.format(app=app_name)
+    run_proc(cmd=cmd_str, raises=False, prints=True)
 
-    try:
-        con = psycopg2.connect(database=Config.DATABASE_NAME,
-                               user=Config.DATABASE_USER,
-                               password=Config.DATABASE_PASSWORD,
-                               port=Config.DATABASE_PORT)
-        cur = con.cursor()
-        cur.execute("""SELECT table_name FROM information_schema.tables
-               WHERE table_schema = 'public'""")
-        for table_tuple in cur.fetchall():
-            table_names.append(table_tuple[0])
-
-        f = open(path, 'w')
-        for table in table_names:
-            cur.execute('SELECT x FROM {}'.format(table))
-            for row in cur:
-                f.write('insert into {} values ({});'.format(table, str(row)))
-        f.close()
-    except psycopg2.DatabaseError as err:
-        print('Error {}'.format(err))
-        sys.exit(1)
-    finally:
-        if con:
-            con.close()
+    cmd_str_base2: str = \
+        'heroku pg:backups:download --app={app} --output={output}'
+    cmd_str2: str = cmd_str_base2.format(app=app_name, output=path)
+    run_proc(cmd_str2, raises=False, prints=True)
 
     return path
 
 
-def run_process(cmd: List[str]):
-    """Run a process
-
-    Helper function to run a process, for boilerplate reduction.
-
-    Args:
-        cmd (list): Arguments to be executed
-
-    Returns:
-        str, str: Output of stdout, output of stderr
-    """
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            universal_newlines=True)
-    proc.stderr.close()
-    proc.stdout.close()
-    proc.wait()
-
-    return proc.stdout.read(), proc.stderr.read()
-
-
-def backup_using_pgdump_gz(path: str = new_backup_path(ext = 'gz')):
+def backup_using_pgdump(path: str = new_backup_path(ext = 'dump')) -> str:
     """Backup using pg_dump
 
     Args:
         path (str): Path of file to save
 
-    Raises
-        PmaApiDbInteractionError: If did not succeed
+    Side effects:
+        - Grants full permissions to .pgpass file
+        - Reads and writes to .pgpass file
+        - Runs pg_dump process, storing result to file system
+
+    Raises:
+        PmaApiDbInteractionError: If errors during process
 
     Returns:
         str: path to backup file saved
     """
-    import gzip
+    pgpass_url_base = '{hostname}:{port}:{database}:{username}:{password}'
+    pgpass_url: str = pgpass_url_base.format(**db_connection_info)
+    pgpass_path = os.path.expanduser('~/.pgpass')
+    grant_full_permissions_to_file(pgpass_path)
+    update_pgpass(path=pgpass_path, creds=pgpass_url)
 
-    cmd = 'pg_dump -h localhost -U postgres {}'\
-        .format(Config.DATABASE_NAME)\
-        .split(' ')
+    cmd_base: str = \
+        'pg_dump --format=custom --host={hostname} --port={port} ' \
+        '--username={username} --dbname={database} --file {path}'
+    cmd: str = cmd_base.format(**db_connection_info, path=path)
+    output: Dict = run_proc(cmd)
 
-    with gzip.open(path, 'wb') as f:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                universal_newlines=True)
-        for line in iter(proc.stdout.readline, ''):
-            f.write(line.encode('utf-8'))
-
-    errors = proc.stderr.read()
+    errors: str = output['stderr']
     if errors:
-        err_msg = ''
-        for line in iter(proc.stderr.readline, ''):
-            err_msg += line.encode('utf-8')
-        if err_msg:
-            raise PmaApiDbInteractionError(err_msg)
-
-    proc.stderr.close()
-    proc.stdout.close()
-    proc.wait()
+        with open(os.path.expanduser('~/.pgpass'), 'r') as file:
+            pgpass_contents: str = file.read()
+        msg = '\n' + errors + \
+            'Offending command: ' + cmd + \
+            'Pgpass contents: ' + pgpass_contents
+        raise PmaApiDbInteractionError(msg)
 
     return path
 
 
-def backup_using_pgdump_dump(path: str = new_backup_path(ext = 'dump')):
-    """Backup using pg_dump
-
-    Args:
-        path (str): Path of file to save
-
-    Raises
-        PmaApiDbInteractionError: If did not succeed
-
-    Returns:
-        str: path to backup file saved
-    """
-    cmd = 'pg_dump -Fc {} --file {}'\
-        .format(Config.DATABASE_NAME, path)\
-        .split(' ')
-
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            universal_newlines=True)
-    for line in iter(proc.stdout.readline, ''):
-        print(line.encode('utf-8'))
-
-    errors = proc.stderr.read()
-    if errors:
-        # err_msg = ''
-        # for line in iter(proc.stderr.readline, ''):
-        #     err_msg += line.encode('utf-8')
-        # if err_msg:
-        #     raise PmaApiDbInteractionError(err_msg)
-        raise PmaApiDbInteractionError(errors)
-
-    proc.stderr.close()
-    proc.stdout.close()
-    proc.wait()
-
-    return path
-
-
-def backup_local(path: str = '', method: str = 'dump'):
+def backup_local(path: str = '') -> str:
     """Backup database locally
 
     Args:
         path (str): Path to save file
-        method (str): Method to back up file, e.g. 'gz', 'dump', etc
-
-    Returns:
-        str: Path to backup file saved
 
     Side effects:
         - Saves file at path
+
+    Raises:
+        PmaApiDbInteractionError: If DB exists and any errors during backup
+
+    Returns:
+        str: Path to backup file saved
     """
-    local_backup_method_map = {
-        'gz': backup_using_pgdump_gz,
-        'dump': backup_using_pgdump_dump,
-        'sql': backup_using_sql_file}
-    local_backup_func = local_backup_method_map[method]
     target_dir = os.path.dirname(path) if path else BACKUPS_DIR
 
     if not os.path.exists(target_dir):
         os.mkdir(target_dir)
 
     try:
-        if path:
-            saved_path = local_backup_func(path)
+        if os.getenv('ENV_NAME') == 'development':
+            saved_path: str = backup_using_pgdump(path) if path \
+                else backup_using_pgdump()
         else:
-            saved_path = local_backup_func()
+            saved_path: str = backup_local_using_heroku_postgres(path) if path \
+                else backup_local_using_heroku_postgres()
         return saved_path
     except PmaApiDbInteractionError as err:
         if db_not_exist_tell not in str(err):
@@ -975,7 +986,7 @@ def store_file_on_s3(path: str, storage_dir: str = ''):
         backup_local(path)
     with open(path, 'rb') as f:
         filepath = storage_dir + filename
-        s3.Bucket(AWS_S3_STORAGE_BUCKETNAME).put_object(Key=filepath, Body=f)
+        s3.Bucket(BUCKET).put_object(Key=filepath, Body=f)
     if local_backup_first:
         os.remove(path)
 
@@ -1054,12 +1065,11 @@ def backup_db_cloud(path_or_filename: str = ''):
     return filename
 
 
-def backup_db(path: str = '', method: str = 'dump'):
+def backup_db(path: str = ''):
     """Backup database locally and to the cloud
 
     Args:
         path (str): Path to save file
-        method (str): Method to back up file, e.g. 'gz', 'dump', etc
 
     Side effects:
         - backup_local()
@@ -1068,43 +1078,91 @@ def backup_db(path: str = '', method: str = 'dump'):
     Returns:
         str: Path saved locally
     """
-    saved_path: str = backup_local(path, method)
+    saved_path: str = backup_local(path)
     backup_db_cloud(saved_path)
 
     return saved_path
 
 
-def restore_using_pgrestore(path: str):
-    """Backup using pg_restore
+# TODO
+def restore_using_heroku_postgres(s3_signed_url: str = '', db_url: str = '',
+                                  app_name: str = APP_NAME):
+    """Restore Heroku PostgreSQL DB using Heroku CLI
+
+    Args:
+        s3_signed_url (str): AWS S3 presigned object url  TODO: currently
+         unsigned)
+        db_url (str): Heroku DB 'COLOR' url  TODO: currently normal DB url
+        app_name (str): Name of app as recognized by Heroku
+
+    Side effects:
+        - Restores database
+        - Drops any tables and other database objects before recreating them
+    """
+    # dl_url: str = s3_signed_url if s3_signed_url else '?'
+    # upload_url = db_url if db_url else '?'
+    dl_url = s3_signed_url
+    upload_url = db_url
+
+    cmd_str_base: str = \
+        "heroku pg:backups:restore '{s3_signed_url}' {db_url} --app={app}"
+    cmd_str: str = cmd_str_base.format(
+        s3_signed_url=dl_url,
+        db_url=upload_url,
+        app=app_name)
+    run_proc(cmd_str)
+
+    # 1: aws s3 presign s3://your-bucket-address/your-object
+    #
+    # 2: DATABASE_URL represents the HEROKU_POSTGRESQL_COLOR_URL of the db
+    # you wish to restore to. You must specify a database configuration
+    # variable to restore the database.
+
+
+def restore_using_pgrestore(path: str, dropdb: bool = False):
+    """Restore postgres datagbase using pg_restore
 
     Args:
         path (str): Path of file to restore
+        dropdb (bool): Drop database in process?
+
+    Side effects:
+        - Restores database
+        - Drops database (if dropdb)
     """
-    cmd = 'pg_restore -C -d postgres {}'\
-        .format(path)\
-        .split(' ')
+    cmd_base: str = 'pg_restore --exit-on-error --create {drop}' \
+                    '--dbname={database} --host={hostname} --port={port} ' \
+                    '--username={username} {path}'
+
+    cmd_str: str = cmd_base.format(
+        **root_connection_info,
+        path=path,
+        drop='--clean ' if dropdb else '')
+    cmd: List[str] = cmd_str.split(' ')
 
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE,
                             universal_newlines=True)
-    for line in iter(proc.stdout.readline, ''):
-        print(line.encode('utf-8'))
+    try:
+        for line in iter(proc.stdout.readline, ''):
+            print(line.encode('utf-8'))
+    except AttributeError:
+        print(proc.stdout)
 
     errors = proc.stderr.read()
     if errors:
-        log_process_stderr(proc.stderr, err_msg=db_mgmt_err)
-        if 'could not open input file' in errors \
-                or 'No such file or directory' in errors:
-            raise FileNotFoundError(errors)
-        else:
-            raise PmaApiDbInteractionError(errors)
+        msg = '\n' + errors + \
+            'Offending command: ' + cmd_str
+        log_process_stderr(msg, err_msg=db_mgmt_err)
+        raise PmaApiDbInteractionError(msg)
 
     proc.stderr.close()
     proc.stdout.close()
     proc.wait()
 
 
-def superuser_dbms_connection() -> Connection:
+def superuser_dbms_connection(
+        connection_url: str = os.getenv('DBMS_SUPERUSER_URL')) -> Connection:
     """Connect to database management system as a super user
 
     Returns:
@@ -1112,7 +1170,6 @@ def superuser_dbms_connection() -> Connection:
     """
     from sqlalchemy import create_engine
 
-    connection_url = os.getenv('DBMS_SUPERUSER_URL')
     engine_default = create_engine(connection_url)
     conn: sqlalchemy.engine.Connection = engine_default.connect()
 
@@ -1130,7 +1187,7 @@ def view_db_connections() -> List[dict]:
     from sqlalchemy.engine import ResultProxy
 
     try:
-        db_name: str = current_app.config.get('DATABASE_NAME', 'pmaapi')
+        db_name: str = current_app.config.get('DB_NAME', 'pmaapi')
     except RuntimeError as err:
         if 'Working outside of application context' not in str(err):
             raise err
@@ -1164,7 +1221,7 @@ def create_db(name: str = 'pmaapi', with_schema: bool = True):
         name (str): Name of database to create
         with_schema (bool): Also create all tables and initialize them?
     """
-    db_name: str = current_app.config.get('DATABASE_NAME', name)
+    db_name: str = current_app.config.get('DB_NAME', name)
     conn: Connection = superuser_dbms_connection()
 
     conn.execute("COMMIT")
@@ -1175,44 +1232,52 @@ def create_db(name: str = 'pmaapi', with_schema: bool = True):
         db.create_all()
 
 
-def drop_db(db_name: str = Config.DATABASE_NAME, hard: bool = False):
-    """Drop database
-
-    Side effects:
-        - Drops database
-        - Kills active connections (if 'hard')
-
-    Args:
-        db_name (str): Database name
-        hard (bool): Kill any active connections?
-    """
-    import signal
-
-    if hard:
-        connections: List[dict] = view_db_connections()
-        process_ids: List[int] = [x['pid'] for x in connections]
-        for pid in process_ids:
-            os.kill(pid, signal.SIGTERM)
-
-    cmd = 'dropdb {}'.format(db_name).split(' ')
-
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            universal_newlines=True)
-    for line in iter(proc.stdout.readline, ''):
-        print(line.encode('utf-8'))
-    errors = proc.stderr.read()
-    if errors:
-        db_exists = False if db_not_exist_tell in errors else True
-        if db_exists:
-            log_process_stderr(proc.stderr, err_msg=db_mgmt_err)
-            raise PmaApiDbInteractionError(errors)
-
-    proc.stderr.close()
-    proc.stdout.close()
-    proc.wait()
-
-
+# def drop_db(db_name: str = Config.DB_NAME, hard: bool = False):
+#     """Drop database
+#
+#     Side effects:
+#         - Drops database
+#         - Kills active connections (if 'hard')
+#
+#     Args:
+#         db_name (str): Database name
+#         hard (bool): Kill any active connections?
+#     """
+#     import signal
+#
+#     if hard:
+#         connections: List[dict] = view_db_connections()
+#         process_ids: List[int] = [x['pid'] for x in connections]
+#         for pid in process_ids:
+#             os.kill(pid, signal.SIGTERM)
+#
+#     cmd_str: str = 'dropdb {}'.format(db_name)
+#     cmd: List[str] = cmd_str.split(' ')
+#
+#     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+#                             stderr=subprocess.PIPE,
+#                             universal_newlines=True)
+#
+#     try:
+#         for line in iter(proc.stdout.readline, ''):
+#             print(line.encode('utf-8'))
+#     except AttributeError:
+#         print(proc.stdout)
+#
+#     errors = proc.stderr.read()
+#     if errors:
+#         db_exists = False if db_not_exist_tell in errors else True
+#         if db_exists:
+#             msg = '\n' + errors + \
+#                 'Offending command: ' + cmd_str
+#             log_process_stderr(msg, err_msg=db_mgmt_err)
+#             raise PmaApiDbInteractionError(msg)
+#
+#     proc.stderr.close()
+#     proc.stdout.close()
+#     proc.wait()
+#
+#
 @aws_s3
 def download_file_from_s3(filename: str, directory: str):
     """Download a file from AWS S3
@@ -1232,8 +1297,7 @@ def download_file_from_s3(filename: str, directory: str):
     download_from_path: str = os.path.join(directory, filename)
 
     try:
-        s3.Bucket(AWS_S3_STORAGE_BUCKETNAME)\
-            .download_file(download_to_path, download_from_path)
+        s3.Bucket(BUCKET).download_file(download_to_path, download_from_path)
     except ClientError as err:
         msg = 'The file requested was not found on AWS S3.\n' \
             if err.response['Error']['Code'] == '404' \
@@ -1245,7 +1309,7 @@ def download_file_from_s3(filename: str, directory: str):
 
 
 @aws_s3
-def list_s3_objects(bucket_name: str = AWS_S3_STORAGE_BUCKETNAME) -> []:
+def list_s3_objects(bucket_name: str = BUCKET) -> []:
     """List objects on AWS S3
 
     Args:
@@ -1435,9 +1499,19 @@ def restore_db_cloud(filename: str):
     Side effects:
         Reverts database to state of backup file
     """
-    path = download_file_from_s3(filename=filename,
-                                 directory=BACKUPS_DIR)
-    restore_db_local(path)
+    if os.getenv('ENV_NAME') == 'development':
+        path: str = download_file_from_s3(filename=filename,
+                                          directory=BACKUPS_DIR)
+        restore_db_local(path)
+    else:
+        # TODO: make same as test file
+        dl_path: str = os.path.join(BACKUPS_DIR, filename)
+        dl_url_base = 'https://{bucket}.s3.amazonaws.com/{key}'
+        dl_url = dl_url_base.format(bucket=BUCKET, key=dl_path)
+
+        db_url = os.getenv('DATABASE_URL')
+
+        restore_using_heroku_postgres(s3_signed_url=dl_url, db_url=db_url)
 
 
 def restore_db(path_or_filename: str):
@@ -1485,13 +1559,13 @@ def restore_db_local(path: str):
         os.remove(emergency_backup)
 
     # noinspection PyBroadException
-    drop_db(hard=True)
+    # drop_db(hard=True)
 
     try:
-        restore_using_pgrestore(path)
+        restore_using_pgrestore(path=path, dropdb=True)
     except Exception as err:
         if os.path.exists(emergency_backup):
-            restore_using_pgrestore(emergency_backup)
+            restore_using_pgrestore(path=emergency_backup, dropdb=True)
             err_msg = err_msg.format(path, emergency_backup, str(err))
             raise PmaApiDbInteractionError(err_msg)
         else:
@@ -1514,4 +1588,4 @@ def delete_s3_file(filename: str):
     import boto3
 
     s3 = boto3.resource('s3')
-    s3.Object(AWS_S3_STORAGE_BUCKETNAME, filename).delete()
+    s3.Object(BUCKET, filename).delete()

@@ -654,8 +654,9 @@ class DatalabData:
             A dictionary with lists of input data. Data is from datalab init.
         """
         survey_list = sorted(survey.split(',')) if survey else []
-        survey_records = Survey.get_by_code(survey_list)
-        input_survey = [r.datalab_init_json(False) for r in survey_records]
+        survey_records = Survey.get_by_code(survey_list) if survey_list else []
+        input_survey = \
+            [r.datalab_init_json(reduced=False) for r in survey_records]
         indicator_records = Indicator.get_by_code(indicator)
         if indicator_records:
             input_indicator = [indicator_records[0].datalab_init_json()]

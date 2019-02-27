@@ -9,22 +9,25 @@ installing from binary please use "pip install psycopg2-binary" instead. For
 details see:
 <http://initd.org/psycopg/docs/install.html#binary-install-from-pypi>.)
 """
-from glob import glob
 import inspect
 import os
 import unittest
-
-# import xlrd
+from glob import glob
 from typing import List
-
 from sqlalchemy.exc import OperationalError
 
+# import xlrd
+from pma_api.config import AWS_S3_STORAGE_BUCKETNAME as BUCKET, \
+    S3_BACKUPS_DIR_PATH
 from test.config import TEST_STATIC_DIR
 from manage import app, initdb
 # from pma_api.tasks import activate_dataset_request
 from pma_api.manage.db_mgmt import restore_db_local, new_backup_path, \
     backup_local, restore_db_cloud, delete_s3_file, download_file_from_s3, \
-    backup_db_cloud
+    backup_db_cloud, backup_local_using_heroku_postgres, \
+    restore_using_heroku_postgres
+
+
 # write_data_file_to_db, \
 # remove_stata_undefined_token_from_wb as \
 # remove_stata_undefined_token_from_wb_imported
@@ -160,7 +163,7 @@ class TestRoutes(PmaApiTest):
             for route in routes:
                 self.app.get(route)
 
-        except OperationalError as err:
+        except OperationalError as err:  # Other tests may be interrupting this
             if other_test_interference_tell in str(err):
                 time.sleep(sleep_seconds)
                 if attempt >= max_attempts:
@@ -250,10 +253,19 @@ class TestDbFunctions(PmaApiTest):
 
     # Warning: If enabled, will erase DB.
     db_overwrite_enabled = os.getenv('OVERWRITE_TEST_ENABLED', False)
-    s3_upload_prompt = 'Uploading backup to cloud storage on AWS S3. One or ' \
-        'more "ResourceWarning" may display in the console. However, this ' \
-        'is an open issue with the AWS S3 client (boto3), and can be ' \
-        'safely ignored.'
+    backup_kb_threshold = 200
+    backup_msg = 'Backup file did not meet expected minimum threshold of {} ' \
+                 'kb.'.format(str(backup_kb_threshold))
+    live_test_app_name = 'pma-api-staging'
+
+    def setUp(self):
+        """Setup"""
+        self.backup: str = new_backup_path()
+        backup_local(path=self.backup)
+
+    def tearDown(self):
+        """Tear down"""
+        restore_db_local(path=self.backup)
 
     @classmethod
     def initdb_overwrite(cls, path: str = ''):
@@ -313,10 +325,11 @@ class TestDbFunctions(PmaApiTest):
         """
         from pma_api.config import BACKUPS_DIR
 
+        # with SuppressStdoutStderr():  # S3 has unfixed resource warnings
         filename = backup_db_cloud(path)
-
         dl_path = download_file_from_s3(filename=filename,
                                         directory=BACKUPS_DIR)
+
         size = os.path.getsize(path)
         size_in_kb = size >> 10
         os.remove(dl_path)
@@ -336,6 +349,7 @@ class TestDbFunctions(PmaApiTest):
         filename_before = ntpath.basename(path_before)
         size_before = cls.backup_cloud_and_get_file_size(path_before)
 
+        # with SuppressStdoutStderr():  # S3 has unfixed resource warnings
         restore_db_cloud(filename=filename_before)
 
         path_after = new_backup_path()
@@ -345,59 +359,150 @@ class TestDbFunctions(PmaApiTest):
         for f in (path_before, path_after):
             if os.path.exists(f):
                 os.remove(f)
+        # with SuppressStdoutStderr():  # S3 has unfixed resource warnings
         delete_s3_file(filename_before)
         delete_s3_file(filename_after)
 
         return size_before, size_after
 
-    def test_initdb_overwrite(self):
-        """Test initdb with full database overwrite without any exceptions"""
-        enabled = TestDbFunctions.db_overwrite_enabled
-        if enabled:
-            for file in self.get_method_static_files():
-                self.initdb_overwrite(path=file)
-
-    def backup_static(self, func):
+    @staticmethod
+    def backup_static_local(func, path: str = new_backup_path()) -> int:
         """Static helper function for backup tests
 
         Args:
             func: Function to execute the actual backup
+            path (str): Path to save file
+
+        Returns:
+            int: Size in kb
         """
-        path = new_backup_path()
         size_in_kb = func(path)
         if os.path.exists(path):
             os.remove(path)
 
-        threshold = 200
-        msg = 'Backup file did not meet expected minimum threshold of {} kb.' \
-            .format(str(threshold))
-        self.assertGreater(size_in_kb, threshold, msg=msg)
+        return size_in_kb
 
-    def test_backup_local(self):
-        """Test backup db"""
-        self.backup_static(self.backup_local_and_get_file_size)
+    @classmethod
+    def backup_static_staging(cls, path: str = new_backup_path()) -> str:
+        """Backup staging database to local file system
 
-    def test_restore_local(self):
-        """Test restore db"""
-        hash_before, hash_after = self.backup_restore_local_and_get_sizes()
+        Args:
+            path (str): Path to save file
 
-        self.assertEqual(hash_before, hash_after)
+        Side effects:
+            - Saves file at path
+        """
+        path: str = backup_local_using_heroku_postgres(
+            path=path,
+            app_name=cls.live_test_app_name)
 
-    def test_backup_cloud(self):
-        """Test backup db"""
-        print(self.s3_upload_prompt)
-        self.backup_static(self.backup_cloud_and_get_file_size)
+        return path
 
-    def test_restore_cloud(self):
-        """Test restore db"""
-        print(self.s3_upload_prompt)
-        hash_before, hash_after = self.backup_restore_cloud_and_get_sizes()
+    @classmethod
+    def restore_static_staging(cls, path: str):
+        """Restore remote staging database from file
 
-        self.assertEqual(hash_before, hash_after)
+        Args:
+            path (str): Path to locally saved file
+
+        Side effects:
+            - Restores remote database
+        """
+        # TODO: Color url - Yes, looks like it
+        # TODO: Signed backup?
+        # TODO: make same as in db_mgmt, or put inside restore func
+        filename: str = os.path.basename(path)
+        obj_key: str = S3_BACKUPS_DIR_PATH + filename
+        from_url_base = 'https://{bucket}.s3.amazonaws.com/{key}'
+        from_url: str = from_url_base.format(bucket=BUCKET, key=obj_key)
+
+        # TODO: rename from 'url' to 'name' and set all envs if needed
+        # to_url: str = os.getenv('STAGING_DB_URL')
+        to_url: str = os.getenv('STAGING_DB_NAME')
+
+        restore_using_heroku_postgres(
+            s3_signed_url=from_url,
+            db_url=to_url,
+            app_name=cls.live_test_app_name)
+
+    # def t1_backup_local(self):
+    #     """Test backup of db locally"""
+    #     if os.getenv('ENV_NAME') == 'development':
+    #         size: int = self.backup_static_local(
+    #             self.backup_local_and_get_file_size)
+    #         self.assertGreater(size, self.backup_kb_threshold,
+    #                            msg=self.backup_msg)
+    # #
+    # def t2_restore_local(self):
+    #     """Test restore of db from a local backup"""
+    #     hash_before, hash_after = self.backup_restore_local_and_get_sizes()
+    #
+    #     self.assertEqual(hash_before, hash_after)
+    #
+    # def t3_backup_cloud(self):
+    #     """Test backup of db to the cloud"""
+    #     size: int = self.backup_static_local(
+    #         self.backup_cloud_and_get_file_size)
+    #     self.assertGreater(size, self.backup_kb_threshold,
+    #                        msg=self.backup_msg)
+    #
+    # def t4_restore_cloud(self):
+    #     """Test restore of db from a cloud backup"""
+    #     hash_before, hash_after = self.backup_restore_cloud_and_get_sizes()
+    #
+    #     self.assertEqual(hash_before, hash_after)
+
+    def t5_backup_restore_on_staging(self):
+        """Restore database
+
+        Side effects:
+            - Reverts database to state of backup file
+        """
+        # TODO: Don't I need to upload to S3 after downloading?
+        path: str = self.backup_static_staging()
+        self.restore_static_staging(path)
+
+        self.assertTrue(True)  # no-op; If no errors until here, we're ok
+
+    # def t6_initdb_overwrite(self):
+    #     """Test initdb with full database overwrite without any exceptions"""
+    #     enabled = TestDbFunctions.db_overwrite_enabled
+    #     if enabled:
+    #         for file in self.get_method_static_files():
+    #             self.initdb_overwrite(path=file)
+
+    def test_db_functions_sequentially(self):
+        """Test sequentially
+
+        Will find sequential tests by looking for any methods on test objects
+        that start with the pattern 't[0-9]_'.
+        """
+        from collections import OrderedDict
+
+        methods = {k: getattr(self, k) for k in dir(self)
+                   if callable(getattr(self, k))}
+        sequential_tests = OrderedDict({
+            k: v for k, v in methods.items()
+            if k[0] == 't' and
+            k[1] in [str(x) for x in range(10)] and
+            k[2] == '_'})
+        for name, func in sequential_tests.items():
+            print('Running sub-test: ' + name)
+            func()
+
+
+class TestAsync(PmaApiTest):
+    """Test async functions, e.g. task queue Celery and message broker"""
+
+    def test_async(self):
+        """Test async functions, e.g. task queue Celery and message broker"""
+        pass
 
 
 if __name__ == '__main__':
+    pass
     from test import doctest_unittest_runner
+
     TEST_DIR = os.path.dirname(os.path.realpath(__file__)) + '/'
     doctest_unittest_runner(test_dir=TEST_DIR, relative_path_to_root='../',
                             package_names=['pma_api', 'test'])

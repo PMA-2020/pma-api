@@ -1,11 +1,12 @@
 """Dataset model."""
 import datetime
 import os
-import sys
 from sqlalchemy.exc import IntegrityError
 from typing import List
 
-from pma_api.config import ACCEPTED_DATASET_EXTENSIONS as EXTENSIONS
+from pma_api.models import ApiMetadata
+from pma_api.config import ACCEPTED_DATASET_EXTENSIONS as EXTENSIONS, \
+    API_DATASET_FILE_PREFIX as API_PREFIX, UI_DATASET_FILE_PREFIX as UI_PREFIX
 from pma_api.models import db
 
 
@@ -38,23 +39,10 @@ class Dataset(db.Model):
         path_with_ext: str = file_path if \
             any(file_path.endswith('.' + x) for x in EXTENSIONS) \
             else file_path + '.xlsx'
-
-        # with ext:
         filename: str = os.path.basename(path_with_ext)
-        # without ext:
-        # filename: str = os.path.splitext(os.path.basename(path_with_ext))[0]
-
         filename_parts: list = filename.split('-')
         dataset_display_name: str = filename_parts[0]
-
-        version_str: str = filename_parts[2]
-        for ext in EXTENSIONS:
-            suffix: str = '.' + ext
-            if version_str.endswith(suffix):
-                version_str = version_str.replace(suffix, '')
-                break
-        version: int = int(version_str.replace('v', '') if 'v' in version_str
-                           else version_str)
+        version: int = self.get_file_version(file_path)
 
         super(Dataset, self).__init__(
             data=open(file_path, 'rb').read(),
@@ -103,6 +91,30 @@ class Dataset(db.Model):
 
         return dataset, warning
 
+    @staticmethod
+    def get_file_version(path: str):
+        """Get file version
+
+        Args:
+            path (str): Path to API or UI spec data file
+
+        Returns:
+            int: Version number
+        """
+        filename: str = os.path.basename(path)
+        filename_parts: list = filename.split('-')
+        version_str: str = filename_parts[2]
+
+        for ext in EXTENSIONS:
+            suffix: str = '.' + ext
+            if version_str.endswith(suffix):
+                version_str = version_str.replace(suffix, '')
+                break
+        version: int = int(version_str.replace('v', '') if 'v' in version_str
+                           else version_str)
+
+        return version
+
     def register_active(self):
         """Register dataset as being actively in use in the database
 
@@ -131,3 +143,61 @@ class Dataset(db.Model):
         datasets: List[Dataset] = Dataset.query.filter_by(is_active=True)
         for dataset in datasets:
             dataset.is_active = False
+
+    @staticmethod
+    def api_dataset_already_active(path: str) -> bool:
+        """Is API dataset spec data file active in DB?
+
+        Args:
+            path (str): Path to file
+
+        Returns:
+            bool: Is the dataset in the file currently active in the DB?
+        """
+        file_version: int = Dataset.get_file_version(path)
+        matching_active_datasets: List[Dataset] = Dataset.query.filter_by(
+            is_active=True, version_number=file_version)
+        active = bool(matching_active_datasets)
+
+        return active
+
+    @staticmethod
+    def ui_dataset_already_active(path: str) -> bool:
+        """Is UI dataset spec data file active in DB?
+
+        Args:
+            path (str): Path to file
+
+        Returns:
+            bool: Is the dataset in the file currently active in the DB?
+        """
+        file_version: int = Dataset.get_file_version(path)
+        active_ui_datasets: List[ApiMetadata] = ApiMetadata.query.filter_by(
+            type='ui')
+        dataset_names: List[str] = [x.name for x in active_ui_datasets]
+        names_with_ext: List[str] = [
+            x + '.xlsx' for x in dataset_names
+            if not any(x.endswith(y) for y in EXTENSIONS)]
+        active_versions: List[int] = [
+            Dataset.get_file_version(x) for x in names_with_ext]
+        active: bool = any(x == file_version for x in active_versions)
+
+        return active
+
+    @staticmethod
+    def is_dataset_file_active_in_db(path: str) -> bool:
+        """Is API or UI dataset spec data file active in DB?
+
+        Args:
+            path (str): Path to API or UI dataset spec data file
+
+        Returns:
+            bool: Is the dataset in the file currently active in the DB?
+        """
+        filename: str = os.path.basename(path)
+        is_api_set: bool = filename.startswith(API_PREFIX)
+        is_ui_set: bool = filename.startswith(UI_PREFIX)
+
+        return Dataset.api_dataset_already_active(path) if is_api_set \
+            else Dataset.ui_dataset_already_active(path) if is_ui_set \
+            else False
