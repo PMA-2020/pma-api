@@ -2,6 +2,7 @@
 import json
 import os
 from io import BytesIO
+from json import JSONDecodeError
 
 from sqlalchemy.exc import IntegrityError
 from typing import Dict
@@ -12,13 +13,15 @@ from werkzeug.datastructures import FileStorage
 
 from pma_api import create_app
 from pma_api.config import data_folder_path, temp_folder_path, \
-    ACCEPTED_DATASET_EXTENSIONS as EXTENSIONS
+    ACCEPTED_DATASET_EXTENSIONS as EXTENSIONS, ACCEPTED_DATASET_EXTENSIONS
 from pma_api.error import PmaApiException
 from pma_api.models import Dataset
 from pma_api.routes.administration import ExistingDatasetError
 
 try:
     app = current_app
+    if app.__repr__() == '<LocalProxy unbound>':
+        raise RuntimeError('A current running app was not able to be found.')
 except RuntimeError:
     app = create_app(os.getenv('ENV_NAME', 'default'))
 
@@ -63,18 +66,18 @@ def file_path_from_dataset_name(dataset_name: str,
     return file_path
 
 
-def download_dataset_from_db(dataset_name: str,
+def download_dataset_from_db(dataset_id: str,
                              directory: str = data_folder_path()):
     """Download dataset from database to filesystem
 
     Args:
-        dataset_name (str): Name of dataset file to look up in db
+        dataset_id (str): Name of dataset file to look up in db
         directory (str): Directory to save file
 
     Returns:
         str: Path to downloaded dataset file
     """
-    file_path: str = file_path_from_dataset_name(dataset_name=dataset_name,
+    file_path: str = file_path_from_dataset_name(dataset_name=dataset_id,
                                                  directory=directory)
     replace_file: bool = True if os.path.exists(file_path) else False
 
@@ -83,7 +86,7 @@ def download_dataset_from_db(dataset_name: str,
 
     with app.app_context():
         dataset: Dataset = \
-            Dataset.query.filter_by(dataset_display_name=dataset_name)\
+            Dataset.query.filter_by(dataset_display_name=dataset_id)\
             .first()
     save_file_from_bytes(file_bytes=dataset.data, file_path=file_path)
 
@@ -147,7 +150,7 @@ def load_local_dataset(dataset_name: str) -> FileStorage:
     save_temporarily: bool = False if os.path.exists(file_path) else True
 
     if save_temporarily:
-        download_dataset_from_db(dataset_name=dataset_name)
+        download_dataset_from_db(dataset_id=dataset_name)
 
     data: FileStorage = open(file_path, 'rb')
 
@@ -169,7 +172,12 @@ def upload(filename: str, file):
     """
     from pma_api.models import Dataset, db
 
-    tempfile_path: str = os.path.join(temp_folder_path(), filename)
+    default_ext = 'xlsx'
+    has_ext: bool = any(filename.endswith(x) for x in
+                        ACCEPTED_DATASET_EXTENSIONS)
+    filename_with_ext: str = filename if has_ext \
+        else filename + '.' + default_ext
+    tempfile_path: str = os.path.join(temp_folder_path(), filename_with_ext)
     save_file_from_request(file=file, file_path=tempfile_path)
 
     new_dataset = Dataset(tempfile_path)
@@ -198,7 +206,16 @@ def response_to_task_state(r: requests.Response) -> Dict:
     Returns:
         dict: Custom task state
     """
-    data: Dict = json.loads(r.text)
+    data: Dict
+    try:
+        data: Dict = json.loads(r.text)
+    except JSONDecodeError as err:  # TODO: Why is this happening? What to do?
+        if r.status_code != 500:  # Server error
+            raise err
+        data['state'] = 'FAILURE'
+        data['status'] = 'Internal server error'
+        data['current'] = str(0)
+        data['total'] = str(100)
 
     state = {
         'state': data['state'] if 'state' in data else '',
@@ -231,4 +248,4 @@ def progress_update_callback(celery_obj, verbose=False):
         celery_obj.update_state(state='PROGRESS', meta={
             'status': status,
             'current': current,
-            'total': 100})
+            'total': 100})  # TODO: May cause issue if total is not pct based

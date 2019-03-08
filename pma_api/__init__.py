@@ -1,4 +1,5 @@
 """Definition of application object."""
+# import logging
 import os
 
 from flask_cors import CORS
@@ -6,7 +7,7 @@ from flask_cors import CORS
 from pma_api.models import db
 
 
-def create_app(config_name=os.getenv('ENV_NAME  ', 'default')):
+def create_app(config_name=os.getenv('ENV_NAME', 'default')):
     """Create configured Flask application.
 
     Args:
@@ -24,6 +25,8 @@ def create_app(config_name=os.getenv('ENV_NAME  ', 'default')):
     app.config.from_object(config[config_name])
 
     CORS(app)
+    # logging.getLogger('flask_cors').level = logging.DEBUG  # TODO: Temp
+
     db.init_app(app)
 
     app.register_blueprint(root)

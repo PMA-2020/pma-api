@@ -48,7 +48,8 @@
           <table class="table table-bordered" id="datasets-table">
             <thead>
               <tr>
-                <th></th>
+                <th></th>  {# Checkbox column #}
+                <th>ID</th>
                 <th>Uploaded date</th>
                 <th>Type</th>
                 <th>Name</th>
@@ -156,6 +157,9 @@
 
       <!--suppress JSUnresolvedVariable -->
       <script>
+          const unexpectedTaskErrMsg =
+            'Unexpected error occurred while processing task.';
+          let bootstrapSuperContainer = $('#bootstrap-super-container');
           let progressMsg = $('#progress-msg');
           let bootstrapBar = $('#bootstrap-bar');
 
@@ -184,6 +188,7 @@
           const json_response = [
             {% for dataset in datasets %}
               {
+                "ID": {{ dataset.ID }},
                 "Upload date": "{{dataset.upload_date}}",
                 "Type": "{{dataset.dataset_type}}",
                 "Name": "{{dataset.dataset_display_name}}",
@@ -217,11 +222,12 @@
           $(function() {
             let tbody = '';
             json_response.forEach(element => {
-              tbody += '<tr id="' + element["Name"] + '">';
+              tbody += '<tr id="' + element["ID"] + '">';
               tbody += '<td class="dataset-row-checkbox"><input type="checkbox"></td>';
+              tbody += '<td class="dataset-row-ID">'+element["ID"]+'</td>';
               tbody += '<td>'+element["Upload date"]+'</td>';
               tbody += '<td>'+element["Type"]+'</td>';
-              tbody += '<td class="dataset-row-datasetName">'+element["Name"]+'</td>';
+              tbody += '<td>'+element["Name"]+'</td>';
               tbody += '<td>'+element["Version"]+'</td>';
               {#tbody += '<td>'+ (element["Active"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';#}
               {#tbody += '<td>'+ element["Active: Staging"] === 'fetching' ? 'fetching' : (element["Active: Staging"] ? '<i class="fas fa-check"></i>' : non_active) + '</td>';#}
@@ -239,8 +245,8 @@
             $('tbody').html(tbody);
 
             // Functionality for dataset control buttons
-            function selectedDatasetName() {
-              let selectedDatasetNames = [];
+            function selectedDatasetID() {
+              let selectedDatasetIDs = [];
 
 
               {#TODO: for (let i = 1, row = datasetsTableElement.rows[i]; i < datasetsTableElement.rows.length i++) {#}
@@ -252,21 +258,21 @@
                     isSelected = cell.firstChild.checked;
                 }
                 for (let j = 0, cell; cell = row.children[j]; j++) {
-                  if (cell.className === 'dataset-row-datasetName' && isSelected)
-                    selectedDatasetNames.push(cell.innerHTML);
+                  if (cell.className === 'dataset-row-ID' && isSelected)
+                    selectedDatasetIDs.push(cell.innerHTML);
                 }
               }
 
-              if (selectedDatasetNames.length === 0) {
+              if (selectedDatasetIDs.length === 0) {
                 alert('Please first select a dataset.');
                 return '';
-              } else if (selectedDatasetNames.length > 1) {
+              } else if (selectedDatasetIDs.length > 1) {
                 alert('More than one dataset selected. Please make ' +
                   'sure that only one checkbox in the datasets table is ' +
                   'selected and try agian.');
                 return '';
               } else {
-                return selectedDatasetNames[0];
+                return selectedDatasetIDs[0];
               }
             }
 
@@ -278,7 +284,7 @@
             // Add functionality to dataset download button
             $("#download-button").bind('click', downloadDataset);
             function downloadDataset() {
-              let name = selectedDatasetName();
+              let name = selectedDatasetID();
               if (name !== '')
                 $("#download-link").attr("href", "/admin?download=" + name);
             }
@@ -303,11 +309,11 @@
             }
 
             function activateRequest(destinationEnv) {
-              let name = selectedDatasetName();
-              if (name !== '') {
+              let id = selectedDatasetID();
+              if (id !== '') {
                 const data = {
                   destinationEnv: destinationEnv,
-                  datasetName: name
+                  dataasetID: id
                 };
                 initTask('/activate_dataset_request', data)
               }
@@ -321,20 +327,23 @@
               *     data (obj): JSON object to pass
               */
               progressMsg.css('display', 'inherit');
-
-              $('#bootstrap-super-container').css('display', 'inherit');
-              {#bootstrapContainer.css('display', 'inherit');#}
-              {#bootstrapBar.css('display', 'inherit');#}
+              bootstrapSuperContainer.css('display', 'inherit');
 
               $.post(postUrl, data, function(data, status, request) {
                 const status_url =
                   request.getResponseHeader('Content-Location');
                 updateTaskProgress(status_url);
               }).fail(function() {
-                alert('Unexpected error occurred while processing task.');
+                alert(unexpectedTaskErrMsg);
               });
             }
 
+
+            // helper function
+            function sleep(ms) {
+              return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            // helper function
             function isEquivalent(a, b) {
               // Create arrays of property names
               const aProps = Object.getOwnPropertyNames(a);
@@ -358,7 +367,7 @@
             const secondsBetweenFetches = 0.5;
 
             function updateTaskProgress(statusUrl) {
-              $.getJSON(statusUrl, function(data) {
+              $.getJSON(statusUrl, async function(data) {
                 const newData = taskDataTimeSeries.length === 0
                   || !(isEquivalent(
                     taskDataTimeSeries[taskDataTimeSeries.length - 1], data));
@@ -408,9 +417,20 @@
                 bootstrapBar.text(percentStr);
                 bootstrapBar.css('width', percentStr);
 
-                setTimeout(function() {
-                  updateTaskProgress(statusUrl);
-                }, secondsBetweenFetches * 1000);
+                if (state === 'FAILURE') {
+                  bootstrapSuperContainer.css('display', 'none');
+                  progressMsg.css('display', 'none');
+                  bootstrapBar.css('display', 'none');
+                  await sleep(100);
+                  alert(receivedStatus ? receivedStatus : unexpectedTaskErrMsg);
+                  return
+                }
+
+                if (state !== 'FAILURE' && state !== 'SUCCESS') {
+                  setTimeout(function() {
+                    updateTaskProgress(statusUrl);
+                  }, secondsBetweenFetches * 1000);
+                }
               });
             }
 

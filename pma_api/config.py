@@ -89,10 +89,12 @@ def data_folder_path() -> str:
 
 class Config:
     """Base configuration."""
+    DEBUG = False
     TESTING = False
     CSRF_ENABLED = True
     WTF_CSRF_ENABLED = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ECHO = False
 
     DB_HOST = os.getenv('DB_HOST', 'localhost')
     DB_PORT = os.getenv('DB_PORT', 5432)
@@ -123,19 +125,17 @@ class Config:
 
 class StagingConfig(Config):
     """Production configuration."""
-    SQLALCHEMY_ECHO = False
+    DEBUG = True  # TODO: TEMP
 
 
 class ProductionConfig(Config):
     """Production configuration."""
-    SQLALCHEMY_ECHO = False
 
 
 class DevelopmentConfig(Config):
     """Development configuration."""
     DEBUG = True
-    # SQLALCHEMY_ECHO = True
-    SQLALCHEMY_ECHO = False  # TODO: temp
+    # SQLALCHEMY_ECHO = True  # TODO: temp
 
 
 config = {

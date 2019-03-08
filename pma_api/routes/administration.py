@@ -71,7 +71,7 @@ def admin_route():
                     # Should be doing this in the client anyway.
                     from pma_api.tasks import activate_dataset_to_self
                     dataset_name = args['activate']
-                    activate_dataset_to_self(dataset_name=dataset_name)
+                    activate_dataset_to_self(dataset_id=dataset_name)
                 else:
                     from pma_api.tasks import activate_dataset_request
                     if 'applyStaging' in args:
@@ -80,7 +80,7 @@ def admin_route():
                     elif 'applyProduction' in args:
                         dataset_name = args['applyProduction']
                         server_url = os.getenv('PRODUCTION_URL')
-                    activate_dataset_request(dataset_name=dataset_name,
+                    activate_dataset_request(dataset_id=dataset_name,
                                              destination_host_url=server_url)
 
         datasets = Dataset.query.all()
@@ -104,7 +104,7 @@ def activate_dataset_request() -> jsonify:
     """
     from pma_api.tasks import activate_dataset_request
 
-    dataset_name: str = request.form['datasetName']
+    dataset_id: str = request.form['datasetID']
     destination_env: str = request.form['destinationEnv']
     destination: str = \
         os.getenv('PRODUCTION_URL') if destination_env == 'production' else \
@@ -118,7 +118,7 @@ def activate_dataset_request() -> jsonify:
 
     # TODO - yield: init_wb, celery tasks and routes
     task = activate_dataset_request.apply_async(kwargs={
-        'dataset_name': dataset_name,
+        'dataset_id': dataset_id,
         'destination_host_url': destination,
         'dataset': dataset})
 
@@ -145,25 +145,27 @@ def activate_dataset_to_self() -> jsonify:
 
     form: ImmutableDict = request.form
     files: ImmutableDict = request.files
-    dataset_name: str = None
+    dataset_id: str = None
 
     if form:
-        dataset_name: str = form['datasetName'] if 'datasetName' in form \
+        dataset_id: str = form['datasetName'] if 'datasetName' in form \
             else form['dataset_name']
     elif files:
         filenames = list(files.keys())
         if len(filenames) > 1:
             msg = 'Only one dataset may be activated at a time.'
             raise PmaApiException(msg)
-        dataset_name: str = filenames[0]
-        dataset: FileStorage = files[dataset_name]
+        dataset_id: str = filenames[0]
+        dataset: FileStorage = files[dataset_id]
+        dataset_name = 'TODO'  # TODO
+
         try:
             upload(filename=dataset_name, file=dataset)
         except ExistingDatasetError:
-            pass
+            pass  # Ignoring this; non-issue
 
     task = activate_dataset_to_self.apply_async(kwargs={
-        'dataset_name': dataset_name})
+        'dataset_name': dataset_id})
 
     response_data = jsonify({})
     response_http_code = 202  # Accepted
@@ -173,7 +175,7 @@ def activate_dataset_to_self() -> jsonify:
     return response_data, response_http_code, response_headers
 
 
-@root.route('/status/<task_id>')
+@root.route('/status/<task_id>', methods=['GET'])
 def taskstatus(task_id: str) -> jsonify:
     """Get task status
 
@@ -188,7 +190,8 @@ def taskstatus(task_id: str) -> jsonify:
     info, state = task.info, task.state
 
     if state == 'FAILURE':
-        return jsonify({'state': state, 'status': str(info), 'result': state,
+        status: str = str(info) if info else ''
+        return jsonify({'state': state, 'status': status, 'result': state,
                         'current': 0, 'total': 1})
 
     return jsonify({

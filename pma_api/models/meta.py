@@ -61,6 +61,23 @@ class Cache(db.Model):
     mimetype = db.Column(db.String)
     source_data_md5 = db.Column(db.String)
 
+    # TODO: Should be generalized function for all routes
+    @staticmethod
+    def cache_route(route: str, app: Flask = current_app):
+        """Add route to the server cache
+
+        This method checks the cache. If there is nothing cached or if the md5s
+        do not match, then a new cached response is generated and saved.
+
+        Args:
+            route (str): route to cache
+            app (Flask): The Flask app. There must be a current app context.
+        """
+        source_data_md5 = ApiMetadata.get_current_api_data().md5_checksum
+        # example route: 'datalab_init': 'v1/datalab/init'
+        # TODO: use 'cache_datalab_init' as template
+        print(route, source_data_md5, app)
+
     @staticmethod
     def cache_datalab_init(app: Flask = current_app):
         """Add /v1/datalab/init to the server cache.

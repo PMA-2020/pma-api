@@ -22,8 +22,8 @@ from pma_api.config import DATA_DIR, BACKUPS_DIR, Config, \
     IGNORE_SHEET_PREFIX, DATA_SHEET_PREFIX, AWS_S3_STORAGE_BUCKETNAME as \
     BUCKET, S3_BACKUPS_DIR_PATH, S3_DATASETS_DIR_PATH, S3_UI_DATA_DIR_PATH, \
     UI_DATA_DIR, DATASETS_DIR, API_DATASET_FILE_PREFIX as API_PREFIX, \
-    UI_DATASET_FILE_PREFIX as UI_PREFIX, HEROKU_INSTANCE_APP_NAME as APP_NAME, \
-    REFERENCES, FILE_LIST_IGNORES
+    UI_DATASET_FILE_PREFIX as UI_PREFIX, HEROKU_INSTANCE_APP_NAME as APP_NAME,\
+    FILE_LIST_IGNORES
 from pma_api.error import InvalidDataFileError, PmaApiDbInteractionError, \
     PmaApiException
 from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
@@ -106,9 +106,11 @@ env_access_err_msg = \
 class TaskTracker:
     """Tracks progress of task queue"""
 
-    def __init__(self, queue: List[str], silent: bool = False, name: str = '',
-                 callback=None):
+    def __init__(self, queue: List[str] = [], silent: bool = False,
+                 name: str = '', callback=None):
         """Tracks progress of task queue
+
+        If queue is empty, calls to TaskTracker methods will do nothing.
 
         Args:
             queue (list): List of progress statements to display for each
@@ -137,6 +139,8 @@ class TaskTracker:
             silence_status (bool): Silence status?
             silence_percent (bool): Silence percent?
         """
+        if not self.queue:
+            return
         if not self.silent:
             pct: str = str(int(self.completion_ratio * 100)) + '%'
             msg = ' '.join([
@@ -153,6 +157,8 @@ class TaskTracker:
 
         Usage optional
         """
+        if not self.queue:
+            return
         self.completion_ratio: float = float(0)
         self.status: str = 'Task start: ' + \
                            ' {}'.format(self.name) if self.name else ''
@@ -160,9 +166,11 @@ class TaskTracker:
 
     def next(self):
         """Register and report next sub-task begin"""
+        if not self.queue:
+            return
         self.completion_ratio: float = \
             1 - (len(self.queue) / self.tot_sub_tasks)
-        first_task: bool = int(self.completion_ratio) == 0
+        first_task: bool = self.completion_ratio == 0
         if first_task:
             self.begin()
         self.status: str = self.queue.pop(0)
@@ -173,6 +181,8 @@ class TaskTracker:
 
         Usage optional
         """
+        if not self.queue:
+            return
         self.completion_ratio: float = float(1)
         self.status: str = 'Task complete: ' + \
                            ' {}'.format(self.name) if self.name else ''
@@ -300,11 +310,12 @@ def init_from_source(path, model):
         db.session.commit()
 
 
-def init_data(wb: xlrd.Book):
+def init_data(wb: xlrd.Book, progress_updater: TaskTracker = TaskTracker()):
     """Put all the data from the workbook into the database.
 
     Args:
         wb (xlrd.Book): A spreadsheet
+        progress_updater (TaskTracker): Tracks progress of task queue
     """
     survey = {x.code: x.id for x in Survey.query.all()}
     indicator = {x.code: x.id for x in Indicator.query.all()}
@@ -313,6 +324,7 @@ def init_data(wb: xlrd.Book):
         [x for x in wb.sheets() if x.name.startswith('data')]
 
     for ws in data_sheets:
+        progress_updater.next()
         init_from_sheet(ws, Data, survey=survey, indicator=indicator,
                         characteristic=characteristic)
 
@@ -444,7 +456,7 @@ def format_book(wb: xlrd.book.Book):
 
 
 def init_from_workbook(wb: str, queue: (),
-                       progress_updater: TaskTracker = None):
+                       progress_updater: TaskTracker = TaskTracker()):
     """Init from workbook.
 
     Args:
@@ -466,9 +478,8 @@ def init_from_workbook(wb: str, queue: (),
         db.session.commit()
 
         # Init data
-        # TODO: Find a way to make each data worksheet its own step
-        progress_updater.next()
-        init_data(book)
+        init_data(wb=book,
+                  progress_updater=progress_updater)
 
     # Init administrative metadata
     create_wb_metadata(wb)
@@ -573,7 +584,8 @@ def initdb_from_wb(
     # tot_sub_tasks: int = len(current_sub_tasks)
     progress = TaskTracker(queue=current_sub_tasks,
                            callback=callback,
-                           name='Initialize database')
+                           name='Initialize database'
+                                '\n - Dataset: ' + api_file_path)
     api_dataset_already_active = False
     ui_dataset_already_active = False
     # TODO: Add this stuff to ProgressUpdater / TaskTracker

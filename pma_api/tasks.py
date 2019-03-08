@@ -22,6 +22,8 @@ from pma_api.task_utils import progress_update_callback, load_local_dataset, \
 
 try:
     app = current_app
+    if app.__repr__() == '<LocalProxy unbound>':
+        raise RuntimeError('A current running app was not able to be found.')
     celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
     celery.conf.update(app.config)
 except RuntimeError:
@@ -61,18 +63,18 @@ def long_task(self):
         time.sleep(0.1)
 
     callback.close()
-    return {'current': 100, 'total': 100, 'status': 'Task completed!'}
+    return {'current': total, 'total': total, 'status': 'Task completed!'}
 
 
 @celery.task(bind=True)  # TODO: fix action_url when works
-def activate_dataset_request(self, dataset_name: str,
+def activate_dataset_request(self, dataset_id: str,
                              destination_host_url: str,
                              dataset: FileStorage = None) -> Dict:
     """Activate dataset to be uploaded and actively used on target server.
 
     Args:
         self (Celery.task): Required Celery obj ref. Not to be used as param.
-        dataset_name (str): Name of dataset to send.
+        dataset_id (str): Name of dataset to send.
         destination_host_url (str): URL of server to apply dataset.
         dataset (FileStorage): Optional dataset object
 
@@ -88,9 +90,9 @@ def activate_dataset_request(self, dataset_name: str,
     # action_url: str = join_url_parts(destination_host_url, action_route)
     action_url: str = join_url_parts('http://localhost:5000', action_route)
     post_data: FileStorage = \
-        dataset if dataset else load_local_dataset(dataset_name)
+        dataset if dataset else load_local_dataset(dataset_id)
 
-    r = requests.post(action_url, files={dataset_name: post_data})
+    r = requests.post(action_url, files={dataset_id: post_data})
     state: Dict = response_to_task_state(r)
 
     self.update_state(state=state['state'], meta=state)
@@ -113,12 +115,12 @@ def activate_dataset_request(self, dataset_name: str,
 
 
 @celery.task(bind=True)
-def activate_dataset_to_self(self, dataset_name: str) -> Dict:
+def activate_dataset_to_self(self, dataset_id: str) -> Dict:
     """Activate dataset to the this server.
 
     Args:
         self (Celery.task): Required Celery obj ref. Not to be used as param.
-        dataset_name (str): Name of dataset.
+        dataset_id (str): Name of dataset.
 
     Returns:
         dict: Results.
@@ -127,7 +129,7 @@ def activate_dataset_to_self(self, dataset_name: str) -> Dict:
     next(callback)
 
     file_path: str = download_dataset_from_db(
-        dataset_name=dataset_name,
+        dataset_id=dataset_id,
         directory=data_folder_path())
 
     app.config.SQLALCHEMY_ECHO = False  # TODO: temp

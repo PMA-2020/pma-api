@@ -87,9 +87,9 @@ db:
 	@python3 manage.py initdb --overwrite
 db-production: db
 # TODO - fix some issues causing tests to fail when run on Heroku
-release: test
-#release:
+release:
 	@python3 manage.py release
+	@make test
 translations:
 	@python3 manage.py initdb --translations
 migrate_db:
@@ -262,6 +262,6 @@ restore:
 list-backups:
 	@python3 manage.py list_backups
 
-# Task ques
+# Task queues
 celery:
 	celery worker --app=pma_api.tasks.celery --loglevel=info
