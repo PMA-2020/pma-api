@@ -1,8 +1,9 @@
-"""Unversioned routes at the root of the server."""
+"""Administration related routes"""
 from io import BytesIO
 import os
 
 from flask import jsonify, request, render_template, send_file, url_for
+from flask_user import login_required
 from werkzeug.datastructures import FileStorage, ImmutableDict
 from werkzeug.utils import secure_filename
 
@@ -13,6 +14,7 @@ from pma_api.routes import root
 
 
 @root.route('/admin', methods=['GET', 'POST'])
+@login_required
 def admin_route():
     """Route to admin portal for uploading and managing datasets.
 
@@ -38,6 +40,7 @@ def admin_route():
     """
     from pma_api.models import Dataset
     from pma_api.task_utils import upload
+
     # for uploads
     if request.method == 'POST':
         try:
@@ -92,6 +95,7 @@ def admin_route():
 
 
 @root.route('/activate_dataset_request', methods=['POST'])
+@login_required
 def activate_dataset_request() -> jsonify:
     """Activate dataset to be uploaded and actively used on target server.
 
@@ -131,6 +135,7 @@ def activate_dataset_request() -> jsonify:
 
 
 @root.route('/activate_dataset', methods=['POST'])
+# @login_required  # Transfer creds from sending to receiving server?
 def activate_dataset_to_self() -> jsonify:
     """Activate dataset to the this server.
 
@@ -148,8 +153,8 @@ def activate_dataset_to_self() -> jsonify:
     dataset_id: str = None
 
     if form:
-        dataset_id: str = form['datasetName'] if 'datasetName' in form \
-            else form['dataset_name']
+        dataset_id: str = form['datasetID'] if 'datasetID' in form \
+            else form['dataset_ID']
     elif files:
         filenames = list(files.keys())
         if len(filenames) > 1:
@@ -176,6 +181,7 @@ def activate_dataset_to_self() -> jsonify:
 
 
 @root.route('/status/<task_id>', methods=['GET'])
+@login_required
 def taskstatus(task_id: str) -> jsonify:
     """Get task status
 
@@ -203,6 +209,7 @@ def taskstatus(task_id: str) -> jsonify:
 
 # TODO: testing
 @root.route('/longtask', methods=['POST'])
+@login_required
 def longtask():
     """Long task"""
     from pma_api.tasks import long_task

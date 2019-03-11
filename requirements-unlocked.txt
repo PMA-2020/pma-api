@@ -6,6 +6,7 @@ Flask-Cors
 Flask-Migrate
 Flask-Script
 Flask-SQLAlchemy
+Flask-User
 gunicorn
 psutil
 psycopg2-binary

@@ -121,6 +121,12 @@ class Config:
         'interval_step': 0.2,
         'interval_max': 0.2,
     }
+    # Flask-User settings
+    SECRET_KEY = os.getenv('SECRET_KEY')
+    USER_APP_NAME = "PMA API"  # Shown in email templates and page footers
+    USER_ENABLE_EMAIL = False  # Auth by email
+    USER_ENABLE_USERNAME = True    # Auth by username
+    USER_REQUIRE_RETYPE_PASSWORD = False
 
 
 class StagingConfig(Config):

@@ -193,24 +193,24 @@
                 "Type": "{{dataset.dataset_type}}",
                 "Name": "{{dataset.dataset_display_name}}",
                 "Version": "{{dataset.version_number}}",
-                {#"Active": {% if dataset.is_active %}true{% else %}false{% endif %},#}
-                {#"Processing": {% if dataset.is_processing %}true{% else %}false{% endif %},#}
-                {#"Processing: Staging" : {% if dataset.is_processing_staging %}true{% else %}false{% endif %},#}
-                {#"Processing: Production" : {% if dataset.is_processing_production %}true{% else %}false{% endif %},#}
+                {#"Active": {% if dataset.active %}true{% else %}false{% endif %},#}
+                {#"Processing": {% if dataset.processing %}true{% else %}false{% endif %},#}
+                {#"Processing: Staging" : {% if dataset.processing_staging %}true{% else %}false{% endif %},#}
+                {#"Processing: Production" : {% if dataset.processing_production %}true{% else %}false{% endif %},#}
                 "Active: Staging":
                   {% if this_env=='staging' %}
-                    {{ 'true' if dataset.is_active else 'false' }}
+                    {{ 'true' if dataset.active else 'false' }}
                   {% else %}
                     'fetching'
                   {% endif %},
                 "Active: Production":
                   {% if this_env=='production' %}
-                    {{ 'true' if dataset.is_active else 'false' }}
+                    {{ 'true' if dataset.active else 'false' }}
                   {% else %}
                     'fetching'
                   {% endif %},
                 {% if this_env=='development' %}
-                  "Active: Dev": {{ 'true' if dataset.is_active else 'false' }}
+                  "Active: Dev": {{ 'true' if dataset.active else 'false' }}
                 {% endif %}
               },
             {% endfor %}
@@ -313,7 +313,7 @@
               if (id !== '') {
                 const data = {
                   destinationEnv: destinationEnv,
-                  dataasetID: id
+                  datasetID: id
                 };
                 initTask('/activate_dataset_request', data)
               }
@@ -334,7 +334,7 @@
                   request.getResponseHeader('Content-Location');
                 updateTaskProgress(status_url);
               }).fail(function() {
-                alert(unexpectedTaskErrMsg);
+                alert('Server error: ' + unexpectedTaskErrMsg);
               });
             }
 

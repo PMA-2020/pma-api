@@ -106,6 +106,7 @@ env_access_err_msg = \
 class TaskTracker:
     """Tracks progress of task queue"""
 
+    # noinspection PyDefaultArgument
     def __init__(self, queue: List[str] = [], silent: bool = False,
                  name: str = '', callback=None):
         """Tracks progress of task queue
@@ -562,7 +563,7 @@ def initdb_from_wb(
             - Backs up database: at the beginning and end
         If overwrite:
             - Deletes all tables except for 'datasets'
-            - Sets all other datasets to is_active=False
+            - Sets all other datasets to active=False
 
     Returns:
         dict: Results
@@ -620,6 +621,7 @@ def initdb_from_wb(
 
             # Create tables
             progress.next()
+            # TODO: Consider not using db.create_all() and use migrate instead?
             db.create_all()
             dataset, warning = Dataset.process_new(api_file_path)
             if warning:
@@ -958,7 +960,8 @@ def backup_local(path: str = '') -> str:
             saved_path: str = backup_using_pgdump(path) if path \
                 else backup_using_pgdump()
         else:
-            saved_path: str = backup_local_using_heroku_postgres(path) if path \
+            saved_path: str = \
+                backup_local_using_heroku_postgres(path) if path \
                 else backup_local_using_heroku_postgres()
         return saved_path
     except PmaApiDbInteractionError as err:
@@ -1241,6 +1244,7 @@ def create_db(name: str = 'pmaapi', with_schema: bool = True):
     conn.close()
 
     if with_schema:
+        # TODO: Consider not using db.create_all() and use migrate instead?
         db.create_all()
 
 

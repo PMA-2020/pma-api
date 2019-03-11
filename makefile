@@ -93,20 +93,7 @@ release:
 translations:
 	@python3 manage.py initdb --translations
 migrate_db:
-	@python3 manage.py db migrate
-	@echo
-	@echo Please follow up this command by checking the file just created in \
-	the migrations/versions directory.
-	@echo
-	@echo From the documentation:
-	@echo The migration script needs to be reviewed and edited, as Alembic \
-	currently does not detect every change you make to your models. In \
-	particular, Alembic is currently unable to detect table name changes, \
-	column name changes, or anonymously named constraints. A detailed summary \
-	of limitations can be found in the Alembic autogenerate documentation. \
-	Once finalized, the migration script also needs to be added to version \
-	control.
-	@echo https://flask-migrate.readthedocs.io/en/latest/
+	@python3 manage.py migrate
 migrate: migrate_db
 upgrade_db:
 	@python3 manage.py upgrade
@@ -144,6 +131,8 @@ connect-production:
 connect-staging:
 	heroku run bash --app pma-api-staging
 production-push:
+	@ open https://dashboard.heroku.com/apps/pma-api/activity
+	# @open circlei page
 	@ git status
 	@ printf "\nGit status should have reported 'nothing to commit, working tree\
 	 clean'. Otherwise you should cancel this command, make sure changes are\
@@ -155,7 +144,10 @@ production-push:
 	@ clear
 	@ git status
 	@ git branch
+
 staging-push:
+	@ open https://dashboard.heroku.com/apps/pma-api-staging/activity
+	# @open circlei page
 	@ git status
 	@ printf "\nGit status should have reported 'nothing to commit, working \
 	tree clean'. Otherwise you should cancel this command, make sure changes \

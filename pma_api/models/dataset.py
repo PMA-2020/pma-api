@@ -26,15 +26,15 @@ class Dataset(db.Model):
     upload_date = db.Column(db.String, nullable=False)
     version_number = db.Column(db.Integer, nullable=False, unique=True)
     dataset_type = db.Column(db.String, nullable=False)
-    is_active = db.Column(db.Boolean, nullable=False)
-    is_processing = db.Column(db.Boolean, nullable=False)
+    active = db.Column(db.Boolean, nullable=False)
+    processing = db.Column(db.Boolean, nullable=False)
 
-    def __init__(self, file_path: str, is_processing: bool = False):
+    def __init__(self, file_path: str, processing: bool = False):
         """Initialize instance of dataset
 
         Args:
             file_path (str): Path to dataset file
-            is_processing (bool): Is this dataset currently being uploaded?
+            processing (bool): Is this dataset currently being uploaded?
         """
         path_with_ext: str = file_path if \
             any(file_path.endswith('.' + x) for x in EXTENSIONS) \
@@ -50,8 +50,8 @@ class Dataset(db.Model):
             upload_date=datetime.date.today(),
             version_number=version,
             dataset_type='full',  # TODO: allow for different types
-            is_active=False,
-            is_processing=is_processing)
+            active=False,
+            processing=processing)
 
     @classmethod
     def get(cls, _id):
@@ -70,7 +70,7 @@ class Dataset(db.Model):
             warning (str): Warning message, if any.
         """
         warning: str = ''
-        dataset: Dataset = Dataset(file_path=path, is_processing=True)
+        dataset: Dataset = Dataset(file_path=path, processing=True)
         try:
             db.session.add(dataset)
             db.session.commit()
@@ -118,20 +118,20 @@ class Dataset(db.Model):
     def register_active(self):
         """Register dataset as being actively in use in the database
 
-        If 'is_active' is true, the contents of this dataset will be present
+        If 'active' is true, the contents of this dataset will be present
         in database tables. If false, the dataset itself is stored as a binary
         file in the database, but none of its contents appear in any of the
         other tables.
         """
         Dataset.query.filter_by(ID=self.ID).update({
-            'is_active': True,
-            'is_processing': False})
+            'active': True,
+            'processing': False})
         db.session.commit()
 
     def register_processing(self):
         """Register dataset as being actively processed; being applied to db"""
         dataset: Dataset = Dataset.query.filter_by(ID=self.ID)
-        dataset.update({'is_active': False, 'is_processing': True})
+        dataset.update({'active': False, 'processing': True})
         db.session.commit()
 
     @staticmethod
@@ -140,9 +140,9 @@ class Dataset(db.Model):
 
         Used during database initialization
         """
-        datasets: List[Dataset] = Dataset.query.filter_by(is_active=True)
+        datasets: List[Dataset] = Dataset.query.filter_by(active=True)
         for dataset in datasets:
-            dataset.is_active = False
+            dataset.active = False
 
     @staticmethod
     def api_dataset_already_active(path: str) -> bool:
@@ -156,7 +156,7 @@ class Dataset(db.Model):
         """
         file_version: int = Dataset.get_file_version(path)
         matching_active_datasets: List[Dataset] = Dataset.query.filter_by(
-            is_active=True, version_number=file_version)
+            active=True, version_number=file_version)
         active = bool(matching_active_datasets)
 
         return active

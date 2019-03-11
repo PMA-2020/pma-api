@@ -9,8 +9,9 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
-from .string import EnglishString, Translation
 from .core import (Characteristic, CharacteristicGroup, Country, Data,
                    Geography, Indicator, Survey)
 from .meta import Cache, ApiMetadata
-from .dataset import Dataset
+from .dataset import Dataset  # Depends on ApiMetadata; so import it after
+from .string import EnglishString, Translation
+from .user import User

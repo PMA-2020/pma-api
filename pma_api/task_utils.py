@@ -13,8 +13,8 @@ from werkzeug.datastructures import FileStorage
 
 from pma_api import create_app
 from pma_api.config import data_folder_path, temp_folder_path, \
-    ACCEPTED_DATASET_EXTENSIONS as EXTENSIONS, ACCEPTED_DATASET_EXTENSIONS
-from pma_api.error import PmaApiException
+    ACCEPTED_DATASET_EXTENSIONS as EXTENSIONS
+from pma_api.error import PmaApiException, DatasetNotFoundError
 from pma_api.models import Dataset
 from pma_api.routes.administration import ExistingDatasetError
 
@@ -46,48 +46,42 @@ def save_file_from_request(file: FileStorage, file_path: str):
                               .format(file_path))
 
 
-def file_path_from_dataset_name(dataset_name: str,
-                                directory: str = data_folder_path()):
-    """From a dataset name, get the path where it should exist locally
-
-    Args:
-        dataset_name (str): Name of dataset, which may or may not include file
-          extension
-        directory (str): Directory where local file should exist
-
-    Returns:
-        str: Path to file
-    """
-    filename: str = dataset_name if \
-        any(dataset_name.endswith('.' + x) for x in EXTENSIONS) \
-        else dataset_name + '.xlsx'
-    file_path: str = os.path.join(directory, filename)
-
-    return file_path
-
-
+# TODO: let off here 03/08/2019
 def download_dataset_from_db(dataset_id: str,
                              directory: str = data_folder_path()):
     """Download dataset from database to filesystem
 
+    Side effects:
+        - Saves file
+        - Deletes file if file with same name already exists
+
     Args:
-        dataset_id (str): Name of dataset file to look up in db
+        dataset_id (str): ID of dataset file to look up in db
         directory (str): Directory to save file
 
     Returns:
         str: Path to downloaded dataset file
+
+    Raises:
+        DatasetNotFoundError: if dataset not found
     """
-    file_path: str = file_path_from_dataset_name(dataset_name=dataset_id,
-                                                 directory=directory)
+    err: str = 'Dataset with ID {} not found.'.format(str(dataset_id))
+    with app.app_context():
+        dataset: Dataset = Dataset.query.filter_by(ID=dataset_id).first()
+    if not dataset:
+        raise DatasetNotFoundError(err)
+
+    placeholder_author = 'unk'
+    version: str = 'v' + str(dataset.version_number)
+    filename: str = '-'.join([
+        'api_data', str(dataset.upload_date), version, placeholder_author
+    ]) + '.xlsx'
+    file_path: str = os.path.join(directory, filename)
     replace_file: bool = True if os.path.exists(file_path) else False
 
     if replace_file:
         os.remove(file_path)
 
-    with app.app_context():
-        dataset: Dataset = \
-            Dataset.query.filter_by(dataset_display_name=dataset_id)\
-            .first()
     save_file_from_bytes(file_bytes=dataset.data, file_path=file_path)
 
     return file_path
@@ -136,26 +130,21 @@ def save_file_from_bytes(file_bytes: bytes, file_path: str,
                                  _attempt=_attempt + 1)
 
 
-def load_local_dataset(dataset_name: str) -> FileStorage:
+def load_local_dataset_from_db(dataset_id: str) -> FileStorage:
     """Load a dataset that exists in local database
 
+    Side effects:
+        - download_dataset_from_db()
+        - Reads file
+
     Args:
-        dataset_name (str): Name of dataset that should exist in db
+        dataset_id (str): ID of dataset that should exist in db
 
     Returns:
         werkzeug.datastructures.FileStorage: In-memory file, in bytes
     """
-    file_path: str = file_path_from_dataset_name(dataset_name=dataset_name,
-                                                 directory=data_folder_path())
-    save_temporarily: bool = False if os.path.exists(file_path) else True
-
-    if save_temporarily:
-        download_dataset_from_db(dataset_id=dataset_name)
-
+    file_path: str = download_dataset_from_db(dataset_id=dataset_id)
     data: FileStorage = open(file_path, 'rb')
-
-    if save_temporarily:
-        os.remove(file_path)
 
     return data
 
@@ -173,8 +162,7 @@ def upload(filename: str, file):
     from pma_api.models import Dataset, db
 
     default_ext = 'xlsx'
-    has_ext: bool = any(filename.endswith(x) for x in
-                        ACCEPTED_DATASET_EXTENSIONS)
+    has_ext: bool = any(filename.endswith(x) for x in EXTENSIONS)
     filename_with_ext: str = filename if has_ext \
         else filename + '.' + default_ext
     tempfile_path: str = os.path.join(temp_folder_path(), filename_with_ext)

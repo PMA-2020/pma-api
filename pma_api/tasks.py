@@ -17,8 +17,9 @@ from pma_api.config import data_folder_path, \
     ASYNC_SECONDS_BETWEEN_STATUS_CHECKS as TICK_SECONDS
 from pma_api.manage.db_mgmt import initdb_from_wb
 from pma_api.utils import join_url_parts
-from pma_api.task_utils import progress_update_callback, load_local_dataset, \
-    response_to_task_state, download_dataset_from_db
+from pma_api.task_utils import progress_update_callback, \
+    load_local_dataset_from_db, response_to_task_state, \
+    download_dataset_from_db
 
 try:
     app = current_app
@@ -90,7 +91,7 @@ def activate_dataset_request(self, dataset_id: str,
     # action_url: str = join_url_parts(destination_host_url, action_route)
     action_url: str = join_url_parts('http://localhost:5000', action_route)
     post_data: FileStorage = \
-        dataset if dataset else load_local_dataset(dataset_id)
+        dataset if dataset else load_local_dataset_from_db(dataset_id)
 
     r = requests.post(action_url, files={dataset_id: post_data})
     state: Dict = response_to_task_state(r)
