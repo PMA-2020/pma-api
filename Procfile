@@ -1,4 +1,3 @@
 # release: make release
-# web: make serve-production
-# worker: make celery
-web: gunicorn run:app
+worker: make celery
+web: make serve-production
