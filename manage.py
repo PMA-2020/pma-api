@@ -28,7 +28,7 @@ from pma_api.utils import dict_to_pretty_json
 load_dotenv(dotenv_path=Path(PROJECT_ROOT_DIR) / '.env')
 app = create_app(os.getenv('ENV_NAME', 'default'))
 manager = Manager(app)
-migrate = Migrate(app, db)
+Migrate(app, db)
 
 
 @manager.option('--overwrite', action='store_true', help='Drop tables first?')
@@ -360,7 +360,17 @@ def release(overwrite: bool = True, force: bool = False,
         'Initialize database'
     ])
     progress.next()
-    upgrade(silent=silent_upgrade)
+
+    # TODO: Re-enable this when ready. If disabled, this release should only
+    #  work for brand new instances; not for upgraded deployments of existing
+    #  instances.
+    # upgrade(silent=silent_upgrade)
+
+    # TODO: What to do if head behind? stamp and then upgrade? Heroku won't
+    #  allow to store new file
+    # except Exception:
+    #     migrate(force=True)  # This won't work;
+    #     upgrade(silent=silent_upgrade)
 
     progress.next()
     initdb(overwrite=overwrite, force=force)

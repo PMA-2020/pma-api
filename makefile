@@ -28,7 +28,7 @@ logs-staging virtualenv-make virtualenvwrapper-make virtualenv-activate \
 virtualenvwrapper-activate deactivate virtualenv-deactivate connect-staging \
 virtualenvwrapper-deactivate restore restore-test backup % connect-production \
 migrate_db migrate upgrade_db upgrade list-backups list list-api-data \
-list-datasets list-ui-data backup-source-files release
+list-datasets list-ui-data backup-source-files release migrate-fix
 
 # ALL LINTING
 lint:
@@ -95,6 +95,10 @@ translations:
 migrate_db:
 	@python3 manage.py migrate
 migrate: migrate_db
+migrate-fix:
+#	alembic --config migrations/alembic.ini stamp head
+#	make migrate
+	@python3 manage.py migrate --force
 upgrade_db:
 	@python3 manage.py upgrade
 upgrade: upgrade_db
@@ -129,15 +133,17 @@ serve-production:
 	gunicorn -p pma-api_process-id.pid --bind 0.0.0.0:${PORT} run:app
 connect-production:
 	heroku run bash --app pma-api
+connect-production2:
+	heroku run bash --app pma-api-new
 connect-staging:
 	heroku run bash --app pma-api-staging
 production-push:
 	@ open https://dashboard.heroku.com/apps/pma-api/activity
 	# @open circlei page
 	@ git status
-	@ printf "\nGit status should have reported 'nothing to commit, working tree\
-	 clean'. Otherwise you should cancel this command, make sure changes are\
-	  committed, and run it again.\n\n"
+	@ printf "\nGit status should have reported 'nothing to commit, working \
+	tree clean'. Otherwise you should cancel this command, make sure changes \
+	are committed, and run it again.\n\n"
 	@ git checkout -b production
 	@ git push -u trunk production --force
 	@ git checkout ${CURRENT_BRANCH}
@@ -145,7 +151,19 @@ production-push:
 	@ clear
 	@ git status
 	@ git branch
-
+production2:
+	@ open https://dashboard.heroku.com/apps/pma-api-new/activity
+	@ git status
+	@ printf "\nGit status should have reported 'nothing to commit, working \
+	tree clean'. Otherwise you should cancel this command, make sure changes \
+	are committed, and run it again.\n\n"
+	@ git checkout -b production2
+	@ git push -u trunk production2 --force
+	@ git checkout ${CURRENT_BRANCH}
+	@ git branch -D production2
+	@ clear
+	@ git status
+	@ git branch
 staging-push:
 	@ open https://dashboard.heroku.com/apps/pma-api-staging/activity
 	# @open circlei page
@@ -161,9 +179,9 @@ staging-push:
 	@ git status
 	@ git branch
 logs:
-	heroku logs --app ppp-web
+	heroku logs --tail --app pma-api
 logs-staging:
-	heroku logs --app ppp-web-staging
+	heroku logs --tail --app pma-api-staging
 push-production: production-push
 push-staging: staging-push
 production:  push-production

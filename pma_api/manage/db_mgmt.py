@@ -14,6 +14,7 @@ import xlrd
 import sqlalchemy
 from flask import Flask, current_app
 # noinspection PyProtectedMember
+from flask_user import UserManager
 from sqlalchemy.engine import Connection
 from sqlalchemy.exc import DatabaseError, OperationalError, IntegrityError
 
@@ -28,7 +29,7 @@ from pma_api.error import InvalidDataFileError, PmaApiDbInteractionError, \
     PmaApiException
 from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
                             Country, Data, EnglishString, Geography, Indicator,
-                            ApiMetadata, Survey, Translation, Dataset)
+                            ApiMetadata, Survey, Translation, Dataset, User)
 from pma_api.utils import most_common
 from pma_api.manage.utils import log_process_stderr, run_proc
 
@@ -48,6 +49,7 @@ TRANSLATION_MODEL_MAP = (
     ('translation', Translation),
 )
 ORDERED_MODEL_MAP = TRANSLATION_MODEL_MAP + METADATA_MODEL_MAP + DATA_MODEL_MAP
+# OVERWRITE_DROP_TABLES doesn't drop: Dataset, User
 OVERWRITE_DROP_TABLES: Tuple[db.Model] = (
         x.__table__ for x in [
             EnglishString,
@@ -289,7 +291,7 @@ def make_shell_context():
                 Country=Country, EnglishString=EnglishString,
                 Translation=Translation, Survey=Survey, Indicator=Indicator,
                 Data=Data, Characteristic=Characteristic, Cache=Cache,
-                CharacteristicGroup=CharacteristicGroup,
+                CharacteristicGroup=CharacteristicGroup, User=User,
                 ApiMetadata=ApiMetadata, Dataset=Dataset)
 
 
@@ -614,7 +616,6 @@ def initdb_from_wb(
 
             # Delete all tables except for 'datasets'
             if overwrite:
-
                 progress.next()
                 drop_tables()
                 Dataset.register_all_inactive()
@@ -642,6 +643,9 @@ def initdb_from_wb(
                     Cache.cache_datalab_init(_app)
                 except RuntimeError as err:
                     warnings['caching'] = caching_error.format(err)
+
+            # Create default superuser if needed
+            create_superuser()
 
             dataset.register_active()
 
@@ -1504,6 +1508,39 @@ def list_datasets() -> {str: [str]}:
         'local': list_local_datasets(),
         'cloud': list_cloud_datasets()
     }
+
+
+def create_superuser(name: str = os.getenv('SUPERUSER_NAME', 'admin'),
+                     pw: str = os.getenv('SUPERUSER_PW')):
+    """Create default super user
+
+    The current iteration of PMA API only allows for one user, the super user.
+    During DB initialization, this function is run. If there are no existing,
+    users it will create the super user, else does nothing.
+
+    Side effects:
+        - Creates a new user in db with max privileges
+
+    Args:
+        name (str): Username
+        pw (str): Plain text for password
+    """
+    users: List[User] = User.query.all()
+
+    if not users:
+        user_manager: UserManager = current_app.user_manager
+
+        # TODO: Am I getting an error here just because of UserMixin / no
+        #  __init__ present in child class?
+        # noinspection PyArgumentList
+        user = User(
+            active=True,
+            username=name,
+            password=user_manager.hash_password(pw),
+            first_name='PMA API',
+            last_name='Admin')
+        db.session.add(user)
+        db.session.commit()
 
 
 def restore_db_cloud(filename: str):

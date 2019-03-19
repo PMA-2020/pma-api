@@ -28,27 +28,27 @@
         {{ user_manager.USER_APP_NAME }}
       </h1></a></div>
       <div class="pull-right">
-        {% if call_or_get(current_user.is_authenticated) %}
-          <a href="{{ url_for('user.edit_user_profile') }}">
-            {{ current_user.username or current_user.email }}
-          </a>
-          &nbsp; | &nbsp;
-          <a href="{{ url_for('user.logout') }}">{%trans%}
-            Sign out
-          {%endtrans%}</a>
-        {% else %}
-          <a href="{{ url_for('user.login') }}">{%trans%}
-            Sign in
-          {%endtrans%}</a>
-        {% endif %}
+{#        {% if call_or_get(current_user.is_authenticated) %}#}
+{#          <a href="{{ url_for('user.edit_user_profile') }}">#}
+{#            {{ current_user.username or current_user.email }}#}
+{#          </a>#}
+{#          &nbsp; | &nbsp;#}
+{#          <a href="{{ url_for('user.logout') }}">{%trans%}#}
+{#            Sign out#}
+{#          {%endtrans%}</a>#}
+{#        {% else %}#}
+{#          <a href="{{ url_for('user.login') }}">{%trans%}#}
+{#            Sign in#}
+{#          {%endtrans%}</a>#}
+{#        {% endif %}#}
       </div>
     </div>
 
     {% block menu %}
       <div id="menu-div" class="with-margins">
-        <a href="/">{%trans%}
-          Home page
-        {%endtrans%}</a>
+{#        <a href="/">{%trans%}#}
+{#          Home page#}
+{#        {%endtrans%}</a>#}
       </div>
     {% endblock %}
 
@@ -73,13 +73,15 @@
       {% endblock %}
     </div>
 
-    <br/>
-    <hr class="no-margins"/>
+{#    <br/>#}
+{#    <hr class="no-margins"/>#}
+{#    <div id="footer-div" class="clearfix with-margins">#}
+{#      <div class="pull-left">{{ user_manager.USER_APP_NAME }} v1.0</div>#}
+{#      <div class="pull-right">#}
+{#        &copy; 2019 Performance Monitoring for Action#}
+{#      </div>#}
+{#    </div>#}
 
-    <div id="footer-div" class="clearfix with-margins">
-      <div class="pull-left">{{ user_manager.USER_APP_NAME }} v1.0</div>
-      <div class="pull-right">&copy; 2014 MyCorp</div>
-    </div>
   {% endblock %}
 
 

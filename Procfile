@@ -1,3 +1,3 @@
-# release: make release
+release: make release
 worker: make celery
 web: make serve-production
