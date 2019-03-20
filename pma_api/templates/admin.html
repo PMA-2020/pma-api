@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>	PMA API Admin Portal </title>
+    <title>PMA API Admin Portal</title>
 
     <link rel="shortcut icon"
           href="{{ url_for('static', filename='favicon.ico') }}">
@@ -44,85 +44,72 @@
               </span>
               <p></p>
           </div>
-          <h2>Datasets</h2>
-          <table class="table table-bordered" id="datasets-table">
-            <thead>
-              <tr>
-                <th></th>  {# Checkbox column #}
-                <th>ID</th>
-                <th>Uploaded date</th>
-                <th>Type</th>
-                <th>Name</th>
-                <th>Version</th>
-{#                <th>Active</th>#}
-                <th>Active: Staging</th>
-                <th>Active: Production</th>
-                {% if this_env=='development' %}
-                  <th>Active: Dev</th>
-                {% endif %}
-              </tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
 
-            <div class="button-bar">
-                <a id="download-link"  href="#">
-                  <button type="button" class="btn btn-outline-dark"
-                          id="download-button">
-                    <i class="fas fa-download"></i>
-                  </button>
-                </a>
+          {% include 'components/dataset_table.html' %}
 
-                <div class="right-buttons">
-                  <a id="activate-staging-link" href="#">
-                    <button type="button" class="btn btn-outline-dark"
-                            id="activate-staging-button">
-                      Activate on staging
-                    </button>
-                  </a>
-                  <a id="activate-production-link" href="#">
-                    <button type="button" class="btn btn-outline-dark"
-                            id="activate-production-button">
-                      Activate on production
-                    </button>
-                  </a>
+          <div class="button-bar">
+{#              <a id="download-link"  href="#">#}
+{#                <button type="button" class="btn btn-outline-dark"#}
+{#                        id="download-button">#}
+{#                  <i class="fas fa-download"></i>#}
+{#                </button>#}
+{#              </a>#}
 
-                  {% if this_env=='development' %}
-                    <a id="activate-dataset-link" href="#">
-                      <button type="button" class="btn btn-outline-dark"
-                              id="activate-dataset-button">
-                        Activate on dev
-                      </button>
-                    </a>
-                  {% endif %}
+              <div class="right-buttons">
+{#                <a id="activate-staging-link" href="#">#}
+{#                  <button type="button" class="btn btn-outline-dark"#}
+{#                          id="activate-staging-button">#}
+{#                    Activate#}
+{#                  </button>#}
+{#                </a>#}
+{#                <a id="activate-staging-link" href="#">#}
+{#                  <button type="button" class="btn btn-outline-dark"#}
+{#                          id="activate-staging-button">#}
+{#                    Activate on staging#}
+{#                  </button>#}
+{#                </a>#}
+{#                <a id="activate-production-link" href="#">#}
+{#                  <button type="button" class="btn btn-outline-dark"#}
+{#                          id="activate-production-button">#}
+{#                    Activate on production#}
+{#                  </button>#}
+{#                </a>#}
+{##}
+{#                {% if this_env=='development' %}#}
+{#                  <a id="activate-dataset-link" href="#">#}
+{#                    <button type="button" class="btn btn-outline-dark"#}
+{#                            id="activate-dataset-button">#}
+{#                      Activate on dev#}
+{#                    </button>#}
+{#                  </a>#}
+{#                {% endif %}#}
 
 {#                  <a id="activate-dataset-link" href="#">#}
 {#                    <button type="button" class="btn btn-outline-dark" id="activate-dataset-button">#}
 {#                      Activate Dataset#}
 {#                    </button>#}
 {#                  </a>#}
-                  {#                TODO: temp#}
-                  <a id="testing-link" href="#">
-                    <button type="button" class="btn btn-outline-dark"
-                            id="testing-button">
-                      Test Async progress updates
-                    </button>
-                  </a>
-                </div>
-            </div>
-
-            <div id="bootstrap-super-container"
-                 style="margin-top: 20px; margin-bottom: 5px; display: none;">
-              <div class="progress" id="bootstrap-bar-container">
-                <div class="progress-bar progress-bar-striped"
-                     id="bootstrap-bar"
-                     role="progressbar"
-                     aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"
-                     style="width: 0;"></div>
+                {#                TODO: temp#}
+                <a id="testing-link" href="#">
+                  <button type="button" class="btn btn-outline-dark"
+                          id="testing-button">
+                    Test Async progress updates
+                  </button>
+                </a>
               </div>
+          </div>
+
+          <div id="bootstrap-super-container"
+               style="margin-top: 20px; margin-bottom: 5px; display: none;">
+            <div class="progress" id="bootstrap-bar-container">
+              <div class="progress-bar progress-bar-striped"
+                   id="bootstrap-bar"
+                   role="progressbar"
+                   aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"
+                   style="width: 0;"></div>
             </div>
-            <div id="progress-msg" style="display: none;">...</div>
+          </div>
+          <div id="progress-msg" style="display: none;">...</div>
 
           <!--
           <hr/>
@@ -174,7 +161,7 @@
               messageBar.html('success!');
               location.reload();
             } else {
-              let err_message = 'error occurred from server';
+              let err_message = 'Error: Unknown server error.';
               if (!!response.message)
                   err_message = response.message;
               messageBar.show();
@@ -185,139 +172,139 @@
           // Get data for dataset table
           // TODO: Fetch 'active' status from servers using new query
           // TODO: Represent 'processing' by text 'processing'
-          const json_response = [
-            {% for dataset in datasets %}
-              {
-                "ID": {{ dataset.ID }},
-                "Upload date": "{{dataset.upload_date}}",
-                "Type": "{{dataset.dataset_type}}",
-                "Name": "{{dataset.dataset_display_name}}",
-                "Version": "{{dataset.version_number}}",
-                {#"Active": {% if dataset.active %}true{% else %}false{% endif %},#}
-                {#"Processing": {% if dataset.processing %}true{% else %}false{% endif %},#}
-                {#"Processing: Staging" : {% if dataset.processing_staging %}true{% else %}false{% endif %},#}
-                {#"Processing: Production" : {% if dataset.processing_production %}true{% else %}false{% endif %},#}
-                "Active: Staging":
-                  {% if this_env=='staging' %}
-                    {{ 'true' if dataset.active else 'false' }}
-                  {% else %}
-                    'fetching'
-                  {% endif %},
-                "Active: Production":
-                  {% if this_env=='production' %}
-                    {{ 'true' if dataset.active else 'false' }}
-                  {% else %}
-                    'fetching'
-                  {% endif %},
-                {% if this_env=='development' %}
-                  "Active: Dev": {{ 'true' if dataset.active else 'false' }}
-                {% endif %}
-              },
-            {% endfor %}
-          ];
+          {#const json_response = [#}
+          {#  {% for dataset in datasets %}#}
+          {#    {#}
+          {#      "ID": {{ dataset.ID }},#}
+          {#      "Upload date": "{{dataset.upload_date}}",#}
+          {#      "Type": "{{dataset.dataset_type}}",#}
+          {#      "Name": "{{dataset.dataset_display_name}}",#}
+          {#      "Version": "{{dataset.version_number}}",#}
+          {#      "Active": {% if dataset.active %}true{% else %}false{% endif %},#}
+          {#      "Processing": {% if dataset.processing %}true{% else %}false{% endif %},#}
+          {#      "Processing: Staging" : {% if dataset.processing_staging %}true{% else %}false{% endif %},#}
+          {#      "Processing: Production" : {% if dataset.processing_production %}true{% else %}false{% endif %},#}
+          {#      "Active: Staging":#}
+          {#        {% if this_env=='staging' %}#}
+          {#          {{ 'true' if dataset.active else 'false' }}#}
+          {#        {% else %}#}
+          {#          'fetching'#}
+          {#        {% endif %},#}
+          {#      "Active: Production":#}
+          {#        {% if this_env=='production' %}#}
+          {#          {{ 'true' if dataset.active else 'false' }}#}
+          {#        {% else %}#}
+          {#          'fetching'#}
+          {#        {% endif %},#}
+          {#      {% if this_env=='development' %}#}
+          {#        "Active: Dev":{{ 'true' if dataset.active else 'false' }}#}
+          {#      {% endif %}#}
+          {#    },#}
+          {#  {% endfor %}#}
+          {#];#}
 
           // Render dataset table
           {#const non_active = '<i class="fas fa-times"></i>';#}
-          const non_active = '';
+          {#const non_active = '';#}
           $(function() {
-            let tbody = '';
-            json_response.forEach(element => {
-              tbody += '<tr id="' + element["ID"] + '">';
-              tbody += '<td class="dataset-row-checkbox"><input type="checkbox"></td>';
-              tbody += '<td class="dataset-row-ID">'+element["ID"]+'</td>';
-              tbody += '<td>'+element["Upload date"]+'</td>';
-              tbody += '<td>'+element["Type"]+'</td>';
-              tbody += '<td>'+element["Name"]+'</td>';
-              tbody += '<td>'+element["Version"]+'</td>';
-              {#tbody += '<td>'+ (element["Active"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';#}
-              {#tbody += '<td>'+ element["Active: Staging"] === 'fetching' ? 'fetching' : (element["Active: Staging"] ? '<i class="fas fa-check"></i>' : non_active) + '</td>';#}
-              tbody += '<td>'+ element["Active: Staging"] + '</td>';
-              tbody += '<td>'+ element["Active: Production"] + '</td>';
-              {#tbody += '<td>'+ (element["Active: Staging"] ? '<i class="fas fa-check"></i>' : non_active) + '</td>';#}
-              {#tbody += '<td>'+ (element["Active: Production"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';                #}
-              {% if this_env=='development' %}
-                tbody += '<td>'+ (element["Active: Dev"] ?
-                  '<i class="fas fa-check"></i>' :
-                  non_active)+'</td>';
-              {% endif %}
-              tbody += '</tr>';
-            });
-            $('tbody').html(tbody);
+            //let tbody = '';
+            //json_response.forEach(element => {
+            //  tbody += '<tr id="' + element["ID"] + '">';
+            //  tbody += '<td class="dataset-row-checkbox"><input type="checkbox"></td>';
+            //  tbody += '<td class="dataset-row-ID">'+element["ID"]+'</td>';
+            //  tbody += '<td>'+element["Upload date"]+'</td>';
+            //  tbody += '<td>'+element["Type"]+'</td>';
+            //  tbody += '<td>'+element["Name"]+'</td>';
+            //  tbody += '<td>'+element["Version"]+'</td>';
+            //  tbody += '<td>'+ (element["Active"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';
+            //  tbody += '<td>'+ element["Active: Staging"] === 'fetching' ? 'fetching' : (element["Active: Staging"] ? '<i class="fas fa-check"></i>' : non_active) + '</td>';
+            //  tbody += '<td>'+ element["Active: Staging"] + '</td>';
+            //  tbody += '<td>'+ element["Active: Production"] + '</td>';
+            //  tbody += '<td>'+ (element["Active: Staging"] ? '<i class="fas fa-check"></i>' : non_active) + '</td>';
+            //  tbody += '<td>'+ (element["Active: Production"] ? '<i class="fas fa-check"></i>' : non_active)+'</td>';
+            {#//  {% if this_env=='development' %}#}
+            //    tbody += '<td>'+ (element["Active: Dev"] ?
+            //      '<i class="fas fa-check"></i>' :
+            //      non_active)+'</td>';
+            {#//  {% endif %}#}
+            //  tbody += '</tr>';
+            //});
+            //$('tbody').html(tbody);
 
             // Functionality for dataset control buttons
-            function selectedDatasetID() {
-              let selectedDatasetIDs = [];
-
-
+            {#function selectedDatasetID() {#}
+            {#  let selectedDatasetIDs = [];#}
+            {##}
+            {##}
               {#TODO: for (let i = 1, row = datasetsTableElement.rows[i]; i < datasetsTableElement.rows.length i++) {#}
-              const datasetsTableElement = document.getElementById('datasets-table');
-              for (let i = 1, row; row = datasetsTableElement.rows[i]; i++) {
-                let isSelected = false;
-                for (let j = 0, cell; cell = row.children[j]; j++) {
-                  if (cell.className === 'dataset-row-checkbox')
-                    isSelected = cell.firstChild.checked;
-                }
-                for (let j = 0, cell; cell = row.children[j]; j++) {
-                  if (cell.className === 'dataset-row-ID' && isSelected)
-                    selectedDatasetIDs.push(cell.innerHTML);
-                }
-              }
-
-              if (selectedDatasetIDs.length === 0) {
-                alert('Please first select a dataset.');
-                return '';
-              } else if (selectedDatasetIDs.length > 1) {
-                alert('More than one dataset selected. Please make ' +
-                  'sure that only one checkbox in the datasets table is ' +
-                  'selected and try agian.');
-                return '';
-              } else {
-                return selectedDatasetIDs[0];
-              }
-            }
+            {#  const datasetsTableElement = document.getElementById('datasets-table');#}
+            {#  for (let i = 1, row; row = datasetsTableElement.rows[i]; i++) {#}
+            {#    let isSelected = false;#}
+            {#    for (let j = 0, cell; cell = row.children[j]; j++) {#}
+            {#      if (cell.className === 'dataset-row-checkbox')#}
+            {#        isSelected = cell.firstChild.checked;#}
+            {#    }#}
+            {#    for (let j = 0, cell; cell = row.children[j]; j++) {#}
+            {#      if (cell.className === 'dataset-row-ID' && isSelected)#}
+            {#        selectedDatasetIDs.push(cell.innerHTML);#}
+            {#    }#}
+            {#  }#}
+            {##}
+            {#  if (selectedDatasetIDs.length === 0) {#}
+            {#    alert('Please first select a dataset.');#}
+            {#    return '';#}
+            {#  } else if (selectedDatasetIDs.length > 1) {#}
+            {#    alert('More than one dataset selected. Please make ' +#}
+            {#      'sure that only one checkbox in the datasets table is ' +#}
+            {#      'selected and try agian.');#}
+            {#    return '';#}
+            {#  } else {#}
+            {#    return selectedDatasetIDs[0];#}
+            {#  }#}
+            {#//}#}
 
             // alert close button
             $('#message-bar span').on('click', function(){
               $('#message-bar').hide();
             });
 
-            // Add functionality to dataset download button
-            $("#download-button").bind('click', downloadDataset);
-            function downloadDataset() {
-              let name = selectedDatasetID();
-              if (name !== '')
-                $("#download-link").attr("href", "/admin?download=" + name);
-            }
+            //$("#download-button").bind('click', downloadDataset);
+            //function downloadDataset() {
+            //  let name = selectedDatasetID();
+            //  if (name !== '')
+            //    $("#download-link").attr("href", "/admin?download=" + name);
+            //}
+            //$("#activate-staging-button").bind('click', activateStaging);
+            //function activateStaging() {
+            //  activateRequest();
+            //}
+            //$("#activate-production-button").bind('click', activateProduction);
+            //function activateProduction() {
+            //  activateRequest('production');
+            //}
+            //$("#activate-dataset-button").bind('click', activateDataset);
+            //function activateDataset() {
+            //  initTask('/activate_dataset/' + name);
+            //  activateRequest('development');
+            //}
+            //function activateRequest(destinationEnv) {
+            //  let id = selectedDatasetID();
+            //  if (id !== '') {
+            //    const data = {
+            //      destinationEnv: destinationEnv,
+            //      datasetID: id
+            //    };
+            //    initTask('/activate_dataset_request', data)
+            //  }
+            //}
 
-            // Add functionality to activate-staging button
-            $("#activate-staging-button").bind('click', activateStaging);
-            function activateStaging() {
-              activateRequest('staging')
-            }
-
-            // Add functionality to activate-production button
-            $("#activate-production-button").bind('click', activateProduction);
-            function activateProduction() {
-              activateRequest('production')
-            }
-
-            // Add functionality to activate-dataset-dev button
-            $("#activate-dataset-button").bind('click', activateDataset);
-            function activateDataset() {
-              {#initTask('/activate_dataset/' + name)#}
-              activateRequest('development')
-            }
-
-            function activateRequest(destinationEnv) {
-              let id = selectedDatasetID();
-              if (id !== '') {
-                const data = {
-                  destinationEnv: destinationEnv,
-                  datasetID: id
-                };
-                initTask('/activate_dataset_request', data)
-              }
-            }
+            {# A. use jquery to find the table. find all the rows. iterate through rows, get all ids. for every id, bind event#}
+            {# B. bind event to class; from event get id #}
+            $(".activate-button").bind('click', (e) => {
+              console.log(e);
+              const id = '?';  // get from e
+              initTask('/activate_dataset_request/' + id)
+            });
 
             function initTask(postUrl, data = {}) {
               /* Initialize an asynchronous task

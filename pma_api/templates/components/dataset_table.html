@@ -1,0 +1,62 @@
+
+<h2>Datasets</h2>
+<table class="table table-bordered" id="datasets-table">
+  <thead>
+    <tr>
+{#      <th></th>  {# Checkbox column #}
+      <th>ID</th>
+      <th>Uploaded date</th>
+      <th>Type</th>
+      <th>Name</th>
+      <th>Version</th>
+      <th>Active</th>
+      <th>Actions</th>
+{#      <th>Active: Staging</th>#}
+{#      <th>Active: Production</th>#}
+{#      {% if this_env=='development' %}#}
+{#        <th>Active: Dev</th>#}
+{#      {% endif %}#}
+    </tr>
+    {% for dataset in datasets %}
+      <tr id="{{ dataset.ID }}">
+{#        <td class="dataset-row-checkbox">#}
+{#          <!--suppress HtmlFormInputWithoutLabel -->#}
+{#          <input type="checkbox">#}
+{#        </td>#}
+        <td>{{ dataset.ID }}</td>
+        <td>{{ dataset.upload_date }}</td>
+        <td>{{ dataset.dataset_type }}</td>
+        <td>{{ dataset.dataset_display_name }}</td>
+        <td>{{ dataset.version_number }}</td>
+        <td>
+          {% if dataset.active %}
+            <i class="fas fa-check"></i>
+          {% else %}
+            <a id="activate-link-{{ dataset.ID }}" href="#">
+              <button type="button" class="btn btn-outline-dark activate-button"
+                id="activate-button-{{ dataset.ID }}">
+                Activate
+              </button>
+            </a>
+          {% endif %}
+        </td>
+        <td>
+          <a id="download-link-{{ dataset.ID }}"  href="#">
+            <button type="button" class="btn btn-outline-dark"
+              id="download-button-{{ dataset.ID }}">
+              <i class="fas fa-download"></i>
+            </button>
+          </a>
+          <a id="delete-link-{{ dataset.ID }}"  href="#">
+            <button type="button" class="btn btn-outline-dark"
+              id="delete-button-{{ dataset.ID }}">
+              <i class="fas fa-trash"></i>
+            </button>
+          </a>
+        </td>
+      </tr>
+    {% endfor %}
+  </thead>
+  <tbody>
+  </tbody>
+</table>
