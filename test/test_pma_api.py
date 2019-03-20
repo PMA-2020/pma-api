@@ -137,9 +137,11 @@ class TestRoutes(PmaApiTest):
                      '/activate_dataset_request',  # POST
                      '/activate_dataset',  # POST
                      '/longtask',  # POST
-                     '/data', '/datalab/data')  # TODO: temp, because slow
+                     '/v1/data', '/v1/datalab/data')  # TODO: temp, because slow
     ignore_end_patterns = ('>',)
-    non_json_routes = ('/admin', '/docs')
+    # non_json_routes = ('/admin', '/docs')
+    json_route_start_pattern = '/v'
+
 
     @staticmethod
     def valid_route(route):
@@ -169,7 +171,8 @@ class TestRoutes(PmaApiTest):
                 print('fetching: ' + route)
                 r: Response = self.app.get(route)
                 self.app.get(route)
-                if route not in self.non_json_routes:
+                # if route not in self.non_json_routes:
+                if route.startswith(self.json_route_start_pattern):
                     self.assertTrue(r.is_json)
         except OperationalError as err:  # Other tests may be interrupting this
             if other_test_interference_tell in str(err):

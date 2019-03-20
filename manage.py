@@ -36,8 +36,7 @@ Migrate(app, db)
     '--force', action='store_true',
     help='Overwrite DB even if source data files present / '
          'supplied are same versions as those active in DB?')
-def initdb(overwrite: bool = False, force: bool = False,
-           api_file_path: str = get_api_data(),
+def initdb(overwrite, force, api_file_path: str = get_api_data(),
            ui_file_path: str = get_ui_data()):
     """Create the database.
 
@@ -336,16 +335,15 @@ def upgrade(_attempt: int = None, silent: bool = False):
 
 
 @manager.option(
-    '--force', action='store_true',
-    help='Use "--force" option when running "initdb" sub-command?')
+    '--not_force', action='store_true',
+    help='Don\'t use "--force" option when running "initdb" sub-command?')
 @manager.option(
-    '--overwrite', action='store_true',
-    help='Use "--overwrite" option when running "initdb" sub-command?')
+    '--not_overwrite', action='store_true',
+    help='Don\'t use "--overwrite" option when running "initdb" sub-command?')
 @manager.option(
-    '--silent_upgrade', action='store_true',
-    help='Use "--silent" option when running "upgrade" sub-command?')
-def release(overwrite: bool = True, force: bool = False,
-            silent_upgrade: bool = True):
+    '--verbose_upgrade', action='store_true',
+    help='Don\'t use "--silent" option when running "upgrade" sub-command?')
+def release(not_overwrite: bool, not_force: bool, verbose_upgrade: bool):
     """Perform steps necessary for a deployment
 
     Args:
@@ -355,6 +353,9 @@ def release(overwrite: bool = True, force: bool = False,
         silent_upgrade (bool): Use "--silent" option when running "upgrade"
         sub-command?
     """
+    overwrite = not(not_overwrite)
+    force = not(not_force)
+    silent_upgrade = not(verbose_upgrade)
     progress = TaskTracker(name='Deployment release process', queue=[
         'Beginning schema migration',
         'Initialize database'
@@ -363,7 +364,7 @@ def release(overwrite: bool = True, force: bool = False,
 
     # TODO: Re-enable this when ready. If disabled, this release should only
     #  work for brand new instances; not for upgraded deployments of existing
-    #  instances.
+    #  instances. We should determine if instance is new and skip this step
     # upgrade(silent=silent_upgrade)
 
     # TODO: What to do if head behind? stamp and then upgrade? Heroku won't

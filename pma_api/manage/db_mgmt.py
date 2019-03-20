@@ -608,6 +608,9 @@ def initdb_from_wb(
 
     with _app.app_context():
         try:
+            # Troubleshooting
+            # from pdb import set_trace; set_trace()
+
             progress.next()
             try:
                 backup_path: str = backup_db()
@@ -623,6 +626,7 @@ def initdb_from_wb(
             # Create tables
             progress.next()
             # TODO: Consider not using db.create_all() and use migrate instead?
+            #  What if brand new deploy?
             db.create_all()
             dataset, warning = Dataset.process_new(api_file_path)
             if warning:

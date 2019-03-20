@@ -182,6 +182,8 @@ logs:
 	heroku logs --tail --app pma-api
 logs-staging:
 	heroku logs --tail --app pma-api-staging
+logs-production2:
+	heroku logs --tail --app pma-api-new
 push-production: production-push
 push-staging: staging-push
 production:  push-production
