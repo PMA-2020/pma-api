@@ -10,11 +10,12 @@ from datetime import datetime
 from time import time
 from typing import List, Tuple, Dict
 
+import boto3
 import xlrd
 import sqlalchemy
 from flask import Flask, current_app
-# noinspection PyProtectedMember
 from flask_user import UserManager
+# noinspection PyProtectedMember
 from sqlalchemy.engine import Connection
 from sqlalchemy.exc import DatabaseError, OperationalError, IntegrityError
 
@@ -538,6 +539,8 @@ def get_datasheet_names(path: str) -> List[str]:
     return datasheet_names
 
 
+# TODO: Utilize 'force'
+# noinspection PyUnusedLocal
 def initdb_from_wb(
     _app: Flask = current_app,
     api_file_path: str = get_api_data(),
@@ -995,8 +998,6 @@ def store_file_on_s3(path: str, storage_dir: str = ''):
     Returns:
         str: File name of uploaded file
     """
-    import boto3
-
     local_backup_first = False if os.path.exists(path) else True
     filename = ntpath.basename(path)
 
@@ -1007,9 +1008,22 @@ def store_file_on_s3(path: str, storage_dir: str = ''):
 
     if local_backup_first:
         backup_local(path)
+
+    # Datasets only: This only applies to datasets, so might want refactor.
+    # noinspection PyBroadException
+    try:
+        metadata: Dict[str:str] = {}
+        d = Dataset(path)
+        metadata['dataset_display_name']: str = d.dataset_display_name
+        metadata['upload_date']: str = str(d.upload_date)
+        metadata['version_number']: str = str(d.version_number)
+        metadata['dataset_type']: str = d.dataset_type
+    except Exception:
+        metadata: Dict[str:str] = {}
+
     with open(path, 'rb') as f:
         filepath = storage_dir + filename
-        s3.Bucket(BUCKET).put_object(Key=filepath, Body=f)
+        s3.Bucket(BUCKET).put_object(Key=filepath, Metadata=metadata, Body=f)
     if local_backup_first:
         os.remove(path)
 
@@ -1313,7 +1327,6 @@ def download_file_from_s3(filename: str, directory: str):
     Returns:
         str: path to downloaded file
     """
-    import boto3
     from botocore.exceptions import ClientError
 
     s3 = boto3.resource('s3')
@@ -1333,40 +1346,78 @@ def download_file_from_s3(filename: str, directory: str):
 
 
 @aws_s3
-def list_s3_objects(bucket_name: str = BUCKET) -> []:
+def list_s3_objects(bucket_name: str = BUCKET) \
+        -> []:
     """List objects on AWS S3
 
     Args:
         bucket_name (str): Name of bucket holding object storage
 
     Returns:
-        list: List of S3 objects
+        list[boto3.resources.factory.s3.ObjectSummary]: List of S3 objects
     """
-    import boto3
-
     s3 = boto3.resource('s3')
     objects = s3.Bucket(bucket_name).objects.all()
+    # result: List[boto3.resources.factory.s3.ObjectSummary]
+    result: List = [x for x in objects]
 
-    return [x.key for x in objects]
+    return result
 
 
-def list_filtered_s3_files(path: str) -> []:
+def list_filtered_s3_files(path: str, detailed: bool = False) -> []:
     """Gets list of S3 files w/ directories and path prefixes filtered out
 
     Args:
         path (str): Path to directory holding files
+        detailed (bool): Print more than just object/file name? E.g. default
+        metadata regarding upload date, custom metadata such as file version,
+        etc.
 
     Returns:
         list: Filenames
     """
     path2 = path + '/' if not path.endswith('/') else path
     path3 = path2[1:] if path2.startswith('/') else path2
-    objects = list_s3_objects(silent=True)
 
-    filtered = [x for x in objects
-                if x.startswith(path3)
-                and x != path3]
-    formatted = [os.path.basename(x) for x in filtered]
+    # objects: List[boto3.resources.factory.s3.ObjectSummary]
+    objects: List = list_s3_objects(silent=True)
+    # filtered: List[boto3.resources.factory.s3.ObjectSummary]
+    filtered: List = [x for x in objects
+                      if x.key.startswith(path3)
+                      and x.key != path3]
+
+    if not detailed:
+        names_only: List[str] = [x.key for x in filtered]
+        formatted: List[str] = [os.path.basename(x) for x in names_only]
+    else:
+        formatted: List[Dict[str:str]] = []
+        basic_metadata: List[Dict[str:str]] = []
+        basic_metadata2: List[Dict[str:str]] = []
+
+        # Get basic metadata ascertainable from filename
+        for x in filtered:
+            obj_dict: Dict[str:str] = {
+                'key': x.key,
+                'name': os.path.basename(x.key),
+                'owner': x.owner['DisplayName'],
+                'last_modified': str(x.last_modified)}
+            basic_metadata.append(obj_dict)
+
+        # Get metadata explicitly stored in S3 object
+        for x in basic_metadata:
+            # client: botocore.client.S3
+            client = boto3.client('s3')
+            obj_metadata_request: Dict = \
+                client.head_object(Bucket=BUCKET, Key=x['key'])
+            obj_metadata: Dict[str:str] = obj_metadata_request['Metadata']
+            x2 = {**copy(x), **obj_metadata}
+            basic_metadata2.append(x2)
+
+        # Remove no-longer necessary 'key' key
+        for x2 in basic_metadata2:
+            x3 = copy(x2)
+            x3.pop('key')  # no longer need key used to lookup obj in s3
+            formatted.append(x3)
 
     return formatted
 
@@ -1393,13 +1444,19 @@ def list_cloud_ui_data() -> [str]:
     return files
 
 
-def list_cloud_datasets() -> [str]:
+def list_cloud_datasets(detailed: bool = False) -> [str]:
     """List pma api dataset spec files on AWS S3
+
+    Args:
+        detailed (bool): 'detailed' param to pass down to
+        list_filtered_s3_files function.
 
     Returns:
         list: List of files
     """
-    files = list_filtered_s3_files(S3_DATASETS_DIR_PATH)
+    files = list_filtered_s3_files(
+        path=S3_DATASETS_DIR_PATH,
+        detailed=detailed)
 
     return files
 
@@ -1441,7 +1498,9 @@ def list_local_datasets(path: str = DATASETS_DIR) -> [str]:
     """
     from_file_system: List[str] = \
         list_local_files(path=path, name_contains='api_data')
-    from_db: [str] = [x.dataset_display_name for x in Dataset.query.all()]
+    # TODO: Remove this line after Dataset model removed
+    # from_db: [str] = [x.dataset_display_name for x in Dataset.query.all()]
+    from_db: [str] = []
     filenames: [str] = list(set(from_file_system + from_db))
 
     return filenames
@@ -1501,8 +1560,11 @@ def list_ui_data() -> {str: [str]}:
     }
 
 
-def list_datasets() -> {str: [str]}:
+def list_datasets(detailed: bool = True) -> {str: [str]}:
     """List available api data spec files
+
+    Args:
+        detailed (bool): 'detailed' param to pass down to list_cloud_datasets()
 
     Returns:
         dict: available backups, of form...
@@ -1510,7 +1572,7 @@ def list_datasets() -> {str: [str]}:
     """
     return {
         'local': list_local_datasets(),
-        'cloud': list_cloud_datasets()
+        'cloud': list_cloud_datasets(detailed=detailed)
     }
 
 

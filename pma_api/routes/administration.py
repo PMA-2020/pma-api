@@ -7,7 +7,7 @@ from flask_user import login_required
 from werkzeug.datastructures import FileStorage, ImmutableDict
 from werkzeug.utils import secure_filename
 
-from pma_api.config import LOCAL_DEVELOPMENT_URL
+# from pma_api.config import LOCAL_DEVELOPMENT_URL
 from pma_api.error import ExistingDatasetError, PmaApiException
 
 from pma_api.routes import root
@@ -109,11 +109,11 @@ def activate_dataset_request() -> jsonify:
     from pma_api.tasks import activate_dataset_request
 
     dataset_id: str = request.form['datasetID']
-    destination_env: str = request.form['destinationEnv']
-    destination: str = \
-        os.getenv('PRODUCTION_URL') if destination_env == 'production' else \
-        os.getenv('STAGING_URL') if destination_env == 'staging' else \
-        LOCAL_DEVELOPMENT_URL
+    # destination_env: str = request.form['destinationEnv']
+    # destination: str = \
+    #     os.getenv('PRODUCTION_URL') if destination_env == 'production' else \
+    #     os.getenv('STAGING_URL') if destination_env == 'staging' else \
+    #     LOCAL_DEVELOPMENT_URL
 
     # TODO: upload dataset if needed
     dataset_needed = False
@@ -123,7 +123,7 @@ def activate_dataset_request() -> jsonify:
     # TODO - yield: init_wb, celery tasks and routes
     task = activate_dataset_request.apply_async(kwargs={
         'dataset_id': dataset_id,
-        'destination_host_url': destination,
+        # 'destination_host_url': destination,
         'dataset': dataset})
 
     response_data = jsonify({})

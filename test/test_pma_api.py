@@ -14,25 +14,27 @@ import os
 import time
 import unittest
 from glob import glob
-from typing import List
+from typing import List, Dict
 
 from flask import Response
 from sqlalchemy.exc import OperationalError
 
 # import xlrd
-from pma_api.config import AWS_S3_STORAGE_BUCKETNAME as BUCKET, \
-    S3_BACKUPS_DIR_PATH
+# from pma_api.config import AWS_S3_STORAGE_BUCKETNAME as BUCKET, \
+#     S3_BACKUPS_DIR_PATH
 from test.config import TEST_STATIC_DIR
-from manage import app, initdb
+from manage import app
+# from manage import app, initdb
 # from pma_api.tasks import activate_dataset_request
-from pma_api.manage.db_mgmt import restore_db_local, new_backup_path, \
-    backup_local, restore_db_cloud, delete_s3_file, download_file_from_s3, \
-    backup_db_cloud, backup_local_using_heroku_postgres, \
-    restore_using_heroku_postgres
+from pma_api.manage.db_mgmt import list_datasets
+# from pma_api.manage.db_mgmt import restore_db_local, new_backup_path, \
+#     backup_local, restore_db_cloud, delete_s3_file, download_file_from_s3, \
+#     backup_db_cloud, backup_local_using_heroku_postgres, \
+#     restore_using_heroku_postgres
 # write_data_file_to_db, \
 # remove_stata_undefined_token_from_wb as \
 # remove_stata_undefined_token_from_wb_imported
-
+from pma_api.utils import dict_to_pretty_json
 
 other_test_interference_tell = \
     'server closed the connection unexpectedly'
@@ -137,11 +139,10 @@ class TestRoutes(PmaApiTest):
                      '/activate_dataset_request',  # POST
                      '/activate_dataset',  # POST
                      '/longtask',  # POST
-                     '/v1/data', '/v1/datalab/data')  # TODO: temp, because slow
+                     '/v1/data', '/v1/datalab/data')  # TODO: load too slow
     ignore_end_patterns = ('>',)
     # non_json_routes = ('/admin', '/docs')
     json_route_start_pattern = '/v'
-
 
     @staticmethod
     def valid_route(route):
@@ -301,7 +302,7 @@ class TestRoutes(PmaApiTest):
 #     # Warning: If enabled, will erase DB.
 #     db_overwrite_enabled = os.getenv('OVERWRITE_TEST_ENABLED', False)
 #     backup_kb_threshold = 200
-#     backup_msg = 'Backup file did not meet expected minimum threshold of {} ' \
+#     backup_msg = 'Backup file didn't meet expected minimum threshold of {} '\
 #                  'kb.'.format(str(backup_kb_threshold))
 #     live_test_app_name = 'pma-api-staging'
 #
@@ -512,7 +513,7 @@ class TestRoutes(PmaApiTest):
 #         self.assertTrue(True)  # no-op; If no errors until here, we're ok
 #
 #     # def t6_initdb_overwrite(self):
-#     #     """Test initdb with full database overwrite without any exceptions"""
+#     #     """Test initdb with full db overwrite without any exceptions"""
 #     #     enabled = TestDbFunctions.db_overwrite_enabled
 #     #     if enabled:
 #     #         for file in self.get_method_static_files():
@@ -545,6 +546,50 @@ class TestAsync(PmaApiTest):
     def test_async(self):
         """Test async functions, e.g. task queue Celery and message broker"""
         pass
+
+
+class TestListDatasets(PmaApiTest):
+    """Test dataset listing functionality"""
+
+    minimal_expected_schema = {
+        "cloud": [
+            {
+                "dataset_display_name": "",
+                "dataset_type": "",
+                "last_modified": "",
+                "name": "",
+                "upload_date": "",
+                "version_number": ""
+            }
+        ],
+        "local": [
+            ""
+        ]
+    }
+    err = 'JSON returned from list_datasets did not appear as expected. ' \
+          'Expected something with at least the following schema: \n{}'\
+        .format(dict_to_pretty_json(minimal_expected_schema))
+
+    def test_list_datasets(self):
+        """Test dataset listing functionality"""
+        well_formed = True
+        datasets = list_datasets()
+
+        for k, v in self.minimal_expected_schema.items():
+            if k not in datasets.keys():
+                well_formed = False
+                break
+            if v:
+                if isinstance(v, list) and len(v) > 0:
+                    if isinstance(v[0], dict):
+                        schema_example: Dict = v[0]
+                        dataset_sample: Dict = datasets[k][0]
+                        all_keys_found: bool = \
+                            all(x in dataset_sample for
+                                x in schema_example.keys())
+                        well_formed: bool = all_keys_found
+
+        self.assertTrue(well_formed, self.err)
 
 
 if __name__ == '__main__':

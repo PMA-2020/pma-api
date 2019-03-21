@@ -301,9 +301,10 @@
             {# A. use jquery to find the table. find all the rows. iterate through rows, get all ids. for every id, bind event#}
             {# B. bind event to class; from event get id #}
             $(".activate-button").bind('click', (e) => {
-              console.log(e);
-              const id = '?';  // get from e
-              initTask('/activate_dataset_request/' + id)
+              const elementIdPrefix = 'activate-button-';
+              const elementId = e.currentTarget.getAttribute('id');
+              const datasetId = elementId.substring(elementIdPrefix.length);
+              initTask('/activate_dataset_request', {datasetID: datasetId})
             });
 
             function initTask(postUrl, data = {}) {
