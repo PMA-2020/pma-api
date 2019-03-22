@@ -41,19 +41,20 @@ def admin_route():
     """
     from pma_api.manage.db_mgmt import list_cloud_datasets, download_dataset, \
         delete_dataset
-    from pma_api.task_utils import upload
+    from pma_api.task_utils import upload_dataset
 
     # upload
     if request.method == 'POST':
         try:
             file = request.files['file']
             filename = secure_filename(file.filename)
-            success: bool = upload(filename=filename, file=file)
+            success: bool = upload_dataset(filename=filename, file=file)
             return jsonify({'success': success})
         except ExistingDatasetError as err:
             return jsonify({'success': False, 'message': str(err)})
         except Exception as err:
-            msg = 'An unexpected error occurred:\n\n' + str(err)
+            msg = 'An unexpected error occurred.\n' + \
+                  err.__class__.__name__ + ': ' + str(err)
             return jsonify({'success': False, 'message': msg})
 
     elif request.method == 'GET':
@@ -74,7 +75,9 @@ def admin_route():
                     delete_dataset(version_number=int(args['delete']))
                 except FileNotFoundError as err:
                     msg = 'FileNotFoundError: ' + str(err)
-                    flash(message=msg, category='error')
+                    # Bootstrap alert categories:
+                    # https://getbootstrap.com/docs/4.0/components/alerts/
+                    flash(message=msg, category='danger')
                 return redirect(url_for('root.admin_route'))
 
             activation_args = ('activate', 'applyStaging', 'applyProduction')
@@ -97,7 +100,7 @@ def admin_route():
                     activate_dataset_request(dataset_id=dataset_name,
                                              destination_host_url=server_url)
 
-        datasets: List[Dict[str:str]] = list_cloud_datasets()
+        datasets: List[Dict[str, str]] = list_cloud_datasets()
         this_env = os.getenv('ENV_NAME', 'development')
 
         return render_template('admin.html',
@@ -157,7 +160,7 @@ def activate_dataset_to_self() -> jsonify:
         json.jsonify: Results.
     """
     from pma_api.tasks import activate_dataset_to_self
-    from pma_api.task_utils import upload
+    from pma_api.task_utils import upload_dataset
 
     form: ImmutableDict = request.form
     files: ImmutableDict = request.files
@@ -176,7 +179,7 @@ def activate_dataset_to_self() -> jsonify:
         dataset_name = 'TODO'  # TODO
 
         try:
-            upload(filename=dataset_name, file=dataset)
+            upload_dataset(filename=dataset_name, file=dataset)
         except ExistingDatasetError:
             pass  # Ignoring this; non-issue
 

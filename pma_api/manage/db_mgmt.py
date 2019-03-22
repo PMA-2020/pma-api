@@ -8,12 +8,13 @@ import subprocess
 from copy import copy
 from datetime import datetime
 from time import time
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Union
 
 import boto3
 import xlrd
 import sqlalchemy
 from flask import Flask, current_app
+from flask_migrate import upgrade as flask_migrate_upgrade
 from flask_user import UserManager
 # noinspection PyProtectedMember
 from sqlalchemy.engine import Connection
@@ -119,7 +120,7 @@ class TaskTracker:
         Args:
             queue (list): List of progress statements to display for each
             iteration of the queue.
-            silent (bool): Print progress statements?
+            silent (bool): Don't print updates?
             callback: Callback function to use for every iteration
             of the queue. This callback must take a single dictionary as its
             parameter, with the following schema...
@@ -239,7 +240,12 @@ def aws_s3(func):
 
             if verbose:
                 return func(*args, **wrapper_kwargs_removed)
-            with SuppressStdoutStderr():  # S3 has unfixed resource warnings
+            else:
+                # TODO: suppression works when running tests in Pycharm,
+                #  but running `make backup` from terminal hangs
+                # S3 has unfixed resource warnings
+                # with SuppressStdoutStderr():
+                #     return func(*args, **wrapper_kwargs_removed)
                 return func(*args, **wrapper_kwargs_removed)
         except ClientError as err:
             if 'Access Denied' in str(err) or 'AccessDenied' in str(err):
@@ -539,6 +545,19 @@ def get_datasheet_names(path: str) -> List[str]:
     return datasheet_names
 
 
+def _is_db_empty() -> bool:
+    """Is database empty or not?
+
+    Empty is defined here as a DB that has been created, but has no tables.
+
+    Returns:
+        bool: True if empty, else False
+    """
+    empty: bool = False
+
+    return empty
+
+
 # TODO: Utilize 'force'
 # noinspection PyUnusedLocal
 def initdb_from_wb(
@@ -573,6 +592,12 @@ def initdb_from_wb(
     Returns:
         dict: Results
     """
+    # TODO: Use alembic if any tables exist, else not
+    # fresh_db: bool = _is_db_empty()
+    #
+    # # TODO: temp
+    # return 'Currently just testing _is_db_empty(). Stopping execution now.'
+
     retore_msg = 'An issue occurred. Restoring database to state it was in ' \
                  'prior to task initialization.'
     current_sub_tasks: List[str] = [
@@ -624,16 +649,17 @@ def initdb_from_wb(
             if overwrite:
                 progress.next()
                 drop_tables()
-                Dataset.register_all_inactive()
+                # Dataset.register_all_inactive()
 
             # Create tables
             progress.next()
             # TODO: Consider not using db.create_all() and use migrate instead?
             #  What if brand new deploy?
-            db.create_all()
-            dataset, warning = Dataset.process_new(api_file_path)
-            if warning:
-                warnings['dataset'] = warning
+            # db.create_all()
+            flask_migrate_upgrade()
+            # dataset, warning = Dataset.process_new(api_file_path)
+            # if warning:
+            #     warnings['dataset'] = warning
 
             # Seed database
             if overwrite:
@@ -654,7 +680,7 @@ def initdb_from_wb(
             # Create default superuser if needed
             create_superuser()
 
-            dataset.register_active()
+            # dataset.register_active()
 
             progress.next()
             try:
@@ -805,10 +831,16 @@ def process_data(file: xlrd.Book):
     init_data(file)
 
 
-def new_backup_path(ext: str = 'dump') -> str:
+def new_backup_path(_os: str = '', _env: str = '', ext: str = 'dump') -> str:
     """Backup default path
 
     Args:
+        _os (str): Operating system backup is being created on. Useful to add
+        this if backing up remotely. Otherwise, backup name will
+        reflect the OS of current system.
+        _env (str): Environment name where backup is being created. Useful to
+        add  if backing up remotely. Otherwise, backup name will
+        reflect the environment of current system.
         ext (str): File extension to use
 
     Returns:
@@ -820,8 +852,15 @@ def new_backup_path(ext: str = 'dump') -> str:
     datetime_str: \
         str = str(datetime.now()).replace('/', '-').replace(':', '-')\
         .replace(' ', '_')
-    op_sys = 'MacOS' if platform.system() == 'Darwin' else platform.system()
-    env: str = os.getenv('ENV_NAME', 'development')
+    if not _os:
+        op_sys: str = \
+            'MacOS' if platform.system() == 'Darwin' else platform.system()
+    else:
+        op_sys: str = _os
+    if not _env:
+        env: str = os.getenv('ENV_NAME', 'development')
+    else:
+        env: str = _env
     filename: str = '_'.join(
         [filename_base, op_sys, env, datetime_str]
     ) + '.' + ext
@@ -867,14 +906,16 @@ def update_pgpass(creds: str, path: str = os.path.expanduser('~/.pgpass')):
             file.write(cred_line)
 
 
-def backup_local_using_heroku_postgres(path: str = new_backup_path(),
-                                       app_name: str = APP_NAME) \
-        -> str:
+def backup_local_using_heroku_postgres(
+        path: str = new_backup_path(),
+        app_name: str = APP_NAME,
+        silent: bool = False) -> str:
     """Backup using Heroku PostgreSQL DB using Heroku CLI
 
     Args:
         path (str): Path of file to save
         app_name (str): Name of app as recognized by Heroku
+        silent (bool): Don't print updates?
 
     Side effects:
         - Runs command: `heroku pg:backups:capture`
@@ -895,12 +936,12 @@ def backup_local_using_heroku_postgres(path: str = new_backup_path(),
     cmd_str_base: str = \
         'heroku pg:backups:capture --app={app}'
     cmd_str: str = cmd_str_base.format(app=app_name)
-    run_proc(cmd=cmd_str, raises=False, prints=True)
+    run_proc(cmd=cmd_str, raises=False, prints=not silent)
 
     cmd_str_base2: str = \
         'heroku pg:backups:download --app={app} --output={output}'
     cmd_str2: str = cmd_str_base2.format(app=app_name, output=path)
-    run_proc(cmd_str2, raises=False, prints=True)
+    run_proc(cmd_str2, raises=False, prints=not silent)
 
     return path
 
@@ -946,11 +987,12 @@ def backup_using_pgdump(path: str = new_backup_path(ext = 'dump')) -> str:
     return path
 
 
-def backup_local(path: str = '') -> str:
+def backup_local(path: str = '', silent: bool = False) -> str:
     """Backup database locally
 
     Args:
         path (str): Path to save file
+        silent (bool): Don't print updates?
 
     Side effects:
         - Saves file at path
@@ -961,6 +1003,7 @@ def backup_local(path: str = '') -> str:
     Returns:
         str: Path to backup file saved
     """
+    func = backup_local_using_heroku_postgres
     target_dir = os.path.dirname(path) if path else BACKUPS_DIR
 
     if not os.path.exists(target_dir):
@@ -971,9 +1014,8 @@ def backup_local(path: str = '') -> str:
             saved_path: str = backup_using_pgdump(path) if path \
                 else backup_using_pgdump()
         else:
-            saved_path: str = \
-                backup_local_using_heroku_postgres(path) if path \
-                else backup_local_using_heroku_postgres()
+            saved_path: str = func(path=path, silent=silent) if path \
+                else func(silent=silent)
         return saved_path
     except PmaApiDbInteractionError as err:
         if db_not_exist_tell not in str(err):
@@ -1012,18 +1054,34 @@ def store_file_on_s3(path: str, storage_dir: str = ''):
     # Datasets only: This only applies to datasets, so might want refactor.
     # noinspection PyBroadException
     try:
-        metadata: Dict[str:str] = {}
+        metadata: Dict[str, str] = {}
         d = Dataset(path)
         metadata['dataset_display_name']: str = d.dataset_display_name
         metadata['upload_date']: str = str(d.upload_date)
         metadata['version_number']: str = str(d.version_number)
         metadata['dataset_type']: str = d.dataset_type
     except Exception:
-        metadata: Dict[str:str] = {}
+        metadata: Dict[str, str] = {}
 
+    # TODO Troubleshoot slow upload: https://github.com/boto/boto3/issues/409
+    #  Until fixed, print these statements.
+    #  Experiments (seconds): 62, 61, 104, 68, 59, 58, 0, 65
+    msg1 = 'Backing up to cloud: {}'.format(filename) + \
+           '\nThis normally takes seconds, but due to intermittent issues ' \
+           'with Amazon Web Services S3 file storage service, this has known '\
+           'to occasionally take between 1-2 minutes.'
+    msg2 = 'Backup of file complete. Seconds elapsed: {}'
     with open(path, 'rb') as f:
         filepath = storage_dir + filename
-        s3.Bucket(BUCKET).put_object(Key=filepath, Metadata=metadata, Body=f)
+        print(msg1)
+        t1 = datetime.now()
+        s3.Bucket(BUCKET).put_object(
+            Key=filepath,
+            Metadata=metadata,
+            Body=f)
+        t2 = datetime.now()
+        elapsed_seconds: int = int((t2 - t1).total_seconds())
+        print(msg2.format(elapsed_seconds))
     if local_backup_first:
         os.remove(path)
 
@@ -1066,7 +1124,7 @@ def backup_source_files():
     backup_datasets()
 
 
-def backup_db_cloud(path_or_filename: str = ''):
+def backup_db_cloud(path_or_filename: str = '', silent: bool = False):
     """Backs up database to the cloud
 
     If path_or_filename is a path, uploads from already stored backup at path.
@@ -1076,6 +1134,7 @@ def backup_db_cloud(path_or_filename: str = ''):
         path_or_filename (str): Either path to a backup file, or file name. If
         file name, will restore from local backup if file exists in default
         backups directory, else will restore from the cloud.
+        silent (bool): Don't print updates?
 
     Side effects:
         - backup_local()
@@ -1092,10 +1151,9 @@ def backup_db_cloud(path_or_filename: str = ''):
     local_backup_first = False if os.path.exists(path) else True
 
     if local_backup_first:
-        backup_local(path)
-    filename: str = store_file_on_s3(
-        path=path,
-        storage_dir=S3_BACKUPS_DIR_PATH)
+        backup_local(path=path, silent=silent)
+    filename: str = \
+        store_file_on_s3(path=path, storage_dir=S3_BACKUPS_DIR_PATH)
     if local_backup_first:
         os.remove(path)
 
@@ -1121,47 +1179,94 @@ def backup_db(path: str = ''):
     return saved_path
 
 
-# TODO
-def restore_using_heroku_postgres(s3_signed_url: str = '', db_url: str = '',
-                                  app_name: str = APP_NAME):
+def s3_signed_url(url: str, sleep: int = 1) -> str:
+    """From an unsigned AWS S3 object URL, generates and returns signed one.
+
+    Args:
+        url (str): Unsigned AWS S3 object URL
+        sleep (int): Amount of time, in seconds,  to sleep after creating URL.
+        Useful for combining with another operation which will use generated
+        URL.
+
+    Returns:
+        str: Signed AWS S3 URL for object
+    """
+    import time
+
+    bucket, key = url.replace('https://', '').split('.s3.amazonaws.com/')
+    s3 = boto3.client('s3')
+    signed_url: str = s3.generate_presigned_url(
+        ClientMethod='get_object',
+        ExpiresIn=7 * 24 * 60 * 60,  # 7 days; maximum
+        Params={
+            'Bucket': bucket,
+            'Key': key
+        }
+    )
+
+    time.sleep(sleep)
+
+    return signed_url
+
+
+def restore_using_heroku_postgres(
+        s3_url: str = '',
+        s3_url_is_signed: bool = False,
+        app_name: str = APP_NAME,
+        silent: bool = False,
+        ok_tells: tuple = ('Restoring... done',)):
     """Restore Heroku PostgreSQL DB using Heroku CLI
 
     Args:
-        s3_signed_url (str): AWS S3 presigned object url  TODO: currently
-         unsigned)
-        db_url (str): Heroku DB 'COLOR' url  TODO: currently normal DB url
+        s3_url (str): AWS S3 unsigned object url. If signed, should pass
+        's3_url_is_signed' param as True.
+        s3_url_is_signed (bool): Is this a S3 signed url? If not, will attempt
+        to sign before doing restore.
         app_name (str): Name of app as recognized by Heroku
+        silent (bool): Don't print updates?
+        ok_tells (tuple(str)): A list of strings to look for in the command
+        result output. If any given 'tell' strings are in the output, we will
+        consider the result to be ok. It is important to note that if using a
+        different version of the Heroku CLI, it is possible that the output
+        will appear to be different. If so, try to find another 'ok tell'
+        inside the output, and add it to the list.
 
     Side effects:
+        - Signs url if needed
         - Restores database
         - Drops any tables and other database objects before recreating them
     """
-    # dl_url: str = s3_signed_url if s3_signed_url else '?'
-    # upload_url = db_url if db_url else '?'
-    dl_url = s3_signed_url
-    upload_url = db_url
+    signed_url: str = s3_url if s3_url_is_signed else s3_signed_url(s3_url)
 
     cmd_str_base: str = \
-        "heroku pg:backups:restore '{s3_signed_url}' {db_url} --app={app}"
+        'heroku pg:backups:restore "{s3_url}" DATABASE_URL ' \
+        '--confirm {app} --app {app}'
     cmd_str: str = cmd_str_base.format(
-        s3_signed_url=dl_url,
-        db_url=upload_url,
+        s3_url=signed_url,
         app=app_name)
-    run_proc(cmd_str)
 
-    # 1: aws s3 presign s3://your-bucket-address/your-object
-    #
-    # 2: DATABASE_URL represents the HEROKU_POSTGRESQL_COLOR_URL of the db
-    # you wish to restore to. You must specify a database configuration
-    # variable to restore the database.
+    output: Dict[str, str] = run_proc(
+        cmd=cmd_str,
+        prints=not silent,
+        raises=False)
+
+    possible_err = output['stderr']
+    apparent_success = not possible_err or \
+        any(x in possible_err for x in ok_tells)
+    if not apparent_success:
+        msg = '\n' + possible_err + \
+              'Offending command: ' + str(cmd_str)
+        raise PmaApiDbInteractionError(msg)
 
 
-def restore_using_pgrestore(path: str, dropdb: bool = False):
+def restore_using_pgrestore(path: str, dropdb: bool = False,
+                            silent: bool = False):
     """Restore postgres datagbase using pg_restore
 
     Args:
         path (str): Path of file to restore
         dropdb (bool): Drop database in process?
+        silent (bool): Don't print updates?
 
     Side effects:
         - Restores database
@@ -1177,14 +1282,17 @@ def restore_using_pgrestore(path: str, dropdb: bool = False):
         drop='--clean ' if dropdb else '')
     cmd: List[str] = cmd_str.split(' ')
 
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            universal_newlines=True)
-    try:
-        for line in iter(proc.stdout.readline, ''):
-            print(line.encode('utf-8'))
-    except AttributeError:
-        print(proc.stdout)
+    proc = subprocess.Popen(
+        cmd, stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True)
+
+    if not silent:
+        try:
+            for line in iter(proc.stdout.readline, ''):
+                print(line.encode('utf-8'))
+        except AttributeError:
+            print(proc.stdout)
 
     errors = proc.stderr.read()
     if errors:
@@ -1360,7 +1468,7 @@ def dataset_version_to_name(version_number: int) -> str:
     """
     err = 'Dataset version {} not found.'.format(str(version_number))
     filename: str = ''
-    datasets: List[Dict[str:str]] = list_cloud_datasets()
+    datasets: List[Dict[str, str]] = list_cloud_datasets()
     for d in datasets:
         if int(d['version_number']) == version_number:
             filename: str = d['name']
@@ -1409,7 +1517,8 @@ def list_s3_objects(bucket_name: str = BUCKET) \
     return result
 
 
-def list_filtered_s3_files(path: str, detailed: bool = True) -> List:
+def list_filtered_s3_files(path: str, detailed: bool = True,
+                           include_e_tag: bool = True) -> List:
     """Gets list of S3 files w/ directories and path prefixes filtered out
 
     Args:
@@ -1417,6 +1526,9 @@ def list_filtered_s3_files(path: str, detailed: bool = True) -> List:
         detailed (bool): Print more than just object/file name? E.g. default
         metadata regarding upload date, custom metadata such as file version,
         etc.
+        include_e_tag (bool): Include AWS S3 auto-generated unique e_tag
+        identifiers? If true, any object dictionaries returned will include
+        the first 6 characters of the e_tag under the key 'id'.
 
     Returns:
         list: Filenames
@@ -1435,17 +1547,20 @@ def list_filtered_s3_files(path: str, detailed: bool = True) -> List:
         names_only: List[str] = [x.key for x in filtered]
         formatted: List[str] = [os.path.basename(x) for x in names_only]
     else:
-        formatted: List[Dict[str:str]] = []
-        basic_metadata: List[Dict[str:str]] = []
-        basic_metadata2: List[Dict[str:str]] = []
+        formatted: List[Dict[str, str]] = []
+        basic_metadata: List[Dict[str, str]] = []
+        basic_metadata2: List[Dict[str, str]] = []
 
         # Get basic metadata ascertainable from filename
         for x in filtered:
-            obj_dict: Dict[str:str] = {
-                'key': x.key,
+            obj_dict: Dict[str, str] = {
+                'key':  x.key,
                 'name': os.path.basename(x.key),
                 'owner': x.owner['DisplayName'],
                 'last_modified': str(x.last_modified)}
+            if include_e_tag:
+                obj_dict['id']: str = \
+                    x.e_tag.replace('"', '').replace("'", "")[0:6]
             basic_metadata.append(obj_dict)
 
         # Get metadata explicitly stored in S3 object
@@ -1454,7 +1569,7 @@ def list_filtered_s3_files(path: str, detailed: bool = True) -> List:
             client = boto3.client('s3')
             obj_metadata_request: Dict = \
                 client.head_object(Bucket=BUCKET, Key=x['key'])
-            obj_metadata: Dict[str:str] = obj_metadata_request['Metadata']
+            obj_metadata: Dict[str, str] = obj_metadata_request['Metadata']
             x2 = {**copy(x), **obj_metadata}
             basic_metadata2.append(x2)
 
@@ -1605,7 +1720,8 @@ def list_ui_data() -> {str: [str]}:
     }
 
 
-def list_datasets(detailed: bool = True) -> {str: [str]}:
+def list_datasets(detailed: bool = True) \
+        -> Dict[str, List[Union[str, Dict[str, str]]]]:
     """List available api data spec files
 
     Args:
@@ -1654,11 +1770,12 @@ def create_superuser(name: str = os.getenv('SUPERUSER_NAME', 'admin'),
         db.session.commit()
 
 
-def restore_db_cloud(filename: str):
+def restore_db_cloud(filename: str, silent: bool = False):
     """Restore database
 
     Args:
         filename (str): Name of file to restore
+        silent (bool): Don't print updates?
 
     Side effects:
         Reverts database to state of backup file
@@ -1668,16 +1785,13 @@ def restore_db_cloud(filename: str):
             filename=filename,
             file_dir=S3_BACKUPS_DIR_PATH,
             dl_dir=BACKUPS_DIR)
-        restore_db_local(path)
+        restore_db_local(path=path, silent=silent)
     else:
         # TODO: make same as test file
         dl_path: str = os.path.join(BACKUPS_DIR, filename)
         dl_url_base = 'https://{bucket}.s3.amazonaws.com/{key}'
         dl_url = dl_url_base.format(bucket=BUCKET, key=dl_path)
-
-        db_url = os.getenv('DATABASE_URL')
-
-        restore_using_heroku_postgres(s3_signed_url=dl_url, db_url=db_url)
+        restore_using_heroku_postgres(s3_url=dl_url, silent=silent)
 
 
 def restore_db(path_or_filename: str):
@@ -1701,11 +1815,12 @@ def restore_db(path_or_filename: str):
         restore_db_cloud(filename)
 
 
-def restore_db_local(path: str):
+def restore_db_local(path: str, silent: bool = False):
     """Restore database
 
     Args:
         path (str): Path to backup file
+        silent (bool): Don't print updates?
 
     Side effects:
         Reverts database to state of backup file
@@ -1728,7 +1843,7 @@ def restore_db_local(path: str):
     # drop_db(hard=True)
 
     try:
-        restore_using_pgrestore(path=path, dropdb=True)
+        restore_using_pgrestore(path=path, dropdb=True, silent=silent)
     except Exception as err:
         if os.path.exists(emergency_backup):
             restore_using_pgrestore(path=emergency_backup, dropdb=True)
@@ -1775,7 +1890,7 @@ def delete_dataset(version_number: int):
     """Delete dataset from storage
 
     Args:
-        version (int): Version of dataset to delete
+        version_number (int): Version of dataset to delete
 
     Side effects:
         - deletes file

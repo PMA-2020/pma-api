@@ -2,7 +2,7 @@
 import os
 import subprocess
 from datetime import datetime
-from typing import List
+from typing import List, Dict
 from uuid import uuid4 as random_uuid
 
 from pma_api.error import PmaApiDbInteractionError, PmaApiException
@@ -73,7 +73,7 @@ def run_proc_and_log_errs(cmd: List):
     proc.wait()
 
 
-def run_proc_simple(cmd, shell: bool = False) -> {str: str}:
+def run_proc_simple(cmd, shell: bool = False) -> Dict[str, str]:
     """Run a process
 
     Helper function to run a process, for boilerplate reduction.
@@ -170,7 +170,7 @@ def _get_bin_path_from_ref_config(bin_name: str, system: bool = False,
 
 
 def run_proc(cmd, shell: bool = False, raises: bool = True,
-             prints: bool = False) -> {str: str}:
+             prints: bool = False) -> Dict[str, str]:
     """Run a process
 
     Wrapper for run_proc_simple. Only adds exception handling.

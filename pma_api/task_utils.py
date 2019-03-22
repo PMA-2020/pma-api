@@ -12,7 +12,8 @@ from werkzeug.datastructures import FileStorage
 
 from pma_api import create_app
 from pma_api.config import data_folder_path, temp_folder_path, \
-    ACCEPTED_DATASET_EXTENSIONS as EXTENSIONS, S3_DATASETS_DIR_PATH
+    ACCEPTED_DATASET_EXTENSIONS as EXTENSIONS, S3_DATASETS_DIR_PATH, \
+    AWS_S3_STORAGE_BUCKETNAME as BUCKET
 from pma_api.error import PmaApiException, DatasetNotFoundError
 from pma_api.models import Dataset
 from pma_api.routes.administration import ExistingDatasetError
@@ -46,8 +47,7 @@ def save_file_from_request(file: FileStorage, file_path: str):
 
 
 # TODO: let off here 03/08/2019
-def download_dataset_from_db(dataset_id: str,
-                             directory: str = data_folder_path()):
+def download_dataset(dataset_id: str, directory: str = data_folder_path()):
     """Download dataset from database to filesystem
 
     Side effects:
@@ -142,24 +142,27 @@ def load_local_dataset_from_db(dataset_id: str) -> FileStorage:
     Returns:
         werkzeug.datastructures.FileStorage: In-memory file, in bytes
     """
-    file_path: str = download_dataset_from_db(dataset_id=dataset_id)
+    file_path: str = download_dataset(dataset_id=dataset_id)
     data: FileStorage = open(file_path, 'rb')
 
     return data
 
 
-def upload(filename: str, file) -> True:
-    """Upload file into database
+def upload_dataset(filename: str, file) -> str:
+    """Upload file to data storage
 
     Args:
         filename (str): File name.
         file: File.
 
+    Side effects:
+        - Stores file on AWS S3 using: store_file_on_s3
+
     Raises:
         ExistingDatasetError: If dataset already exists
 
     Returns:
-        bool: True if successfully runs function without error, else nothing.
+        str: Url where file is stored
     """
     from pma_api.manage.db_mgmt import store_file_on_s3, list_cloud_datasets
     from pma_api.models import Dataset
@@ -176,7 +179,7 @@ def upload(filename: str, file) -> True:
     # 2. Validate
     this_dataset: Dataset = Dataset(tempfile_path)
     this_version: int = this_dataset.version_number
-    uploaded_datasets: List[Dict[str:str]] = list_cloud_datasets()
+    uploaded_datasets: List[Dict[str, str]] = list_cloud_datasets()
     uploaded_versions: List[int] = \
         [int(x['version_number']) for x in uploaded_datasets]
     already_exists: bool = this_version in uploaded_versions
@@ -189,13 +192,19 @@ def upload(filename: str, file) -> True:
         raise ExistingDatasetError(msg)
 
     # 3. Upload file
-    store_file_on_s3(path=tempfile_path, storage_dir=S3_DATASETS_DIR_PATH)
+    filename: str = store_file_on_s3(
+        path=tempfile_path,
+        storage_dir=S3_DATASETS_DIR_PATH)
 
     # 4. Closeout
     if os.path.exists(tempfile_path):
         os.remove(tempfile_path)
+    file_url = 'https://{bucket}.s3.amazonaws.com/{path}{object}'.format(
+        bucket=BUCKET,
+        path=S3_DATASETS_DIR_PATH,
+        object=filename)
 
-    return True
+    return file_url
 
 
 def response_to_task_state(r: requests.Response) -> Dict:
