@@ -4,11 +4,11 @@
   <thead>
     <tr>
 {#      <th></th>  {# Checkbox column #}
-      <th>ID</th>
-      <th>Uploaded date</th>
-      <th>Type</th>
-      <th>Name</th>
+{#      <th>ID</th>#}
       <th>Version</th>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Upload date</th>
       <th>Active</th>
       <th>Actions</th>
 {#      <th>Active: Staging</th>#}
@@ -18,38 +18,42 @@
 {#      {% endif %}#}
     </tr>
     {% for dataset in datasets %}
-      <tr id="{{ dataset.ID }}">
+{#      <tr id="{{ dataset.ID }}">#}
+      <tr id="{{ dataset.version_number }}">
 {#        <td class="dataset-row-checkbox">#}
 {#          <!--suppress HtmlFormInputWithoutLabel -->#}
 {#          <input type="checkbox">#}
 {#        </td>#}
-        <td>{{ dataset.ID }}</td>
-        <td>{{ dataset.upload_date }}</td>
-        <td>{{ dataset.dataset_type }}</td>
-        <td>{{ dataset.dataset_display_name }}</td>
+{#        <td>{{ dataset.ID }}</td>#}
         <td>{{ dataset.version_number }}</td>
+        <td>{{ dataset.dataset_display_name }}</td>
+        <td>{{ dataset.dataset_type }}</td>
+        <td>{{ dataset.upload_date }}</td>
         <td>
           {% if dataset.active %}
             <i class="fas fa-check"></i>
           {% else %}
-            <a id="activate-link-{{ dataset.ID }}" href="#">
-              <button type="button" class="btn btn-outline-dark activate-button"
-                id="activate-button-{{ dataset.ID }}">
+            <a id="activate-link-{{ dataset.version_number }}" href="#">
+              <button type="button"
+                class="btn btn-outline-dark activate-button"
+                id="activate-button-{{ dataset.version_number }}">
                 Activate
               </button>
             </a>
           {% endif %}
         </td>
         <td>
-          <a id="download-link-{{ dataset.ID }}"  href="#">
-            <button type="button" class="btn btn-outline-dark"
-              id="download-button-{{ dataset.ID }}">
+          <a id="download-link-{{ dataset.version_number }}"  href="#">
+            <button type="button"
+              class="btn btn-outline-dark  download-button"
+              id="download-button-{{ dataset.version_number }}">
               <i class="fas fa-download"></i>
             </button>
           </a>
-          <a id="delete-link-{{ dataset.ID }}"  href="#">
-            <button type="button" class="btn btn-outline-dark"
-              id="delete-button-{{ dataset.ID }}">
+          <a id="delete-link-{{ dataset.version_number }}"  href="#">
+            <button type="button"
+              class="btn btn-outline-dark delete-button"
+              id="delete-button-{{ dataset.version_number }}">
               <i class="fas fa-trash"></i>
             </button>
           </a>

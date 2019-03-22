@@ -4,8 +4,7 @@ import os
 from io import BytesIO
 from json import JSONDecodeError
 
-from sqlalchemy.exc import IntegrityError
-from typing import Dict
+from typing import Dict, List
 
 import requests
 from flask import current_app
@@ -13,7 +12,7 @@ from werkzeug.datastructures import FileStorage
 
 from pma_api import create_app
 from pma_api.config import data_folder_path, temp_folder_path, \
-    ACCEPTED_DATASET_EXTENSIONS as EXTENSIONS
+    ACCEPTED_DATASET_EXTENSIONS as EXTENSIONS, S3_DATASETS_DIR_PATH
 from pma_api.error import PmaApiException, DatasetNotFoundError
 from pma_api.models import Dataset
 from pma_api.routes.administration import ExistingDatasetError
@@ -149,7 +148,7 @@ def load_local_dataset_from_db(dataset_id: str) -> FileStorage:
     return data
 
 
-def upload(filename: str, file):
+def upload(filename: str, file) -> True:
     """Upload file into database
 
     Args:
@@ -158,31 +157,45 @@ def upload(filename: str, file):
 
     Raises:
         ExistingDatasetError: If dataset already exists
-    """
-    from pma_api.models import Dataset, db
 
+    Returns:
+        bool: True if successfully runs function without error, else nothing.
+    """
+    from pma_api.manage.db_mgmt import store_file_on_s3, list_cloud_datasets
+    from pma_api.models import Dataset
+
+    # 1. Save file
     default_ext = 'xlsx'
     has_ext: bool = any(filename.endswith(x) for x in EXTENSIONS)
     filename_with_ext: str = filename if has_ext \
         else filename + '.' + default_ext
     tempfile_path: str = os.path.join(temp_folder_path(), filename_with_ext)
+
     save_file_from_request(file=file, file_path=tempfile_path)
 
-    new_dataset = Dataset(tempfile_path)
-    db.session.add(new_dataset)
-    try:
-        db.session.commit()
-    except IntegrityError as err:
-        db.session.rollback()
-        if 'already exists' in str(err):
-            msg = 'Error: A dataset named "{}" already exists in DB.'\
-                .format(filename)
-            raise ExistingDatasetError(msg)
-        else:
-            raise err
-    finally:
+    # 2. Validate
+    this_dataset: Dataset = Dataset(tempfile_path)
+    this_version: int = this_dataset.version_number
+    uploaded_datasets: List[Dict[str:str]] = list_cloud_datasets()
+    uploaded_versions: List[int] = \
+        [int(x['version_number']) for x in uploaded_datasets]
+    already_exists: bool = this_version in uploaded_versions
+
+    if already_exists:
+        msg = 'ExistingDatasetError: Dataset version "{}" already exists.'\
+            .format(str(this_version))
         if os.path.exists(tempfile_path):
             os.remove(tempfile_path)
+        raise ExistingDatasetError(msg)
+
+    # 3. Upload file
+    store_file_on_s3(path=tempfile_path, storage_dir=S3_DATASETS_DIR_PATH)
+
+    # 4. Closeout
+    if os.path.exists(tempfile_path):
+        os.remove(tempfile_path)
+
+    return True
 
 
 def response_to_task_state(r: requests.Response) -> Dict:

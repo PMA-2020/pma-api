@@ -67,6 +67,7 @@ LOCAL_DEVELOPMENT_URL: str = os.getenv(
 ASYNC_SECONDS_BETWEEN_STATUS_CHECKS = 5
 
 
+# TODO: Replace these two functions with a constant that uses pathlib / os.path
 def temp_folder_path() -> str:
     """Get the path to temp upload folder.
 

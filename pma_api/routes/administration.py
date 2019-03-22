@@ -1,8 +1,9 @@
 """Administration related routes"""
-from io import BytesIO
 import os
+from typing import List, Dict
 
-from flask import jsonify, request, render_template, send_file, url_for
+from flask import jsonify, request, render_template, send_file, url_for, \
+    flash, redirect
 from flask_user import login_required
 from werkzeug.datastructures import FileStorage, ImmutableDict
 from werkzeug.utils import secure_filename
@@ -38,16 +39,17 @@ def admin_route():
     Receives a file uploaded, which is of the type:
     ImmutableMultiDict([('file', <FileStorage: 'FILENAME' ('FILETYPE')>)])
     """
-    from pma_api.models import Dataset
+    from pma_api.manage.db_mgmt import list_cloud_datasets, download_dataset, \
+        delete_dataset
     from pma_api.task_utils import upload
 
-    # for uploads
+    # upload
     if request.method == 'POST':
         try:
             file = request.files['file']
             filename = secure_filename(file.filename)
-            upload(filename=filename, file=file)
-            return jsonify({'success': True})
+            success: bool = upload(filename=filename, file=file)
+            return jsonify({'success': success})
         except ExistingDatasetError as err:
             return jsonify({'success': False, 'message': str(err)})
         except Exception as err:
@@ -59,15 +61,24 @@ def admin_route():
             args = request.args.to_dict()
 
             if 'download' in args:
-                file_obj = Dataset.query.filter_by(
-                    dataset_display_name=args['download']).first()
+                # TODO: Delete tempfile after sending
+                tempfile_path: str = download_dataset(
+                    version_number=int(args['download']))
                 return send_file(
-                    filename_or_fp=BytesIO(file_obj.data),
-                    attachment_filename=file_obj.dataset_display_name,
+                    filename_or_fp=tempfile_path,
+                    attachment_filename=os.path.basename(tempfile_path),
                     as_attachment=True)
 
-            # TODO: @Joe/Richard: Apply dataset.
-            elif 'applyStaging' or 'applyProduction' or 'activate' in args:
+            if 'delete' in args:
+                try:
+                    delete_dataset(version_number=int(args['delete']))
+                except FileNotFoundError as err:
+                    msg = 'FileNotFoundError: ' + str(err)
+                    flash(message=msg, category='error')
+                return redirect(url_for('root.admin_route'))
+
+            activation_args = ('activate', 'applyStaging', 'applyProduction')
+            if any(x in args for x in activation_args):
                 dataset_name, server_url = '', ''
                 if 'activate' in args:
                     # TODO: If already active, return 'already active!'
@@ -86,7 +97,7 @@ def admin_route():
                     activate_dataset_request(dataset_id=dataset_name,
                                              destination_host_url=server_url)
 
-        datasets = Dataset.query.all()
+        datasets: List[Dict[str:str]] = list_cloud_datasets()
         this_env = os.getenv('ENV_NAME', 'development')
 
         return render_template('admin.html',

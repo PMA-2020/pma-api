@@ -25,7 +25,7 @@ from pma_api.config import DATA_DIR, BACKUPS_DIR, Config, \
     BUCKET, S3_BACKUPS_DIR_PATH, S3_DATASETS_DIR_PATH, S3_UI_DATA_DIR_PATH, \
     UI_DATA_DIR, DATASETS_DIR, API_DATASET_FILE_PREFIX as API_PREFIX, \
     UI_DATASET_FILE_PREFIX as UI_PREFIX, HEROKU_INSTANCE_APP_NAME as APP_NAME,\
-    FILE_LIST_IGNORES
+    FILE_LIST_IGNORES, temp_folder_path
 from pma_api.error import InvalidDataFileError, PmaApiDbInteractionError, \
     PmaApiException
 from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
@@ -982,7 +982,7 @@ def backup_local(path: str = '') -> str:
 
 @aws_s3
 def store_file_on_s3(path: str, storage_dir: str = ''):
-    """Given path to file on local file system, push file to AWS S3
+    """Given path to file on local file system, upload file to AWS S3
 
     Prerequisites:
         Environmental variable setup: https://boto3.amazonaws.com/v1/
@@ -1317,21 +1317,22 @@ def create_db(name: str = 'pmaapi', with_schema: bool = True):
 #
 #
 @aws_s3
-def download_file_from_s3(filename: str, directory: str):
+def download_file_from_s3(filename: str, file_dir: str, dl_dir: str) -> str:
     """Download a file from AWS S3
 
     Args:
         filename (str): Name of file to restore
-        directory (str): Path to directory to store file
+        file_dir (str): Path to dir where file is stored
+        dl_dir (str): Path to directory to download file
 
     Returns:
-        str: path to downloaded file
+        str: Path to downloaded file
     """
     from botocore.exceptions import ClientError
 
     s3 = boto3.resource('s3')
-    download_to_path: str = S3_BACKUPS_DIR_PATH + filename
-    download_from_path: str = os.path.join(directory, filename)
+    download_to_path: str = file_dir + filename
+    download_from_path: str = os.path.join(dl_dir, filename)
 
     try:
         s3.Bucket(BUCKET).download_file(download_to_path, download_from_path)
@@ -1343,6 +1344,50 @@ def download_file_from_s3(filename: str, directory: str):
         raise PmaApiDbInteractionError(msg)
 
     return download_from_path
+
+
+def dataset_version_to_name(version_number: int) -> str:
+    """From dataset version number, get dataset name
+
+    Args:
+        version_number (int): Version number of dataset file
+
+    Raises:
+        FileNotFoundError: If dataset version not found on S3.
+
+    Returns:
+        str: Dataset name
+    """
+    err = 'Dataset version {} not found.'.format(str(version_number))
+    filename: str = ''
+    datasets: List[Dict[str:str]] = list_cloud_datasets()
+    for d in datasets:
+        if int(d['version_number']) == version_number:
+            filename: str = d['name']
+
+    if not filename:
+        raise FileNotFoundError(err)
+
+    return filename
+
+
+def download_dataset(version_number: int) -> str:
+    """Download dataset file from AWS S3
+
+    Args:
+        version_number (int): Version number of dataset file to download
+
+    Returns:
+        str: Path to downloaded file
+    """
+    filename: str = dataset_version_to_name(version_number)
+
+    downloaded_file_path: str = download_file_from_s3(
+        filename=filename,
+        file_dir=S3_DATASETS_DIR_PATH,
+        dl_dir=temp_folder_path())
+
+    return downloaded_file_path
 
 
 @aws_s3
@@ -1364,7 +1409,7 @@ def list_s3_objects(bucket_name: str = BUCKET) \
     return result
 
 
-def list_filtered_s3_files(path: str, detailed: bool = False) -> []:
+def list_filtered_s3_files(path: str, detailed: bool = True) -> List:
     """Gets list of S3 files w/ directories and path prefixes filtered out
 
     Args:
@@ -1444,7 +1489,7 @@ def list_cloud_ui_data() -> [str]:
     return files
 
 
-def list_cloud_datasets(detailed: bool = False) -> [str]:
+def list_cloud_datasets(detailed: bool = True) -> List:
     """List pma api dataset spec files on AWS S3
 
     Args:
@@ -1619,8 +1664,10 @@ def restore_db_cloud(filename: str):
         Reverts database to state of backup file
     """
     if os.getenv('ENV_NAME') == 'development':
-        path: str = download_file_from_s3(filename=filename,
-                                          directory=BACKUPS_DIR)
+        path: str = download_file_from_s3(
+            filename=filename,
+            file_dir=S3_BACKUPS_DIR_PATH,
+            dl_dir=BACKUPS_DIR)
         restore_db_local(path)
     else:
         # TODO: make same as test file
@@ -1695,11 +1742,11 @@ def restore_db_local(path: str):
 
 
 @aws_s3
-def delete_s3_file(filename: str):
+def delete_s3_file(file_path: str):
     """Delete a file from AWS S3
 
     Args:
-        filename (str): Name of file
+        file_path (str): Path to file on S3
 
     Side effects:
         - deletes file
@@ -1707,4 +1754,33 @@ def delete_s3_file(filename: str):
     import boto3
 
     s3 = boto3.resource('s3')
-    s3.Object(BUCKET, filename).delete()
+    s3.Object(BUCKET, file_path).delete()
+
+
+def delete_backup(filename: str):
+    """Delete backup file from storage
+
+    Args:
+        filename (str): Name of file
+
+    Side effects:
+        - deletes file
+    """
+    file_path: str = os.path.join(S3_BACKUPS_DIR_PATH, filename)
+
+    delete_s3_file(file_path)
+
+
+def delete_dataset(version_number: int):
+    """Delete dataset from storage
+
+    Args:
+        version (int): Version of dataset to delete
+
+    Side effects:
+        - deletes file
+    """
+    filename: str = dataset_version_to_name(version_number)
+    file_path: str = os.path.join(S3_DATASETS_DIR_PATH, filename)
+
+    delete_s3_file(file_path)
