@@ -10,12 +10,15 @@ PROJECT_ROOT_DIR = \
     os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 load_dotenv(dotenv_path=Path(PROJECT_ROOT_DIR) / '.env')
 
-DATA_DIR = os.path.abspath(os.path.join(PROJECT_ROOT_DIR, 'data'))
-BINARY_DIR = os.path.abspath(os.path.join(PROJECT_ROOT_DIR, 'pma_api', 'bin'))
-DATASETS_DIR = DATA_DIR
-UI_DATA_DIR = DATA_DIR
+DATA_DIR: str = os.path.abspath(os.path.join(PROJECT_ROOT_DIR, 'data'))
+BINARY_DIR: str = \
+    os.path.abspath(os.path.join(PROJECT_ROOT_DIR, 'pma_api', 'bin'))
+DATASETS_DIR: str = DATA_DIR
+UI_DATA_DIR: str = DATA_DIR
 BACKUPS_DIR: str = os.path.abspath(os.path.join(DATA_DIR, 'db_backups'))
 LOGS_DIR: str = os.path.abspath(os.path.join(PROJECT_ROOT_DIR, 'logs'))
+MIGRATIONS_DIR: str = \
+    os.path.abspath(os.path.join(PROJECT_ROOT_DIR, 'migrations'))
 ERROR_LOG_PATH = os.path.join(LOGS_DIR, 'error-logfile.log')
 # noinspection PyUnresolvedReferences
 PID_FILE_PATH: str = os.path.join(PROJECT_ROOT_DIR, 'pma-api_process-id.pid')

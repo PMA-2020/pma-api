@@ -15,22 +15,21 @@ import os
 import time
 import unittest
 from glob import glob
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Callable
 
-from flask import Response
+from flask import Response, Flask
 from sqlalchemy.exc import OperationalError
 
 # import xlrd
 # from manage import app
 from manage import app, initdb
 from pma_api.config import AWS_S3_STORAGE_BUCKETNAME as BUCKET, \
-    S3_BACKUPS_DIR_PATH
+    S3_BACKUPS_DIR_PATH, MIGRATIONS_DIR
 # from pma_api.tasks import activate_dataset_request
-from pma_api.manage.db_mgmt import list_datasets, store_file_on_s3
 from pma_api.manage.db_mgmt import restore_db_local, new_backup_path, \
     backup_local, restore_db_cloud, delete_s3_file, download_file_from_s3, \
-    backup_db_cloud, backup_local_using_heroku_postgres, \
-    restore_using_heroku_postgres
+    backup_db_cloud, backup_local_using_heroku_postgres, is_db_empty, \
+    restore_using_heroku_postgres, list_datasets, store_file_on_s3
 # write_data_file_to_db, \
 # remove_stata_undefined_token_from_wb as \
 # remove_stata_undefined_token_from_wb_imported
@@ -313,11 +312,14 @@ class TestDbFunctions(PmaApiTest):
     """Test database functions"""
 
     # Warning: If enabled, will erase DB.
-    db_overwrite_enabled = os.getenv('OVERWRITE_TEST_ENABLED', False)
-    backup_kb_threshold = 200
-    backup_msg = 'Backup file didn\'t meet expected minimum threshold of {} '\
-                 'kb.'.format(str(backup_kb_threshold))
-    live_test_app_name = 'pma-api-staging'
+    db_overwrite_enabled: bool = \
+        bool(os.getenv('OVERWRITE_TEST_ENABLED', False))
+    backup_kb_threshold: int = 200
+    backup_msg: str = 'Backup file didn\'t meet expected minimum threshold ' \
+        'of {} kb.'.format(str(backup_kb_threshold))
+    live_test_app_name: str = 'pma-api-staging'
+    live_app: Flask = app
+    db_empty: bool = is_db_empty(live_app)
 
     # def setUp(self):
     #     """Setup"""
@@ -528,19 +530,221 @@ class TestDbFunctions(PmaApiTest):
 
         self.assertTrue(True)  # no-op; If no errors until here, we're ok
 
-    def t6_initdb_overwrite_empty_db(self):
-        """Test initdb with full db overwrite without any exceptions"""
-        enabled: bool = TestDbFunctions.db_overwrite_enabled
-        if enabled:
-            for file in self.get_method_static_files():
-                self.initdb_overwrite(path=file)
+    @staticmethod
+    def local__db_exists__test_empty():
+        """initdb --overwrite test case static helper function"""
+        pass
 
-    # def t7_initdb_overwrite(self):
+    @staticmethod
+    def local__db_exists__test_exists():
+        """initdb --overwrite test case static helper function"""
+        pass
+
+    @staticmethod
+    def local__db_empty__test_empty():
+        """initdb --overwrite test case static helper function"""
+        pass
+
+    @staticmethod
+    def local__db_empty__test_exists():
+        """initdb --overwrite test case static helper function"""
+        pass
+
+    @staticmethod
+    def deploy__db_exists__test_empty():
+        """initdb --overwrite test case static helper function"""
+        pass
+
+    @staticmethod
+    def deploy__db_exists__test_exists():
+        """initdb --overwrite test case static helper function"""
+        pass
+
+    @staticmethod
+    def deploy__db_empty__test_empty():
+        """initdb --overwrite test case static helper function"""
+        pass
+
+    @staticmethod
+    def deploy__db_empty__test_exists():
+        """initdb --overwrite test case static helper function"""
+        pass
+
+    # TODO: Finish all test cases
+    # TODO: Currently, empty test only runs if db presently empty, and exist
+    #  test only runs if exists. Make it so that a second db is set up (SqlLite
+    #  in case of server deployment?) to run the other test.
+    def xxx_t6_initdb_overwrite(self):
+        """Test initdb with full db overwrite without any exceptions
+
+        The way in which this test needs to work varies based on whether the
+        app is currently running locally or on a server deployment, and whether
+        or not the db already exists (or rather, has tables w/ data or tables
+        at all).
+        """
+        env: str = os.getenv('ENV_NAME', 'development')
+        locality: str = 'local' if env == 'development' else 'deploy'
+        state: str = 'db-empty' if self.db_empty else 'db-exists'
+
+        possible_test_states: Dict[Dict[str, Union[bool, Callable]]] = {
+            'local__db_exists__test_empty': {
+                'run_condition': locality == 'local' and state == 'db_empty',
+                'test_function': self.local__db_exists__test_empty
+            },
+            'local__db_exists__test_exists': {
+                'run_condition': locality == 'local' and state == 'db_exists',
+                'test_function': self.local__db_exists__test_exists
+            },
+            'local__db_empty__test_empty': {
+                'run_condition': locality == 'local' and state == 'db_empty',
+                'test_function': self.local__db_empty__test_empty
+            },
+            'local__db_empty__test_exists': {
+                'run_condition': locality == 'local' and state == 'db_exists',
+                'test_function': self.local__db_empty__test_exists
+            },
+            'deploy__db_exists__test_empty': {
+                'run_condition': locality == 'deploy' and state == 'db_empty',
+                'test_function': self.deploy__db_exists__test_empty
+            },
+            'deploy__db_exists__test_exists': {
+                'run_condition': locality == 'deploy' and state == 'db_exists',
+                'test_function': self.deploy__db_exists__test_exists
+            },
+            'deploy__db_empty__test_empty': {
+                'run_condition': locality == 'deploy' and state == 'db_empty',
+                'test_function': self.deploy__db_empty__test_empty
+            },
+            'deploy__db_empty__test_exists': {
+                'run_condition': locality == 'deploy' and state == 'db_exists',
+                'test_function': self.deploy__db_empty__test_exists
+            }
+        }
+
+        for case_name, case in possible_test_states.items():
+            if case['run_condition']:
+                case['test_function']()
+
+    # def t6_initdb_overwrite(self):
     #     """Test initdb with full db overwrite without any exceptions"""
-    #     enabled: bool = TestDbFunctions.db_overwrite_enabled
-    #     if enabled:
-    #         for file in self.get_method_static_files():
-    #             self.initdb_overwrite(path=file)
+    # enabled: bool = TestDbFunctions.db_overwrite_enabled
+    # if enabled:
+    #     for file in self.get_method_static_files():
+    #         self.initdb_overwrite(path=file)
+
+    @staticmethod
+    def migrate_head_uptodate_test() -> bool:
+        """DB migration test static helper function
+
+        Side effects:
+            - Updates db
+
+        Returns:
+            bool: Whether test case passed as expected.
+        """
+        pass  # TODO
+        return True
+
+    @staticmethod
+    def migrate_head_behind_test() -> bool:
+        """DB migration test static helper function
+
+        Side effects:
+            - Updates db
+
+        Returns:
+            bool: Whether test case passed as expected.
+        """
+        pass  # TODO
+        return True
+
+    @staticmethod
+    def make_migrate_head_behind():
+        """DB migration test static helper function
+
+        Side effects:
+            - Alters db schema
+        """
+        pass
+
+    @staticmethod
+    def make_migrate_head_updtodate():
+        """DB migration test static helper function
+
+        Side effects:
+            - Alters db schema
+        """
+        pass
+
+    @staticmethod
+    def is_migrate_head_uptodate() -> bool:
+        """DB migration test static helper function
+
+        Returns:
+            bool: Whether or not DB migration head is up-to-date.
+        """
+        # TODO - just exploring atm
+        # from flask_migrate import history, show, heads, current
+        from flask_migrate import history, heads, current
+
+        print('#### is_migrate_head_uptodate ####')
+        print()
+
+        print('HISTORY')
+        history1 = history(directory=MIGRATIONS_DIR)
+        print(history1)  # 388699aff39e -> 9cc156e2d528 (head), empty message
+        print()
+
+        # print('SHOW')
+        # show1 = show(directory=MIGRATIONS_DIR)
+        # print(show1)  # Head details
+        # print()
+
+        print('HEADS')
+        heads1 = heads(directory=MIGRATIONS_DIR)
+        print(heads1)  # Head hash(es)
+        print()
+
+        print('CURRENT')
+        current1 = current(directory=MIGRATIONS_DIR)
+        print(current1)  # Head hash (w/ stderr)
+        print()
+
+        # TODO: Testing some scenarios manually
+        #  1. Present db state is multiple (2) revisions behind
+        #  2. Presnt db is 1 rev behind
+        #  3. No migration history?
+        #  4. Mutation w/ no rev
+        #    User.last_name -> LAST_NAME w/ no migrate commit
+
+        return True
+
+    # TODO: Finish the above helper functions
+    def t7_migrations(self):
+        """Test database migrations
+
+        Side effects:
+            - Alters database schema
+            - Initiaizes db if doesn't exist
+        """
+        with self.live_app.app_context():
+            if self.db_empty:
+                for file in self.get_method_static_files():
+                    self.initdb_overwrite(path=file)
+
+            migrate_head_uptodate: bool = self.is_migrate_head_uptodate()
+
+            if migrate_head_uptodate:
+                test1: bool = self.migrate_head_uptodate_test()
+                self.make_migrate_head_behind()
+                test2: bool = self.migrate_head_behind_test()
+            else:
+                test1: bool = self.migrate_head_behind_test()
+                self.make_migrate_head_updtodate()
+                test2: bool = self.migrate_head_uptodate_test()
+
+        self.assertTrue(test1)
+        self.assertTrue(test2)
 
     def test_db_functions_sequentially(self):
         """Test sequentially

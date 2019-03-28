@@ -277,4 +277,9 @@ list-backups:
 
 # Task queues
 celery:
-	celery worker --app=pma_api.tasks.celery --loglevel=info
+	celery worker \
+	--app=pma_api.tasks.celery \
+	--loglevel=info \
+	--without-gossip \
+	--without-mingle \
+	--without-heartbeat

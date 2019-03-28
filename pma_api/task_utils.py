@@ -240,7 +240,7 @@ def response_to_task_state(r: requests.Response) -> Dict:
 
 
 def progress_update_callback(celery_obj, verbose=False):
-    """Progress update callback
+    """Progress update callback generator
 
     Args:
         celery_obj: Celery object
@@ -250,11 +250,12 @@ def progress_update_callback(celery_obj, verbose=False):
         celery_obj.update_state: Updates task state.
     """
     while True:
-        update_obj = yield
+        update_obj: Dict = yield
         status, current = update_obj['status'], update_obj['current']
         if verbose:
             percent: str = str(int(current * 100)) + '%'
             print('{} ({})'.format(status, percent))
+        # TODO: We will only need below. move this into celery task
         celery_obj.update_state(state='PROGRESS', meta={
             'status': status,
             'current': current,

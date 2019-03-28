@@ -5,7 +5,7 @@
 import os
 import time
 
-from typing import Dict
+from typing import Dict, Generator
 
 import requests
 from celery import Celery
@@ -15,7 +15,8 @@ from werkzeug.datastructures import FileStorage
 from pma_api import create_app
 from pma_api.config import data_folder_path, \
     ASYNC_SECONDS_BETWEEN_STATUS_CHECKS as TICK_SECONDS
-from pma_api.manage.db_mgmt import initdb_from_wb
+from pma_api.manage.db_mgmt import initdb_from_wb, TaskTracker, \
+    current_sub_tasks_new
 from pma_api.utils import join_url_parts
 from pma_api.task_utils import progress_update_callback, \
     load_local_dataset_from_db, response_to_task_state, \
@@ -126,7 +127,8 @@ def activate_dataset_to_self(self, dataset_id: str) -> Dict:
     Returns:
         dict: Results.
     """
-    callback = progress_update_callback(celery_obj=self, verbose=True)
+    callback: Generator = \
+        progress_update_callback(celery_obj=self, verbose=True)
     next(callback)
 
     file_path: str = download_dataset(
@@ -134,8 +136,11 @@ def activate_dataset_to_self(self, dataset_id: str) -> Dict:
         directory=data_folder_path())
 
     app.config.SQLALCHEMY_ECHO = False  # TODO: temp
-    # TODO: with incremental uploads, set overwrite=False unless an
+    # TODO (later): with incremental uploads, set overwrite=False unless an
     #  overwrite param is specified (can add to admin portal ui)
+
+    # TODO: 2019-03-27: Initialize TaskTracker here. And pass
+    task_tracker = TaskTracker(queue=current_sub_tasks_new)
     initdb_from_wb(
         callback=callback,
         api_file_path=file_path,

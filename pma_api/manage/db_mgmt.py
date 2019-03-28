@@ -8,7 +8,7 @@ import subprocess
 from copy import copy
 from datetime import datetime
 from time import time
-from typing import List, Tuple, Dict, Union
+from typing import List, Tuple, Dict, Union, Callable, Generator
 
 import boto3
 import xlrd
@@ -110,17 +110,16 @@ env_access_err_msg = \
 class TaskTracker:
     """Tracks progress of task queue"""
 
-    # noinspection PyDefaultArgument
-    def __init__(self, queue: List[str] = [], silent: bool = False,
-                 name: str = '', callback=None):
+    def __init__(self, queue: List[str] = None, silent: bool = False,
+                 name: str = '', callback: Generator = None):
         """Tracks progress of task queue
 
         If queue is empty, calls to TaskTracker methods will do nothing.
 
         Args:
-            queue (list): List of progress statements to display for each
+            queue: List of progress statements to display for each
             iteration of the queue.
-            silent (bool): Don't print updates?
+            silent: Don't print updates?
             callback: Callback function to use for every iteration
             of the queue. This callback must take a single dictionary as its
             parameter, with the following schema...
@@ -128,13 +127,13 @@ class TaskTracker:
             ...where the value of 'current' is a float with value between 0
             and 1.
         """
-        self.queue: List[str] = queue
-        self.silent: bool = silent
+        self.queue: List[str] = queue if queue else []
+        self.silent = silent
         self.name = name
         self.callback = callback
-        self.tot_sub_tasks: int = len(queue)
-        self.status: str = 'PENDING'
-        self.completion_ratio: float = float(0)
+        self.tot_sub_tasks = len(queue) if queue else 0
+        self.status = 'PENDING'
+        self.completion_ratio = float(0)
 
     def _report(self, silence_status: bool = False,
                 silence_percent: bool = False):
@@ -545,18 +544,37 @@ def get_datasheet_names(path: str) -> List[str]:
     return datasheet_names
 
 
-def _is_db_empty() -> bool:
+def is_db_empty(_app: Flask = current_app) -> bool:
     """Is database empty or not?
 
-    Empty is defined here as a DB that has been created, but has no tables.
+    Empty is defined here as a DB that has been created, but has no tables. As
+    a proxy for this ideal way of telling if DB is empty, this function
+    currently just checks if there is any data in the 'data' table.
+
+    Args:
+        _app (Flask): Flask application for context
 
     Returns:
         bool: True if empty, else False
     """
-    empty: bool = False
+    with _app.app_context():
+        data_present: Data = Data.query.first()
+        empty: bool = not data_present
 
     return empty
 
+# TODO: Use this or class-based?
+# ordered
+current_sub_tasks_new = {
+    'backup': {
+        'prints': 'Backing up database',
+        'pct_starts_at': 0  # ?
+    },
+    'upload_data': {
+        'prints': '',
+        'pct_starts_at': 20  # ?
+    }
+}
 
 # TODO: Utilize 'force'
 # noinspection PyUnusedLocal
@@ -566,7 +584,7 @@ def initdb_from_wb(
     ui_file_path: str = get_ui_data(),
     overwrite: bool = False,
     force: bool = False,
-    callback=None) \
+    callback: Generator = None) \
         -> dict:
     """Create the database.
 
@@ -593,27 +611,32 @@ def initdb_from_wb(
         dict: Results
     """
     # TODO: Use alembic if any tables exist, else not
-    # fresh_db: bool = _is_db_empty()
-    #
-    # # TODO: temp
-    # return 'Currently just testing _is_db_empty(). Stopping execution now.'
+    fresh_db: bool = is_db_empty(_app)
 
     retore_msg = 'An issue occurred. Restoring database to state it was in ' \
                  'prior to task initialization.'
     current_sub_tasks: List[str] = [
+        # TODO: These fixed steps up to 'data' table are 0-20
         'Backing up database'] + (
+        # TODO: This is now: This should always happen
         ['Dropping tables'] if overwrite else []) + [
         'Creating tables'] + [
-        'Uploading data for table: {}'
+        'Uploading metadata: {}'
             .format(x[0]) for x in METADATA_MODEL_MAP] + [
         'Updating translations'] + [
-        'Uploading data for table: {}'
+        # TODO: 20-90
+        'Uploading data: {}'
             .format(x) for x in get_datasheet_names(api_file_path)] + [
+        # TODO: 90-100
         'Updating translations'
         'Creating cache',
         'Backing up resulting database']
+
     # tot_sub_tasks: int = len(current_sub_tasks)
-    progress = TaskTracker(queue=current_sub_tasks,
+
+    # TODO: 1. How implement this without TaskTracker()?
+    # TODO: 2. If Upload to S3 is part of task, how show that?
+    task_tracker = TaskTracker(queue=current_sub_tasks,
                            callback=callback,
                            name='Initialize database'
                                 '\n - Dataset: ' + api_file_path)
@@ -639,7 +662,10 @@ def initdb_from_wb(
             # Troubleshooting
             # from pdb import set_trace; set_trace()
 
-            progress.next()
+            # TODO: Change to this:
+            #  task_tracker.begin('download')
+            #  or task_tracker.begin_download()
+            task_tracker.next()
             try:
                 backup_path: str = backup_db()
             except Exception as err:
@@ -647,12 +673,12 @@ def initdb_from_wb(
 
             # Delete all tables except for 'datasets'
             if overwrite:
-                progress.next()
+                task_tracker.next()
                 drop_tables()
                 # Dataset.register_all_inactive()
 
             # Create tables
-            progress.next()
+            task_tracker.next()
             # TODO: Consider not using db.create_all() and use migrate instead?
             #  What if brand new deploy?
             # db.create_all()
@@ -666,12 +692,12 @@ def initdb_from_wb(
                 # TODO: init_from_datasets_table if exists in db already?
                 init_from_workbook(wb=api_file_path,
                                    queue=ORDERED_MODEL_MAP,
-                                   progress_updater=progress)
+                                   progress_updater=task_tracker)
                 init_from_workbook(wb=ui_file_path,
                                    queue=TRANSLATION_MODEL_MAP,
-                                   progress_updater=progress)
+                                   progress_updater=task_tracker)
 
-                progress.next()
+                task_tracker.next()
                 try:
                     Cache.cache_datalab_init(_app)
                 except RuntimeError as err:
@@ -682,7 +708,7 @@ def initdb_from_wb(
 
             # dataset.register_active()
 
-            progress.next()
+            task_tracker.next()
             try:
                 backup_path: str = backup_db()
             except Exception as err:
@@ -709,7 +735,7 @@ def initdb_from_wb(
         status['current'] = 1
         status['status'] = 'Finished'
 
-        progress.complete()
+        task_tracker.complete()
 
         return status
 
