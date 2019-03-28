@@ -1,4 +1,6 @@
 """Routes related to the datalab."""
+from typing import Dict, List
+
 from flask import request
 
 from pma_api.config import REFERENCES
@@ -178,8 +180,8 @@ def get_datalab_data():
         json_list = DatalabData.filter_readable(survey, indicator, char_grp,
                                                 lang)
         return QuerySetApiResult(json_list, response_format)
-    json_list = DatalabData.filter_minimal(survey, indicator, char_grp,
-                                           over_time)
+    json_list: List[Dict] = \
+        DatalabData.filter_minimal(survey, indicator, char_grp, over_time)
     precisions = list(x['precision'] for x in json_list if x['precision'] is
                       not None)
     min_precision = min(precisions) if precisions else DEFAULT_PRECISION

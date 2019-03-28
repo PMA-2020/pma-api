@@ -8,7 +8,7 @@
       <th>Version</th>
       <th>Name</th>
       <th>Type</th>
-      <th>Upload date</th>
+      <th>Uploaded</th>
       <th>Active</th>
       <th>Actions</th>
 {#      <th>Active: Staging</th>#}
@@ -28,7 +28,7 @@
         <td>{{ dataset.version_number }}</td>
         <td>{{ dataset.dataset_display_name }}</td>
         <td>{{ dataset.dataset_type }}</td>
-        <td>{{ dataset.upload_date }}</td>
+        <td>{{ dataset.last_modified }}</td>
         <td>
           {% if dataset.active %}
             <i class="fas fa-check"></i>

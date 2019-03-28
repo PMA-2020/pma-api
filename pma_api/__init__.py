@@ -8,7 +8,7 @@ from flask_user import UserManager
 from pma_api.models import db
 
 
-def create_app(config_name=os.getenv('ENV_NAME', 'default')):
+def create_app(config_name: str = os.getenv('ENV_NAME', 'default')):
     """Create configured Flask application.
 
     Args:
@@ -22,20 +22,13 @@ def create_app(config_name=os.getenv('ENV_NAME', 'default')):
     from pma_api.models import User
     from pma_api.routes import root
 
-    # noinspection PyShadowingNames
     app = PmaApiFlask(__name__)
     app.config.from_object(config[config_name])
 
     CORS(app)
-    # logging.getLogger('flask_cors').level = logging.DEBUG  # TODO: Temp
 
     db.init_app(app)
-
-    # TODO: Following quickstart; Not sure why assigned and not just declared
-    #  - jef 2019/03/11
-    # noinspection PyUnusedLocal
-    user_manager = UserManager(app, db, User)
-
+    UserManager(app, db, User)
 
     app.register_blueprint(root)
     from pma_api.routes.endpoints.api_1_0 import api as api_1_0_blueprint

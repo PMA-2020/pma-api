@@ -143,7 +143,7 @@ class ApiModel(db.Model):
             dict: Namespace formatted dictionary.
         """
         if index is not None:
-            prefix = prefix + str(index)
+            prefix += str(index)
         new_dict = {'.'.join((prefix, k)): v for k, v in old_dict.items()}
         return new_dict
 

@@ -17,24 +17,24 @@ import unittest
 from glob import glob
 from typing import List, Dict, Union
 
-from flask import Response
+from flask import Response, Flask
+from flask_sqlalchemy import Model
 from sqlalchemy.exc import OperationalError
 
 # import xlrd
 # from manage import app
-from manage import app, initdb
+from manage import app, db, initdb
 from pma_api.config import AWS_S3_STORAGE_BUCKETNAME as BUCKET, \
     S3_BACKUPS_DIR_PATH
 # from pma_api.tasks import activate_dataset_request
-from pma_api.manage.db_mgmt import list_datasets, store_file_on_s3
 from pma_api.manage.db_mgmt import restore_db_local, new_backup_path, \
     backup_local, restore_db_cloud, delete_s3_file, download_file_from_s3, \
-    backup_db_cloud, backup_local_using_heroku_postgres, \
-    restore_using_heroku_postgres
+    backup_db_cloud, backup_local_using_heroku_postgres, is_db_empty, \
+    restore_using_heroku_postgres, list_datasets, store_file_on_s3
 # write_data_file_to_db, \
 # remove_stata_undefined_token_from_wb as \
 # remove_stata_undefined_token_from_wb_imported
-from pma_api.utils import dict_to_pretty_json
+from pma_api.utils import dict_to_pretty_json, get_db_models
 from test.config import TEST_STATIC_DIR
 
 other_test_interference_tell = \
@@ -312,12 +312,12 @@ class TestRoutes(PmaApiTest):
 class TestDbFunctions(PmaApiTest):
     """Test database functions"""
 
-    # Warning: If enabled, will erase DB.
-    db_overwrite_enabled = os.getenv('OVERWRITE_TEST_ENABLED', False)
-    backup_kb_threshold = 200
-    backup_msg = 'Backup file didn\'t meet expected minimum threshold of {} '\
-                 'kb.'.format(str(backup_kb_threshold))
-    live_test_app_name = 'pma-api-staging'
+    backup_kb_threshold: int = 200
+    backup_msg: str = 'Backup file didn\'t meet expected minimum threshold ' \
+        'of {} kb.'.format(str(backup_kb_threshold))
+    live_test_app_name: str = 'pma-api-staging'
+    live_app: Flask = app
+    db_empty: bool = is_db_empty(live_app)
 
     # def setUp(self):
     #     """Setup"""
@@ -333,12 +333,10 @@ class TestDbFunctions(PmaApiTest):
     @classmethod
     def initdb_overwrite(cls, path: str = ''):
         """Test"""
-        enabled = TestDbFunctions.db_overwrite_enabled
-        if enabled:
-            if path:
-                initdb(overwrite=enabled, api_file_path=path)
-            else:
-                initdb(overwrite=enabled)
+        if path:
+            initdb(api_file_path=path)
+        else:
+            initdb()
 
     @staticmethod
     def backup_local_and_get_file_size(path: str = new_backup_path()):
@@ -528,19 +526,28 @@ class TestDbFunctions(PmaApiTest):
 
         self.assertTrue(True)  # no-op; If no errors until here, we're ok
 
-    def t6_initdb_overwrite_empty_db(self):
+    def t6_initdb_overwrite(self):
         """Test initdb with full db overwrite without any exceptions"""
-        enabled: bool = TestDbFunctions.db_overwrite_enabled
-        if enabled:
-            for file in self.get_method_static_files():
-                self.initdb_overwrite(path=file)
+        msg = 'Records were not found in the following tables: {}'
 
-    # def t7_initdb_overwrite(self):
-    #     """Test initdb with full db overwrite without any exceptions"""
-    #     enabled: bool = TestDbFunctions.db_overwrite_enabled
-    #     if enabled:
-    #         for file in self.get_method_static_files():
-    #             self.initdb_overwrite(path=file)
+        for file in self.get_method_static_files():
+            self.initdb_overwrite(path=file)
+
+        models: List[Model] = get_db_models(db)
+        with self.live_app.app_context():
+            # noinspection PyUnresolvedReferences
+            first_records: Dict[str, Model] = \
+                {x.__tablename__: x.query.first() for x in models}
+            # TODO 2019-04-02 jef: Right now, we're allowing caching to not
+            #  happen during db initialization, but we really shouldn't.
+            #  Change this test when we go back to requiring init caching.
+            # error_tables: List[str] = \
+            #     [k for k, v in first_records.items() if not v]
+            error_tables: List[str] = \
+                [k for k, v in first_records.items()
+                 if not v and k is not 'cache']
+
+        self.assertTrue(not error_tables, msg.format(', '.join(error_tables)))
 
     def test_db_functions_sequentially(self):
         """Test sequentially
@@ -584,7 +591,6 @@ class TestListDatasets(PmaApiTest):
                 "dataset_type": "",
                 "last_modified": "",
                 "name": "",
-                "upload_date": "",
                 "version_number": "",
                 "id": ""
             }

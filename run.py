@@ -6,8 +6,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from pma_api import create_app
-from pma_api.config import PROJECT_ROOT_DIR
+from pma_api.config import PROJECT_ROOT_PATH
 
 
-load_dotenv(dotenv_path=Path(PROJECT_ROOT_DIR) / '.env')
+load_dotenv(dotenv_path=Path(PROJECT_ROOT_PATH) / '.env')
 app = create_app(os.getenv('ENV_NAME', 'default'))

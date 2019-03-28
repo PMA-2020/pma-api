@@ -4,20 +4,23 @@ For any model resources that do not have explicit static routes created, this
 route will attempt to return a standardized list of results for that model.
 """
 import os
-from typing import Union
+from typing import Union, List
 
 from flask import request
 from flask_sqlalchemy import Model
 
-from . import api
-from pma_api.response import QuerySetApiResult
-from pma_api.config import PROJECT_ROOT_DIR, \
-    SQLALCHEMY_MODEL_ATTR_QUERY_IGNORES as IGNORES
 from pma_api import db
+from pma_api.response import QuerySetApiResult
+from pma_api.config import PROJECT_ROOT_PATH, \
+    SQLALCHEMY_MODEL_ATTR_QUERY_IGNORES as IGNORES
+from pma_api.utils import get_db_models
 
-# noinspection PyProtectedMember
-db_models = [cls for cls in db.Model._decl_class_registry.values()
-             if isinstance(cls, type) and issubclass(cls, db.Model)]
+from . import api
+
+
+db_models: List[Model] = get_db_models(db)
+# PyUnresolvedReferences: Doesn't recognize existing attr __tablename__
+# noinspection PyUnresolvedReferences
 resource_model_map = {
     x.__tablename__: x for x in db_models
 }
@@ -90,7 +93,7 @@ def dynamic_route(resource: str) -> Union[QuerySetApiResult, str]:
         dict_objs: [{}] = models_to_dicts(objects)
         QuerySetApiResult(record_list=dict_objs, return_format='json')
 
-    query_dir = os.path.join(PROJECT_ROOT_DIR, 'pma_api')
+    query_dir = os.path.join(PROJECT_ROOT_PATH, 'pma_api')
     query_template_path = os.path.join(query_dir, 'python_query_template.py')
     query_tempfile_path = os.path.join(query_dir, 'python_query_tempfile.py')
 

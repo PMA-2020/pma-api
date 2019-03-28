@@ -170,6 +170,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models.dataset">pma_api.models.dataset module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models.meta">pma_api.models.meta module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models.string">pma_api.models.string module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models.user">pma_api.models.user module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models">Module contents</a></li>
 </ul>
 </li>
@@ -252,23 +253,58 @@
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pma_api.config.Config.DATABASE_NAME">
-<code class="descname">DATABASE_NAME</code><em class="property"> = 'pmaapi'</em><a class="headerlink" href="#pma_api.config.Config.DATABASE_NAME" title="Permalink to this definition">¶</a></dt>
+<dt id="pma_api.config.Config.DB_HOST">
+<code class="descname">DB_HOST</code><em class="property"> = 'localhost'</em><a class="headerlink" href="#pma_api.config.Config.DB_HOST" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pma_api.config.Config.DATABASE_PASSWORD">
-<code class="descname">DATABASE_PASSWORD</code><em class="property"> = 'pmaapi'</em><a class="headerlink" href="#pma_api.config.Config.DATABASE_PASSWORD" title="Permalink to this definition">¶</a></dt>
+<dt id="pma_api.config.Config.DB_NAME">
+<code class="descname">DB_NAME</code><em class="property"> = 'pmaapi'</em><a class="headerlink" href="#pma_api.config.Config.DB_NAME" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pma_api.config.Config.DATABASE_PORT">
-<code class="descname">DATABASE_PORT</code><em class="property"> = '5432'</em><a class="headerlink" href="#pma_api.config.Config.DATABASE_PORT" title="Permalink to this definition">¶</a></dt>
+<dt id="pma_api.config.Config.DB_PASS">
+<code class="descname">DB_PASS</code><em class="property"> = 'pmaapi'</em><a class="headerlink" href="#pma_api.config.Config.DB_PASS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pma_api.config.Config.DATABASE_USER">
-<code class="descname">DATABASE_USER</code><em class="property"> = 'pmaapi'</em><a class="headerlink" href="#pma_api.config.Config.DATABASE_USER" title="Permalink to this definition">¶</a></dt>
+<dt id="pma_api.config.Config.DB_PORT">
+<code class="descname">DB_PORT</code><em class="property"> = 5432</em><a class="headerlink" href="#pma_api.config.Config.DB_PORT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.Config.DB_ROOT_HOST">
+<code class="descname">DB_ROOT_HOST</code><em class="property"> = 'localhost'</em><a class="headerlink" href="#pma_api.config.Config.DB_ROOT_HOST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.Config.DB_ROOT_NAME">
+<code class="descname">DB_ROOT_NAME</code><em class="property"> = 'postgres'</em><a class="headerlink" href="#pma_api.config.Config.DB_ROOT_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.Config.DB_ROOT_PASS">
+<code class="descname">DB_ROOT_PASS</code><em class="property"> = 'postgres'</em><a class="headerlink" href="#pma_api.config.Config.DB_ROOT_PASS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.Config.DB_ROOT_PORT">
+<code class="descname">DB_ROOT_PORT</code><em class="property"> = '5432'</em><a class="headerlink" href="#pma_api.config.Config.DB_ROOT_PORT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.Config.DB_ROOT_USER">
+<code class="descname">DB_ROOT_USER</code><em class="property"> = 'postgres'</em><a class="headerlink" href="#pma_api.config.Config.DB_ROOT_USER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.Config.DB_USER">
+<code class="descname">DB_USER</code><em class="property"> = 'pmaapi'</em><a class="headerlink" href="#pma_api.config.Config.DB_USER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.Config.DEBUG">
+<code class="descname">DEBUG</code><em class="property"> = False</em><a class="headerlink" href="#pma_api.config.Config.DEBUG" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -282,8 +318,18 @@
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="pma_api.config.Config.SECRET_KEY">
+<code class="descname">SECRET_KEY</code><em class="property"> = '1COJQrdfQxBjVJWcdGexela0ZwRhCy48'</em><a class="headerlink" href="#pma_api.config.Config.SECRET_KEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="pma_api.config.Config.SQLALCHEMY_DATABASE_URI">
 <code class="descname">SQLALCHEMY_DATABASE_URI</code><em class="property"> = 'postgresql+psycopg2://pmaapi:pmaapi&#64;localhost/pmaapi'</em><a class="headerlink" href="#pma_api.config.Config.SQLALCHEMY_DATABASE_URI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.Config.SQLALCHEMY_ECHO">
+<code class="descname">SQLALCHEMY_ECHO</code><em class="property"> = False</em><a class="headerlink" href="#pma_api.config.Config.SQLALCHEMY_ECHO" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -299,6 +345,26 @@
 <dl class="attribute">
 <dt id="pma_api.config.Config.TESTING">
 <code class="descname">TESTING</code><em class="property"> = False</em><a class="headerlink" href="#pma_api.config.Config.TESTING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.Config.USER_APP_NAME">
+<code class="descname">USER_APP_NAME</code><em class="property"> = 'PMA API'</em><a class="headerlink" href="#pma_api.config.Config.USER_APP_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.Config.USER_ENABLE_EMAIL">
+<code class="descname">USER_ENABLE_EMAIL</code><em class="property"> = False</em><a class="headerlink" href="#pma_api.config.Config.USER_ENABLE_EMAIL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.Config.USER_ENABLE_USERNAME">
+<code class="descname">USER_ENABLE_USERNAME</code><em class="property"> = True</em><a class="headerlink" href="#pma_api.config.Config.USER_ENABLE_USERNAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.Config.USER_REQUIRE_RETYPE_PASSWORD">
+<code class="descname">USER_REQUIRE_RETYPE_PASSWORD</code><em class="property"> = False</em><a class="headerlink" href="#pma_api.config.Config.USER_REQUIRE_RETYPE_PASSWORD" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -318,11 +384,6 @@
 <code class="descname">DEBUG</code><em class="property"> = True</em><a class="headerlink" href="#pma_api.config.DevelopmentConfig.DEBUG" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="pma_api.config.DevelopmentConfig.SQLALCHEMY_ECHO">
-<code class="descname">SQLALCHEMY_ECHO</code><em class="property"> = False</em><a class="headerlink" href="#pma_api.config.DevelopmentConfig.SQLALCHEMY_ECHO" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 <dl class="class">
@@ -330,11 +391,6 @@
 <em class="property">class </em><code class="descclassname">pma_api.config.</code><code class="descname">ProductionConfig</code><a class="headerlink" href="#pma_api.config.ProductionConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pma_api.config.Config" title="pma_api.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.config.Config</span></code></a></p>
 <p>Production configuration.</p>
-<dl class="attribute">
-<dt id="pma_api.config.ProductionConfig.SQLALCHEMY_ECHO">
-<code class="descname">SQLALCHEMY_ECHO</code><em class="property"> = False</em><a class="headerlink" href="#pma_api.config.ProductionConfig.SQLALCHEMY_ECHO" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 <dl class="class">
@@ -343,8 +399,8 @@
 <dd><p>Bases: <a class="reference internal" href="#pma_api.config.Config" title="pma_api.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.config.Config</span></code></a></p>
 <p>Production configuration.</p>
 <dl class="attribute">
-<dt id="pma_api.config.StagingConfig.SQLALCHEMY_ECHO">
-<code class="descname">SQLALCHEMY_ECHO</code><em class="property"> = False</em><a class="headerlink" href="#pma_api.config.StagingConfig.SQLALCHEMY_ECHO" title="Permalink to this definition">¶</a></dt>
+<dt id="pma_api.config.StagingConfig.DEBUG">
+<code class="descname">DEBUG</code><em class="property"> = True</em><a class="headerlink" href="#pma_api.config.StagingConfig.DEBUG" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -374,9 +430,16 @@
 <span id="pma-api-error-module"></span><h2>pma_api.error module<a class="headerlink" href="#module-pma_api.error" title="Permalink to this headline">¶</a></h2>
 <p>Errors and exceptions</p>
 <dl class="exception">
+<dt id="pma_api.error.DatasetNotFoundError">
+<em class="property">exception </em><code class="descclassname">pma_api.error.</code><code class="descname">DatasetNotFoundError</code><a class="headerlink" href="#pma_api.error.DatasetNotFoundError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pma_api.error.PmaApiDbInteractionError" title="pma_api.error.PmaApiDbInteractionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.error.PmaApiDbInteractionError</span></code></a></p>
+<p>Dataset was not found in db</p>
+</dd></dl>
+
+<dl class="exception">
 <dt id="pma_api.error.ExistingDatasetError">
 <em class="property">exception </em><code class="descclassname">pma_api.error.</code><code class="descname">ExistingDatasetError</code><a class="headerlink" href="#pma_api.error.ExistingDatasetError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pma_api.error.PmaApiException" title="pma_api.error.PmaApiException"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.error.PmaApiException</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pma_api.error.PmaApiDbInteractionError" title="pma_api.error.PmaApiDbInteractionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.error.PmaApiDbInteractionError</span></code></a></p>
 <p>Dataset already exists in db</p>
 </dd></dl>
 
@@ -462,22 +525,22 @@ query_values (str): A list of codes joined by comma</dd>
 
 <dl class="attribute">
 <dt id="pma_api.queries.DatalabData.char1">
-<code class="descname">char1</code><em class="property"> = &lt;AliasedClass at 0x10ecfb2e8; Characteristic&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char1" title="Permalink to this definition">¶</a></dt>
+<code class="descname">char1</code><em class="property"> = &lt;AliasedClass at 0x10f871d68; Characteristic&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pma_api.queries.DatalabData.char2">
-<code class="descname">char2</code><em class="property"> = &lt;AliasedClass at 0x10ed8e390; Characteristic&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char2" title="Permalink to this definition">¶</a></dt>
+<code class="descname">char2</code><em class="property"> = &lt;AliasedClass at 0x10f8e0ef0; Characteristic&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pma_api.queries.DatalabData.char_grp1">
-<code class="descname">char_grp1</code><em class="property"> = &lt;AliasedClass at 0x10ed8e470; CharacteristicGroup&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char_grp1" title="Permalink to this definition">¶</a></dt>
+<code class="descname">char_grp1</code><em class="property"> = &lt;AliasedClass at 0x10f8e0fd0; CharacteristicGroup&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char_grp1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pma_api.queries.DatalabData.char_grp2">
-<code class="descname">char_grp2</code><em class="property"> = &lt;AliasedClass at 0x10ed8e550; CharacteristicGroup&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char_grp2" title="Permalink to this definition">¶</a></dt>
+<code class="descname">char_grp2</code><em class="property"> = &lt;AliasedClass at 0x10f91d0f0; CharacteristicGroup&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char_grp2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
@@ -724,59 +787,34 @@ char_grp (str): A characteristic group code</dd>
 </dd></dl>
 
 </div>
-<div class="section" id="module-pma_api.tasks">
-<span id="pma-api-tasks-module"></span><h2>pma_api.tasks module<a class="headerlink" href="#module-pma_api.tasks" title="Permalink to this headline">¶</a></h2>
-<p>Tasks</p>
-<p># TODO: Add dynamic routing for each celery task, like from db.Model</p>
+<div class="section" id="module-pma_api.task_utils">
+<span id="pma-api-task-utils-module"></span><h2>pma_api.task_utils module<a class="headerlink" href="#module-pma_api.task_utils" title="Permalink to this headline">¶</a></h2>
+<p>Utilities for tasks</p>
 <dl class="function">
-<dt id="pma_api.tasks.download_dataset_from_db">
-<code class="descclassname">pma_api.tasks.</code><code class="descname">download_dataset_from_db</code><span class="sig-paren">(</span><em>dataset_name: str</em>, <em>directory: str = '/Users/joeflack4/projects/pma-api/data/'</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.tasks.download_dataset_from_db" title="Permalink to this definition">¶</a></dt>
-<dd><p>Download dataset from database to filesystem</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>dataset_name (str): Name of dataset file to look up in db
-directory (str): Directory to save file</dd>
-<dt>Returns:</dt>
-<dd>str: Path to downloaded dataset file</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pma_api.tasks.file_path_from_dataset_name">
-<code class="descclassname">pma_api.tasks.</code><code class="descname">file_path_from_dataset_name</code><span class="sig-paren">(</span><em>dataset_name: str</em>, <em>directory: str = '/Users/joeflack4/projects/pma-api/data/'</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.tasks.file_path_from_dataset_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>From a dataset name, get the path where it should exist locally</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first docutils">
-<dt>dataset_name (str): Name of dataset, which may or may not include file</dt>
-<dd>extension</dd>
-</dl>
-<p class="last">directory (str): Directory where local file should exist</p>
-</dd>
-<dt>Returns:</dt>
-<dd>str: Path to file</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pma_api.tasks.load_local_dataset">
-<code class="descclassname">pma_api.tasks.</code><code class="descname">load_local_dataset_from_db</code><span class="sig-paren">(</span><em>dataset_name: str</em><span class="sig-paren">)</span> &#x2192; werkzeug.datastructures.FileStorage<a class="headerlink" href="#pma_api.tasks.load_local_dataset" title="Permalink to this definition">¶</a></dt>
+<dt id="pma_api.task_utils.load_local_dataset_from_db">
+<code class="descclassname">pma_api.task_utils.</code><code class="descname">load_local_dataset_from_db</code><span class="sig-paren">(</span><em>dataset_id: str</em><span class="sig-paren">)</span> &#x2192; BinaryIO<a class="headerlink" href="#pma_api.task_utils.load_local_dataset_from_db" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a dataset that exists in local database</p>
 <dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>download_dataset_from_db()</li>
+<li>Reads file</li>
+</ul>
+</dd>
 <dt>Args:</dt>
-<dd>dataset_name (str): Name of dataset that should exist in db</dd>
+<dd>dataset_id (str): ID of dataset that should exist in db</dd>
 <dt>Returns:</dt>
 <dd>werkzeug.datastructures.FileStorage: In-memory file, in bytes</dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
-<dt id="pma_api.tasks.progress_update_callback">
-<code class="descclassname">pma_api.tasks.</code><code class="descname">progress_update_callback</code><span class="sig-paren">(</span><em>celery_obj: celery.app.base.Celery.task</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.tasks.progress_update_callback" title="Permalink to this definition">¶</a></dt>
-<dd><p>Progress update callback</p>
+<dt id="pma_api.task_utils.progress_update_callback">
+<code class="descclassname">pma_api.task_utils.</code><code class="descname">progress_update_callback</code><span class="sig-paren">(</span><em>celery_obj</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.task_utils.progress_update_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Progress update callback generator</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>celery_obj (celery.task): Celery object
+<dd>celery_obj: Celery object
 verbose (bool): Print update yields?</dd>
 <dt>Side effects:</dt>
 <dd>celery_obj.update_state: Updates task state.</dd>
@@ -784,8 +822,8 @@ verbose (bool): Print update yields?</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="pma_api.tasks.response_to_task_state">
-<code class="descclassname">pma_api.tasks.</code><code class="descname">response_to_task_state</code><span class="sig-paren">(</span><em>r: requests.models.Response</em><span class="sig-paren">)</span> &#x2192; Dict<a class="headerlink" href="#pma_api.tasks.response_to_task_state" title="Permalink to this definition">¶</a></dt>
+<dt id="pma_api.task_utils.response_to_task_state">
+<code class="descclassname">pma_api.task_utils.</code><code class="descname">response_to_task_state</code><span class="sig-paren">(</span><em>r: requests.models.Response</em><span class="sig-paren">)</span> &#x2192; Dict<a class="headerlink" href="#pma_api.task_utils.response_to_task_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert response object to custom task state dictionary.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -796,32 +834,32 @@ verbose (bool): Print update yields?</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="pma_api.tasks.save_file_from_bytes">
-<code class="descclassname">pma_api.tasks.</code><code class="descname">save_file_from_bytes</code><span class="sig-paren">(</span><em>file_bytes: bytes</em>, <em>file_path: str</em>, <em>attempt: int = 1</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.tasks.save_file_from_bytes" title="Permalink to this definition">¶</a></dt>
+<dt id="pma_api.task_utils.save_file_from_bytes">
+<code class="descclassname">pma_api.task_utils.</code><code class="descname">save_file_from_bytes</code><span class="sig-paren">(</span><em>file_bytes: bytes</em>, <em>file_path: str</em>, <em>_attempt: int = 1</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.task_utils.save_file_from_bytes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save file_bytes at a specific location.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>file_bytes (bytes): File bytes.
 file_path (str): File name.
-attempt (int): Attempt number for trying to save file_bytes.</dd>
+_attempt (int): Attempt number for trying to save file_bytes.</dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
-<dt id="pma_api.tasks.save_file_from_bytesio">
-<code class="descclassname">pma_api.tasks.</code><code class="descname">save_file_from_bytesio</code><span class="sig-paren">(</span><em>file: _io.BytesIO</em>, <em>file_path: str</em>, <em>attempt: int = 1</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.tasks.save_file_from_bytesio" title="Permalink to this definition">¶</a></dt>
+<dt id="pma_api.task_utils.save_file_from_bytesio">
+<code class="descclassname">pma_api.task_utils.</code><code class="descname">save_file_from_bytesio</code><span class="sig-paren">(</span><em>file: _io.BytesIO</em>, <em>file_path: str</em>, <em>_attempt: int = 1</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.task_utils.save_file_from_bytesio" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save file at a specific location.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>file (BytesIO): File.
 file_path (str): File name.
-attempt (int): Attempt number for trying to save file.</dd>
+_attempt (int): Attempt number for trying to save file.</dd>
 </dl>
 </dd></dl>
 
 <dl class="function">
-<dt id="pma_api.tasks.save_file_from_request">
-<code class="descclassname">pma_api.tasks.</code><code class="descname">save_file_from_request</code><span class="sig-paren">(</span><em>file: werkzeug.datastructures.FileStorage</em>, <em>file_path: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.tasks.save_file_from_request" title="Permalink to this definition">¶</a></dt>
+<dt id="pma_api.task_utils.save_file_from_request">
+<code class="descclassname">pma_api.task_utils.</code><code class="descname">save_file_from_request</code><span class="sig-paren">(</span><em>file: werkzeug.datastructures.FileStorage</em>, <em>file_path: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.task_utils.save_file_from_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save file at a specific location.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -833,18 +871,30 @@ file_path (str): File name.</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="pma_api.tasks.upload">
-<code class="descclassname">pma_api.tasks.</code><code class="descname">upload</code><span class="sig-paren">(</span><em>filename: str</em>, <em>file</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.tasks.upload" title="Permalink to this definition">¶</a></dt>
-<dd><p>Upload file into database</p>
+<dt id="pma_api.task_utils.upload_dataset">
+<code class="descclassname">pma_api.task_utils.</code><code class="descname">upload_dataset</code><span class="sig-paren">(</span><em>filename: str</em>, <em>file</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pma_api.task_utils.upload_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upload file to data storage</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>filename (str): File name.
 file: File.</dd>
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>Stores file on AWS S3 using: store_file_on_s3</li>
+</ul>
+</dd>
 <dt>Raises:</dt>
 <dd>ExistingDatasetError: If dataset already exists</dd>
+<dt>Returns:</dt>
+<dd>str: Url where file is stored</dd>
 </dl>
 </dd></dl>
 
+</div>
+<div class="section" id="module-pma_api.tasks">
+<span id="pma-api-tasks-module"></span><h2>pma_api.tasks module<a class="headerlink" href="#module-pma_api.tasks" title="Permalink to this headline">¶</a></h2>
+<p>Tasks</p>
+<p># TODO: Add dynamic routing for each celery task, like from db.Model</p>
 </div>
 <div class="section" id="module-pma_api.utils">
 <span id="pma-api-utils-module"></span><h2>pma_api.utils module<a class="headerlink" href="#module-pma_api.utils" title="Permalink to this headline">¶</a></h2>
@@ -915,7 +965,7 @@ directly together may yield too many or too few ‘/’ delimiters.</p>
 <p>Definition of application object.</p>
 <dl class="function">
 <dt id="pma_api.create_app">
-<code class="descclassname">pma_api.</code><code class="descname">create_app</code><span class="sig-paren">(</span><em>config_name='default'</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.create_app" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pma_api.</code><code class="descname">create_app</code><span class="sig-paren">(</span><em>config_name='development'</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.create_app" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create configured Flask application.</p>
 <dl class="docutils">
 <dt>Args:</dt>

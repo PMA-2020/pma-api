@@ -61,6 +61,14 @@ pma\_api.response module
     :undoc-members:
     :show-inheritance:
 
+pma\_api.task\_utils module
+---------------------------
+
+.. automodule:: pma_api.task_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pma\_api.tasks module
 ---------------------
 

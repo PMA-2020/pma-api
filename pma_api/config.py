@@ -6,19 +6,21 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-PROJECT_ROOT_DIR = \
-    os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-load_dotenv(dotenv_path=Path(PROJECT_ROOT_DIR) / '.env')
+PACKAGE_DIR_NAME: str = os.path.basename(os.path.dirname(__file__))
+PROJECT_ROOT_PATH = \
+    os.path.abspath(os.path.join(PACKAGE_DIR_NAME, '..'))
+load_dotenv(dotenv_path=Path(PROJECT_ROOT_PATH) / '.env')
 
-DATA_DIR = os.path.abspath(os.path.join(PROJECT_ROOT_DIR, 'data'))
-BINARY_DIR = os.path.abspath(os.path.join(PROJECT_ROOT_DIR, 'pma_api', 'bin'))
-DATASETS_DIR = DATA_DIR
-UI_DATA_DIR = DATA_DIR
+DATA_DIR: str = os.path.abspath(os.path.join(PROJECT_ROOT_PATH, 'data'))
+BINARY_DIR: str = \
+    os.path.abspath(os.path.join(PROJECT_ROOT_PATH, PACKAGE_DIR_NAME, 'bin'))
+DATASETS_DIR: str = DATA_DIR
+UI_DATA_DIR: str = DATA_DIR
 BACKUPS_DIR: str = os.path.abspath(os.path.join(DATA_DIR, 'db_backups'))
-LOGS_DIR: str = os.path.abspath(os.path.join(PROJECT_ROOT_DIR, 'logs'))
+LOGS_DIR: str = os.path.abspath(os.path.join(PROJECT_ROOT_PATH, 'logs'))
 ERROR_LOG_PATH = os.path.join(LOGS_DIR, 'error-logfile.log')
 # noinspection PyUnresolvedReferences
-PID_FILE_PATH: str = os.path.join(PROJECT_ROOT_DIR, 'pma-api_process-id.pid')
+PID_FILE_PATH: str = os.path.join(PROJECT_ROOT_PATH, 'pma-api_process-id.pid')
 API_DATASET_FILE_PREFIX = 'api_data'
 UI_DATASET_FILE_PREFIX = 'ui_data'
 FILE_LIST_IGNORES = ('.DS_Store', )

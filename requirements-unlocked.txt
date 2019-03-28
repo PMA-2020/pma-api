@@ -3,7 +3,6 @@ celery>=4,<5
 Flask
 Flask-AlchemyDumps
 Flask-Cors
-Flask-Migrate
 Flask-Script
 Flask-SQLAlchemy
 Flask-User

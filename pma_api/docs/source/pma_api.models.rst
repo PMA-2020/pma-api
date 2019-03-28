@@ -44,6 +44,14 @@ pma\_api.models.string module
     :undoc-members:
     :show-inheritance:
 
+pma\_api.models.user module
+---------------------------
+
+.. automodule:: pma_api.models.user
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

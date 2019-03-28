@@ -7,18 +7,19 @@ import os
 import subprocess
 from copy import copy
 from datetime import datetime
-from time import time
-from typing import List, Tuple, Dict, Union
+from typing import List, Dict, Union, Generator, Iterable
 
 import boto3
 import xlrd
+from xlrd.sheet import Sheet
+from xlrd.book import Book
 import sqlalchemy
 from flask import Flask, current_app
-from flask_migrate import upgrade as flask_migrate_upgrade
 from flask_user import UserManager
+from sqlalchemy import Table
 # noinspection PyProtectedMember
 from sqlalchemy.engine import Connection
-from sqlalchemy.exc import DatabaseError, OperationalError, IntegrityError
+from sqlalchemy.exc import OperationalError, IntegrityError, DatabaseError
 
 from pma_api import create_app, db
 from pma_api.config import DATA_DIR, BACKUPS_DIR, Config, \
@@ -27,8 +28,7 @@ from pma_api.config import DATA_DIR, BACKUPS_DIR, Config, \
     UI_DATA_DIR, DATASETS_DIR, API_DATASET_FILE_PREFIX as API_PREFIX, \
     UI_DATASET_FILE_PREFIX as UI_PREFIX, HEROKU_INSTANCE_APP_NAME as APP_NAME,\
     FILE_LIST_IGNORES, temp_folder_path
-from pma_api.error import InvalidDataFileError, PmaApiDbInteractionError, \
-    PmaApiException
+from pma_api.error import PmaApiDbInteractionError, PmaApiException
 from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
                             Country, Data, EnglishString, Geography, Indicator,
                             ApiMetadata, Survey, Translation, Dataset, User)
@@ -36,35 +36,19 @@ from pma_api.utils import most_common
 from pma_api.manage.utils import log_process_stderr, run_proc
 
 
-METADATA_MODEL_MAP = (
+METADATA_MODEL_MAP: tuple = (
     ('geography', Geography),
     ('country', Country),
     ('survey', Survey),
     ('char_grp', CharacteristicGroup),
     ('char', Characteristic),
-    ('indicator', Indicator),
-)
-DATA_MODEL_MAP = (
-    ('data', Data),
-)
-TRANSLATION_MODEL_MAP = (
-    ('translation', Translation),
-)
-ORDERED_MODEL_MAP = TRANSLATION_MODEL_MAP + METADATA_MODEL_MAP + DATA_MODEL_MAP
-# OVERWRITE_DROP_TABLES doesn't drop: Dataset, User
-OVERWRITE_DROP_TABLES: Tuple[db.Model] = (
-        x.__table__ for x in [
-            EnglishString,
-            Data,
-            Translation,
-            Indicator,
-            Characteristic,
-            CharacteristicGroup,
-            Survey,
-            Country,
-            Geography,
-            Cache,
-            ApiMetadata])
+    ('indicator', Indicator),)
+DATA_MODEL_MAP: tuple = (
+    ('data', Data),)
+TRANSLATION_MODEL_MAP: tuple = (
+    ('translation', Translation),)
+ORDERED_MODEL_MAP: tuple = \
+    TRANSLATION_MODEL_MAP + METADATA_MODEL_MAP + DATA_MODEL_MAP
 root_connection_info = {
     'hostname': Config.DB_ROOT_HOST,
     'port': Config.DB_ROOT_PORT,
@@ -105,93 +89,6 @@ env_access_err_msg = \
     'not set or cannot be accessed. Please check that they are set and ' \
     'being loaded correctly.\n\n' \
     '- Original error:\n{}'
-
-
-class TaskTracker:
-    """Tracks progress of task queue"""
-
-    # noinspection PyDefaultArgument
-    def __init__(self, queue: List[str] = [], silent: bool = False,
-                 name: str = '', callback=None):
-        """Tracks progress of task queue
-
-        If queue is empty, calls to TaskTracker methods will do nothing.
-
-        Args:
-            queue (list): List of progress statements to display for each
-            iteration of the queue.
-            silent (bool): Don't print updates?
-            callback: Callback function to use for every iteration
-            of the queue. This callback must take a single dictionary as its
-            parameter, with the following schema...
-                {'status': str, 'current': float}
-            ...where the value of 'current' is a float with value between 0
-            and 1.
-        """
-        self.queue: List[str] = queue
-        self.silent: bool = silent
-        self.name = name
-        self.callback = callback
-        self.tot_sub_tasks: int = len(queue)
-        self.status: str = 'PENDING'
-        self.completion_ratio: float = float(0)
-
-    def _report(self, silence_status: bool = False,
-                silence_percent: bool = False):
-        """Report progress
-
-        Args:
-            silence_status (bool): Silence status?
-            silence_percent (bool): Silence percent?
-        """
-        if not self.queue:
-            return
-        if not self.silent:
-            pct: str = str(int(self.completion_ratio * 100)) + '%'
-            msg = ' '.join([
-                self.status if not silence_status else '',
-                '({})'.format(pct) if not silence_percent else ''
-            ])
-            print(msg)
-        if self.callback:
-            self.callback.send({'status': self.status,
-                                'current': self.completion_ratio})
-
-    def begin(self):
-        """Register and report task begin
-
-        Usage optional
-        """
-        if not self.queue:
-            return
-        self.completion_ratio: float = float(0)
-        self.status: str = 'Task start: ' + \
-                           ' {}'.format(self.name) if self.name else ''
-        self._report(silence_percent=True)
-
-    def next(self):
-        """Register and report next sub-task begin"""
-        if not self.queue:
-            return
-        self.completion_ratio: float = \
-            1 - (len(self.queue) / self.tot_sub_tasks)
-        first_task: bool = self.completion_ratio == 0
-        if first_task:
-            self.begin()
-        self.status: str = self.queue.pop(0)
-        self._report()
-
-    def complete(self):
-        """Register and report all sub-tasks and task itself complete
-
-        Usage optional
-        """
-        if not self.queue:
-            return
-        self.completion_ratio: float = float(1)
-        self.status: str = 'Task complete: ' + \
-                           ' {}'.format(self.name) if self.name else ''
-        self._report()
 
 
 def aws_s3(func):
@@ -299,7 +196,7 @@ def make_shell_context():
                 Translation=Translation, Survey=Survey, Indicator=Indicator,
                 Data=Data, Characteristic=Characteristic, Cache=Cache,
                 CharacteristicGroup=CharacteristicGroup, User=User,
-                ApiMetadata=ApiMetadata, Dataset=Dataset)
+                ApiMetadata=ApiMetadata, Dataset=Dataset, Geography=Geography)
 
 
 def init_from_source(path, model):
@@ -318,80 +215,6 @@ def init_from_source(path, model):
             record = model(**row)
             db.session.add(record)
         db.session.commit()
-
-
-def init_data(wb: xlrd.Book, progress_updater: TaskTracker = TaskTracker()):
-    """Put all the data from the workbook into the database.
-
-    Args:
-        wb (xlrd.Book): A spreadsheet
-        progress_updater (TaskTracker): Tracks progress of task queue
-    """
-    survey = {x.code: x.id for x in Survey.query.all()}
-    indicator = {x.code: x.id for x in Indicator.query.all()}
-    characteristic = {x.code: x.id for x in Characteristic.query.all()}
-    data_sheets: List[xlrd.sheet] = \
-        [x for x in wb.sheets() if x.name.startswith('data')]
-
-    for ws in data_sheets:
-        progress_updater.next()
-        init_from_sheet(ws, Data, survey=survey, indicator=indicator,
-                        characteristic=characteristic)
-
-
-def init_from_sheet(ws, model, **kwargs):
-    """Initialize DB table data from XLRD Worksheet.
-
-    Initialize table data from source data associated with the corresponding
-    data model.
-
-    Args:
-        ws (xlrd.sheet.Sheet): XLRD worksheet object.
-        model (class): SqlAlchemy model class.
-    """
-    survey, indicator, characteristic = '', '', ''
-    if model == Data:
-        survey = kwargs['survey']
-        indicator = kwargs['indicator']
-        characteristic = kwargs['characteristic']
-    header = None
-
-    for i, row in enumerate(ws.get_rows()):
-        row = [r.value for r in row]
-        if i == 0:
-            header = row
-        else:
-            row_dict = {k: v for k, v in zip(header, row)}
-            if model == Data:
-                survey_code = row_dict.get('survey_code')
-                survey_id = survey.get(survey_code)
-                row_dict['survey_id'] = survey_id
-                indicator_code = row_dict.get('indicator_code')
-                indicator_id = indicator.get(indicator_code)
-                row_dict['indicator_id'] = indicator_id
-                char1_code = row_dict.get('char1_code')
-                char1_id = characteristic.get(char1_code)
-                row_dict['char1_id'] = char1_id
-                char2_code = row_dict.get('char2_code')
-                char2_id = characteristic.get(char2_code)
-                row_dict['char2_id'] = char2_id
-            try:
-                record = model(**row_dict)
-            except (DatabaseError, ValueError, AttributeError, KeyError,
-                    IntegrityError, Exception) as err:
-                msg = 'Error when processing data import.\n' \
-                    '- Worksheet name: {}\n' \
-                    '- Row number: {}\n' \
-                    '- Cell values: {}\n\n' \
-                    '- Original Error:\n' + \
-                    type(err).__name__ + ': ' + str(err)
-                msg = msg.format(ws.name, i+1, row)
-                logging.error(msg)
-                raise PmaApiDbInteractionError(msg)
-
-            db.session.add(record)
-
-    db.session.commit()
 
 
 def remove_stata_undefined_token_from_wb(wb: xlrd.book.Book):
@@ -451,7 +274,62 @@ def remove_stata_undefined_token_from_wb(wb: xlrd.book.Book):
     return book
 
 
-def format_book(wb: xlrd.book.Book):
+def init_from_sheet(ws: Sheet, model: db.Model, **kwargs):
+    """Initialize DB table data from XLRD Worksheet.
+
+    Initialize table data from source data associated with corresponding
+    data model.
+
+    Args:
+        ws (xlrd.sheet.Sheet): XLRD worksheet object.
+        model (class): SqlAlchemy model class.
+    """
+    survey, indicator, characteristic = '', '', ''
+    if model == Data:
+        survey = kwargs['survey']
+        indicator = kwargs['indicator']
+        characteristic = kwargs['characteristic']
+    header = None
+
+    for i, row in enumerate(ws.get_rows()):
+        row = [r.value for r in row]
+        if i == 0:
+            header = row
+        else:
+            row_dict = {k: v for k, v in zip(header, row)}
+            if model == Data:
+                survey_code = row_dict.get('survey_code')
+                survey_id = survey.get(survey_code)
+                row_dict['survey_id'] = survey_id
+                indicator_code = row_dict.get('indicator_code')
+                indicator_id = indicator.get(indicator_code)
+                row_dict['indicator_id'] = indicator_id
+                char1_code = row_dict.get('char1_code')
+                char1_id = characteristic.get(char1_code)
+                row_dict['char1_id'] = char1_id
+                char2_code = row_dict.get('char2_code')
+                char2_id = characteristic.get(char2_code)
+                row_dict['char2_id'] = char2_id
+            try:
+                record = model(**row_dict)
+            except (DatabaseError, ValueError, AttributeError, KeyError,
+                    IntegrityError, Exception) as err:
+                msg = 'Error when processing data import.\n' \
+                      '- Worksheet name: {}\n' \
+                      '- Row number: {}\n' \
+                      '- Cell values: {}\n\n' \
+                      '- Original Error:\n' + \
+                      type(err).__name__ + ': ' + str(err)
+                msg = msg.format(ws.name, i + 1, row)
+                logging.error(msg)
+                raise PmaApiDbInteractionError(msg)
+
+            db.session.add(record)
+
+    db.session.commit()
+
+
+def format_book(wb: Book) -> Book:
     """Format workbook by making edits to prevent edge case errors
 
     Args:
@@ -460,42 +338,12 @@ def format_book(wb: xlrd.book.Book):
     Returns:
         xlrd.book.Book: Formatted workbook
     """
-    book = remove_stata_undefined_token_from_wb(wb)
+    book: Book = remove_stata_undefined_token_from_wb(wb)
 
     return book
 
 
-def init_from_workbook(wb: str, queue: (),
-                       progress_updater: TaskTracker = TaskTracker()):
-    """Init from workbook.
-
-    Args:
-        wb (str): path to workbook file
-        queue (tuple): Order in which to load db_models.
-        progress_updater (TaskTracker): Tracks progress of task queue
-    """
-    with xlrd.open_workbook(wb) as book:
-        book = format_book(book)
-
-        # Init all structural metadata
-        for sheetname_alias, model in queue:
-            if sheetname_alias == 'data':
-                continue
-            progress_updater.next()
-            sheetname: str = sheetname_alias
-            ws = book.sheet_by_name(sheetname)
-            init_from_sheet(ws, model)
-        db.session.commit()
-
-        # Init data
-        init_data(wb=book,
-                  progress_updater=progress_updater)
-
-    # Init administrative metadata
-    create_wb_metadata(wb)
-
-
-def create_wb_metadata(wb_path):
+def register_administrative_metadata(wb_path):
     """Create metadata for Excel Workbook files imported into the DB.
 
     Args:
@@ -506,7 +354,7 @@ def create_wb_metadata(wb_path):
     db.session.commit()
 
 
-def drop_tables(tables: Tuple[db.Model] = OVERWRITE_DROP_TABLES):
+def drop_tables(tables: Iterable[Table] = None):
     """Drop database tables
 
     Side effects
@@ -520,12 +368,18 @@ def drop_tables(tables: Tuple[db.Model] = OVERWRITE_DROP_TABLES):
         does not exist'
     """
     try:
-        db.metadata.drop_all(db.engine, tables=tables)
+        if tables:
+            db.metadata.drop_all(db.engine, tables=tables)
+        else:
+            db.drop_all()
     except OperationalError as err:
         if db_not_exist_tell not in str(err):
             raise err
         create_db()
-        db.metadata.drop_all(db.engine, tables=tables)
+        if tables:
+            db.metadata.drop_all(db.engine, tables=tables)
+        else:
+            db.drop_all()
 
 
 def get_datasheet_names(path: str) -> List[str]:
@@ -545,290 +399,193 @@ def get_datasheet_names(path: str) -> List[str]:
     return datasheet_names
 
 
-def _is_db_empty() -> bool:
+def is_db_empty(_app: Flask = current_app) -> bool:
     """Is database empty or not?
 
-    Empty is defined here as a DB that has been created, but has no tables.
+    Empty is defined here as a DB that has been created, but has no tables. As
+    a proxy for this ideal way of telling if DB is empty, this function
+    currently just checks if there is any data in the 'data' table.
+
+    Args:
+        _app (Flask): Flask application for context
 
     Returns:
         bool: True if empty, else False
     """
-    empty: bool = False
+    with _app.app_context():
+        data_present: Data = Data.query.first()
+        empty: bool = not data_present
 
     return empty
 
 
-# TODO: Utilize 'force'
-# noinspection PyUnusedLocal
-def initdb_from_wb(
-    _app: Flask = current_app,
-    api_file_path: str = get_api_data(),
-    ui_file_path: str = get_ui_data(),
-    overwrite: bool = False,
-    force: bool = False,
-    callback=None) \
-        -> dict:
-    """Create the database.
+class MultistepTask:
+    """A synchronous multi-step task
 
-    Args:
-        _app (Flask): Flask application for context
-        overwrite (bool): Overwrite database if True, else update.
-        force (bool): Overwrite DB even if source data files present /
-        supplied are same versions as those active in DB?'
-        api_file_path (str): path to "API data file" spec xls file
-        ui_file_path (str): path to "UIdata file" spec xls file
-        callback: Callback function for progress yields
-
-    Side effects:
-        Always:
-            - Creates tables
-            - Adds values to database
-            - Temporarily sets current dataset to 'processing'
-            - Backs up database: at the beginning and end
-        If overwrite:
-            - Deletes all tables except for 'datasets'
-            - Sets all other datasets to active=False
-
-    Returns:
-        dict: Results
-    """
-    # TODO: Use alembic if any tables exist, else not
-    # fresh_db: bool = _is_db_empty()
-    #
-    # # TODO: temp
-    # return 'Currently just testing _is_db_empty(). Stopping execution now.'
-
-    retore_msg = 'An issue occurred. Restoring database to state it was in ' \
-                 'prior to task initialization.'
-    current_sub_tasks: List[str] = [
-        'Backing up database'] + (
-        ['Dropping tables'] if overwrite else []) + [
-        'Creating tables'] + [
-        'Uploading data for table: {}'
-            .format(x[0]) for x in METADATA_MODEL_MAP] + [
-        'Updating translations'] + [
-        'Uploading data for table: {}'
-            .format(x) for x in get_datasheet_names(api_file_path)] + [
-        'Updating translations'
-        'Creating cache',
-        'Backing up resulting database']
-    # tot_sub_tasks: int = len(current_sub_tasks)
-    progress = TaskTracker(queue=current_sub_tasks,
-                           callback=callback,
-                           name='Initialize database'
-                                '\n - Dataset: ' + api_file_path)
-    api_dataset_already_active = False
-    ui_dataset_already_active = False
-    # TODO: Add this stuff to ProgressUpdater / TaskTracker
-    warnings = {}
-    status = {
-        'success': False,
-        'status': '',  # Current status message
-        'current': 0.00,  # Percent completed
-        'info': {
-            'time_elapsed': None,
-            'message': '',  # TODO: currently redundant
-            'percent': 0,  # TODO: currently redundant
-        },
-        'warnings': warnings,
+    Subtasks groups are of the form: Dict[str, Dict[str, Union[str, int]]] = {
+            'subtask_1_name': {
+                'prints': 'Doing first thing',
+                'pct_starts_at': 0
+            },
+            'subtask_2_name': {
+                'prints': 'Doing second thing',
+                'pct_starts_at': 10
+            ...
     }
-    start_time = time()
 
-    with _app.app_context():
-        try:
-            # Troubleshooting
-            # from pdb import set_trace; set_trace()
+    This class is meant to be used either by itself, in which print statements
+    are typically made to show task progress, or in tandem with a task queue
+    such as Celery, where a callback is utilized to report progress.
 
-            progress.next()
-            try:
-                backup_path: str = backup_db()
-            except Exception as err:
-                warnings['backup_1'] = str(err)
-
-            # Delete all tables except for 'datasets'
-            if overwrite:
-                progress.next()
-                drop_tables()
-                # Dataset.register_all_inactive()
-
-            # Create tables
-            progress.next()
-            # TODO: Consider not using db.create_all() and use migrate instead?
-            #  What if brand new deploy?
-            # db.create_all()
-            flask_migrate_upgrade()
-            # dataset, warning = Dataset.process_new(api_file_path)
-            # if warning:
-            #     warnings['dataset'] = warning
-
-            # Seed database
-            if overwrite:
-                # TODO: init_from_datasets_table if exists in db already?
-                init_from_workbook(wb=api_file_path,
-                                   queue=ORDERED_MODEL_MAP,
-                                   progress_updater=progress)
-                init_from_workbook(wb=ui_file_path,
-                                   queue=TRANSLATION_MODEL_MAP,
-                                   progress_updater=progress)
-
-                progress.next()
-                try:
-                    Cache.cache_datalab_init(_app)
-                except RuntimeError as err:
-                    warnings['caching'] = caching_error.format(err)
-
-            # Create default superuser if needed
-            create_superuser()
-
-            # dataset.register_active()
-
-            progress.next()
-            try:
-                backup_path: str = backup_db()
-            except Exception as err:
-                warnings['backup_2'] = str(err)
-
-        except (OperationalError, AttributeError) as err:
-            db.session.rollback()
-            restore_db(backup_path)
-            print(retore_msg)
-
-            msg: str = str(err)
-            if isinstance(err, OperationalError):
-                msg: str = connection_error.format(str(err))
-            elif isinstance(err, AttributeError):
-                if env_access_err_tell in str(err):
-                    msg: str = env_access_err_msg\
-                        .format(type(err).__name__ + ': ' + str(err))
-            raise PmaApiDbInteractionError(msg)
-
-        # noinspection PyTypeChecker
-        seconds_elapsed = str(int(time() - start_time)) + ' seconds'
-        status['info']['time_elapsed'] = seconds_elapsed
-        status['success'] = True
-        status['current'] = 1
-        status['status'] = 'Finished'
-
-        progress.complete()
-
-        return status
-
-
-def load_data_file(filepath: str):
-    """Load data file into memory
-
-    Args:
-        filepath (str): Path of file to load into memory
-
-    Returns:
-        xlrd.Book: workbook file object
+    With each call to `begin(<subtask>)`, progress is reported, utilizing each
+    sub-task objects' print statement and percentage. When creating a sub-task
+    to build up a sub-task dictionary as shown above, it is necessary to assign
+    semi-arbitrary percentages. These percentages will represent the task
+    authors' best guess at how long a task should take.
     """
-    wb = xlrd.open_workbook(filepath)
 
-    return wb
+    start_status = 'PENDING'
 
+    def __init__(self, silent: bool = False, name: str = '',
+                 callback: Generator = None,
+                 subtasks: Dict[str, Dict[str, Union[str, int]]] = None):
+        """Tracks progress of task queue
 
-# TODO - Haven't validated anything yet, 2019-01-17 jef
-# noinspection PyUnusedLocal
-def validate_data_file(file: xlrd.Book = None, filepath: str = ''):
-    """Validate data file
+        If queue is empty, calls to TaskTracker methods will do nothing.
 
-    Args:
-        file (xlrd.Book): Validate Workbook obj
-        filepath (str): Validate Workbook file at path
+        Args:
+            subtasks: Dictionary of progress statements to display for each
+            iteration of the queue.
+            silent: Don't print updates?
+            callback: Callback function to use for every iteration
+            of the queue. This callback must take a single dictionary as its
+            parameter, with the following schema...
+                {'status': str, 'current': float}
+            ...where the value of 'current' is a float with value between 0
+            and 1.
+        """
+        self.subtasks = subtasks if subtasks else {}
+        self.silent = silent
+        self.name = name
+        self.callback = callback
+        self.tot_sub_tasks = len(subtasks.keys()) if subtasks else 0
+        self.status = self.start_status
+        self.completion_ratio = float(0)
 
-    Raises:
-        InvalidDataFileError: if file is not valid
-    """
-    valid = True
-    filename = '' if not filepath else ntpath.basename(filepath)
-    filename_placeholder = 'with name {}'.format(filename)
-    if not valid:
-        msg = 'File {} was not a valid data file.'.format(filename_placeholder)
-        raise InvalidDataFileError(msg)
+    @staticmethod
+    def _calc_subtask_grp_pcts(
+            subtask_grp_list: List[Dict[str, Dict[str, Union[str, int]]]],
+            start: int, stop: int, ) \
+            -> Dict[str, Dict[str, Union[str, int]]]:
+        """Calculate percents that each subtask in group should start at.
 
+        Args:
+            subtask_grp_list: Collection of subtasks in form of a list.
+            start: Percent that the first subtask should start at.
+            stop: Percent that the *next* subtask should start at. The last
+            subtask in group will not start at this number, but before it.
 
-def write_data_file_to_db(filepath: str):
-    """Load, validate, and commit data file to db
+        Return
+            Collection of subtasks in form of a dictionary.
+        """
+        subtask_grp_dict: Dict[str, Dict[str, Union[str, int]]] = {}
+        pct_each_consumes = (stop - start) / len(subtask_grp_list)
+        pct_each_begins = [start]
 
-    Args:
-        filepath (str) Path of file to write
+        for i in range(len(subtask_grp_list) - 1):
+            pct_each_begins.append(pct_each_begins[-1] + pct_each_consumes)
+        for subtask in subtask_grp_list:
+            subtask['pct_starts_at'] = pct_each_begins.pop()
 
-    Raises:
-        - See: validate_data_file()
+        for subtask in subtask_grp_list:
+            for k, v in subtask.items():
+                subtask_grp_dict[k] = v
 
-    Side effects:
-        - See: commit_data_file()
-    """
-    file = load_data_file(filepath)
-    validate_data_file(file, filepath)
-    commit_data_file(file)
-    create_wb_metadata(filepath)
+        return subtask_grp_dict
 
+    def _report(self, silence_status: bool = False,
+                silence_percent: bool = False):
+        """Report progress
 
-def commit_data_file(file: xlrd.Book):
-    """Write data file to db
+        Args:
+            silence_status (bool): Silence status?
+            silence_percent (bool): Silence percent?
+        """
+        if not self.subtasks:
+            return
+        if not self.silent:
+            pct: str = str(int(self.completion_ratio * 100)) + '%'
+            msg = ' '.join([
+                self.status if not silence_status else '',
+                '({})'.format(pct) if not silence_percent else ''
+            ])
+            print(msg)
+        if self.callback:
+            self.callback.send({'status': self.status,
+                                'current': self.completion_ratio})
 
-    Args:
-        file (xlrd.Book): workbook file to write to db
+    def _begin_subtask(self, subtask_name: str):
+        """Begin subtask. Prints/returns subtask message and percent
 
-    Side effects:
-        Writes data to db.
-        - See: process_metadata(), process_data(), process_translations()
-    """
-    process_metadata(file)
-    process_data(file)
-    process_translations(file)
+        Args:
+            subtask_name: Name of subtask to report running. If absent,
+            prints that task has already begun.
+        """
+        if not self.subtasks:
+            return
 
+        first_task: bool = self.completion_ratio == 0
+        if first_task:
+            self.begin()
 
-# TODO - 2019-01-17 jef
-# noinspection PyUnusedLocal
-def process_translations(file: xlrd.Book):
-    """Read and write translations from xlrd.Book into db
-    
-    Args:
-        file (xlrd.Book): contains contents to write
+        self.completion_ratio = \
+            float(self.subtasks[subtask_name]['pct_starts_at'])
+        self.status = str(self.subtasks[subtask_name]['prints'])
 
-    Side effects:
-        Writes data to db. 
-    """
-    # read
-    # noinspection PyUnusedLocal
-    for item in TRANSLATION_MODEL_MAP:
-        pass
+        self._report()
 
-    # write
-    pass
+    def _begin_multistep_task(self):
+        """Begin multistep task. Prints/returns task name."""
+        err = 'Task \'{}\' has already started, but a call was made to ' \
+              'start it again. If intent is to start a subtask, subtask name' \
+              ' should be passed when calling'.format(self.name)
+        if self.status != self.start_status:
+            raise PmaApiException(err)
 
+        if not self.subtasks:
+            return
+        self.completion_ratio: float = float(0)
+        self.status: str = 'Task start: {}'\
+            .format(self.name) if self.name else ''
+        self._report(silence_percent=True)
 
-def process_metadata(file: xlrd.Book):
-    """Read and write data from xlrd.Book into db
+    def begin(self, subtask_name: str = ''):
+        """Register and report task or subtask begin
 
-    Args:
-        file (xlrd.Book): contains contents to write
+        Args:
+            subtask_name: Name of subtask to report running. If absent,
+            prints that task has already begun.
+        """
+        if not subtask_name:
+            self._begin_multistep_task()
+        else:
+            self._begin_subtask(subtask_name)
 
-    Side effects:
-        Writes data to db.
-    """
-    sheets_present = file.sheet_names()
-    # read & write
-    for sheetname, model in ORDERED_MODEL_MAP:
-        if sheetname in sheets_present:
-            ws = file.sheet_by_name(sheetname)
-            init_from_sheet(ws, model)
+    def complete(self, seconds_elapsed: int = None):
+        """Register and report all sub-tasks and task itself complete"""
+        if not self.subtasks:
+            return
 
+        self.completion_ratio: float = float(1)
+        if self.name and seconds_elapsed:
+            self.status = 'Task completed in {} seconds:  {}'\
+                .format(str(seconds_elapsed), self.name)
+        elif self.name:
+            self.status = 'Task complete:  {}'.format(self.name)
+        else:
+            self.status = ''
 
-def process_data(file: xlrd.Book):
-    """Read and write metadata from xlrd.Book into db
-
-    Args:
-        file (xlrd.Book): contains contents to write
-
-    Side effects:
-        Writes data to db.
-    """
-    # read & write
-    init_data(file)
+        self._report()
 
 
 def new_backup_path(_os: str = '', _env: str = '', ext: str = 'dump') -> str:
@@ -946,7 +703,7 @@ def backup_local_using_heroku_postgres(
     return path
 
 
-def backup_using_pgdump(path: str = new_backup_path(ext = 'dump')) -> str:
+def backup_using_pgdump(path: str = new_backup_path()) -> str:
     """Backup using pg_dump
 
     Args:
@@ -1057,7 +814,6 @@ def store_file_on_s3(path: str, storage_dir: str = ''):
         metadata: Dict[str, str] = {}
         d = Dataset(path)
         metadata['dataset_display_name']: str = d.dataset_display_name
-        metadata['upload_date']: str = str(d.upload_date)
         metadata['version_number']: str = str(d.version_number)
         metadata['dataset_type']: str = d.dataset_type
     except Exception:
@@ -1374,56 +1130,9 @@ def create_db(name: str = 'pmaapi', with_schema: bool = True):
     conn.close()
 
     if with_schema:
-        # TODO: Consider not using db.create_all() and use migrate instead?
         db.create_all()
 
 
-# def drop_db(db_name: str = Config.DB_NAME, hard: bool = False):
-#     """Drop database
-#
-#     Side effects:
-#         - Drops database
-#         - Kills active connections (if 'hard')
-#
-#     Args:
-#         db_name (str): Database name
-#         hard (bool): Kill any active connections?
-#     """
-#     import signal
-#
-#     if hard:
-#         connections: List[dict] = view_db_connections()
-#         process_ids: List[int] = [x['pid'] for x in connections]
-#         for pid in process_ids:
-#             os.kill(pid, signal.SIGTERM)
-#
-#     cmd_str: str = 'dropdb {}'.format(db_name)
-#     cmd: List[str] = cmd_str.split(' ')
-#
-#     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-#                             stderr=subprocess.PIPE,
-#                             universal_newlines=True)
-#
-#     try:
-#         for line in iter(proc.stdout.readline, ''):
-#             print(line.encode('utf-8'))
-#     except AttributeError:
-#         print(proc.stdout)
-#
-#     errors = proc.stderr.read()
-#     if errors:
-#         db_exists = False if db_not_exist_tell in errors else True
-#         if db_exists:
-#             msg = '\n' + errors + \
-#                 'Offending command: ' + cmd_str
-#             log_process_stderr(msg, err_msg=db_mgmt_err)
-#             raise PmaApiDbInteractionError(msg)
-#
-#     proc.stderr.close()
-#     proc.stdout.close()
-#     proc.wait()
-#
-#
 @aws_s3
 def download_file_from_s3(filename: str, file_dir: str, dl_dir: str) -> str:
     """Download a file from AWS S3
@@ -1517,8 +1226,28 @@ def list_s3_objects(bucket_name: str = BUCKET) \
     return result
 
 
-def list_filtered_s3_files(path: str, detailed: bool = True,
-                           include_e_tag: bool = True) -> List:
+def _format_datetime(dt: datetime) -> str:
+    """Format datetime: YYYY-MM-DD #:##am/pm GMT
+
+    Args:
+        dt: Datetime object
+
+    Returns:
+        str: formatted datetime
+    """
+    utc_tell = '+0000'
+
+    the_datetime_base: str = dt.strftime('%b %d, %Y %I:%M%p')
+    utc_timezone_offset: str = dt.strftime('%z')
+    formatted: str = the_datetime_base if utc_timezone_offset != utc_tell \
+        else the_datetime_base + ' GMT'
+
+    return formatted
+
+
+def list_filtered_s3_files(
+        path: str, detailed: bool = True, include_e_tag: bool = True) \
+        -> Union[List[str], List[Dict[str, str]]]:
     """Gets list of S3 files w/ directories and path prefixes filtered out
 
     Args:
@@ -1546,18 +1275,24 @@ def list_filtered_s3_files(path: str, detailed: bool = True,
     if not detailed:
         names_only: List[str] = [x.key for x in filtered]
         formatted: List[str] = [os.path.basename(x) for x in names_only]
+        formatted.sort()
     else:
         formatted: List[Dict[str, str]] = []
         basic_metadata: List[Dict[str, str]] = []
         basic_metadata2: List[Dict[str, str]] = []
 
+        # Sort
+        # sorted: List[boto3.resources.factory.s3.ObjectSummary]
+        sorted_list: List = \
+            sorted(filtered, key=lambda x: x.last_modified, reverse=True)
+
         # Get basic metadata ascertainable from filename
-        for x in filtered:
+        for x in sorted_list:
             obj_dict: Dict[str, str] = {
                 'key':  x.key,
                 'name': os.path.basename(x.key),
                 'owner': x.owner['DisplayName'],
-                'last_modified': str(x.last_modified)}
+                'last_modified': _format_datetime(x.last_modified)}
             if include_e_tag:
                 obj_dict['id']: str = \
                     x.e_tag.replace('"', '').replace("'", "")[0:6]
@@ -1604,7 +1339,8 @@ def list_cloud_ui_data() -> [str]:
     return files
 
 
-def list_cloud_datasets(detailed: bool = True) -> List:
+def list_cloud_datasets(detailed: bool = True) \
+        -> Union[List[str], List[Dict[str, str]]]:
     """List pma api dataset spec files on AWS S3
 
     Args:
@@ -1612,9 +1348,11 @@ def list_cloud_datasets(detailed: bool = True) -> List:
         list_filtered_s3_files function.
 
     Returns:
-        list: List of files
+        list: List of file names if not detailed, else list of objects
+        containing file names and metadata.
     """
-    files = list_filtered_s3_files(
+    # files: List[str] if not detailed else List[Dict[str, str]]
+    files: List = list_filtered_s3_files(
         path=S3_DATASETS_DIR_PATH,
         detailed=detailed)
 
@@ -1735,6 +1473,11 @@ def list_datasets(detailed: bool = True) \
         'local': list_local_datasets(),
         'cloud': list_cloud_datasets(detailed=detailed)
     }
+
+
+def seed_users():
+    """Creates users for fresh instance; currently just a superuser"""
+    create_superuser()
 
 
 def create_superuser(name: str = os.getenv('SUPERUSER_NAME', 'admin'),

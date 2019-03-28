@@ -7,7 +7,7 @@ from typing import List
 import psutil
 from psutil._exceptions import ZombieProcess
 
-from pma_api.config import PID_FILE_PATH, PROJECT_ROOT_DIR
+from pma_api.config import PID_FILE_PATH, PROJECT_ROOT_PATH
 from pma_api.manage.utils import run_proc_and_log_errs
 
 
@@ -39,7 +39,7 @@ def stop_server(pid: int = None, pid_file_path: str = PID_FILE_PATH):
 def start_dev_server():
     """Start development server"""
     cmd = 'python {} runserver'\
-        .format(os.path.join(PROJECT_ROOT_DIR, 'manage.py'))\
+        .format(os.path.join(PROJECT_ROOT_PATH, 'manage.py'))\
         .split(' ')
     run_proc_and_log_errs(cmd)
 
@@ -47,7 +47,7 @@ def start_dev_server():
 def start_prod_server():
     """Start production server"""
     cmd = 'gunicorn --chdir {} {} -D -p {}'\
-        .format(PROJECT_ROOT_DIR, 'run:app', 'pma-api_process-id.pid')\
+        .format(PROJECT_ROOT_PATH, 'run:app', 'pma-api_process-id.pid')\
         .split(' ')
     run_proc_and_log_errs(cmd)
 

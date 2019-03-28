@@ -1,4 +1,4 @@
-"""Application manager."""
+"""Application management CLI"""
 import os
 from pathlib import Path
 import sys
@@ -6,58 +6,51 @@ from sys import stderr
 
 # noinspection PyPackageRequirements
 from dotenv import load_dotenv
+from typing import Dict
 from flask_script import Manager, Shell
-from flask_migrate import Migrate, upgrade as \
-    flask_migrate_upgrade, migrate as flask_migrate_migrate, stamp, \
-    MigrateCommand
 from psycopg2 import DatabaseError
-from sqlalchemy.exc import StatementError, ProgrammingError, OperationalError
+from sqlalchemy.exc import StatementError
 
 from pma_api import create_app, db
-from pma_api.config import PROJECT_ROOT_DIR
+from pma_api.config import PROJECT_ROOT_PATH
 from pma_api.manage.server_mgmt import store_pid
-from pma_api.manage.db_mgmt import initdb_from_wb, init_from_workbook, \
-    get_api_data, get_ui_data, TRANSLATION_MODEL_MAP, make_shell_context, \
-    connection_error, write_data_file_to_db as write_data, backup_db, \
-    restore_db, list_backups as listbackups, list_ui_data as listuidata, \
-    list_datasets as listdatasets, backup_source_files as backupsourcefiles, \
-    create_db, TaskTracker
+from pma_api.manage.db_mgmt import get_api_data, get_ui_data, \
+    TRANSLATION_MODEL_MAP, make_shell_context, connection_error, backup_db, \
+    restore_db, list_backups as listbackups, \
+    list_ui_data as listuidata, list_datasets as listdatasets, \
+    backup_source_files as backupsourcefiles
+from pma_api.manage.initdb_from_wb import InitDbFromWb
 from pma_api.models import Cache, ApiMetadata, Translation
 from pma_api.utils import dict_to_pretty_json
 
-load_dotenv(dotenv_path=Path(PROJECT_ROOT_DIR) / '.env')
+load_dotenv(dotenv_path=Path(PROJECT_ROOT_PATH) / '.env')
 app = create_app(os.getenv('ENV_NAME', 'default'))
 manager = Manager(app)
-Migrate(app, db)
 
 
-@manager.option('--overwrite', action='store_true', help='Drop tables first?')
-@manager.option(
-    '--force', action='store_true',
-    help='Overwrite DB even if source data files present / '
-         'supplied are same versions as those active in DB?')
-def initdb(overwrite, force, api_file_path: str = get_api_data(),
-           ui_file_path: str = get_ui_data()):
-    """Create the database.
+@manager.option('-a', '--api_file_path', help='Custom path for api file')
+@manager.option('-u', '--ui_file_path', help='Custom path for ui file')
+def initdb(api_file_path: str, ui_file_path: str):
+    """Initialize a fresh database instance.
+
+    WARNING: If DB already exists, will drop it.
 
     Side effects:
+        - Drops database
+        - Creates database
         - Prints results
 
     Args:
-        overwrite (bool): Overwrite database if True, else update.
-        force (bool): Overwrite DB even if source data files present /
-        supplied are same versions as those active in DB?'
         api_file_path (str): Path to API spec file; if not present, gets
         from default path
         ui_file_path (str): Path to UI spec file; if not present, gets
         from default path
     """
-    results: dict = initdb_from_wb(
-        overwrite=overwrite,
-        force=force,
-        api_file_path=api_file_path,
-        ui_file_path=ui_file_path,
-        _app=app)
+    api_fp = api_file_path if api_file_path else get_api_data()
+    ui_fp = ui_file_path if ui_file_path else get_ui_data()
+    results: Dict = InitDbFromWb(
+        _app=app, api_file_path=api_fp, ui_file_path=ui_fp)\
+        .run()
 
     warning_str = ''
     if results['warnings']:
@@ -68,7 +61,7 @@ def initdb(overwrite, force, api_file_path: str = get_api_data(),
     result = 'Successfully initialized dataset.' if results['success'] \
         else 'Failed to initialize dataset.'
 
-    print('\n', result, '\n', warning_str)
+    print('\n' + result + '\n' + warning_str)
 
 
 @manager.command
@@ -80,8 +73,11 @@ def translations():
             db.session.query(ApiMetadata).delete()
             db.session.query(Translation).delete()
             db.session.commit()
-            init_from_workbook(wb=get_api_data(), queue=TRANSLATION_MODEL_MAP)
-            init_from_workbook(wb=get_ui_data(), queue=TRANSLATION_MODEL_MAP)
+            db_initializer = InitDbFromWb()
+            db_initializer.init_from_workbook(wb_path=get_api_data(),
+                                              queue=TRANSLATION_MODEL_MAP)
+            db_initializer.init_from_workbook(wb_path=get_ui_data(),
+                                              queue=TRANSLATION_MODEL_MAP)
             cache_responses()
         except (StatementError, DatabaseError) as e:
             print(connection_error.format(str(e)), file=stderr)
@@ -99,12 +95,6 @@ def cache_responses():
             Cache.cache_datalab_init(app)
         except (StatementError, DatabaseError) as e:
             print(connection_error.format(str(e)), file=stderr)
-
-
-@manager.command
-def write_data_file_to_db(**kwargs):
-    """Write data to db"""
-    write_data(**kwargs)
 
 
 @manager.option('--path', help='Custom path for backup file')
@@ -205,182 +195,14 @@ def stderr_stdout_captured(func):
     return _err, _out, returned_value
 
 
-@manager.option('--force', action='store_true',
-                help='Override any errors about DB not being up-to-date?')
-@manager.option('--helpme', action='store_true',
-                help='Print help documentation.')
-def migrate(force: bool = False, helpme: bool = False):
-    """Create a new autogenerated DB migration file
-
-    Args:
-        force (bool): Override any errors about DB not being up-to-date?
-        helpme (bool): Print help documentation.
-    """
-    followup_note = \
-        'Please follow up this command by checking the file just created in ' \
-        'the migrations/versions directory.\n' \
-        '\n' \
-        'From the documentation:\n' \
-        'https://flask-migrate.readthedocs.io/en/latest/\n' \
-        'The migration script needs to be reviewed and edited, as Alembic ' \
-        'currently does not detect every change you make to your models. In ' \
-        'particular, Alembic is unable to detect several schema changes. A ' \
-        'detailed summary limitations can be found in the Alembic ' \
-        'autogenerate documentation. Once finalized, the migration script ' \
-        'also needs to be added to version control.\n' \
-        'Examples of required manual migration file edits:\n' \
-        '- table name changes\n' \
-        '- column name changes\n' \
-        '- anonymously named constraints\n' \
-        '\n' \
-        'For guidance on how to make these changes, run this command again' \
-        'with the \'--helpme\' parameter.'
-    help_note = """Guidance for manual migration file edits
-
-  - column name changes
-        
-      Example autogenerated file before manual changes:
-        def upgrade():
-            op.add_column('dataset', sa.Column('active', sa.Boolean()))
-            op.drop_column('dataset', 'is_active')
-        def downgrade():
-            op.add_column('dataset', sa.Column('is_active', sa.BOOLEAN()))
-            op.drop_column('dataset', 'active')
-      
-      Example of file after manual changes:
-        def upgrade():
-            op.alter_column('dataset', 'is_active', new_column_name='active')
-        def downgrade():
-            op.alter_column('dataset', 'active', new_column_name='is_active')
-"""
-
-    # TODO: Consider using alembic over db.create_all() in all cases?
-    issue_guidance = \
-        '\nINFO [pma_api] Error Guidance\n' \
-        '- Target database is not up to date:\n' \
-        'This error can be caused by database changes that have been made ' \
-        'using a method other than flask_migrate / alemic, e.g. ' \
-        'db.create_all(), manual updates, etc. ' \
-        'Flask migrate simplifies the migration process by generating a ' \
-        'version file using \'--autogenerate\' using the \'migrate\' ' \
-        'command. Then, using the \'upgrade\' command, changes are applied ' \
-        'using \'alembic upgrade head\'. To resolve this issue, you can ' \
-        'try running the following command to indicate that the current ' \
-        'state of the database represents the application of all migrations: '\
-        '\'alembic stamp head. Alternatively, and recommended, you can ' \
-        'rerun this command with the \'--force\' parameter if you are ' \
-        'confident that the present state of the database is indeed current.'
-
-    if helpme:
-        print(help_note)
-        return
-
-    # TODO: Capture stderr, and if a certain 'tell' is in stderr, print
-    #  'issue_guidance'. Tell = 'Target database is not up to date.'
-    if force:
-        stamp()
-    # noinspection PyBroadException
-    try:
-        flask_migrate_migrate()
-        print(followup_note)
-    except BaseException:
-        if not force:
-            print(issue_guidance)
-
-
-# TODO: Address: ERROR [alembic.env] (psycopg2.ProgrammingError) column
-#  "is_active" of relation "dataset" already exists
-#  Maybe check alembic version in database?  - 2/2019
-# Update 3/10: This could be caused by a 'head' issue described in the migrate
-# command guidance above.
-@manager.option('--silent', action='store_true',
-                help='Print progress updates?')
-def upgrade(_attempt: int = None, silent: bool = False):
-    """Apply database migrations to database
-
-    Args:
-        _attempt (int): Number of attempt iteration. Used only by function
-        during recursive attempts.
-        silent (bool): Print progress updates?
-    """
-    progress = TaskTracker(name='Database schema migration', queue=[
-        'Beginning schema migration'
-    ])
-    already_complete = 'Database schema already up-to-date. No migration ' \
-                       'necessary.'
-    max_attempts = 3
-    this_attempt = _attempt if _attempt else 1
-
-    if this_attempt == 1 and not silent:
-        progress.next()
-
-    try:
-        # db.create_all()  #  <- try just using migrate instead
-        # TODO: Get stderr_stdout_captured to work. then move to utils
-        # noinspection PyUnusedLocal
-        errors, output, returned = stderr_stdout_captured(
-            flask_migrate_upgrade())
-        if not silent:
-            progress.complete()
-    except (ProgrammingError, OperationalError) as exc:
-        if 'already exists' in str(exc):
-            if not silent:
-                print(already_complete)
-        elif 'does not exist' in str(exc) and this_attempt < max_attempts:
-            # indicates missing tables, indicating full schema not yet created
-            create_db()
-            upgrade(_attempt=this_attempt + 1)
-        else:
-            raise exc
-
-
-@manager.option(
-    '--not_force', action='store_true',
-    help='Don\'t use "--force" option when running "initdb" sub-command?')
-@manager.option(
-    '--not_overwrite', action='store_true',
-    help='Don\'t use "--overwrite" option when running "initdb" sub-command?')
-@manager.option(
-    '--verbose_upgrade', action='store_true',
-    help='Don\'t use "--silent" option when running "upgrade" sub-command?')
-def release(not_overwrite: bool, not_force: bool, verbose_upgrade: bool):
-    """Perform steps necessary for a deployment
-
-    Args:
-        force (bool): Use "--force" option when running "initdb" sub-command?
-        overwrite (bool): Use "--overwrite" option when running "initdb"
-        sub-command?
-        silent_upgrade (bool): Use "--silent" option when running "upgrade"
-        sub-command?
-    """
-    overwrite = not(not_overwrite)
-    force = not(not_force)
-    silent_upgrade = not(verbose_upgrade)
-    progress = TaskTracker(name='Deployment release process', queue=[
-        'Beginning schema migration',
-        'Initialize database'
-    ])
-    progress.next()
-
-    # TODO: Re-enable this when ready. If disabled, this release should only
-    #  work for brand new instances; not for upgraded deployments of existing
-    #  instances. We should determine if instance is new and skip this step
-    # upgrade(silent=silent_upgrade)
-
-    # TODO: What to do if head behind? stamp and then upgrade? Heroku won't
-    #  allow to store new file
-    # except Exception:
-    #     migrate(force=True)  # This won't work;
-    #     upgrade(silent=silent_upgrade)
-
-    progress.next()
-    initdb(overwrite=overwrite, force=force)
-
-    progress.complete()
+def release():
+    """Perform steps necessary for a deployment"""
+    print('Deployment release task: Beginning')
+    initdb()
+    print('Deployment release task: Complete')
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
-manager.add_command('db', MigrateCommand)  # e.g. 'upgrade', 'migrate'
 
 
 if __name__ == '__main__':

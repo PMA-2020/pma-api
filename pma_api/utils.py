@@ -3,8 +3,11 @@ import itertools
 import operator
 import platform
 import random
+from typing import List
 
-from pma_api.config import PROJECT_ROOT_DIR
+from flask_sqlalchemy import Model, SQLAlchemy
+
+from pma_api.config import PROJECT_ROOT_PATH
 
 B64_CHAR_SET = ''.join(('abcdefghijklmnopqrstuvwxyz',
                         'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -39,8 +42,8 @@ def os_appropriate_folder_path(folder_name: str) -> str:
         str: path
     """
     if platform.system() == 'Windows':
-        return PROJECT_ROOT_DIR + '\\' + folder_name
-    return PROJECT_ROOT_DIR + '/' + folder_name + '/'
+        return PROJECT_ROOT_PATH + '\\' + folder_name
+    return PROJECT_ROOT_PATH + '/' + folder_name + '/'
 
 
 def most_common(a_list: list):
@@ -110,3 +113,20 @@ def join_url_parts(*args: str) -> str:
     base_str = '/'.join(args)
 
     return 'http://' + base_str.replace('http://', '').replace('//', '/')
+
+
+def get_db_models(db: SQLAlchemy) -> List[Model]:
+    """Get list of models from SqlAlchemy
+
+    Args:
+        db: SqlAlchemy db object
+
+    Returns:
+        list(Model): List of registered SqlAlchemy models
+    """
+    # noinspection PyProtectedMember
+    models: List[Model] = \
+        [cls for cls in db.Model._decl_class_registry.values()
+         if isinstance(cls, type) and issubclass(cls, db.Model)]
+
+    return models

@@ -27,8 +27,8 @@ docs-push-staging serve-dev-network-accessible circleci-validate-config logs \
 logs-staging virtualenv-make virtualenvwrapper-make virtualenv-activate \
 virtualenvwrapper-activate deactivate virtualenv-deactivate connect-staging \
 virtualenvwrapper-deactivate restore restore-test backup % connect-production \
-migrate_db migrate upgrade_db upgrade list-backups list list-api-data \
-list-datasets list-ui-data backup-source-files release migrate-fix
+list-backups list list-api-data list-datasets list-ui-data \
+backup-source-files release
 
 # ALL LINTING
 lint:
@@ -84,7 +84,7 @@ virtualenvwrapper-deactivate: deactivate
 
 # DB
 db:
-	@python3 manage.py initdb --overwrite
+	@python3 manage.py initdb
 db-production: db
 # TODO - fix some issues causing tests to fail when run on Heroku
 release:
@@ -92,16 +92,6 @@ release:
 	@make test
 translations:
 	@python3 manage.py initdb --translations
-migrate_db:
-	@python3 manage.py migrate
-migrate: migrate_db
-migrate-fix:
-#	alembic --config migrations/alembic.ini stamp head
-#	make migrate
-	@python3 manage.py migrate --force
-upgrade_db:
-	@python3 manage.py upgrade
-upgrade: upgrade_db
 list-ui-data:
 	@python3 manage.py list_ui_data
 list-datasets:
@@ -277,4 +267,9 @@ list-backups:
 
 # Task queues
 celery:
-	celery worker --app=pma_api.tasks.celery --loglevel=info
+	celery worker \
+	--app=pma_api.tasks.celery \
+	--loglevel=info \
+	--without-gossip \
+	--without-mingle \
+	--without-heartbeat

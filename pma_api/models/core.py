@@ -250,9 +250,8 @@ class Characteristic(ApiModel):
         """
         result = {
             'id': self.code,
-            'order': self.order
-        }
-        result['label'] = self.label.to_string(lang)
+            'order': self.order,
+            'label': self.label.to_string(lang)}
 
         if jns:
             result = self.namespace(result, 'char', index=index)
