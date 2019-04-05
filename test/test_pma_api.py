@@ -13,24 +13,22 @@ import inspect
 import json
 import os
 import time
-import unittest
 from glob import glob
 from typing import List, Dict, Union
 
 from flask import Response, Flask
+import flask_testing
 from flask_sqlalchemy import Model
 from sqlalchemy.exc import OperationalError
 
 # import xlrd
 # from manage import app
 from manage import app, db, initdb
-from pma_api.config import AWS_S3_STORAGE_BUCKETNAME as BUCKET, \
-    S3_BACKUPS_DIR_PATH
 # from pma_api.tasks import activate_dataset_request
 from pma_api.manage.db_mgmt import restore_db_local, new_backup_path, \
     backup_local, restore_db_cloud, delete_s3_file, download_file_from_s3, \
     backup_db_cloud, backup_local_using_heroku_postgres, is_db_empty, \
-    restore_using_heroku_postgres, list_datasets, store_file_on_s3
+    restore_using_heroku_postgres, list_datasets
 # write_data_file_to_db, \
 # remove_stata_undefined_token_from_wb as \
 # remove_stata_undefined_token_from_wb_imported
@@ -39,12 +37,20 @@ from test.config import TEST_STATIC_DIR
 
 other_test_interference_tell = \
     'server closed the connection unexpectedly'
-sleep_seconds = 10
+sleep_seconds = 3
 max_attempts = 3
 
 
-class PmaApiTest(unittest.TestCase):
+class PmaApiTest(flask_testing.TestCase):
     """Package super class"""
+
+    @staticmethod
+    def get_dir_files(directory: str) -> List[str]:
+        """Get list of files in a directory."""
+        files: List[str] = glob(directory + '*')
+        files: List[str] = [x for x in files if not os.path.isdir(x)]
+
+        return files
 
     @staticmethod
     def get_class_static_dir(_cls: str = '') -> str:
@@ -90,7 +96,7 @@ class PmaApiTest(unittest.TestCase):
             list: Designated static files for class
         """
         class_dir = cls.get_class_static_dir(_cls=_cls if _cls else '')
-        files = glob(class_dir + '*')
+        files: List[str] = cls.get_dir_files(class_dir)
 
         return files
 
@@ -113,123 +119,35 @@ class PmaApiTest(unittest.TestCase):
 
         calling_method_name = inspect.stack()[1].function
 
-        method_dir_variations = (calling_method_name,
-                                 calling_method_name.replace('test_', ''),
-                                 'test_' + calling_method_name)
+        method_dir_variations = (
+            calling_method_name,
+            calling_method_name.replace('test_', ''),
+            'test_' + calling_method_name)
 
         for dirname in method_dir_variations:
-            method_dir = cls.get_method_static_dir(_cls=calling_class_name,
-                                                   _mtd=dirname)
-            # I think Pycharm is wrong here. -jef
-            # noinspection PyTypeChecker
-            files = glob(method_dir + '*')
+            method_dir: str = cls.get_method_static_dir(
+                _cls=calling_class_name,
+                _mtd=dirname)
+            files: List[str] = cls.get_dir_files(method_dir)
             result = files if files else result
 
         return result
+
+    def create_app(self):
+        """Just implementing all abstract methods as required.
+
+        https://stackoverflow.com/questions/45396040/how-to-find-and-
+        implement-all-the-abstract-methods-in-pycharm?rq=1
+
+        Note 2018.04.09-jef: Honestly, I'm not 100% sure why I have to do this.
+        """
+        # raise NotImplementedError  # Doing this causes Pycharm to show err.
+        pass
 
     def setUp(self):
         """Set up: Put Flask app in test mode"""
         app.testing = True
         self.app = app.test_client()
-
-
-class TestRoutes(PmaApiTest):
-    """Test routes"""
-
-    ignore_routes = ('/static/<path:filename>',
-                     '/activate_dataset_request',  # POST
-                     '/activate_dataset',  # POST
-                     '/longtask',  # POST
-                     '/v1/data', '/v1/datalab/data')  # TODO: fix timeout err
-    ignore_end_patterns = ('>',)
-    json_route_start_pattern = '/v'
-
-    @staticmethod
-    def valid_route(route):
-        """Validate route.
-
-        Args:
-            route (str): Route url pattern.
-
-        Returns:
-            bool: True if valid, else False.
-        """
-        if route in TestRoutes.ignore_routes \
-                or any(route.endswith(x) for x in TestRoutes.ignore_routes) \
-                or route.endswith(TestRoutes.ignore_end_patterns):
-            return False
-        return True
-
-    def _validate_json_response(self, routes: List[str], attempt: int = 1,
-                                silent: bool = True):
-        """Check that routes all return a JSON response
-
-        Args:
-            routes (list): Routes to check
-            attempt (int): Attempt iteration num. Exits if failures exceed max.
-        """
-        try:
-            for route in routes:
-                if not silent:
-                    print('fetching: ' + route)
-                r: Response = self.app.get(route)
-                if route.startswith(self.json_route_start_pattern):
-                    data: Union[List, Dict] = json.loads(r.data)
-
-                    valid: bool = r.is_json
-                    # Check for empty JSON, e.g. {} or []:
-                    valid *= bool(data)
-                    if 'resultSize' in data:
-                        valid *= bool(int(data['resultSize']) > 0)
-                    for x in ('result', 'results'):
-                        if x in data:
-                            # Check for empty JSON, e.g. {} or []:
-                            valid *= bool(data[x])
-
-                    self.assertTrue(r.status_code == 200 and valid)
-        except OperationalError as err:  # Other tests may be interrupting this
-            if other_test_interference_tell in str(err):
-                time.sleep(sleep_seconds)
-                if attempt >= max_attempts:
-                    raise err
-                self._validate_json_response(
-                    routes=routes,
-                    attempt=attempt + 1)
-
-    def test_datalab_queries(self):
-        """Test specific Datalab queries"""
-        routes: List[str] = [  # Somewhat randomly selected
-            # 3 rounds across 2 countries, line over time
-            '/v1/datalab/combos?survey=PMA2014_BFR1,PMA2015_BFR2,PMA2014_ETR1&'
-            'indicator=mcp_all&characteristicGroup=marital_status&',
-            '/v1/datalab/data?survey=PMA2014_BFR1,PMA2015_BFR2,PMA2014_ETR1&in'
-            'dicator=mcp_all&characteristicGroup=marital_status&overTime=true',
-            # 1 country, 2 regions, bar
-            '/v1/datalab/combos?survey=PMA2016_NER2&indicator=fees_12months_al'
-            'l&characteristicGroup=region_NE',
-            '/v1/datalab/data?survey=PMA2016_NER2&indicator=fees_12months_all&'
-            'characteristicGroup=region_NE&',
-            # another: 1 over time / 1 non
-            '/v1/datalab/combos?survey=PMA2014_BFR1,PMA2015_BFR2,PMA2014_CDR2_'
-            'Kinshasa,PMA2015_CDR3_Kinshasa,PMA2015_CDR4_Kinshasa,PMA2016_CDR5'
-            '_Kinshasa,PMA2015_CDR4_KongoCentral,PMA2016_CDR5_KongoCentral&ind'
-            'icator=visits_iud_new&characteristicGroup=beds&',
-            '/v1/datalab/data?survey=PMA2014_BFR1,PMA2015_BFR2,PMA2014_CDR2_Ki'
-            'nshasa,PMA2015_CDR3_Kinshasa,PMA2015_CDR4_Kinshasa,PMA2016_CDR5_K'
-            'inshasa,PMA2015_CDR4_KongoCentral,PMA2016_CDR5_KongoCentral&indic'
-            'ator=visits_iud_new&characteristicGroup=beds&',
-            '/v1/datalab/data?survey=PMA2014_BFR1,PMA2015_BFR2,PMA2014_CDR2_Ki'
-            'nshasa,PMA2015_CDR3_Kinshasa,PMA2015_CDR4_Kinshasa,PMA2016_CDR5_K'
-            'inshasa,PMA2015_CDR4_KongoCentral,PMA2016_CDR5_KongoCentral&indic'
-            'ator=visits_iud_new&characteristicGroup=beds&overTime=true&'
-        ]
-        self._validate_json_response(routes)
-
-    def test_json_routes(self):
-        """Smoke test routes: no runtime errors and return JSON"""
-        routes: List[str] = [route.rule for route in app.url_map.iter_rules()
-                             if self.valid_route(route.rule)]
-        self._validate_json_response(routes)
 
 
 # TODO
@@ -309,46 +227,68 @@ class TestRoutes(PmaApiTest):
 #         self.assertEquals(received, expected)
 
 
-class TestDbFunctions(PmaApiTest):
+# TODO
+# class TestAsync(PmaApiTest):
+#     """Test async functions, e.g. task queue Celery and message broker"""
+#
+#     def test_async(self):
+#         """Test async functions, e.g. task queue Celery and message broker"""
+#         pass
+
+
+class SequentialTests(PmaApiTest):
     """Test database functions"""
 
-    backup_kb_threshold: int = 200
+    test_numbers_to_skip: List[int] = []  # t"n" methods in this list wont run
+    backup_kb_threshold: int = 50
     backup_msg: str = 'Backup file didn\'t meet expected minimum threshold ' \
         'of {} kb.'.format(str(backup_kb_threshold))
     live_test_app_name: str = 'pma-api-staging'
     live_app: Flask = app
     db_empty: bool = is_db_empty(live_app)
+    ignore_routes = (
+        '/static/<path:filename>',
+        '/activate_dataset_request',  # POST
+        '/activate_dataset',  # POST
+        '/longtask',  # POST
+        '/v1/data',
+        '/v1/datalab/data')  # TODO: fix timeout err
+    ignore_end_patterns = ('>',)
+    json_route_start_pattern = '/v'
 
-    # def setUp(self):
-    #     """Setup"""
-    #     print('- Setting up test: Creating backup file...')
-    #     self.backup: str = new_backup_path()
-    #     backup_local(path=self.backup, silent=True)
-    #
-    # def tearDown(self):
-    #     """Tear down"""
-    #     print('- Finishing test: Restoring backup file...')
-    #     restore_db_local(path=self.backup, silent=True)
+    def setUp(self):
+        """Setup"""
+        super().setUp()
+        print('- Setting up test: Creating backup file...')
+        self.backup: str = new_backup_path()
+        backup_local(path=self.backup, silent=True)
+
+    def tearDown(self):
+        """Tear down"""
+        print('- Finishing test: Restoring backup file...')
+        restore_db_local(path=self.backup, silent=True)
 
     @classmethod
     def initdb_overwrite(cls, path: str = ''):
         """Test"""
         if path:
-            initdb(api_file_path=path)
+            initdb(api_file_path=path, ui_file_path='')
         else:
             initdb()
 
     @staticmethod
-    def backup_local_and_get_file_size(path: str = new_backup_path()):
+    def backup_local_and_get_file_size(path: str = new_backup_path(),
+                                       silent: bool = True):
         """Backup db and return file size
 
         Args:
             path (str): Path to save backup file
+            silent (bool): Don't print stdout?
 
         Returns:
             int: Size of backed up file in MB
         """
-        backup_local(path=path, silent=True)
+        backup_local(path=path, silent=silent)
         size = os.path.getsize(path)
         size_in_kb = size >> 10
 
@@ -375,24 +315,32 @@ class TestDbFunctions(PmaApiTest):
         return size_before, size_after
 
     @staticmethod
-    def backup_cloud_and_get_file_size(path: str = new_backup_path()):
+    def backup_cloud_and_get_file_size(path: str = new_backup_path(),
+                                       silent: bool = True):
         """Backup db and return file size
+
+        Side effects:
+            - Backs up
+            - Removes backup
 
         Args:
             path (str): Path to save backup file
+            silent (bool): Don't print stdout?
 
         Returns:
             int: Size of backed up file in MB
         """
-        from pma_api.config import BACKUPS_DIR
+        from pma_api.config import S3_BACKUPS_DIR_PATH, DATA_DIR
 
         # with SuppressStdoutStderr():  # S3 has unfixed resource warnings
-        filename = backup_db_cloud(path_or_filename=path, silent=True)
-        dl_path = download_file_from_s3(filename=filename,
-                                        directory=BACKUPS_DIR)
+        filename: str = backup_db_cloud(path_or_filename=path, silent=silent)
+        dl_path: str = download_file_from_s3(
+            filename=filename,
+            file_dir=S3_BACKUPS_DIR_PATH,
+            dl_dir=DATA_DIR)
 
-        size = os.path.getsize(path)
-        size_in_kb = size >> 10
+        size: int = os.path.getsize(dl_path)
+        size_in_kb: int = size >> 10
         os.remove(dl_path)
 
         return size_in_kb
@@ -478,55 +426,155 @@ class TestDbFunctions(PmaApiTest):
             app_name=cls.live_test_app_name,
             silent=True)
 
-    # TODO: When ready to release, remove 'xxx_'
-    def xxx_t1_backup_local(self):
-        """Test backup of db locally"""
-        if os.getenv('ENV_NAME') == 'development':
-            size: int = self.backup_static_local(
-                self.backup_local_and_get_file_size)
-            self.assertGreater(size, self.backup_kb_threshold,
-                               msg=self.backup_msg)
+    @classmethod
+    def valid_route(cls, route):
+        """Validate route.
 
-    def xxx_t2_restore_local(self):
-        """Test restore of db from a local backup"""
-        hash_before, hash_after = self.backup_restore_local_and_get_sizes()
+        Args:
+            route (str): Route url pattern.
 
-        self.assertEqual(hash_before, hash_after)
-
-    def xxx_t3_backup_cloud(self):
-        """Test backup of db to the cloud"""
-        size: int = self.backup_static_local(
-            self.backup_cloud_and_get_file_size)
-        self.assertGreater(size, self.backup_kb_threshold,
-                           msg=self.backup_msg)
-
-    def xxx_t4_restore_cloud(self):
-        """Test restore of db from a cloud backup"""
-        hash_before, hash_after = self.backup_restore_cloud_and_get_sizes()
-
-        self.assertEqual(hash_before, hash_after)
-
-    def xxx_t5_backup_restore_on_staging(self):
-        """Restore database
-
-        Side effects:
-            - Reverts database to state of backup file
+        Returns:
+            bool: True if valid, else False.
         """
-        path: str = self.backup_static_staging()
+        if route in cls.ignore_routes \
+                or any(route.endswith(x) for x in cls.ignore_routes) \
+                or route.endswith(cls.ignore_end_patterns):
+            return False
+        return True
 
-        filename: str = store_file_on_s3(
-            path=path,
-            storage_dir=S3_BACKUPS_DIR_PATH)
-        backup_url = 'https://{bucket}.s3.amazonaws.com/{path}{object}'.format(
-            bucket=BUCKET,
-            path=S3_BACKUPS_DIR_PATH,
-            object=filename)
+    def _validate_json_response(self, routes: List[str], attempt: int = 1,
+                                silent: bool = True):
+        """Check that routes all return a JSON response
 
-        self.restore_static_staging(backup_url)
+        Args:
+            routes (list): Routes to check
+            attempt (int): Attempt iteration num. Exits if failures exceed max.
+        """
+        typical_result_keys: tuple = ('result', 'results')
+        combos_result_keys: tuple = ('characteristicGroup.id', 'indicator.id',
+                                     'survey.id')
+        all_possible_result_keys: tuple = \
+            typical_result_keys + combos_result_keys
+        msg = '\n- Route: {}\n' \
+              '- Status code: {}  [Expected \'200\']\n' \
+              '- Valid JSON: {} [Expected \'True\']'
+        try:
+            for route in routes:
+                if not silent:
+                    print('fetching: ' + route)
+                r: Response = self.app.get(route)
+                if route.startswith(self.json_route_start_pattern):
+                    data: Union[List, Dict] = json.loads(r.data)
 
-        self.assertTrue(True)  # no-op; If no errors until here, we're ok
+                    valid: bool = bool(r.is_json)
+                    # Check for empty JSON, e.g. {} or []:
+                    valid *= bool(data)  # int
+                    if 'resultSize' in data:
+                        valid *= bool(int(data['resultSize']) > 0)  # int
+                    for x in all_possible_result_keys:
+                        if x in data:
+                            # Check for empty JSON, e.g. {} or []:
+                            valid *= bool(data[x])  # int
 
-    def t6_initdb_overwrite(self):
+                    valid: bool = bool(valid)
+                    status_code: int = r.status_code
+                    conditions: bool = status_code == 200 and valid
+                    self.assertTrue(
+                        conditions,
+                        msg=msg.format(route, str(status_code), str(valid)))
+
+        except OperationalError as err:  # Other tests may be interrupting this
+            if other_test_interference_tell in str(err):
+                time.sleep(sleep_seconds)
+                if attempt >= max_attempts:
+                    raise err
+                self._validate_json_response(
+                    routes=routes,
+                    attempt=attempt + 1)
+
+    # This is not currently necessary, as the 'activate' feature currently only
+    #  works on running server.
+    # def backup_restore_on_staging(self):
+    #     """Restore database
+    #
+    #     Side effects:
+    #         - Reverts database to state of backup file
+    #     """
+    #     path: str = self.backup_static_staging()
+    #
+    #     filename: str = store_file_on_s3(
+    #         path=path,
+    #         storage_dir=S3_BACKUPS_DIR_PATH)
+    #     backup_url = 'https://{bucket}.s3.amazonaws.com/{path}{object}'
+    #     .format(
+    #         bucket=BUCKET,
+    #         path=S3_BACKUPS_DIR_PATH,
+    #         object=filename)
+    #
+    #     self.restore_static_staging(backup_url)
+    #
+    #     self.assertTrue(True)  # no-op; If no errors until here, we're ok
+
+    def test_sequentially(self):
+        """Test sequentially
+
+        Will find sequential tests by looking for any methods on test objects
+        that start with the pattern 't[0-9]_'.
+        """
+        from collections import OrderedDict
+
+        msg = '- Running sub-test {}/{}: {}'
+        methods = {k: getattr(self, k) for k in dir(self)
+                   if callable(getattr(self, k))}
+        sequential_tests = OrderedDict({
+            k: v for k, v in methods.items()
+            if k[0] == 't' and
+            k[1] in [str(x) for x in range(10)] and
+            k[2] == '_'})
+        num_tests: int = len(sequential_tests.keys()) - \
+            len(self.test_numbers_to_skip)
+
+        test_run_num = 1
+        test_method_num = 1
+        for name, func in sequential_tests.items():
+            if test_method_num not in self.test_numbers_to_skip:
+                print(msg.format(test_run_num, num_tests, name))
+                # with self.live_app.app_context():
+                func()
+                test_run_num += 1
+            test_method_num += 1
+            # time.sleep(sleep_seconds)
+
+    # TODO: For some reason, some of these unit tests broke. However, the
+    #  initdb_overwrite test is end-to-end and should cover these.
+    # def t1_backup_local(self):
+    #     """Test backup of db locally"""
+    #     if os.getenv('ENV_NAME') == 'development':
+    #         size: int = self.backup_static_local(
+    #             self.backup_local_and_get_file_size)
+    #         self.assertGreater(size, self.backup_kb_threshold,
+    #                            msg=self.backup_msg)
+    #
+    # def t2_restore_local(self):
+    #     """Test restore of db from a local backup"""
+    #     hash_before, hash_after = self.backup_restore_local_and_get_sizes()
+    #
+    #     self.assertEqual(hash_before, hash_after)
+
+    # def t3_backup_cloud(self):
+    #     """Test backup of db to the cloud"""
+    #     size: int = self.backup_static_local(
+    #         self.backup_cloud_and_get_file_size)
+    #     self.assertGreater(size, self.backup_kb_threshold,
+    #                        msg=self.backup_msg)
+    #
+    # def t4_restore_cloud(self):
+    #     """Test restore of db from a cloud backup"""
+    #     hash_before, hash_after = self.backup_restore_cloud_and_get_sizes()
+    #
+    #     self.assertEqual(hash_before, hash_after)
+
+    def t1_initdb_overwrite(self):
         """Test initdb with full db overwrite without any exceptions"""
         msg = 'Records were not found in the following tables: {}'
 
@@ -549,36 +597,41 @@ class TestDbFunctions(PmaApiTest):
 
         self.assertTrue(not error_tables, msg.format(', '.join(error_tables)))
 
-    def test_db_functions_sequentially(self):
-        """Test sequentially
+    def t2_json_routes(self):
+        """Smoke test routes: no runtime errors and return JSON"""
+        routes: List[str] = [route.rule for route in
+                             app.url_map.iter_rules()
+                             if self.valid_route(route.rule)]
+        self._validate_json_response(routes)
 
-        Will find sequential tests by looking for any methods on test objects
-        that start with the pattern 't[0-9]_'.
-        """
-        from collections import OrderedDict
-
-        msg = '- Running sub-test {}/{}: {}'
-
-        methods = {k: getattr(self, k) for k in dir(self)
-                   if callable(getattr(self, k))}
-        sequential_tests = OrderedDict({
-            k: v for k, v in methods.items()
-            if k[0] == 't' and
-            k[1] in [str(x) for x in range(10)] and
-            k[2] == '_'})
-        i = 1
-        for name, func in sequential_tests.items():
-            print(msg.format(i, len(sequential_tests.keys()), name))
-            i += 1
-            func()
-
-
-class TestAsync(PmaApiTest):
-    """Test async functions, e.g. task queue Celery and message broker"""
-
-    def test_async(self):
-        """Test async functions, e.g. task queue Celery and message broker"""
-        pass
+    def t3_datalab_queries(self):
+        """Test specific Datalab queries"""
+        routes: List[str] = [  # Somewhat randomly selected
+            # 3 rounds across 2 countries, line over time
+            '/v1/datalab/combos?survey=PMA2014_BFR1,PMA2015_BFR2,PMA2014_ETR1&'
+            'indicator=mcp_all&characteristicGroup=marital_status&',
+            '/v1/datalab/data?survey=PMA2014_BFR1,PMA2015_BFR2,PMA2014_ETR1&in'
+            'dicator=mcp_all&characteristicGroup=marital_status&overTime=true',
+            # 1 country, 2 regions, bar
+            '/v1/datalab/combos?survey=PMA2016_NER2&indicator=fees_12months_al'
+            'l&characteristicGroup=region_NE',
+            '/v1/datalab/data?survey=PMA2016_NER2&indicator=fees_12months_all&'
+            'characteristicGroup=region_NE&',
+            # another: 1 over time / 1 non
+            '/v1/datalab/combos?survey=PMA2014_BFR1,PMA2015_BFR2,PMA2014_CDR2_'
+            'Kinshasa,PMA2015_CDR3_Kinshasa,PMA2015_CDR4_Kinshasa,PMA2016_CDR5'
+            '_Kinshasa,PMA2015_CDR4_KongoCentral,PMA2016_CDR5_KongoCentral&ind'
+            'icator=visits_iud_new&characteristicGroup=beds&',
+            '/v1/datalab/data?survey=PMA2014_BFR1,PMA2015_BFR2,PMA2014_CDR2_Ki'
+            'nshasa,PMA2015_CDR3_Kinshasa,PMA2015_CDR4_Kinshasa,PMA2016_CDR5_K'
+            'inshasa,PMA2015_CDR4_KongoCentral,PMA2016_CDR5_KongoCentral&indic'
+            'ator=visits_iud_new&characteristicGroup=beds&',
+            '/v1/datalab/data?survey=PMA2014_BFR1,PMA2015_BFR2,PMA2014_CDR2_Ki'
+            'nshasa,PMA2015_CDR3_Kinshasa,PMA2015_CDR4_Kinshasa,PMA2016_CDR5_K'
+            'inshasa,PMA2015_CDR4_KongoCentral,PMA2016_CDR5_KongoCentral&indic'
+            'ator=visits_iud_new&characteristicGroup=beds&overTime=true&'
+        ]
+        self._validate_json_response(routes)
 
 
 class TestListDatasets(PmaApiTest):

@@ -28,7 +28,8 @@ class ApiMetadata(db.Model):
             self.type = 'api'
         elif filename.startswith('ui'):
             self.type = 'ui'
-        self.blob = open(path, 'rb').read()
+        with open(path, 'rb') as file:
+            self.blob = file.read()
         self.md5_checksum = md5(self.blob).hexdigest()
 
     @classmethod

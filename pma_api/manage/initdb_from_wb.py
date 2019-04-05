@@ -5,24 +5,27 @@ from time import time
 from typing import List, Dict, Union, Generator
 
 import xlrd
-from xlrd.book import Book
 from flask import Flask, current_app
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError, DatabaseError
 
-
+from pma_api.manage.functional_subtask import FunctionalSubtask
 from pma_api.manage.multistep_task import MultistepTask
 from pma_api.manage.db_mgmt import get_api_data, get_ui_data, \
     register_administrative_metadata, restore_db, backup_db, connection_error,\
-    env_access_err_tell, env_access_err_msg, TRANSLATION_MODEL_MAP, \
-    caching_error, drop_tables, METADATA_MODEL_MAP, ORDERED_MODEL_MAP, \
-    get_datasheet_names, format_book, init_from_sheet, seed_users
+    env_access_err_tell, env_access_err_msg, caching_error, drop_tables, \
+    ORDERED_METADATA_SHEET_MODEL_MAP, DATASET_WB_SHEET_MODEL_MAP, \
+    get_datasheet_names, commit_from_sheet, seed_users
 from pma_api import db
 from pma_api.error import PmaApiDbInteractionError
-from pma_api.models import Cache, Characteristic, Data, Indicator, Survey
+from pma_api.models import Cache, Characteristic, Indicator, Survey
 
 
 class InitDbFromWb(MultistepTask):
-    """From a Workbook object, initialize database."""
+    """From a Workbook object, initialize database.
+
+    # TODO 2019-04-02 jef
+       - For some reason, geography label_id arent being populated
+    """
 
     task_name = 'Initializing database from {}'
     restore_msg = 'An issue occurred. Restoring database to state it was in ' \
@@ -49,13 +52,28 @@ class InitDbFromWb(MultistepTask):
         self.backup_path: str = ''
         self.callback: Generator = callback
         self.warnings = {}
+        self.indicator_code_ids: Dict[str, int] = {}
+        self.characteristic_code_ids: Dict[str, int] = {}
+        self.survey_code_ids: Dict[str, int] = {}
         self.final_status = {
             'success': False,
             'seconds_elapsed': 0,
             'warnings': self.warnings,
         }
+        # /Users/joeflack4/projects/pma-api/api_data-2019.01.22-v36-jef.xlsx
+        with xlrd.open_workbook(api_file_path) as book:
+            self.api_wb: xlrd.book.Book = book
+        self.ui_wb = None
+        if ui_file_path:
+            with xlrd.open_workbook(ui_file_path) as book:
+                self.ui_wb: xlrd.book.Book = book
+        with _app.app_context():
+            subtasks: Dict[str, Dict[str, Union[str, int]]] = \
+                self.create_subtasks()
+        self.subtask_queue: List[str] = [x for x in subtasks.keys()]
+
         super().__init__(
-            silent=silent, callback=callback, subtasks=self.create_subtasks(),
+            silent=silent, callback=callback, subtasks=subtasks,
             name=self.task_name.format(os.path.basename(api_file_path)))
 
     def create_subtasks(self) -> Dict[str, Dict[str, Union[str, int]]]:
@@ -68,11 +86,14 @@ class InitDbFromWb(MultistepTask):
         Returns:
             dict: Collection of subtask objects
         """
+        # TODO 2019.04.04-jef: 1. Refactor subtask dicts to subtask class objs
+        #  ...afterwards, edits can be made to MultistepTask class to remove
+        #  the ugly 'if dict, do this, else...' conditionals.
         sub_tasks_static: Dict[str, Dict[str, Union[str, int]]] = {
             'backup1': {
                 'prints': 'Backing up database',
                 'pct_starts_at': 0,  # 0-9
-                'func': self._backup1
+                'func': lambda x=1: self._backup(num=x)
             },
             'reset_db': {
                 'prints': 'Resetting db for fresh install',
@@ -80,16 +101,16 @@ class InitDbFromWb(MultistepTask):
                 'func': self._reset_db
             },
             # Metadata: 15-29
-            'translations1': {
-                'prints': 'Updating translations',
+            'translations_api': {
+                'prints': 'Uploading metadata language translations',
                 'pct_starts_at': 30,  # 31-34
-                'func': None
+                'func': lambda: self.init_api_worksheet('translation')
             },
             # Data: 35-89
-            'translations2': {
-                'prints': 'Updating translations',
+            'translations_ui': {
+                'prints': 'Uploading UI language translations',
                 'pct_starts_at': 90,  # 90-91
-                'func': None
+                'func': self.init_client_ui_data
             },
             'create_cache': {
                 'prints': 'Caching',
@@ -99,41 +120,44 @@ class InitDbFromWb(MultistepTask):
             'backup2': {
                 'prints': 'Backing up and finishing',
                 'pct_starts_at': 95,  # 95-99
-                'func': self._backup2
+                'func': lambda x=2: self._backup(num=x)
             }
         }
 
-        # TODO: Build up and add funcs. Will require a change as well in run()
-        # Metadata: 15-29
-        metadata_list: List[Dict[str, Dict[str, Union[str, int]]]] = [
+        metadata_list: List[Dict[str, FunctionalSubtask]] = [
             {
-                'upload_metadata_{}'.format(x[1].__tablename__): {
-                    'prints': 'Uploading metadata - {}'.format(
-                        x[1].__tablename__),
-                    'pct_starts_at': int,
-                    'func': None
-                }
-            } for x in METADATA_MODEL_MAP
+                'upload_metadata_{}'.format(v.__tablename__):
+                    FunctionalSubtask(
+                        name='upload_metadata_{}'.format(v.__tablename__),
+                        prints='Uploading metadata - {}'
+                        .format(v.__tablename__),
+                        pct_starts_at=float(0),  # Temp until pct calculated
+                        func=self.init_api_worksheet,
+                        sheetname=k)
+            } for k, v in ORDERED_METADATA_SHEET_MODEL_MAP.items()  # str,Model
         ]
-        metadata_dict: Dict[str, Dict[str, Union[str, int]]] = \
+        metadata_dict: Dict[str, Dict[str, Union[str, float]]] = \
             self._calc_subtask_grp_pcts(
             subtask_grp_list=metadata_list, start=15, stop=29)
 
         # Data: 35-89
-        data_list: List[Dict[str, Dict[str, Union[str, int]]]] = [
+        data_list: List[Dict[str, FunctionalSubtask]] = [
             {
-                'upload_data_{}'.format(x): {
-                    'prints': 'Uploading data - {}'.format(x),
-                    'pct_starts_at': int,
-                    'func': None
-                }
-            } for x in get_datasheet_names(self.api_file_path)
+                'upload_data_{}'.format(x):
+                    FunctionalSubtask(
+                        name='upload_data_{}'.format(x),
+                        prints='Uploading data - {}'.format(x),
+                        pct_starts_at=float(0),  # Temp until pct calculated
+                        func=self.init_api_worksheet,
+                        sheetname=x)
+            } for x in get_datasheet_names(self.api_file_path)  # List[str]
         ]
+
         data_dict: Dict[str, Dict[str, Union[str, int]]] = \
             self._calc_subtask_grp_pcts(
-            subtask_grp_list=data_list, start=35, stop=89)
+            subtask_grp_list=data_list, start=float(35), stop=float(89))
 
-        sub_tasks_unsorted: Dict[str, Dict[str, Union[str, int]]] = {
+        sub_tasks_unsorted: Dict[str, Dict[str, Union[str, float]]] = {
             **sub_tasks_static,
             **metadata_dict,
             **data_dict}
@@ -142,80 +166,105 @@ class InitDbFromWb(MultistepTask):
         # noinspection PyTypeChecker
         sub_tasks_tuples: List[tuple] = sorted(
             sub_tasks_unsorted.items(),
-            key=lambda x: x[1]['pct_starts_at'])
-        sub_tasks: Dict[str, Dict[str, Union[str, int]]] = \
+            key=lambda x: x[1]['pct_starts_at']
+            if isinstance(x[1], dict)  #
+            else x[1].pct_starts_at)
+        sub_tasks: Dict[str, Dict[str, Union[str, float]]] = \
             OrderedDict(sub_tasks_tuples)
 
         return sub_tasks
 
-    def init_from_workbook(self, wb_path: str, queue: tuple):
-        """Init from workbook.
+    def init_client_ui_data(self):
+        """Load client UI language data into DB
 
         Side effects:
-            - Calls functions that write to DB
-
-        Args:
-            wb_path (str): path to workbook file
-            queue (tuple): Order in which to load db_models.
+            - xlrd.open_workbook
+            - commit_from_sheet
         """
-        metadata_queue: tuple = tuple(x for x in queue if x[0] != 'data')
+        sheetname: str = 'translation'
+        if self.ui_wb:
+            commit_from_sheet(
+                ws=self.ui_wb.sheet_by_name(sheetname),  # Sheet
+                model=DATASET_WB_SHEET_MODEL_MAP[sheetname]),  # db.Model
 
-        with xlrd.open_workbook(wb_path) as book:
-            formatted: xlrd.book.Book = format_book(book)
-            self.init_structural_metadata(wb=formatted, queue=metadata_queue)
-            self.init_data(book)
-            register_administrative_metadata(wb_path)
-
-    def init_structural_metadata(self, wb: Book, queue: tuple):
-        """Init structural metadata
+    def set_relational_metadata(self):
+        """Set instance attrs for required relational keys for 'Data' upload
 
         Side effects:
-            - Writes to DB
+            - setattr
+        """
+        # to-do 2019-04-04-jef: Not sure how to implement this dynamic code
+        model_attrs: Dict = {  # Dict[str,db.Model]
+            'survey_code_ids': Survey,
+            'indicator_code_ids': Indicator,
+            'characteristic_code_ids': Characteristic
+        }
+        with self._app.app_context():
+            for attr_name, model in model_attrs.items():
+                val: Dict[str, int] = {x.code: x.id for x in model.query.all()}
+                setattr(self, attr_name, val)
+
+    def init_api_worksheet(self, sheetname: str, **kwargs):
+        """Init metadata worksheet
+
+        Side effects:
+            - commit_from_sheet
 
         Args:
-            wb (xlrd.book.Book): Dataset workbook object
-            queue (tuple): Order in which to load db models
+            sheetname (str): Name of worksheet for a model
+            **kwargs: Additional keyword arguments to unpack and repack
+            into init_from_worksheet.
         """
-        for sheetname, model in queue:
-            # to-do 2019-04-02 jef: This probably needs a refactor; translation
-            # should have its own function
-            if sheetname == 'translation':
-                current_pct: float = self.completion_ratio
-                translations1_pct = float(
-                    self.subtasks['translations1']['pct_starts_at'] / 100)
-                subtask_name: str = 'translations' + \
-                    ('1' if current_pct <= translations1_pct else '2')
-                self.begin(subtask_name)
-            else:
-                self.begin('upload_metadata_{}'.format(model.__tablename__))
+        if sheetname.startswith('data'):
+            self.init_api_data_worksheet(sheetname)
+        else:
+            commit_from_sheet(
+                ws=self.api_wb.sheet_by_name(sheetname),  # Sheet
+                model=DATASET_WB_SHEET_MODEL_MAP[sheetname],  # db.Model
+                **kwargs)
 
-            ws: xlrd.sheet.Sheet = wb.sheet_by_name(sheetname)
-            init_from_sheet(ws=ws, model=model)
-        db.session.commit()
+    def init_api_data_worksheet(self, sheetname: str):
+        """Init data worksheet
 
-    def init_data(self, wb: xlrd.Book):
-        """Put all the data from the workbook into the database.
+        Side effects:
+            - Creates records in db
+            - Creates instance attributes if not already exist
 
         Args:
-            wb (xlrd.Book): A spreadsheet
+            sheetname (str): Name of worksheet containing data
         """
-        survey = {x.code: x.id for x in Survey.query.all()}
-        indicator = {x.code: x.id for x in Indicator.query.all()}
-        characteristic = {x.code: x.id for x in Characteristic.query.all()}
-        data_sheets: List[xlrd.sheet] = \
-            [x for x in wb.sheets() if x.name.startswith('data')]
+        # Init required instance variables if not already done
+        required_relational_id_models: tuple = \
+            ('survey', 'indicator', 'characteristic')
+        attr_names: List[str] = \
+            [x + '_code_ids' for x in required_relational_id_models]
+        if any(not getattr(self, x) for x in attr_names):
+            self.set_relational_metadata()
 
-        for ws in data_sheets:
-            self.begin('upload_data_{}'.format(ws.name))
-            init_from_sheet(ws=ws, model=Data, survey=survey,
-                            indicator=indicator, characteristic=characteristic)
+        commit_from_sheet(
+            ws=self.api_wb.sheet_by_name(sheetname),
+            model=DATASET_WB_SHEET_MODEL_MAP['data'],
+            survey=self.survey_code_ids,
+            indicator=self.indicator_code_ids,
+            characteristic=self.characteristic_code_ids)
 
-    def _backup1(self):
-        """Back up before doing initialization"""
+    def _backup(self, num: int = None):
+        """Backup state of database
+
+        Side Effects:
+            - Backs up database
+            - Mutates instance attributes
+
+        Args:
+            num (int): Represents the "n'th" backup being performed during
+            execution of task. Backups can happen more than once per task,
+            but only the latest successful backup is stored.
+        """
+        nth_backup_key: str = 'backup' if not num else 'backup_{}'.format(num)
         try:
             self.backup_path: str = backup_db()
         except Exception as err:
-            self.warnings['backup_1'] = str(err)
+            self.warnings[nth_backup_key] = str(err)
 
     def _reset_db(self):
         """Reset database
@@ -224,10 +273,13 @@ class InitDbFromWb(MultistepTask):
             - Drops all data and schema
             - Creates new schema
             - Seeds initial, default users
+            - Registers administrative metadata
         """
         drop_tables()
         self._create_schema()
         seed_users()
+        register_administrative_metadata(self.api_file_path)
+        register_administrative_metadata(self.ui_file_path)
 
     @staticmethod
     def _create_schema():
@@ -240,46 +292,6 @@ class InitDbFromWb(MultistepTask):
             Cache.cache_datalab_init(self._app)
         except RuntimeError as err:
             self.warnings['caching'] = caching_error.format(err)
-
-    def _backup2(self):
-        """Back up resulting database"""
-        try:
-            self.backup_path: str = backup_db()
-        except Exception as err:
-            self.warnings['backup_2'] = str(err)
-
-    def _execute_subtasks(self):
-        """Execute database initialization.
-
-        Side effects:
-            - Creates database schema (tables, etc)
-            - Seeds values into database
-            - Backs up database: at the beginning and end of task execution
-
-        # TODO 2019-04-02 jef
-           1: Where to initialize translation1 and translation2 subtasks?
-           2: Split up translations into their own functions
-           3: For some reason, Geogrpahy label_id arent being populated
-        """
-        # TODO: 1. Refactor each subtask into a subtask obj
-        #  replace dict w/ that
-        # TODO: 2. Make sure translations are being made.they appear as subtask
-        #  but dont appear here
-        # TODO: 3. refactor so that each workbook init is a subtask. then,
-        #  we can iterate through the subtasks ordered dict
-
-        self.begin('backup1')
-        self.begin('reset_db')
-
-        # Seed database
-        self.init_from_workbook(
-            # wb_path=self.api_file_path, queue=METADATA_MODEL_MAP)
-            wb_path=self.api_file_path, queue=ORDERED_MODEL_MAP)
-        self.init_from_workbook(
-            wb_path=self.ui_file_path, queue=TRANSLATION_MODEL_MAP)
-
-        self.begin('create_cache')
-        self.begin('backup2')
 
     def run(self) -> Dict:
         """Create a fresh database instance.
@@ -294,8 +306,9 @@ class InitDbFromWb(MultistepTask):
 
         with self._app.app_context():
             try:
-                self._execute_subtasks()
-            except (OperationalError, AttributeError) as err:
+                for subtask_name in self.subtask_queue:
+                    self.begin(subtask_name)
+            except (DatabaseError, AttributeError) as err:
                 db.session.rollback()
                 restore_db(self.backup_path)
                 print(self.restore_msg)

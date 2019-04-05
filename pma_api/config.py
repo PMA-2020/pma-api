@@ -6,14 +6,15 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-PACKAGE_DIR_NAME: str = os.path.basename(os.path.dirname(__file__))
+PACKAGE_DIR_PATH: str = os.path.dirname(__file__)
+PACKAGE_DIR_NAME: str = os.path.basename(PACKAGE_DIR_PATH)
 PROJECT_ROOT_PATH = \
-    os.path.abspath(os.path.join(PACKAGE_DIR_NAME, '..'))
+    os.path.abspath(os.path.join(PACKAGE_DIR_PATH, '..'))
 load_dotenv(dotenv_path=Path(PROJECT_ROOT_PATH) / '.env')
 
 DATA_DIR: str = os.path.abspath(os.path.join(PROJECT_ROOT_PATH, 'data'))
 BINARY_DIR: str = \
-    os.path.abspath(os.path.join(PROJECT_ROOT_PATH, PACKAGE_DIR_NAME, 'bin'))
+    os.path.abspath(os.path.join(PACKAGE_DIR_PATH, 'bin'))
 DATASETS_DIR: str = DATA_DIR
 UI_DATA_DIR: str = DATA_DIR
 BACKUPS_DIR: str = os.path.abspath(os.path.join(DATA_DIR, 'db_backups'))

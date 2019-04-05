@@ -1,6 +1,7 @@
-# #!/usr/bin/env python3
-# # -*- coding: utf-8 -*-
-# """Unit tests for dataset class."""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Unit tests for dataset class."""
+
 # import datetime
 # import os
 # import unittest

@@ -7,9 +7,10 @@
       <th>ID</th>
       <th>Version</th>
       <th>Name</th>
-      <th>Type</th>
+{#      <th>Type</th>#}
       <th>Uploaded</th>
-      <th>Active</th>
+      {# TODO: Uncomment this when info about being active is fetched #}
+{#      <th>Active</th>#}
       <th>Actions</th>
 {#      <th>Active: Staging</th>#}
 {#      <th>Active: Production</th>#}
@@ -26,22 +27,15 @@
 {#        </td>#}
         <td>{{ dataset.id }}</td>
         <td>{{ dataset.version_number }}</td>
-        <td>{{ dataset.dataset_display_name }}</td>
-        <td>{{ dataset.dataset_type }}</td>
+{#        <td>{{ dataset.dataset_display_name }}</td>#}
+        <td>{{ dataset.name }}</td>
+{#        <td>{{ dataset.dataset_type }}</td>#}
         <td>{{ dataset.last_modified }}</td>
-        <td>
-          {% if dataset.active %}
-            <i class="fas fa-check"></i>
-          {% else %}
-            <a id="activate-link-{{ dataset.version_number }}" href="#">
-              <button type="button"
-                class="btn btn-outline-dark activate-button"
-                id="activate-button-{{ dataset.version_number }}">
-                Activate
-              </button>
-            </a>
-          {% endif %}
-        </td>
+{#        <td>#}
+{#          {% if dataset.active %}#}
+{#            <i class="fas fa-check"></i>#}
+{#          {% endif %}#}
+{#        </td>#}
         <td>
           <a id="download-link-{{ dataset.version_number }}"  href="#">
             <button type="button"
@@ -55,6 +49,13 @@
               class="btn btn-outline-dark delete-button"
               id="delete-button-{{ dataset.version_number }}">
               <i class="fas fa-trash"></i>
+            </button>
+          </a>
+          <a id="activate-link-{{ dataset.version_number }}" href="#">
+            <button type="button"
+              class="btn btn-outline-dark activate-button"
+              id="activate-button-{{ dataset.version_number }}">
+              Activate
             </button>
           </a>
         </td>

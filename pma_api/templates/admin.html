@@ -92,13 +92,6 @@
 {#                      Activate Dataset#}
 {#                    </button>#}
 {#                  </a>#}
-          {#                TODO: temp#}
-          <a id="testing-link" href="#">
-            <button type="button" class="btn btn-outline-dark"
-                    id="testing-button">
-              Test async progress updates
-            </button>
-          </a>
         </div>
       </div>
 
@@ -224,9 +217,6 @@
       integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
       crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='dropzone.js') }}"></script>
-
-    {#      TODO: testing; for longtask: can remove after finished#}
-    <script src="//cdnjs.cloudflare.com/ajax/libs/nanobar/0.2.1/nanobar.min.js"></script>
 
     <!--suppress JSUnresolvedVariable -->
     <script>
@@ -414,36 +404,6 @@
           initTask('/activate_dataset', {datasetID: datasetId})
         });
 
-        function initTask(postUrl, data = {}) {
-          /* Initialize an asynchronous task
-          *
-          * Args:
-          *     postUrl (str): Destination of POST request
-          *     data (obj): JSON object to pass
-          */
-          const startMsg2 = 'Starting task (awaiting server response)...';
-          const startMsg = 'Starting task...';
-          const err = '\'Error when creating task: \'';
-          // Show UI
-          progressUpdatesContainer.css('display', 'inherit');
-          // Update progress
-          progressMsg.text(startMsg);
-          console.log(startMsg);
-
-          $.post(postUrl, data, function(data, status, request) {
-            const status_url = request.getResponseHeader('Content-Location');
-            progressMsg.text(startMsg2);
-            console.log(startMsg2);
-            updateTaskProgress(status_url);
-          }).fail(function(e) {
-            const error = e ? e : unexpectedTaskErrMsg;
-            alert(err + String(error));  // to-do: flash notif instead
-            console.log(err + String(error));
-            progressUpdatesContainer.css('display', 'none');
-          });
-        }
-
-
         // helper function: Sleep
         function sleep(ms) {
         // - useful in tandem w/ alerts, e.g.
@@ -453,7 +413,6 @@
         // - useful for retries
           return new Promise(resolve => setTimeout(resolve, ms));
         }
-
 
         // helper function: isEquivalent
         function isEquivalent(a, b) {  // a=obj, b=obj
@@ -484,29 +443,84 @@
           progressLogErrBar.css('display', 'inherit');
         }
 
+        function clearProgressUi() {
+          progressUpdatesContainer.css('display', 'inherit');
+          progressLogInfoBar.css('display', 'none');
+          progressLogInfoBarMsg.text('');
+          progressLogWarningBar.css('display', 'none');
+          progressLogWarningBarMsg.text('');
+          progressLogSuccessBar.css('display', 'none');
+          progressLogSuccessBarMsg.text('');
+          progressLogErrBar.css('display', 'none');
+          progressLogErrBarMsg.text('');
+        }
+
+        function initTask(postUrl, data = {}, attemptNum) {
+          /* Initialize an asynchronous task
+          *
+          * Args:
+          *     postUrl (str): Destination of POST request
+          *     data (obj): JSON object to pass
+          *     attemptNum (int): Attempt number
+          */
+          const maxRetryAttempts = 3;
+          const thisAttemptNum = attemptNum ? attemptNum : 1;
+          const startMsg2 = 'Starting task (awaiting server response)...';
+          const startMsg = 'Starting task...';
+          const err = '\'Error when creating task: \'';
+          // Show UI
+          progressUpdatesContainer.css('display', 'inherit');
+          // Update progress
+          progressMsg.text(startMsg);
+          console.log(startMsg);
+
+          $.post(postUrl, data, async function(data, status, request) {
+            const status_url = request.getResponseHeader('Content-Location');
+            progressMsg.text(startMsg2);
+            console.log(startMsg2);
+            const result = updateTaskProgress(status_url);  // str
+
+            // For some reason, currently always fails twice.
+            if (result === 'FAILURE' && (thisAttemptNum < maxRetryAttempts)) {
+              console.log('Failed to fetch data from server. Trying again; ' +
+                'attempt ' + thisAttemptNum + ' of ' + maxRetryAttempts + '.');
+              await sleep(secondsBetweenFetches * 1000);  // int (milliseconds)
+              initTask(postUrl, data, thisAttemptNum + 1);
+            }
+          }).fail(async function(e) {
+            const error = e ? e : unexpectedTaskErrMsg;
+            const errTxt = err + String(error);
+
+            if (thisAttemptNum < maxRetryAttempts) {
+              console.log('Failed to fetch data from server. Trying again; ' +
+                'attempt ' + thisAttemptNum + ' of ' + maxRetryAttempts + '.');
+              console.log(errTxt);
+              await sleep(secondsBetweenFetches * 1000);  // int (milliseconds)
+              initTask(postUrl, data, thisAttemptNum + 1);
+            } else {
+              alert(errTxt);  // to-do: flash notif instead
+              console.log(errTxt);
+              progressUpdatesContainer.css('display', 'none');
+            }
+          });
+        }
+
         function updateTaskProgress(statusUrl, params) {
           // Permanent settings
+          const startMsg = 'Starting task (waiting for server to report status)...';
           const maxRetryAttempts = 15;
           const secondsBetweenFetches = 0.5;
           // Iteration variables
           const thisAttemptNum = params ? params.thisAttemptNum : 1;  // int
           let taskName = params ? params.taskName : '';  // str
           let taskDataTimeSeries = params ? params.taskDataTimeSeries : [];  // array
+          let returnState = '';
 
           // Reset progress-related UI elements
-          if (thisAttemptNum === 1) {
-            progressUpdatesContainer.css('display', 'inherit');
-            progressLogInfoBar.css('display', 'none');
-            progressLogInfoBarMsg.text('');
-            progressLogWarningBar.css('display', 'none');
-            progressLogWarningBarMsg.text('');
-            progressLogSuccessBar.css('display', 'none');
-            progressLogSuccessBarMsg.text('');
-            progressLogErrBar.css('display', 'none');
-            progressLogErrBarMsg.text('');
-          }
+          if (thisAttemptNum === 1)
+            clearProgressUi();
 
-          $.getJSON(statusUrl, function(data) {  // obj
+          $.getJSON(statusUrl, function(data) {  // obj -> str
             // 0.1 Set some helper variables
             const receivedStatus = data.state === data.status ? '' : data.status;  // str
             const completed = data.state === 'FAILURE' || data.state === 'SUCCESS';  // bool
@@ -528,7 +542,7 @@
               // 2.2.1. Status
               const shortStatusMsg =
                 receivedStatus ? receivedStatus
-                  : data.state === 'PENDING' ? 'Starting up'
+                  : data.state === 'PENDING' ? startMsg
                   : 'RECEIVED' ? 'Task has been received'
                   : 'STARTED' ? 'Task progress has started'
                   : 'REVOKED' ? 'Task was revoked'
@@ -539,8 +553,6 @@
                   : '' ? 'An issue occurred while attempting to acquire ' +
                     'information about task progress.'
                   : 'Unknown task status';
-
-
               const statusMsg = taskName ? taskName + ': ' + shortStatusMsg
                 : shortStatusMsg;
 
@@ -572,7 +584,7 @@
 
             // 3. Exit or continue
             if (data.state === 'FAILURE') {
-              const report = receivedStatus ? receivedStatus
+              const report = receivedStatus ? 'Error: ' + receivedStatus
                 : unexpectedTaskErrMsg;
               exitTask(report);
             } else if (!completed)
@@ -584,8 +596,11 @@
                 };
                 updateTaskProgress(statusUrl, persistentAttemptData);
               }, secondsBetweenFetches * 1000);
+
+            returnState = data.state;
           })
           .fail(async function (jqxhr, textStatus, error) {
+            returnState = '';
             // Generate report
             const errContents = textStatus === 'error' ? error
               : textStatus + ', ' + error;
@@ -608,14 +623,8 @@
             } else
               exitTask(report);
           });
+          return returnState;
         }
-
-        // TODO - temp
-        $("#testing-button").bind('click', testing);
-        function testing() {
-          initTask('/longtask')
-        }
-
       });
     </script>
   </body>

@@ -175,26 +175,39 @@ def get_datalab_data():
     over_time = request.args.get('overTime', 'false')
     over_time = True if over_time.lower() == 'true' else False
     response_format = request.args.get('format', None)
+
     if response_format == 'csv':
         lang = request.args.get('lang')
-        json_list = DatalabData.filter_readable(survey, indicator, char_grp,
-                                                lang)
+        json_list = DatalabData.filter_readable(
+            survey_codes=survey,
+            indicator_code=indicator,
+            char_grp_code=char_grp,
+            lang=lang)
         return QuerySetApiResult(json_list, response_format)
-    json_list: List[Dict] = \
-        DatalabData.filter_minimal(survey, indicator, char_grp, over_time)
-    precisions = list(x['precision'] for x in json_list if x['precision'] is
-                      not None)
+
+    json_list: List[Dict] = DatalabData.filter_minimal(
+        survey_codes=survey,
+        indicator_code=indicator,
+        char_grp_code=char_grp,
+        over_time=over_time)
+    precisions = \
+        list(x['precision'] for x in json_list if x['precision'] is not None)
     min_precision = min(precisions) if precisions else DEFAULT_PRECISION
     for item in json_list:
         item['value'] = round(item['value'], min_precision)
-    if over_time:
-        json_obj = DatalabData.data_to_time_series(json_list)
-    else:
-        json_obj = DatalabData.data_to_series(json_list)
+
+    json_list2: List = DatalabData.data_to_time_series(json_list) if over_time\
+        else DatalabData.data_to_series(json_list)
     query_input = DatalabData.query_input(survey, indicator, char_grp)
     chart_options = {'precision': min_precision}
-    return QuerySetApiResult(json_obj, 'json', queryInput=query_input,
-                             chartOptions=chart_options)
+
+    result = QuerySetApiResult(
+        record_list=json_list2,
+        return_format='json',
+        queryInput=query_input,
+        chartOptions=chart_options)
+
+    return result
 
 
 @api.route('/datalab/combos')

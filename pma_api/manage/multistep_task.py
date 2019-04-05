@@ -3,6 +3,7 @@ from copy import copy
 from typing import List, Dict, Union, Generator, Callable
 
 from pma_api.error import PmaApiException
+from pma_api.manage.functional_subtask import FunctionalSubtask
 
 
 class MultistepTask:
@@ -19,6 +20,9 @@ class MultistepTask:
                 'pct_starts_at': 10
             ...
     }
+
+    Or it could be of the form:
+            'subtask_1_name': <subtask obj>
 
     This class is meant to be used either by itself, in which print statements
     are typically made to show task progress, or in tandem with a task queue
@@ -62,9 +66,9 @@ class MultistepTask:
 
     @staticmethod
     def _calc_subtask_grp_pcts(
-            subtask_grp_list: List[Dict[str, Dict[str, Union[str, int]]]],
-            start: int, stop: int, ) \
-            -> Dict[str, Dict[str, Union[str, int]]]:
+            subtask_grp_list: List[Dict[str, Union[Dict, FunctionalSubtask]]],
+            start: float, stop: float) \
+            -> Dict:
         """Calculate percents that each subtask in group should start at.
 
         Args:
@@ -76,24 +80,34 @@ class MultistepTask:
         Return
             Collection of subtasks in form of a dictionary.
         """
-        subtask_grp_dict: Dict[str, Dict[str, Union[str, int]]] = {}
+        subtask_grp_dict = {}
+
         pct_each_consumes = (stop - start) / len(subtask_grp_list)
         pct_each_begins = [start]
-
         for i in range(len(subtask_grp_list) - 1):
             pct_each_begins.append(pct_each_begins[-1] + pct_each_consumes)
 
-        subtask_grp_list_calculated = []
-        for subtask in subtask_grp_list:
-            calculated_subtask = copy(subtask)
-            subtask_name: str = list(subtask.keys())[0]
-            calculated_subtask[subtask_name]['pct_starts_at'] = \
-                pct_each_begins.pop()
-            subtask_grp_list_calculated.append(subtask)
+        is_functional_subtask: bool = isinstance(
+            list(subtask_grp_list[0].values())[0], FunctionalSubtask)
 
-        for subtask in subtask_grp_list_calculated:
-            for k, v in subtask.items():
-                subtask_grp_dict[k] = v
+        if not is_functional_subtask:
+            subtask_grp_list_calculated = []
+            for subtask in subtask_grp_list:
+                calculated_subtask = copy(subtask)
+                subtask_name: str = list(subtask.keys())[0]
+                pct_start: float = pct_each_begins.pop(0)
+                calculated_subtask[subtask_name]['pct_starts_at'] = pct_start
+                subtask_grp_list_calculated.append(calculated_subtask)
+
+            for subtask in subtask_grp_list_calculated:
+                for k, v in subtask.items():
+                    subtask_grp_dict[k] = v
+        else:
+            for item in subtask_grp_list:
+                for subtask_name, subtask in item.items():
+                    pct_start: float = pct_each_begins.pop(0)
+                    subtask.pct_starts_at = pct_start
+                    subtask_grp_dict[subtask_name] = subtask
 
         return subtask_grp_dict
 
@@ -131,18 +145,24 @@ class MultistepTask:
             subtask_name: Name of subtask to report running. If absent,
             prints that task has already begun.
         """
-        subtask: Dict = self.subtasks[subtask_name]
+        subtask: Union[Dict, FunctionalSubtask] = self.subtasks[subtask_name]
 
         if not self.subtasks:
             return
 
-        pct: int = subtask['pct_starts_at']
+        pct: float = subtask['pct_starts_at'] if isinstance(subtask, dict) \
+            else subtask.pct_starts_at
         self.completion_ratio = float(pct if pct < 1 else pct / 100)
-        self.status: str = subtask['prints']
+        self.status: str = subtask['prints'] if isinstance(subtask, dict) \
+            else subtask.prints
 
         self._report()
-        if subtask['func']:
-            subtask['func']()
+        if isinstance(subtask, dict):
+            if subtask['func']:
+                subtask['func']()
+        else:
+            if hasattr(subtask, 'func'):
+                subtask.func()
 
     def _begin_task(self):
         """Begin multistep task. Prints/returns task name."""

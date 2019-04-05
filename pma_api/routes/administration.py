@@ -101,8 +101,9 @@ def admin_route():
                     activate_dataset(dataset_id=dataset_name,
                                      destination_host_url=server_url)
 
-        datasets: List[Dict[str, str]] = list_cloud_datasets()
         this_env = os.getenv('ENV_NAME', 'development')
+        datasets: List[Dict[str, str]] = list_cloud_datasets()
+        # TODO: get active dataset by querying api
 
         return render_template('admin.html',
                                datasets=datasets,
@@ -226,18 +227,10 @@ def taskstatus(task_id: str) -> jsonify:
         celery.AsyncResult(task_id)
     state: str = task.state
 
-    # TODO
     # noinspection PyTypeChecker
     info: Union[Dict, NotRegistered] = task.info
     info_available: bool = \
         info is not None and not isinstance(info, NotRegistered)
-
-    # TODO: temp: why errors detected?
-    # noinspection PyUnusedLocal
-    error_detected: bool = \
-        info is not None and hasattr(info, 'args') \
-        and info.args \
-        and ('Error' in info.args[0] or 'error' in info.args[0])
 
     if state == 'FAILURE':
         # to-do: I know I can receive tuple when fail, but not sure what type
@@ -289,32 +282,15 @@ def taskstatus(task_id: str) -> jsonify:
             'status': status,
             'current': current,
             'total': total}
-        dynamic_report: Dict = {} \
-            if not task.info \
-            or not isinstance(task.info, dict) \
-            or task.info == {} \
-            or 'args' not in task.info.keys() \
-            or not task.info['args'] \
-            else task.info['args']
+
+        # noinspection PyBroadException
+        try:
+            dynamic_report: Dict = info['args']
+        except Exception:
+            dynamic_report = {}
 
     report: Dict[str, Union[str, int, float]] = {
         **static_report,
         **dynamic_report}
 
     return jsonify(report)
-
-
-# TODO: testing
-@root.route('/longtask', methods=['POST'])
-@login_required
-def longtask():
-    """Long task"""
-    from pma_api.tasks import long_task
-    task = long_task.apply_async()
-
-    response_data = jsonify({})
-    response_http_code = 202  # Accepted
-    response_headers = \
-        {'Content-Location': url_for('root.taskstatus', task_id=task.id)}
-
-    return response_data, response_http_code, response_headers

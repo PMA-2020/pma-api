@@ -3,7 +3,6 @@
 # TODO: Add dynamic routing for each celery task, like from db.Model
 """
 import os
-import time
 
 from typing import Dict, Generator
 
@@ -28,37 +27,6 @@ except RuntimeError:
 
 
 CELERY_COMPLETION_CODES = ('FAILURE', 'SUCCESS')
-
-
-@celery.task(bind=True)  # TODO: temp
-def long_task(self):
-    """Background task that runs a long function with progress reports.
-
-    Args:
-        self (Celery.task): Required Celery obj ref. Not to be used as param.
-    """
-    import random
-
-    verb = ['Starting up', 'Booting', 'Repairing', 'Loading', 'Checking']
-    adjective = ['master', 'radiant', 'silent', 'harmonic', 'fast']
-    noun = ['solar array', 'particle reshaper', 'cosmic ray', 'orbiter',
-            'bit']
-    message = ''
-    total = random.randint(10, 50)
-
-    callback = progress_update_callback(task_obj=self, verbose=True)
-    next(callback)
-
-    for i in range(total):
-        if not message or random.random() < 0.25:
-            message = '{0} {1} {2}...'.format(random.choice(verb),
-                                              random.choice(adjective),
-                                              random.choice(noun))
-        callback.send({'status': message, 'current': i})
-        time.sleep(0.1)
-
-    callback.close()
-    return {'current': total, 'total': total, 'status': 'Task completed!'}
 
 
 # @celery.task(bind=True)  # TO-DO: fix action_url when works
@@ -127,13 +95,23 @@ def activate_dataset(self, dataset_id: str) -> Dict:
     #  I couldn't get this to work when setting this in the test case.
     app.config.SQLALCHEMY_ECHO = False
 
-    # TODO: 2019-03-27: Create a new Multistep out of these two. Figure
-    #  Out how to do this nesting of MultistepTasks
-    # TODO: 2019-03-28: Test this code
-
-    # TODO: 2019-03-28: Double check that this should go here
-    #  Does this just stop at yield?
     next(callback)
+
+    # TODO: Test
+    file = '/Users/joeflack4/projects/pma-api/temp/api_data-2019.01.22-v36-' \
+           'jef.xlsx'
+    from time import time
+    import xlrd
+    t1 = time()
+    # XLRD
+    # with xlrd.open_workbook(file) as book:
+    #     print(book)
+    # Pandas
+    pass
+    t2 = time()
+    secs = int(t2 - t1)
+    print(secs)
+    # DEBUGGING
 
     file_path: str = download_dataset(int(dataset_id))
     this_task = InitDbFromWb(

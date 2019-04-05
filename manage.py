@@ -15,10 +15,10 @@ from pma_api import create_app, db
 from pma_api.config import PROJECT_ROOT_PATH
 from pma_api.manage.server_mgmt import store_pid
 from pma_api.manage.db_mgmt import get_api_data, get_ui_data, \
-    TRANSLATION_MODEL_MAP, make_shell_context, connection_error, backup_db, \
-    restore_db, list_backups as listbackups, \
-    list_ui_data as listuidata, list_datasets as listdatasets, \
-    backup_source_files as backupsourcefiles
+     make_shell_context, connection_error, backup_db, \
+     restore_db, list_backups as listbackups, \
+     list_ui_data as listuidata, list_datasets as listdatasets, \
+     backup_source_files as backupsourcefiles
 from pma_api.manage.initdb_from_wb import InitDbFromWb
 from pma_api.models import Cache, ApiMetadata, Translation
 from pma_api.utils import dict_to_pretty_json
@@ -69,15 +69,13 @@ def translations():
     """Import all translations into the database."""
     with app.app_context():
         try:
-            # TODO (jkp 2017-09-28) make this ONE transaction instead of many.
+            # TODO 2017.09.28-jkp make one transaction instead of many
             db.session.query(ApiMetadata).delete()
             db.session.query(Translation).delete()
             db.session.commit()
             db_initializer = InitDbFromWb()
-            db_initializer.init_from_workbook(wb_path=get_api_data(),
-                                              queue=TRANSLATION_MODEL_MAP)
-            db_initializer.init_from_workbook(wb_path=get_ui_data(),
-                                              queue=TRANSLATION_MODEL_MAP)
+            db_initializer.init_api_worksheet('translation')
+            db_initializer.init_client_ui_data()
             cache_responses()
         except (StatementError, DatabaseError) as e:
             print(connection_error.format(str(e)), file=stderr)

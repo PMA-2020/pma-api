@@ -5,9 +5,10 @@ import logging
 import ntpath
 import os
 import subprocess
+from collections import OrderedDict
 from copy import copy
 from datetime import datetime
-from typing import List, Dict, Union, Generator, Iterable
+from typing import List, Dict, Union, Iterable
 
 import boto3
 import xlrd
@@ -36,19 +37,20 @@ from pma_api.utils import most_common
 from pma_api.manage.utils import log_process_stderr, run_proc
 
 
-METADATA_MODEL_MAP: tuple = (
-    ('geography', Geography),
-    ('country', Country),
-    ('survey', Survey),
-    ('char_grp', CharacteristicGroup),
-    ('char', Characteristic),
-    ('indicator', Indicator),)
-DATA_MODEL_MAP: tuple = (
-    ('data', Data),)
-TRANSLATION_MODEL_MAP: tuple = (
-    ('translation', Translation),)
-ORDERED_MODEL_MAP: tuple = \
-    TRANSLATION_MODEL_MAP + METADATA_MODEL_MAP + DATA_MODEL_MAP
+# Sorted in order should be executed
+ORDERED_METADATA_SHEET_MODEL_MAP = OrderedDict({  # str,db.Model
+    'geography': Geography,
+    'country': Country,
+    'survey': Survey,
+    'char_grp': CharacteristicGroup,
+    'char': Characteristic,
+    'indicator': Indicator
+})
+# For lookup
+DATASET_WB_SHEET_MODEL_MAP = {
+    **ORDERED_METADATA_SHEET_MODEL_MAP,
+    **{'data': Data},
+    **{'translation': Translation}}
 root_connection_info = {
     'hostname': Config.DB_ROOT_HOST,
     'port': Config.DB_ROOT_PORT,
@@ -274,7 +276,7 @@ def remove_stata_undefined_token_from_wb(wb: xlrd.book.Book):
     return book
 
 
-def init_from_sheet(ws: Sheet, model: db.Model, **kwargs):
+def commit_from_sheet(ws: Sheet, model: db.Model, **kwargs):
     """Initialize DB table data from XLRD Worksheet.
 
     Initialize table data from source data associated with corresponding
@@ -326,7 +328,18 @@ def init_from_sheet(ws: Sheet, model: db.Model, **kwargs):
 
             db.session.add(record)
 
-    db.session.commit()
+    # TODO: After adding FunctionalTask class, is this necessary?
+    # TODO 2019.04.08-jef: This is really not ideal. This exists here because
+    #  every model creates new EnglishString records, and given how we
+    #  currently create and generate unique codes, it appears we /may/ need to
+    #  commit both the original record and the english string record. So,
+    #  for such models, everything will have already been committed, hence
+    #  why we currently run this additional 'commit_needed' step/check.
+    # sheet_rows: int = ws.nrows - 1
+    # db_rows: int = len(model.query.all())
+    # commit_needed: bool = db_rows < sheet_rows
+    # if commit_needed:
+    #     db.session.commit()
 
 
 def format_book(wb: Book) -> Book:
@@ -417,175 +430,6 @@ def is_db_empty(_app: Flask = current_app) -> bool:
         empty: bool = not data_present
 
     return empty
-
-
-class MultistepTask:
-    """A synchronous multi-step task
-
-    Subtasks groups are of the form: Dict[str, Dict[str, Union[str, int]]] = {
-            'subtask_1_name': {
-                'prints': 'Doing first thing',
-                'pct_starts_at': 0
-            },
-            'subtask_2_name': {
-                'prints': 'Doing second thing',
-                'pct_starts_at': 10
-            ...
-    }
-
-    This class is meant to be used either by itself, in which print statements
-    are typically made to show task progress, or in tandem with a task queue
-    such as Celery, where a callback is utilized to report progress.
-
-    With each call to `begin(<subtask>)`, progress is reported, utilizing each
-    sub-task objects' print statement and percentage. When creating a sub-task
-    to build up a sub-task dictionary as shown above, it is necessary to assign
-    semi-arbitrary percentages. These percentages will represent the task
-    authors' best guess at how long a task should take.
-    """
-
-    start_status = 'PENDING'
-
-    def __init__(self, silent: bool = False, name: str = '',
-                 callback: Generator = None,
-                 subtasks: Dict[str, Dict[str, Union[str, int]]] = None):
-        """Tracks progress of task queue
-
-        If queue is empty, calls to TaskTracker methods will do nothing.
-
-        Args:
-            subtasks: Dictionary of progress statements to display for each
-            iteration of the queue.
-            silent: Don't print updates?
-            callback: Callback function to use for every iteration
-            of the queue. This callback must take a single dictionary as its
-            parameter, with the following schema...
-                {'status': str, 'current': float}
-            ...where the value of 'current' is a float with value between 0
-            and 1.
-        """
-        self.subtasks = subtasks if subtasks else {}
-        self.silent = silent
-        self.name = name
-        self.callback = callback
-        self.tot_sub_tasks = len(subtasks.keys()) if subtasks else 0
-        self.status = self.start_status
-        self.completion_ratio = float(0)
-
-    @staticmethod
-    def _calc_subtask_grp_pcts(
-            subtask_grp_list: List[Dict[str, Dict[str, Union[str, int]]]],
-            start: int, stop: int, ) \
-            -> Dict[str, Dict[str, Union[str, int]]]:
-        """Calculate percents that each subtask in group should start at.
-
-        Args:
-            subtask_grp_list: Collection of subtasks in form of a list.
-            start: Percent that the first subtask should start at.
-            stop: Percent that the *next* subtask should start at. The last
-            subtask in group will not start at this number, but before it.
-
-        Return
-            Collection of subtasks in form of a dictionary.
-        """
-        subtask_grp_dict: Dict[str, Dict[str, Union[str, int]]] = {}
-        pct_each_consumes = (stop - start) / len(subtask_grp_list)
-        pct_each_begins = [start]
-
-        for i in range(len(subtask_grp_list) - 1):
-            pct_each_begins.append(pct_each_begins[-1] + pct_each_consumes)
-        for subtask in subtask_grp_list:
-            subtask['pct_starts_at'] = pct_each_begins.pop()
-
-        for subtask in subtask_grp_list:
-            for k, v in subtask.items():
-                subtask_grp_dict[k] = v
-
-        return subtask_grp_dict
-
-    def _report(self, silence_status: bool = False,
-                silence_percent: bool = False):
-        """Report progress
-
-        Args:
-            silence_status (bool): Silence status?
-            silence_percent (bool): Silence percent?
-        """
-        if not self.subtasks:
-            return
-        if not self.silent:
-            pct: str = str(int(self.completion_ratio * 100)) + '%'
-            msg = ' '.join([
-                self.status if not silence_status else '',
-                '({})'.format(pct) if not silence_percent else ''
-            ])
-            print(msg)
-        if self.callback:
-            self.callback.send({'status': self.status,
-                                'current': self.completion_ratio})
-
-    def _begin_subtask(self, subtask_name: str):
-        """Begin subtask. Prints/returns subtask message and percent
-
-        Args:
-            subtask_name: Name of subtask to report running. If absent,
-            prints that task has already begun.
-        """
-        if not self.subtasks:
-            return
-
-        first_task: bool = self.completion_ratio == 0
-        if first_task:
-            self.begin()
-
-        self.completion_ratio = \
-            float(self.subtasks[subtask_name]['pct_starts_at'])
-        self.status = str(self.subtasks[subtask_name]['prints'])
-
-        self._report()
-
-    def _begin_multistep_task(self):
-        """Begin multistep task. Prints/returns task name."""
-        err = 'Task \'{}\' has already started, but a call was made to ' \
-              'start it again. If intent is to start a subtask, subtask name' \
-              ' should be passed when calling'.format(self.name)
-        if self.status != self.start_status:
-            raise PmaApiException(err)
-
-        if not self.subtasks:
-            return
-        self.completion_ratio: float = float(0)
-        self.status: str = 'Task start: {}'\
-            .format(self.name) if self.name else ''
-        self._report(silence_percent=True)
-
-    def begin(self, subtask_name: str = ''):
-        """Register and report task or subtask begin
-
-        Args:
-            subtask_name: Name of subtask to report running. If absent,
-            prints that task has already begun.
-        """
-        if not subtask_name:
-            self._begin_multistep_task()
-        else:
-            self._begin_subtask(subtask_name)
-
-    def complete(self, seconds_elapsed: int = None):
-        """Register and report all sub-tasks and task itself complete"""
-        if not self.subtasks:
-            return
-
-        self.completion_ratio: float = float(1)
-        if self.name and seconds_elapsed:
-            self.status = 'Task completed in {} seconds:  {}'\
-                .format(str(seconds_elapsed), self.name)
-        elif self.name:
-            self.status = 'Task complete:  {}'.format(self.name)
-        else:
-            self.status = ''
-
-        self._report()
 
 
 def new_backup_path(_os: str = '', _env: str = '', ext: str = 'dump') -> str:
@@ -1062,6 +906,7 @@ def restore_using_pgrestore(path: str, dropdb: bool = False,
     proc.wait()
 
 
+# TODO 2019.04.08-jef: Remove because requires superuser; can't do on Heroku.
 def superuser_dbms_connection(
         connection_url: str = os.getenv('DBMS_SUPERUSER_URL')) -> Connection:
     """Connect to database management system as a super user
@@ -1077,38 +922,39 @@ def superuser_dbms_connection(
     return conn
 
 
-def view_db_connections() -> List[dict]:
-    """View active connections to a db
-
-    Returns:
-        list(dict): List of active connections in the form of dictionaries
-        containing information about connections
-    """
-    # noinspection PyProtectedMember
-    from sqlalchemy.engine import ResultProxy
-
-    try:
-        db_name: str = current_app.config.get('DB_NAME', 'pmaapi')
-    except RuntimeError as err:
-        if 'Working outside of application context' not in str(err):
-            raise err
-        db_name: str = 'pmaapi'
-    statement = "SELECT * FROM pg_stat_activity WHERE datname = '%s'" \
-                % db_name
-    conn: Connection = superuser_dbms_connection()
-
-    conn.execute("COMMIT")
-    result: ResultProxy = conn.execute(statement)
-    conn.close()
-
-    active_connections: List[dict] = []
-    for row in result:
-        conn_info = {}
-        for key_val in row.items():
-            conn_info = {**conn_info, **{key_val[0]: key_val[1]}}
-        active_connections.append(conn_info)
-
-    return active_connections
+# TODO 2019.04.08-jef: Remove because requires superuser; can't do on Heroku.
+# def view_db_connections() -> List[dict]:
+#     """View active connections to a db
+#
+#     Returns:
+#         list(dict): List of active connections in the form of dictionaries
+#         containing information about connections
+#     """
+#     # noinspection PyProtectedMember
+#     from sqlalchemy.engine import ResultProxy
+#
+#     try:
+#         db_name: str = current_app.config.get('DB_NAME', 'pmaapi')
+#     except RuntimeError as err:
+#         if 'Working outside of application context' not in str(err):
+#             raise err
+#         db_name: str = 'pmaapi'
+#     statement = "SELECT * FROM pg_stat_activity WHERE datname = '%s'" \
+#                 % db_name
+#     conn: Connection = superuser_dbms_connection()
+#
+#     conn.execute("COMMIT")
+#     result: ResultProxy = conn.execute(statement)
+#     conn.close()
+#
+#     active_connections: List[dict] = []
+#     for row in result:
+#         conn_info = {}
+#         for key_val in row.items():
+#             conn_info = {**conn_info, **{key_val[0]: key_val[1]}}
+#         active_connections.append(conn_info)
+#
+#     return active_connections
 
 
 def create_db(name: str = 'pmaapi', with_schema: bool = True):
@@ -1134,7 +980,8 @@ def create_db(name: str = 'pmaapi', with_schema: bool = True):
 
 
 @aws_s3
-def download_file_from_s3(filename: str, file_dir: str, dl_dir: str) -> str:
+def download_file_from_s3(filename: str, file_dir: str,
+                          dl_dir: str = temp_folder_path()) -> str:
     """Download a file from AWS S3
 
     Args:
@@ -1148,19 +995,19 @@ def download_file_from_s3(filename: str, file_dir: str, dl_dir: str) -> str:
     from botocore.exceptions import ClientError
 
     s3 = boto3.resource('s3')
-    download_to_path: str = file_dir + filename
-    download_from_path: str = os.path.join(dl_dir, filename)
+    download_from_path: str = os.path.join(file_dir, filename)
+    download_to_path: str = os.path.join(dl_dir, filename)
 
     try:
-        s3.Bucket(BUCKET).download_file(download_to_path, download_from_path)
+        s3.Bucket(BUCKET).download_file(download_from_path, download_to_path)
     except ClientError as err:
         msg = 'The file requested was not found on AWS S3.\n' \
             if err.response['Error']['Code'] == '404' \
             else 'An error occurred while trying to download from AWS S3.\n'
-        msg += '- File requested: ' + filename
+        msg += '- File requested: ' + download_from_path
         raise PmaApiDbInteractionError(msg)
 
-    return download_from_path
+    return download_to_path
 
 
 def dataset_version_to_name(version_number: int) -> str:
