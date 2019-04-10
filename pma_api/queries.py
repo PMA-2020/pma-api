@@ -2,12 +2,15 @@
 from collections import ChainMap
 from typing import Dict, List
 
+from flask_sqlalchemy import BaseQuery
 from sqlalchemy import or_
 from sqlalchemy.orm import aliased
+from sqlalchemy.orm.util import AliasedClass
+from sqlalchemy.sql.elements import BooleanClauseList
 
-from . import db
-from .models import (Characteristic, CharacteristicGroup, Country, Data,
-                     EnglishString, Geography, Indicator, Survey, Translation)
+from pma_api import db
+from pma_api.models import Characteristic, CharacteristicGroup, Country, Data,\
+    EnglishString, Geography, Indicator, Survey, Translation
 
 
 # pylint: disable=too-many-public-methods
@@ -26,6 +29,7 @@ class DatalabData:
         chr2 = DatalabData.char2
         grp1 = DatalabData.char_grp1
         grp2 = DatalabData.char_grp2
+
         joined = db.session.query(*select_args) \
             .select_from(Data) \
             .join(Survey, Data.survey_id == Survey.id) \
@@ -36,6 +40,7 @@ class DatalabData:
             .outerjoin(grp1, grp1.id == chr1.char_grp_id) \
             .outerjoin(chr2, Data.char2_id == chr2.id) \
             .outerjoin(grp2, grp2.id == chr2.char_grp_id)
+
         return joined
 
     @staticmethod
@@ -200,50 +205,68 @@ class DatalabData:
             A list of simple python objects, one for each record found by
             applying the various filters.
         """
-        chr1 = DatalabData.char1
-        grp1, grp2 = DatalabData.char_grp1, DatalabData.char_grp2
-        select_args = (Data, Survey, Indicator.code, grp1.code, chr1,
-                       Geography, Country)
-        filtered = DatalabData.all_joined(*select_args)
+        chr1: AliasedClass = DatalabData.char1  # Characteristic
+        grp1: AliasedClass = DatalabData.char_grp1  # CharacteristicGroup
+        grp2: AliasedClass = DatalabData.char_grp2  # CharacteristicGroup
+        # Tuple[Union[AliasedClass, InstrumentedAttribute, ApiModel]]
+        select_args: tuple = (
+            Data, Survey, Indicator.code, grp1.code, chr1, Geography, Country)
+        filtered: BaseQuery = DatalabData.all_joined(*select_args)
         if survey_codes:
-            survey_sql = DatalabData.survey_list_to_sql(survey_codes)
-            filtered = filtered.filter(survey_sql)
-        if indicator_code:
-            filtered = filtered.filter(Indicator.code == indicator_code)
-        if char_grp_code:
-            filtered = filtered.filter(grp1.code == char_grp_code)
+            survey_sql: BooleanClauseList = \
+                DatalabData.survey_list_to_sql(survey_codes)
+            filtered: BaseQuery = filtered.filter(survey_sql)
+        if indicator_code:  # TODO: Debug - 77 results i think
+            filtered: BaseQuery = \
+                filtered.filter(Indicator.code == indicator_code)
+        if char_grp_code:  # TODO: Debug - 6 results i think
+            filtered: BaseQuery = filtered.filter(grp1.code == char_grp_code)
         # TODO (jkp, begin=2017-08-28): This will be grp2.code == 'none'
         # eventually when the Data show "none" for char_grp2 in excel import
         # Remove E711 from .pycodestyle
         # pylint: disable=singleton-comparison
-        filtered = filtered.filter(grp2.code is None)
+        filtered: BaseQuery = filtered.filter(grp2.code is None)
         if over_time:
             # This ordering is very important!
-            ordered = filtered.order_by(Geography.order) \
-                              .order_by(chr1.order) \
-                              .order_by(Survey.order)
+            ordered: BaseQuery = filtered\
+                .order_by(Geography.order)\
+                .order_by(chr1.order)\
+                .order_by(Survey.order)
             # Perhaps order by the date of the survey?
         else:
-            ordered = filtered.order_by(Survey.order) \
-                              .order_by(chr1.order)
-        results = ordered.all()
-        json_results = []
+            ordered: BaseQuery = filtered\
+                .order_by(Survey.order)\
+                .order_by(chr1.order)
 
-        for item in results:
+        mdl_results: List = ordered.all()
+
+        idx: Dict[str, int] = {  # result:index map
+            'Data': 0,  # Data
+            'Survey': 1,  # Survey
+            'Indicator.id': 2,  # str
+            'CharacteristicGroup.id': 3,  # str
+            'Characteristic': 4,  # Characteristic
+            'Geography': 5,  # Geogrpahy
+            'Country': 6,  # Country
+        }
+        json_results: List[Dict] = []
+        for item in mdl_results:
             this_dict = {
-                'value': item[0].value,
-                'precision': item[0].precision,
-                'survey.id': item[1].code,
-                'survey.date': item[1].start_date.strftime('%m-%Y'),
-                'survey.label.id': item[1].label.code,
-                'indicator.id': item[2],
-                'characteristicGroup.id': item[3],
-                'characteristic.id': item[4].code,
-                'characteristic.label.id': item[4].label.code,
-                'geography.label.id': item[5].subheading.code,
-                'geography.id': item[5].code,
-                'country.label.id': item[6].label.code,
-                'country.id': item[6].code
+                'value': item[idx['Data']].value,
+                'precision': item[idx['Data']].precision,
+                'survey.id': item[idx['Survey']].code,
+                'survey.date':
+                    item[idx['Survey']].start_date.strftime('%m-%Y'),
+                'survey.label.id': item[idx['Survey']].label.code,
+                'indicator.id': item[idx['Indicator.id']],
+                'characteristicGroup.id': item[idx['CharacteristicGroup.id']],
+                'characteristic.id': item[idx['Characteristic']].code,
+                'characteristic.label.id':
+                    item[idx['Characteristic']].label.code,
+                'geography.label.id': item[idx['Geography']].subheading.code,
+                'geography.id': item[idx['Geography']].code,
+                'country.label.id': item[idx['Country']].label.code,
+                'country.id': item[idx['Country']].code
             }
             json_results.append(this_dict)
 

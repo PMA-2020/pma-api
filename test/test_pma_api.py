@@ -239,7 +239,6 @@ class PmaApiTest(flask_testing.TestCase):
 class SequentialTests(PmaApiTest):
     """Test database functions"""
 
-    test_numbers_to_skip: List[int] = []  # t"n" methods in this list wont run
     backup_kb_threshold: int = 50
     backup_msg: str = 'Backup file didn\'t meet expected minimum threshold ' \
         'of {} kb.'.format(str(backup_kb_threshold))
@@ -515,14 +514,20 @@ class SequentialTests(PmaApiTest):
     #
     #     self.assertTrue(True)  # no-op; If no errors until here, we're ok
 
-    def test_sequentially(self):
+    def test_sequentially(self, test_numbers_to_skip: List = None):
         """Test sequentially
 
         Will find sequential tests by looking for any methods on test objects
         that start with the pattern 't[0-9]_'.
+
+        Args:
+            test_numbers_to_skip (list): Test numbrrs to skip. Methods t"n" in
+            this list won't run.
         """
         from collections import OrderedDict
 
+        test_numbers_to_skip = test_numbers_to_skip if test_numbers_to_skip \
+            else []
         msg = '- Running sub-test {}/{}: {}'
         methods = {k: getattr(self, k) for k in dir(self)
                    if callable(getattr(self, k))}
@@ -532,12 +537,12 @@ class SequentialTests(PmaApiTest):
             k[1] in [str(x) for x in range(10)] and
             k[2] == '_'})
         num_tests: int = len(sequential_tests.keys()) - \
-            len(self.test_numbers_to_skip)
+            len(test_numbers_to_skip)
 
         test_run_num = 1
         test_method_num = 1
         for name, func in sequential_tests.items():
-            if test_method_num not in self.test_numbers_to_skip:
+            if test_method_num not in test_numbers_to_skip:
                 print(msg.format(test_run_num, num_tests, name))
                 # with self.live_app.app_context():
                 func()

@@ -97,22 +97,6 @@ def activate_dataset(self, dataset_id: str) -> Dict:
 
     next(callback)
 
-    # TODO: Test
-    file = '/Users/joeflack4/projects/pma-api/temp/api_data-2019.01.22-v36-' \
-           'jef.xlsx'
-    from time import time
-    import xlrd
-    t1 = time()
-    # XLRD
-    # with xlrd.open_workbook(file) as book:
-    #     print(book)
-    # Pandas
-    pass
-    t2 = time()
-    secs = int(t2 - t1)
-    print(secs)
-    # DEBUGGING
-
     file_path: str = download_dataset(int(dataset_id))
     this_task = InitDbFromWb(
         callback=callback,

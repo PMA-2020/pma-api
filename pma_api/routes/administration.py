@@ -222,7 +222,7 @@ def taskstatus(task_id: str) -> jsonify:
     """
     from pma_api.tasks import celery
 
-    err = 'Unexpected error occurred while processing task.'
+    err = 'Server: Unexpected error occurred while processing task.'
     task: Union[AsyncResult, NotRegistered] = \
         celery.AsyncResult(task_id)
     state: str = task.state

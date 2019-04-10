@@ -49,64 +49,88 @@ class InitDbFromWb(MultistepTask):
         self._app: Flask = _app
         self.api_file_path: str = api_file_path
         self.ui_file_path: str = ui_file_path
+        self.api_wb = None
+        self.ui_wb = None
         self.backup_path: str = ''
         self.callback: Generator = callback
         self.warnings = {}
         self.indicator_code_ids: Dict[str, int] = {}
         self.characteristic_code_ids: Dict[str, int] = {}
         self.survey_code_ids: Dict[str, int] = {}
+        self.seconds_elapsed: int = 0
         self.final_status = {
             'success': False,
-            'seconds_elapsed': 0,
+            'seconds_elapsed': self.seconds_elapsed,
             'warnings': self.warnings,
         }
-        # /Users/joeflack4/projects/pma-api/api_data-2019.01.22-v36-jef.xlsx
-        with xlrd.open_workbook(api_file_path) as book:
-            self.api_wb: xlrd.book.Book = book
-        self.ui_wb = None
-        if ui_file_path:
-            with xlrd.open_workbook(ui_file_path) as book:
-                self.ui_wb: xlrd.book.Book = book
-        with _app.app_context():
-            subtasks: Dict[str, Dict[str, Union[str, int]]] = \
-                self.create_subtasks()
-        self.subtask_queue: List[str] = [x for x in subtasks.keys()]
 
+        # TODO 2019.04-10-jef: At this point, I have an issue where I want
+        #  to get all sub_tasks at the beginning before running any of them,
+        #  but my creating my 'upload_data_{}' subtasks depend on
+        #  'load_data_files' having already been run. Should refactor.
         super().__init__(
-            silent=silent, callback=callback, subtasks=subtasks,
+            silent=silent, callback=callback,
             name=self.task_name.format(os.path.basename(api_file_path)))
 
-    def create_subtasks(self) -> Dict[str, Dict[str, Union[str, int]]]:
+        self.start_time = time()
+        self.begin()
+        onload_subtasks: OrderedDict = self.create_onload_subtasks()
+        self.onload_subtask_queue: List[str] = \
+            [x for x in onload_subtasks.keys()]
+        for onload_subtask_name in self.onload_subtask_queue:
+            self.begin(
+                subtask_name=onload_subtask_name,
+                subtask_queue=onload_subtasks)
+
+        with _app.app_context():
+            self.subtasks: OrderedDict = self.create_subtasks()
+        self.subtask_queue: List[str] = [x for x in self.subtasks.keys()]
+
+    def create_onload_subtasks(self) -> OrderedDict:
         """Get a list of collection of subtask dict objects
 
-        Concerns:
-            What if order created for each metadata / data table is different
-            here than what happens at runtime? Perhaps that's possible?
+        Returns:
+            OrderedDict: Collection of subtask objects
+        """
+        sub_tasks_static: Dict = {
+            'load_data_files': {
+                'prints':
+                    'Loading source data files. This can take 5+ minutes.',
+                'pct_starts_at': 0,  # 0-24
+                'func': self.load_source_data_files
+            }
+        }  # subtasks will start off where onload_subtasks end
+        sub_tasks = OrderedDict(sub_tasks_static)
+
+        return sub_tasks
+
+    def create_subtasks(self) -> OrderedDict:
+        """Get a list of collection of subtask dict objects
 
         Returns:
-            dict: Collection of subtask objects
+            OrderedDict: Collection of subtask objects
         """
         # TODO 2019.04.04-jef: 1. Refactor subtask dicts to subtask class objs
         #  ...afterwards, edits can be made to MultistepTask class to remove
         #  the ugly 'if dict, do this, else...' conditionals.
-        sub_tasks_static: Dict[str, Dict[str, Union[str, int]]] = {
+        sub_tasks_static: Dict = {  # starts off where onload_subtasks ended
             'backup1': {
                 'prints': 'Backing up database',
-                'pct_starts_at': 0,  # 0-9
+                'pct_starts_at': 25,  # 25-29
                 'func': lambda x=1: self._backup(num=x)
             },
             'reset_db': {
                 'prints': 'Resetting db for fresh install',
-                'pct_starts_at': 10,  # 10-14
+                'pct_starts_at': 30,  # 30-31
                 'func': self._reset_db
             },
-            # Metadata: 15-29
+            # Metadata: 31-37
             'translations_api': {
                 'prints': 'Uploading metadata language translations',
-                'pct_starts_at': 30,  # 31-34
+                'pct_starts_at': 38,  # 38-39
                 'func': lambda: self.init_api_worksheet('translation')
             },
-            # Data: 35-89
+            # Data: 39-89
             'translations_ui': {
                 'prints': 'Uploading UI language translations',
                 'pct_starts_at': 90,  # 90-91
@@ -138,7 +162,7 @@ class InitDbFromWb(MultistepTask):
         ]
         metadata_dict: Dict[str, Dict[str, Union[str, float]]] = \
             self._calc_subtask_grp_pcts(
-            subtask_grp_list=metadata_list, start=15, stop=29)
+            subtask_grp_list=metadata_list, start=float(31), stop=float(37))
 
         # Data: 35-89
         data_list: List[Dict[str, FunctionalSubtask]] = [
@@ -150,12 +174,12 @@ class InitDbFromWb(MultistepTask):
                         pct_starts_at=float(0),  # Temp until pct calculated
                         func=self.init_api_worksheet,
                         sheetname=x)
-            } for x in get_datasheet_names(self.api_file_path)  # List[str]
+            } for x in get_datasheet_names(self.api_wb)  # List[str]
         ]
 
         data_dict: Dict[str, Dict[str, Union[str, int]]] = \
             self._calc_subtask_grp_pcts(
-            subtask_grp_list=data_list, start=float(35), stop=float(89))
+            subtask_grp_list=data_list, start=float(39), stop=float(89))
 
         sub_tasks_unsorted: Dict[str, Dict[str, Union[str, float]]] = {
             **sub_tasks_static,
@@ -169,10 +193,40 @@ class InitDbFromWb(MultistepTask):
             key=lambda x: x[1]['pct_starts_at']
             if isinstance(x[1], dict)  #
             else x[1].pct_starts_at)
-        sub_tasks: Dict[str, Dict[str, Union[str, float]]] = \
-            OrderedDict(sub_tasks_tuples)
+        sub_tasks = OrderedDict(sub_tasks_tuples)
 
         return sub_tasks
+
+    def load_api_wb(self):
+        """Load API workbook data into memory as instance attr
+
+        Side effects:
+            - Reads file
+            - Sets attribute
+        """
+        with xlrd.open_workbook(self.api_file_path) as book:
+            self.api_wb: xlrd.book.Book = book
+
+    def load_ui_wb(self):
+        """Load UI workbook data into memory as instance attr
+
+        Side effects:
+            - Reads file
+            - Sets attribute
+        """
+        if self.ui_file_path:
+            with xlrd.open_workbook(self.ui_file_path) as book:
+                self.ui_wb: xlrd.book.Book = book
+
+    def load_source_data_files(self):
+        """Load data necessary to initialize DB.
+
+        Side effects:
+            - self.load_api_wb
+            - self.load_ui_wb
+        """
+        self.load_api_wb()
+        self.load_ui_wb()
 
     def init_client_ui_data(self):
         """Load client UI language data into DB
@@ -298,12 +352,17 @@ class InitDbFromWb(MultistepTask):
 
         Runs task execution, handles errors, and reports result.
 
+        Side effects:
+            - Runs subtasks
+            - Sets attributes
+
+        Raises:
+            PmaApiDbInteractionError: If tried to recover from issues but
+            failed.
+
         Returns:
             dict: Final results
         """
-        start_time = time()
-        self.begin()
-
         with self._app.app_context():
             try:
                 for subtask_name in self.subtask_queue:
@@ -322,9 +381,9 @@ class InitDbFromWb(MultistepTask):
                             .format(type(err).__name__ + ': ' + str(err))
                 raise PmaApiDbInteractionError(msg)
 
-        seconds_elapsed = int(time() - start_time)
-        self.final_status['seconds_elapsed'] = seconds_elapsed
+        self.seconds_elapsed = int(time() - self.start_time)
+        self.final_status['seconds_elapsed'] = self.seconds_elapsed
         self.final_status['success'] = True
-        self.complete(seconds_elapsed=seconds_elapsed)
+        self.complete(seconds_elapsed=self.seconds_elapsed)
 
         return self.final_status

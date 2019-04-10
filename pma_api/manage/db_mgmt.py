@@ -395,19 +395,18 @@ def drop_tables(tables: Iterable[Table] = None):
             db.drop_all()
 
 
-def get_datasheet_names(path: str) -> List[str]:
+def get_datasheet_names(wb: Book) -> List[str]:
     """Gets data sheet names from a workbook
 
     Args:
-        path (str): Path to a workbook file
+        wb (Book): Pre-loaded XLRD Workbook obj
 
     Returns:
         list(str): List of datasheet names
     """
-    with xlrd.open_workbook(path) as wb:
-        data_sheets: List[xlrd.sheet] = \
-            [x for x in wb.sheets() if x.name.startswith('data')]
-        datasheet_names: List[str] = [x.name for x in data_sheets]
+    data_sheets: List[xlrd.sheet] = \
+        [x for x in wb.sheets() if x.name.startswith('data')]
+    datasheet_names: List[str] = [x.name for x in data_sheets]
 
     return datasheet_names
 

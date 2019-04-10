@@ -1,6 +1,7 @@
 """Multistep Task super class"""
+from collections import OrderedDict
 from copy import copy
-from typing import List, Dict, Union, Generator, Callable
+from typing import List, Dict, Union, Generator
 
 from pma_api.error import PmaApiException
 from pma_api.manage.functional_subtask import FunctionalSubtask
@@ -40,14 +41,13 @@ class MultistepTask:
     def __init__(
             self, silent: bool = False, name: str = '',
             callback: Generator = None,
-            subtasks: Dict[str, Dict[str, Union[str, int, Callable]]] = None):
+            subtasks: Dict = None):
         """Tracks progress of task queue
 
         If queue is empty, calls to TaskTracker methods will do nothing.
 
         Args:
-            subtasks: Dictionary of progress statements to display for each
-            iteration of the queue.
+            subtasks: Queue'd dictionary of subtasks to run.
             silent: Don't print updates?
             callback: Callback function to use for every iteration
             of the queue. This callback must take a single dictionary as its
@@ -56,7 +56,7 @@ class MultistepTask:
             ...where the value of 'current' is a float with value between 0
             and 1.
         """
-        self.subtasks = subtasks if subtasks else {}
+        self.subtasks = subtasks if subtasks else OrderedDict()
         self.silent = silent
         self.name = name
         self.callback = callback
@@ -119,7 +119,7 @@ class MultistepTask:
             silence_status (bool): Silence status?
             silence_percent (bool): Silence percent?
         """
-        if not self.subtasks:
+        if not self.status or self.completion_ratio:
             return
         if not self.silent:
             pct: str = str(int(self.completion_ratio * 100)) + '%'
@@ -134,21 +134,24 @@ class MultistepTask:
                 'status': self.status,
                 'current': self.completion_ratio})
 
-    def _begin_subtask(self, subtask_name: str):
+    def _begin_subtask(self, subtask_name: str,
+                       subtask_queue: OrderedDict = None):
         """Begin subtask. Prints/returns subtask message and percent
 
         Side effects:
             - self._report
-            - Runs subtask
+            - Runs subtask function if present
 
         Args:
             subtask_name: Name of subtask to report running. If absent,
             prints that task has already begun.
+            subtask_queue: Ordered dictionary of subtasks to run
         """
-        subtask: Union[Dict, FunctionalSubtask] = self.subtasks[subtask_name]
-
-        if not self.subtasks:
+        subtask_queue: OrderedDict = subtask_queue if subtask_queue \
+            else self.subtasks
+        if not subtask_queue:
             return
+        subtask: Union[Dict, FunctionalSubtask] = subtask_queue[subtask_name]
 
         pct: float = subtask['pct_starts_at'] if isinstance(subtask, dict) \
             else subtask.pct_starts_at
@@ -165,7 +168,15 @@ class MultistepTask:
                 subtask.func()
 
     def _begin_task(self):
-        """Begin multistep task. Prints/returns task name."""
+        """Begin multistep task. Prints/returns task name.
+
+        Side effects:
+            - Sets instance attributes
+            - self._report
+
+        Raises:
+            PmaApiException: If task was called to begin more than once.
+        """
         err = 'Task \'{}\' has already started, but a call was made to ' \
               'start it again. If intent is to start a subtask, subtask name' \
               ' should be passed when calling'.format(self.name)
@@ -180,21 +191,25 @@ class MultistepTask:
                            ' {}'.format(self.name) if self.name else ''
         self._report(silence_percent=True)
 
-    def begin(self, subtask_name: str = ''):
+    def begin(self, subtask_name: str = '',
+              subtask_queue: OrderedDict = None):
         """Register and report task or subtask begin
 
         Side effects:
-            - self._begin_multistep_task if not subtask_name
-            self._begin_subtask
+            - self._begin_multistep_task
+            - self._begin_subtask
 
         Args:
             subtask_name: Name of subtask to report running. If absent,
             prints that task has already begun.
+            subtask_queue: Ordered dictionary of subtasks to run
         """
         if not subtask_name:
             self._begin_task()
         else:
-            self._begin_subtask(subtask_name)
+            self._begin_subtask(
+                subtask_name=subtask_name,
+                subtask_queue=subtask_queue)
 
     def complete(self, seconds_elapsed: int = None):
         """Register and report all sub-tasks and task itself complete"""

@@ -13,8 +13,78 @@ from pma_api.queries import DatalabData
 DEFAULT_PRECISION = 1
 
 
+def get_datalab_data_csv(
+        survey_codes: str, indicator_code: str, char_grp_code: str, lang: str) \
+        -> QuerySetApiResult:
+    """Get Datalab data in CSV format.
+
+    Args:
+        survey_codes (str): Comma-delimited list of survey codes.
+        indicator_code (str): Indicator code.
+        char_grp_code (str): Characteristic group code.
+        lang (str): Language
+
+    Returns:
+        QuerySetApiResult: CSV query result
+    """
+    json_list = DatalabData.filter_readable(
+        survey_codes=survey_codes,
+        indicator_code=indicator_code,
+        char_grp_code=char_grp_code,
+        lang=lang)
+
+    return QuerySetApiResult(
+        record_list=json_list,
+        return_format='csv')
+
+
+def get_datalab_data_json(
+        survey_codes: str, indicator_code: str, char_grp_code: str,
+        over_time: bool) -> QuerySetApiResult:
+    """Get Datalab data in JSON format.
+
+    Args:
+        survey_codes (str): Comma-delimited list of survey codes.
+        indicator_code (str): Indicator code.
+        char_grp_code (str): Characteristic group code.
+        over_time (bool): Chart data over time?
+
+    Returns:
+        QuerySetApiResult: JSON query result
+    """
+    # TODO: Debug. json_list should show results; then results will show in
+    #  browser
+    json_list: List[Dict] = DatalabData.filter_minimal(
+        survey_codes=survey_codes,
+        indicator_code=indicator_code,
+        char_grp_code=char_grp_code,
+        over_time=over_time)
+
+    precisions = \
+        list(x['precision'] for x in json_list if x['precision'] is not None)
+    min_precision = min(precisions) if precisions else DEFAULT_PRECISION
+    for item in json_list:
+        item['value'] = round(item['value'], min_precision)
+
+    json_list2: List = DatalabData.data_to_time_series(json_list) if over_time \
+        else DatalabData.data_to_series(json_list)
+    query_input = DatalabData.query_input(
+        survey=survey_codes,
+        indicator=indicator_code,
+        char_grp=char_grp_code)
+    chart_options = {'precision': min_precision}
+
+    result = QuerySetApiResult(
+        record_list=json_list2,
+        return_format='json',
+        queryInput=query_input,
+        chartOptions=chart_options)
+
+    return result
+
+
 @api.route('/datalab/data')
-def get_datalab_data():
+def get_datalab_data() -> QuerySetApiResult:
     """Datalab client endpoint for querying data.
 
     .. :quickref: Datalab; Datalab client specific endpoint for querying data.
@@ -40,7 +110,8 @@ def get_datalab_data():
         value is "EN". Not required.
 
     Returns:
-        json: Queried data.
+        QuerySetApiResult: JSON query result if format requested is JSON, else
+        CSV.
 
     Details:
         Returns lists of all specific, key resources (surveys, indicators, and
@@ -169,49 +240,32 @@ def get_datalab_data():
               ]
             }
     """
-    survey = request.args.get('survey', None)
-    indicator = request.args.get('indicator', None)
-    char_grp = request.args.get('characteristicGroup', None)
-    over_time = request.args.get('overTime', 'false')
-    over_time = True if over_time.lower() == 'true' else False
-    response_format = request.args.get('format', None)
+    survey_codes: str = request.args.get('survey', None)
+    indicator_code: str = request.args.get('indicator', None)
+    char_grp_code: str = request.args.get('characteristicGroup', None)
+    response_format: str = request.args.get('format', None)
+    lang: str = request.args.get('lang', None)
+    over_time_arg: str = request.args.get('overTime', 'false')
+    over_time: bool = True if over_time_arg.lower() == 'true' else False
 
     if response_format == 'csv':
-        lang = request.args.get('lang')
-        json_list = DatalabData.filter_readable(
-            survey_codes=survey,
-            indicator_code=indicator,
-            char_grp_code=char_grp,
+        result: QuerySetApiResult = get_datalab_data_csv(
+            survey_codes=survey_codes,
+            indicator_code=indicator_code,
+            char_grp_code=char_grp_code,
             lang=lang)
-        return QuerySetApiResult(json_list, response_format)
-
-    json_list: List[Dict] = DatalabData.filter_minimal(
-        survey_codes=survey,
-        indicator_code=indicator,
-        char_grp_code=char_grp,
-        over_time=over_time)
-    precisions = \
-        list(x['precision'] for x in json_list if x['precision'] is not None)
-    min_precision = min(precisions) if precisions else DEFAULT_PRECISION
-    for item in json_list:
-        item['value'] = round(item['value'], min_precision)
-
-    json_list2: List = DatalabData.data_to_time_series(json_list) if over_time\
-        else DatalabData.data_to_series(json_list)
-    query_input = DatalabData.query_input(survey, indicator, char_grp)
-    chart_options = {'precision': min_precision}
-
-    result = QuerySetApiResult(
-        record_list=json_list2,
-        return_format='json',
-        queryInput=query_input,
-        chartOptions=chart_options)
+    else:
+        result: QuerySetApiResult = get_datalab_data_json(
+            survey_codes=survey_codes,
+            indicator_code=indicator_code,
+            char_grp_code=char_grp_code,
+            over_time=over_time)
 
     return result
 
 
 @api.route('/datalab/combos')
-def get_datalab_combos():
+def get_datalab_combos() -> ApiResult:
     """Datalab client endpoint for querying validmetadata combinations.
 
     .. :quickref: Datalab; Datalab client specific endpoint for querying valid
@@ -448,9 +502,11 @@ def get_datalab_init(cached: bool = True):
 
             {"A significant of minified data is returned."}
     """
-    cache_arg = request.args.get('cached')
-    request_cached = False if not cache_arg \
-                              or cache_arg and cache_arg.lower() == 'false' \
+    cache_arg: str = request.args.get('cached')
+    request_cached: bool = \
+        False if (
+            not cache_arg
+            or (cache_arg and cache_arg.lower() == 'false')) \
         else True
 
     if request_cached or cached:
