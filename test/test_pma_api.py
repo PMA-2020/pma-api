@@ -239,6 +239,11 @@ class PmaApiTest(unittest.TestCase):
 class SequentialTests(PmaApiTest):
     """Test database functions"""
 
+    # In staging/prod, skips initdb test since initdb is already part of
+    # release process.
+    test_numbers_to_skip: List[int] = [1] if \
+        os.getenv('ENV_NAME', 'development') != 'development' else []
+
     backup_kb_threshold: int = 50
     backup_msg: str = 'Backup file didn\'t meet expected minimum threshold ' \
         'of {} kb.'.format(str(backup_kb_threshold))
@@ -533,7 +538,7 @@ class SequentialTests(PmaApiTest):
     #
     #     self.assertTrue(True)  # no-op; If no errors until here, we're ok
 
-    def test_sequentially(self, test_numbers_to_skip: List = None):
+    def test_sequentially(self, test_numbers_to_skip: List[int] = None):
         """Test sequentially
 
         Will find sequential tests by looking for any methods on test objects
@@ -545,8 +550,8 @@ class SequentialTests(PmaApiTest):
         """
         from collections import OrderedDict
 
-        test_numbers_to_skip = test_numbers_to_skip if test_numbers_to_skip \
-            else []
+        test_numbers_to_skip: List[int] = test_numbers_to_skip if \
+            test_numbers_to_skip else self.test_numbers_to_skip
         msg = '- Running sub-test {}/{}: {}'
         methods = {k: getattr(self, k) for k in dir(self)
                    if callable(getattr(self, k))}
