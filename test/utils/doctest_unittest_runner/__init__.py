@@ -47,8 +47,8 @@ def get_test_modules(pkg_name, test_dir, relative_path_to_root):
                 # TODO: Fix this logic. This is just a band-aid. The path to
                 #   module syntax needs to be recursive.
                 if test_module[len(pkg_name)] != '.':
-                    test_module = test_module[0:len(pkg_name)]+'.'\
-                                  +test_module[len(pkg_name):]
+                    test_module = test_module[0:len(pkg_name)]+'.' \
+                                  + test_module[len(pkg_name):]
                 test_modules.append(test_module)
     return test_modules
 

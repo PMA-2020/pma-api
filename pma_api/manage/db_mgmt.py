@@ -22,20 +22,20 @@ from sqlalchemy import Table
 from sqlalchemy.engine import Connection
 from sqlalchemy.exc import OperationalError, IntegrityError, DatabaseError
 
-from pma_api import create_app, db
+from pma_api import create_app
 from pma_api.config import DATA_DIR, BACKUPS_DIR, Config, \
     IGNORE_SHEET_PREFIX, DATA_SHEET_PREFIX, AWS_S3_STORAGE_BUCKETNAME as \
     BUCKET, S3_BACKUPS_DIR_PATH, S3_DATASETS_DIR_PATH, S3_UI_DATA_DIR_PATH, \
     UI_DATA_DIR, DATASETS_DIR, API_DATASET_FILE_PREFIX as API_PREFIX, \
     UI_DATASET_FILE_PREFIX as UI_PREFIX, HEROKU_INSTANCE_APP_NAME as APP_NAME,\
-    FILE_LIST_IGNORES, temp_folder_path
+    FILE_LIST_IGNORES, TEMP_DIR
 from pma_api.error import PmaApiDbInteractionError, PmaApiException
-from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
-                            Country, Data, EnglishString, Geography, Indicator,
-                            ApiMetadata, Survey, Translation, Dataset, User)
+from pma_api.models import db, Cache, Characteristic, CharacteristicGroup, \
+    Task, Country, Data, EnglishString, Geography, Indicator, ApiMetadata, \
+    Survey, Translation, Dataset, User
 from pma_api.utils import most_common
-from pma_api.manage.utils import log_process_stderr, run_proc
-
+from pma_api.manage.utils import log_process_stderr, run_proc, \
+    _get_bin_path_from_ref_config
 
 # Sorted in order should be executed
 ORDERED_METADATA_SHEET_MODEL_MAP = OrderedDict({  # str,db.Model
@@ -193,12 +193,13 @@ def make_shell_context():
     Returns:
         dict: Context for application manager shell.
     """
-    return dict(app=create_app(os.getenv('ENV_NAME', 'default')), db=db,
-                Country=Country, EnglishString=EnglishString,
-                Translation=Translation, Survey=Survey, Indicator=Indicator,
-                Data=Data, Characteristic=Characteristic, Cache=Cache,
-                CharacteristicGroup=CharacteristicGroup, User=User,
-                ApiMetadata=ApiMetadata, Dataset=Dataset, Geography=Geography)
+    return dict(
+        app=create_app(os.getenv('ENV_NAME', 'default')), db=db,
+        Country=Country, EnglishString=EnglishString, Translation=Translation,
+        Survey=Survey, Indicator=Indicator, Data=Data, Task=Task, User=User,
+        Characteristic=Characteristic, Cache=Cache, ApiMetadata=ApiMetadata,
+        CharacteristicGroup=CharacteristicGroup, Dataset=Dataset,
+        Geography=Geography)
 
 
 def init_from_source(path, model):
@@ -858,12 +859,14 @@ def restore_using_heroku_postgres(
         raise PmaApiDbInteractionError(msg)
 
 
-def restore_using_pgrestore(path: str, dropdb: bool = False,
-                            silent: bool = False):
+def restore_using_pgrestore(
+        path: str, attempt: int = 1, dropdb: bool = False,
+        silent: bool = False):
     """Restore postgres datagbase using pg_restore
 
     Args:
         path (str): Path of file to restore
+        attempt (int): Attempt number
         dropdb (bool): Drop database in process?
         silent (bool): Don't print updates?
 
@@ -871,38 +874,63 @@ def restore_using_pgrestore(path: str, dropdb: bool = False,
         - Restores database
         - Drops database (if dropdb)
     """
-    cmd_base: str = 'pg_restore --exit-on-error --create {drop}' \
-                    '--dbname={database} --host={hostname} --port={port} ' \
-                    '--username={username} {path}'
+    system_bin_paths: List[str] = \
+        ['pg_restore', '/usr/local/bin/pg_restore']
+    system_bin_path_registered: str = \
+        _get_bin_path_from_ref_config(bin_name='pg_restore', system=True)
+    if system_bin_path_registered not in system_bin_paths:
+        system_bin_paths.append(system_bin_path_registered)
+    project_bin_path: str = \
+        _get_bin_path_from_ref_config(bin_name='pg_restore', project=True)
+    pg_restore_paths: List[str] = []
+    if system_bin_paths:
+        pg_restore_paths += system_bin_paths
+    if project_bin_path:
+        pg_restore_paths.append(project_bin_path)
+    pg_restore_path: str = pg_restore_paths[attempt-1] if pg_restore_paths \
+        else ''
+    max_attempts: int = len(pg_restore_paths)
 
-    cmd_str: str = cmd_base.format(
-        **root_connection_info,
-        path=path,
-        drop='--clean ' if dropdb else '')
-    cmd: List[str] = cmd_str.split(' ')
+    try:
+        cmd_base: str = '{pg_restore_path} --exit-on-error --create {drop}' \
+            '--dbname={database} --host={hostname} --port={port} ' \
+            '--username={username} {path}'
 
-    proc = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True)
+        cmd_str: str = cmd_base.format(
+            **root_connection_info,
+            path=path,
+            pg_restore_path=pg_restore_path,
+            drop='--clean ' if dropdb else '')
+        cmd: List[str] = cmd_str.split(' ')
 
-    if not silent:
-        try:
-            for line in iter(proc.stdout.readline, ''):
-                print(line.encode('utf-8'))
-        except AttributeError:
-            print(proc.stdout)
+        proc = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True)
 
-    errors = proc.stderr.read()
-    if errors:
-        msg = '\n' + errors + \
-            'Offending command: ' + cmd_str
-        log_process_stderr(msg, err_msg=db_mgmt_err)
-        raise PmaApiDbInteractionError(msg)
+        if not silent:
+            try:
+                for line in iter(proc.stdout.readline, ''):
+                    print(line.encode('utf-8'))
+            except AttributeError:
+                print(proc.stdout)
 
-    proc.stderr.close()
-    proc.stdout.close()
-    proc.wait()
+        errors = proc.stderr.read()
+        if errors:
+            msg = '\n' + errors + \
+                'Offending command: ' + cmd_str
+            log_process_stderr(msg, err_msg=db_mgmt_err)
+            raise PmaApiDbInteractionError(msg)
+
+        proc.stderr.close()
+        proc.stdout.close()
+        proc.wait()
+    except FileNotFoundError as err:
+        if attempt < max_attempts:
+            restore_using_pgrestore(
+                path=path, dropdb=dropdb, silent=silent, attempt=attempt+1)
+        else:
+            raise err
 
 
 # TODO 2019.04.08-jef: Remove because requires superuser; can't do on Heroku.
@@ -979,8 +1007,8 @@ def create_db(name: str = 'pmaapi', with_schema: bool = True):
 
 
 @aws_s3
-def download_file_from_s3(filename: str, file_dir: str,
-                          dl_dir: str = temp_folder_path()) -> str:
+def download_file_from_s3(
+        filename: str, file_dir: str, dl_dir: str = TEMP_DIR) -> str:
     """Download a file from AWS S3
 
     Args:
@@ -992,6 +1020,10 @@ def download_file_from_s3(filename: str, file_dir: str,
         str: Path to downloaded file
     """
     from botocore.exceptions import ClientError
+
+    # create temp dir if doesn't exist
+    if not os.path.exists(TEMP_DIR):
+        os.mkdir(TEMP_DIR)
 
     s3 = boto3.resource('s3')
     download_from_path: str = os.path.join(file_dir, filename)
@@ -1048,7 +1080,7 @@ def download_dataset(version_number: int) -> str:
     downloaded_file_path: str = download_file_from_s3(
         filename=filename,
         file_dir=S3_DATASETS_DIR_PATH,
-        dl_dir=temp_folder_path())
+        dl_dir=TEMP_DIR)
 
     return downloaded_file_path
 
@@ -1326,8 +1358,9 @@ def seed_users():
     create_superuser()
 
 
-def create_superuser(name: str = os.getenv('SUPERUSER_NAME', 'admin'),
-                     pw: str = os.getenv('SUPERUSER_PW')):
+def create_superuser(
+        name: str = os.getenv('SUPERUSER_NAME', 'admin'),
+        pw: str = os.getenv('SUPERUSER_PW')):
     """Create default super user
 
     The current iteration of PMA API only allows for one user, the super user.

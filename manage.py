@@ -11,7 +11,7 @@ from flask_script import Manager, Shell
 from psycopg2 import DatabaseError
 from sqlalchemy.exc import StatementError
 
-from pma_api import create_app, db
+from pma_api import create_app
 from pma_api.config import PROJECT_ROOT_PATH
 from pma_api.manage.server_mgmt import store_pid
 from pma_api.manage.db_mgmt import get_api_data, get_ui_data, \
@@ -20,7 +20,7 @@ from pma_api.manage.db_mgmt import get_api_data, get_ui_data, \
      list_ui_data as listuidata, list_datasets as listdatasets, \
      backup_source_files as backupsourcefiles
 from pma_api.manage.initdb_from_wb import InitDbFromWb
-from pma_api.models import Cache, ApiMetadata, Translation
+from pma_api.models import db, Cache, ApiMetadata, Translation
 from pma_api.utils import dict_to_pretty_json
 
 load_dotenv(dotenv_path=Path(PROJECT_ROOT_PATH) / '.env')

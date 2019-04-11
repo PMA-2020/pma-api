@@ -9,8 +9,7 @@
       <th>Name</th>
 {#      <th>Type</th>#}
       <th>Uploaded</th>
-      {# TODO: Uncomment this when info about being active is fetched #}
-{#      <th>Active</th>#}
+      <th>Active</th>
       <th>Actions</th>
 {#      <th>Active: Staging</th>#}
 {#      <th>Active: Production</th>#}
@@ -31,15 +30,17 @@
         <td>{{ dataset.name }}</td>
 {#        <td>{{ dataset.dataset_type }}</td>#}
         <td>{{ dataset.last_modified }}</td>
-{#        <td>#}
-{#          {% if dataset.active %}#}
-{#            <i class="fas fa-check"></i>#}
-{#          {% endif %}#}
-{#        </td>#}
-        <td>
+        {# Active #}
+        <td style="text-align: center;">
+          {% if active_dataset_version == dataset.version_number %}
+            <i class="fas fa-check"></i>
+          {% endif %}
+        </td>
+        {# Actions #}
+        <td style="text-align: center;">
           <a id="download-link-{{ dataset.version_number }}"  href="#">
             <button type="button"
-              class="btn btn-outline-dark  download-button"
+              class="btn btn-outline-dark download-button"
               id="download-button-{{ dataset.version_number }}">
               <i class="fas fa-download"></i>
             </button>
@@ -51,7 +52,8 @@
               <i class="fas fa-trash"></i>
             </button>
           </a>
-          <a id="activate-link-{{ dataset.version_number }}" href="#">
+          <a class="activate-button-anchor"
+            id="activate-link-{{ dataset.version_number }}" href="#">
             <button type="button"
               class="btn btn-outline-dark activate-button"
               id="activate-button-{{ dataset.version_number }}">

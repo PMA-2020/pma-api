@@ -1,8 +1,8 @@
 """Core db_models."""
 from flask import url_for
 
-from . import db
-from .api_base import ApiModel
+from pma_api.models import db
+from pma_api.models.api_base import ApiModel
 from pma_api.utils import next64
 from copy import copy
 

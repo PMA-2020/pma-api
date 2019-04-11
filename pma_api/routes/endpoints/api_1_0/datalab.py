@@ -4,7 +4,7 @@ from typing import Dict, List
 from flask import request
 
 from pma_api.config import REFERENCES
-from . import api
+from pma_api.routes.endpoints.api_1_0 import api
 from pma_api.models import Cache
 from pma_api.response import ApiResult, QuerySetApiResult
 from pma_api.queries import DatalabData

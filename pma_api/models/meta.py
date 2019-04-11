@@ -1,11 +1,12 @@
 """Metadata table."""
 import os
 from hashlib import md5
+from typing import Any, Dict, Union
 
 from flask import url_for, Flask, current_app
 
 from pma_api.config import REFERENCES
-from . import db
+from pma_api.models import db
 
 
 class ApiMetadata(db.Model):
@@ -33,10 +34,51 @@ class ApiMetadata(db.Model):
         self.md5_checksum = md5(self.blob).hexdigest()
 
     @classmethod
-    def get_current_api_data(cls):
-        """Return the record for the most recent API data."""
-        record = cls.query.filter_by(type='api').first()
-        return record
+    def get_record(cls, ui_or_api: str, as_json: bool = False) \
+            -> Union[Dict, Any]:
+        """Return the record for the most recent API/UI data.
+
+        Args:
+            as_json (bool): Return as dictionary to be serialized into JSON?
+            ui_or_api (str): Dataset type; valid values: ('ui', 'api')
+
+        Returns:
+            Union[Dict, db.Model]: Record
+        """
+        record = cls.query.filter_by(type=ui_or_api).first()  # db.Model
+
+        result: Union[Dict, Any] = record if not as_json else {
+            'id': str(record.id),
+            'name': str(record.name),
+            'type': str(record.type),
+            'created_on': str(record.created_on),
+            'md5_checksum': str(record.md5_checksum)}
+
+        return result
+
+    @classmethod
+    def get_current_api_data(cls, as_json: bool = False) -> Union[Dict, Any]:
+        """Return the record for the most recent API data.
+
+        Args:
+            as_json (bool): Return as dictionary to be serialized into JSON?
+
+        Returns:
+            Union[Dict, db.Model]: Record
+        """
+        return cls.get_record(ui_or_api='api', as_json=as_json)
+
+    @classmethod
+    def get_current_ui_data(cls, as_json: bool = False) -> Union[Dict, Any]:
+        """Return the record for the most recent UI data.
+
+        Args:
+            as_json (bool): Return as dictionary to be serialized into JSON?
+
+        Returns:
+            Union[Dict, db.Model]: Record
+        """
+        return cls.get_record(ui_or_api='ui', as_json=as_json)
 
     def to_json(self):
         """Return dictionary ready to convert to JSON as response.

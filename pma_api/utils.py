@@ -1,13 +1,13 @@
 """Assortment of utilities for application."""
 import itertools
 import operator
-import platform
+import os
 import random
 from typing import List
 
 from flask_sqlalchemy import Model, SQLAlchemy
 
-from pma_api.config import PROJECT_ROOT_PATH
+from pma_api.app import PmaApiFlask
 
 B64_CHAR_SET = ''.join(('abcdefghijklmnopqrstuvwxyz',
                         'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -30,20 +30,6 @@ def next64():
     seen.add(result)
 
     return result
-
-
-def os_appropriate_folder_path(folder_name: str) -> str:
-    """Get the path string to folder path, appropriate to OS.
-
-    Args:
-        folder_name (str): Folder name.
-
-    Returns:
-        str: path
-    """
-    if platform.system() == 'Windows':
-        return PROJECT_ROOT_PATH + '\\' + folder_name
-    return PROJECT_ROOT_PATH + '/' + folder_name + '/'
 
 
 def most_common(a_list: list):
@@ -158,3 +144,23 @@ def stderr_stdout_captured(func):
     sys.stderr = old_stderr
 
     return _err, _out, returned_value
+
+
+def get_app_instance() -> PmaApiFlask:
+    """Get reference to copy of currently running application instance
+
+    Returns:
+        PmaApiFlask: PmaApiFlask application instance.
+    """
+    err = 'A current running app was not able to be found.'
+
+    try:
+        from flask import current_app
+        app: PmaApiFlask = current_app
+        if app.__repr__() == '<LocalProxy unbound>':
+            raise RuntimeError(err)
+    except RuntimeError:
+        from pma_api import create_app
+        app: PmaApiFlask = create_app(os.getenv('ENV_NAME', 'default'))
+
+    return app

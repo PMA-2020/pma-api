@@ -7,9 +7,8 @@
 /tags
 __pycache__/
 dev/
-ignored*/
 temp/
 *~$*
 *.swp
-*ignored*.py
+*ignored*
 .DS_Store

@@ -5,7 +5,7 @@ from flask import Blueprint, redirect, request
 root = Blueprint('root', __name__)
 
 # pylint: disable=wrong-import-position
-from . import administration, version, docs
+from pma_api.routes import administration, version, docs
 
 
 @root.route('/')
@@ -32,5 +32,6 @@ def root_route():
     if request_headers == 'text/html':
         return redirect('http://api-docs.pma2020.org', code=302)
     else:
-        from .endpoints.api_1_0.collection import get_resources as res
+        from pma_api.routes.endpoints.api_1_0.collection import get_resources \
+            as res
         return res() if request_headers == 'application/json' else res()

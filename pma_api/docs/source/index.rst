@@ -30,7 +30,8 @@ API Documentation
 
    content/users/endpoints.md
    content/users/usage.md
-   content/developers/for_developers.md
+   content/project_developers/project_developers.md
+   content/data_managers/data_managers.md
 
 
 Quick start

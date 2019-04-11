@@ -1,7 +1,7 @@
 """Routes for API collections."""
 from flask import request, url_for
 
-from . import api
+from pma_api.routes.endpoints.api_1_0 import api
 from pma_api.response import QuerySetApiResult
 from pma_api.models import Country, EnglishString, Survey, Indicator, Data
 

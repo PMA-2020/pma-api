@@ -5,6 +5,7 @@ import sys
 from typing import List
 
 import psutil
+# noinspection PyProtectedMember
 from psutil._exceptions import ZombieProcess
 
 from pma_api.config import PID_FILE_PATH, PROJECT_ROOT_PATH

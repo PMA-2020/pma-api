@@ -2,33 +2,28 @@
 
 # TODO: Add dynamic routing for each celery task, like from db.Model
 """
-import os
-
-from typing import Dict, Generator
+from typing import Dict, Generator, List
 
 from celery import Celery
-from flask import current_app
 
-from pma_api import create_app
+from pma_api.app import PmaApiFlask
+from pma_api.error import PmaApiTaskDenialError
 from pma_api.manage.db_mgmt import download_dataset
 from pma_api.manage.initdb_from_wb import InitDbFromWb
 from pma_api.task_utils import progress_update_callback
+from pma_api.utils import get_app_instance
 
-try:
-    app = current_app
-    if app.__repr__() == '<LocalProxy unbound>':
-        raise RuntimeError('A current running app was not able to be found.')
-    celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-    celery.conf.update(app.config)
-except RuntimeError:
-    app = create_app(os.getenv('ENV_NAME', 'default'))
-    celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-    celery.conf.update(app.config)
+app: PmaApiFlask = get_app_instance()
+celery = Celery(
+    app.name,
+    broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
 
 CELERY_COMPLETION_CODES = ('FAILURE', 'SUCCESS')
 
 
+# TODO 2019.04.15-jef: This feature would be ideal to add back.
 # @celery.task(bind=True)  # TO-DO: fix action_url when works
 # def activate_dataset_request(self, dataset_id: str,
 #                              destination_host_url: str,
@@ -81,6 +76,13 @@ CELERY_COMPLETION_CODES = ('FAILURE', 'SUCCESS')
 def activate_dataset(self, dataset_id: str) -> Dict:
     """Activate dataset to the this server.
 
+    TODOs: 2019.03.27-jef
+        1. This would be better as part of a wrapper func to all task funcs,
+        until we allow for concurrent tasks.
+        2. This shouldn't be necessary, but for some reason,
+        even though all instances of our config have this set off, the attr
+        doesn't even seem to appear unless it is set here.
+
     Args:
         self (Celery.task): Required Celery obj ref. Not to be used as param.
         dataset_id (str): Name of dataset.
@@ -88,22 +90,29 @@ def activate_dataset(self, dataset_id: str) -> Dict:
     Returns:
         dict: Results.
     """
-    # TODO: 2019.03.27-jef: This shouldn't be necessary, but for some reason,
-    #  even though all instances of our config have this set off, the attr
-    #  doesn't even seem to appear unless it is set here.
-    app.config.SQLALCHEMY_ECHO = False
+    from pma_api.models import Task
 
+    active_task_ids: List[str] = Task.get_present_tasks()  # TO-DO 1
+    if active_task_ids:
+        raise PmaApiTaskDenialError
+
+    app.config.SQLALCHEMY_ECHO = False  # TO-DO 2
     callback: Generator = \
         progress_update_callback(task_obj=self, verbose=True)
+    task_id: str = self.request.id
 
-    next(callback)
+    try:
+        Task.register_active(task_id)
+        next(callback)  # readies callback to start receiving task updates
 
-    file_path: str = download_dataset(int(dataset_id))
-    this_task = InitDbFromWb(
-        callback=callback,
-        api_file_path=file_path,
-        _app=app)
-    this_task.run()
+        file_path: str = download_dataset(int(dataset_id))
 
-    callback.close()
-    return {'current': 100, 'total': 100, 'status': 'Completed'}
+        this_task = InitDbFromWb(
+            callback=callback,
+            api_file_path=file_path,
+            _app=app)
+        this_task.run()
+        return {'current': 100, 'total': 100, 'status': 'Completed'}
+    finally:
+        callback.close()
+        Task.register_inactive(task_id)

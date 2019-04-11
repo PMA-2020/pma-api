@@ -9,7 +9,7 @@ get_script_dir () {
     DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
     SOURCE="$( readlink "$SOURCE" )"
     # If $SOURCE was a relative symlink (so no "/" as prefix, need to resolve it relative to the symlink base directory
-    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+    [[ ${SOURCE} != /* ]] && SOURCE="$DIR/$SOURCE"
   done
   DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
   echo "$DIR"
@@ -18,7 +18,7 @@ DIR=$(get_script_dir)
 CLI_HOME=$(cd && pwd)
 XDG_DATA_HOME=${XDG_DATA_HOME:="$CLI_HOME/.local/share"}
 export HEROKU_OCLIF_CLIENT_HOME=/usr/local/Cellar/heroku/7.16.5/lib/client
-CLIENT_HOME=${HEROKU_OCLIF_CLIENT_HOME:=$XDG_DATA_HOME/heroku/client}
+CLIENT_HOME=${HEROKU_OCLIF_CLIENT_HOME:=${XDG_DATA_HOME}/heroku/client}
 BIN_PATH="$CLIENT_HOME/bin/heroku"
 if [ -z "$HEROKU_REDIRECTED" ] && [ -x "$BIN_PATH" ] && [[ ! "$DIR/heroku" -ef "$BIN_PATH" ]]; then
   if [ "$DEBUG" == "*" ]; then

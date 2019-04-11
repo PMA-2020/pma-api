@@ -220,9 +220,9 @@ id="activate-dataset-button">#}
       // to-do 2019.04.10-jef: Move all of this inside $(function() {...})()?
       const unexpectedTaskErrMsg =
         'Client: Unexpected error occurred while processing task.';
-      let progressUpdatesContainer = $('#progress-updates-container');
-      let progressMsg = $('#progress-msg');
-      let progressBar = $('#progress-bar');
+      const progressUpdatesContainer = $('#progress-updates-container');
+      const progressMsg = $('#progress-msg');
+      const progressBar = $('#progress-bar');
       const progressLogInfoBar = $('#progress-log-info-bar');
       const progressLogInfoBarMsg = $('#progress-log-info-msg');
       const progressLogWarningBar = $('#progress-log-warning-bar');
@@ -231,6 +231,8 @@ id="activate-dataset-button">#}
       const progressLogSuccessBarMsg = $('#progress-log-success-msg');
       const progressLogErrBar = $('#progress-log-error-bar');
       const progressLogErrBarMsg = $('#progress-log-error-msg');
+      const activateButtons = $("button.activate-button");
+      const activateButtonAnchors = $("a.activate-button-anchor");
 
       Dropzone.autoDiscover = false;
       let myDropzone = new Dropzone("#myDropzone");
@@ -243,7 +245,7 @@ id="activate-dataset-button">#}
           messageBar.html('Success!');
           location.reload();
         } else {
-          let err_message = 'Error: Unknown server error.';
+          let err_message = 'Server Error: Unknown server error';
           if (!!response.message)
               err_message = response.message;
           messageBar.show();
@@ -252,7 +254,34 @@ id="activate-dataset-button">#}
       });
 
       $(function() {
+        // noinspection JSAnnotator, JSUnusedAssignment, UnnecessaryLocalVariableJS
+        const currentTaskList = {{ active_tasks | safe }};  // {taskId: statusUrl}
+        // noinspection JSUnusedAssignment, UnnecessaryLocalVariableJS
+        let tasksActiveOnPageLoad = currentTaskList ? currentTaskList : {};  // {taskId: statusUrl}
+
+        // State
+        let state = {
+          client: {
+            activateButtons: {
+              disabled: false
+            }
+          },
+          server: {
+            activeTaskIds: tasksActiveOnPageLoad  // {taskId: statusUrl}
+          }
+        };
+
+        // Page load tasks
+        if (tasksActiveOnPageLoad !== {}) {
+          // Currently, only one task should be active at a time anyway
+          Object.entries(tasksActiveOnPageLoad).forEach(entry => {
+            let statusUrl = entry[1];
+            fetchAndUpdateTaskProgress(statusUrl);
+          });
+        }
+
         // Functionality for dataset control buttons
+        /**
         {#function selectedDatasetID() {#}
         {#  let selectedDatasetIDs = [];#}
         {##}
@@ -284,7 +313,7 @@ id="activate-dataset-button">#}
         {#  } else {#}
         {#    return selectedDatasetIDs[0];#}
         {#  }#}
-        {#//}#}
+        {#//}#}**/
         //$("#download-button").bind('click', downloadDataset);
         //function downloadDataset() {
         //  let name = selectedDatasetID();
@@ -369,13 +398,17 @@ id="activate-dataset-button">#}
           return true;
         }
         function exitTask(report) {  // report=str
-          // Hide progress bar/updates
-          progressUpdatesContainer.css('display', 'none');
           // Report result
           console.log(report);
           progressLogErrBarMsg.text(report);
           progressLogErrBar.css('display', 'inherit');
+          // Deactivate irrelevant UI
+          hideProgressWidget();
+          // Activate relevant UI
+          enableActivateButtons();
         }
+
+        // UI Functions
         function clearProgressLogNotifications() {
           progressLogInfoBar.css('display', 'none');
           progressLogInfoBarMsg.text('');
@@ -386,6 +419,35 @@ id="activate-dataset-button">#}
           progressLogErrBar.css('display', 'none');
           progressLogErrBarMsg.text('');
         }
+        function hideProgressWidget() {
+          progressUpdatesContainer.css('display', 'none');
+        }
+        function showProgressWidget() {
+          progressUpdatesContainer.css('display', 'inherit');
+        }
+        function disableActivateButtons() {
+          if (state.client.activateButtons.disabled === false) {
+            activateButtons.attr("disabled", true);
+            activateButtonAnchors.attr("title",
+              'Currently disabled until activation task is completed.');
+            state.client.activateButtons.disabled = true;
+          }
+        }
+        function enableActivateButtons() {
+          if (state.client.activateButtons.disabled === true) {
+            activateButtons.removeAttr("disabled");
+            activateButtonAnchors.removeAttr("title");
+            state.client.activateButtons.disabled = false;
+          }
+        }
+        function updateProgressUi(statusMsg, percentStr, data) {
+          progressMsg.text(statusMsg);
+          progressBar.text(percentStr);
+          progressBar.css('width', percentStr);
+          console.log('Progress update: ');
+          console.log(data);
+        }
+
 
         // Task handlers
         const maxTaskStartAttempts = 4;
@@ -411,10 +473,11 @@ id="activate-dataset-button">#}
             'Starting task (awaiting server response)...';  // str
           const startMsg = 'Starting task...';  // str
           const err = 'Error when creating task: ';  // str
-          // Hide previous task results
+          // Disable/clear irrelevant UI
+          disableActivateButtons();
           clearProgressLogNotifications();
-          // Show UI
-          progressUpdatesContainer.css('display', 'inherit');
+          // Enable relevant UI
+          showProgressWidget();
           // Update progress
           progressMsg.text(startMsg);
           console.log(startMsg);
@@ -422,7 +485,7 @@ id="activate-dataset-button">#}
           $.post(postUrl, postData, async function(data, status, request) {
             progressMsg.text(startMsg2);
             console.log(startMsg2);
-            const status_url =
+            const statusUrl =
               request.getResponseHeader('Content-Location');  // str
             const params = {
               taskName: taskName,
@@ -430,7 +493,8 @@ id="activate-dataset-button">#}
               taskInitializerUrl: postUrl,
               taskInitializerData: postData
             };
-            updateTaskProgress(status_url, params);
+            console.log(statusUrl);
+            fetchAndUpdateTaskProgress(statusUrl, params);
           }).fail(async function(e) {
             const error = e ? e.status + ' (' + e.statusText + ')'
               : unexpectedTaskErrMsg;  // str
@@ -444,18 +508,27 @@ id="activate-dataset-button">#}
               await sleep(secondsBetweenFetches * 1000);  // int (ms)
               initTask(postUrl, postData, thisConnectAttemptNum + 1);
             } else {
+              {#TODO: Move this to exitTask() or something like it #}
               alert(errTxt);  // to-do: flash notif instead
               console.log(errTxt);
-              progressUpdatesContainer.css('display', 'none');
+              hideProgressWidget();
+              enableActivateButtons();
             }
           });
         }
 
-        function updateTaskProgress(statusUrl, params) {
+        function fetchAndUpdateTaskProgress(statusUrl, params) {
+          /** Fetch task progress and update progress bar widget
+           *
+           * Args:
+           *     statusUrl (str): Url to GET task status report
+           *     params (obj): Optional; parameters that should persist
+           *     between recursive calls to this function.
+           * **/
           // Permanent settings
           const startMsg =
             'Starting task (waiting for server to report status)...';
-          const maxConnectAttempts = 15;
+          const maxConnectAttempts = 20;
 
           // Iteration variables
           const thisConnectAttemptNum =
@@ -477,13 +550,20 @@ id="activate-dataset-button">#}
           let taskDataTimeSeries =
             params && params.hasOwnProperty('taskDataTimeSeries')
             ? params.taskDataTimeSeries : [];  // array
+          let receivedStatus = '';  // str
+          let completed = false;  // bool
+
+          // Enable relevant UI
+          showProgressWidget();
+          // Disable irrelevant UI
+          disableActivateButtons();
 
           $.getJSON(statusUrl, async function(data) {  // obj -> str
             // 0.1 Set some helper variables
             fetchesMade += 1;
-            const receivedStatus =
+            receivedStatus =
               data.state === data.status ? '' : data.status;  // str
-            const completed =
+            completed =
               data.state === 'FAILURE' || data.state === 'SUCCESS';  // bool
 
             // 1. New data available? Make variable updates.
@@ -531,23 +611,19 @@ id="activate-dataset-button">#}
                 current = current / 100;
               else if (!current || current === 0)
                 current = 0;
+              current = current.toPrecision(2);  // float
+              total = total.toPrecision(2);  // float
 
-              const pctDecimal
-                = 100 * (current / total).toPrecision(1);  // float
+              const pctDecimal = 100 * (current / total);  // float
               const percentStr = String(pctDecimal) + '%';  // str
 
-              // 2.3. Update view
-              progressMsg.text(statusMsg);
-              progressBar.text(percentStr);
-              progressBar.css('width', percentStr);
-              // 2.4 Print to console
-              console.log('Progress update: ');
-              console.log(data);
+              // 2.2.3 Update progress ui
+              updateProgressUi(statusMsg, percentStr, data);
             }
 
             // 3. Exit or continue
             // TODO 2019.04.10-jef: Better to use .then() pattern to restart
-            //  initTask.
+            //  initTask
             const failedStart = data.state === 'FAILURE' && fetchesMade === 1;
             if (failedStart
               && thisTaskStartAttemptNum < maxTaskStartAttempts) {
@@ -560,11 +636,11 @@ id="activate-dataset-button">#}
                 thisTaskStartAttemptNum + 1);
 
             } else if (data.state === 'FAILURE') {
-              const report = receivedStatus ? 'Error: ' + receivedStatus
+              const report = receivedStatus ? 'Server Error: ' + receivedStatus
                 : unexpectedTaskErrMsg;
               exitTask(report);
 
-            } else if (!completed)
+            } else if (!completed) {
               setTimeout(function () {
                 const persistentAttemptData = {
                   fetchesMade: fetchesMade,
@@ -572,15 +648,19 @@ id="activate-dataset-button">#}
                   taskDataTimeSeries: taskDataTimeSeries,  // array
                   thisAttemptNum: thisConnectAttemptNum  // int
                 };
-                updateTaskProgress(statusUrl, persistentAttemptData);
+                fetchAndUpdateTaskProgress(statusUrl, persistentAttemptData);
               }, secondsBetweenFetches * 1000);
-
-            else if (data.state === 'SUCCESS')
+            } else if (data.state === 'SUCCESS') {
+              {#TODO: Move this to exitTask() or something like it #}
               console.log('SUCCESS');  // Maybe show green notification?
+              // Maybe move this into exitTask() or variation w/ params?
+              enableActivateButtons();
+            }
           })
           .fail(async function (jqxhr, textStatus, error) {
             // Generate report
-            const stacktraceReturnedTell = 'parsererror, SyntaxError: Unexpected token < in JSON at position 0';
+            const stacktraceReturnedTell = 'parsererror, SyntaxError: ' +
+              'Unexpected token < in JSON at position 0';
             const taskNameInclude = !taskName ? ''
               : ' for \'' + taskName + '\'';
             let errContents = textStatus === 'error' ? error
@@ -591,8 +671,7 @@ id="activate-dataset-button">#}
             const report = 'Error when requesting task status' +
               taskNameInclude + errContentsMsg;
 
-            if (!errContentsMsg
-              && (thisConnectAttemptNum < maxConnectAttempts)) {
+            if (thisConnectAttemptNum < maxConnectAttempts) {
               console.log('Failed to fetch data from server. Trying again; ' +
                 'attempt ' + thisConnectAttemptNum + ' of ' +
                 maxConnectAttempts + '.');
@@ -602,8 +681,8 @@ id="activate-dataset-button">#}
                 taskDataTimeSeries: taskDataTimeSeries,  // array
                 thisConnectAttemptNum: thisConnectAttemptNum+1  // int
               };
-              await sleep(secondsBetweenFetches * 1000);  // int (milliseconds)
-              updateTaskProgress(statusUrl, persistentAttemptData)
+              await sleep(secondsBetweenFetches * 1000);  // int (in Ms)
+              fetchAndUpdateTaskProgress(statusUrl, persistentAttemptData)
             } else
               exitTask(report);
           });

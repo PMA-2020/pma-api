@@ -12,6 +12,7 @@ PROJECT_ROOT_PATH = \
     os.path.abspath(os.path.join(PACKAGE_DIR_PATH, '..'))
 load_dotenv(dotenv_path=Path(PROJECT_ROOT_PATH) / '.env')
 
+TEMP_DIR: str = os.path.join(PROJECT_ROOT_PATH, 'temp')
 DATA_DIR: str = os.path.abspath(os.path.join(PROJECT_ROOT_PATH, 'data'))
 BINARY_DIR: str = \
     os.path.abspath(os.path.join(PACKAGE_DIR_PATH, 'bin'))
@@ -69,26 +70,8 @@ LOCAL_DEVELOPMENT_URL: str = os.getenv(
     'LOCAL_DEVELOPMENT_URL', 'http://localhost:5000')
 ASYNC_SECONDS_BETWEEN_STATUS_CHECKS = 5
 
-
-# TODO: Replace these two functions with a constant that uses pathlib / os.path
-def temp_folder_path() -> str:
-    """Get the path to temp upload folder.
-
-    Returns:
-        str: path
-    """
-    from pma_api.utils import os_appropriate_folder_path
-    return os_appropriate_folder_path('temp')
-
-
-def data_folder_path() -> str:
-    """Get the path to data folder.
-
-    Returns:
-        str: path
-    """
-    from pma_api.utils import os_appropriate_folder_path
-    return os_appropriate_folder_path('data')
+# CELERY_QUEUE is also specified in makefile
+CELERY_QUEUE = 'pma-api-{}'.format(ENV_NAME)
 
 
 class Config:
@@ -114,17 +97,11 @@ class Config:
 
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     CELERY_BROKER_URL = os.getenv('MESSAGE_BROKER_URL')
-    CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+    CELERY_RESULT_BACKEND: str = CELERY_BROKER_URL
     STAGING_URL = os.getenv('STAGING_URL')
     PRODUCTION_URL = os.getenv('PRODUCTION_URL')
-    LOCAL_DEVELOPMENT_URL = LOCAL_DEVELOPMENT_URL
+    LOCAL_DEVELOPMENT_URL: str = LOCAL_DEVELOPMENT_URL
 
-    BROKER_TRANSPORT_OPTIONS = {
-        'max_retries': 3,
-        'interval_start': 0,
-        'interval_step': 0.2,
-        'interval_max': 0.2,
-    }
     # Flask-User settings
     SECRET_KEY = os.getenv('SECRET_KEY')
     USER_APP_NAME = "PMA API"  # Shown in email templates and page footers

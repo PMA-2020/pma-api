@@ -111,28 +111,47 @@ class MultistepTask:
 
         return subtask_grp_dict
 
-    def _report(self, silence_status: bool = False,
-                silence_percent: bool = False):
+    def _report(
+            self,
+            silence_status: bool = False,
+            silence_percent: bool = False,
+            status: str = '',
+            completion_ratio: float = None):
         """Report progress
+
+        Side effects:
+            - Prints if not silent
+            - Sends update to callback if present
 
         Args:
             silence_status (bool): Silence status?
             silence_percent (bool): Silence percent?
+            status (str): Message for reporting current status
+            completion_ratio (float): Current estimated completion percentage
+             within the entire task
         """
-        if not self.status or self.completion_ratio:
+        the_status: str = status if status else self.status
+        completion_pct: float = completion_ratio if completion_ratio \
+            else self.completion_ratio
+
+        if not the_status or completion_pct is None:
+            print()  # TODO: Debugging
             return
+
         if not self.silent:
-            pct: str = str(int(self.completion_ratio * 100)) + '%'
+            print()  # TODO: Temp debugging
+            pct: str = str(int(completion_pct * 100)) + '%'
             msg = ' '.join([
-                self.status if not silence_status else '',
-                '({})'.format(pct) if not silence_percent else ''
-            ])
+                the_status if not silence_status else '',
+                '({})'.format(pct) if not silence_percent else ''])
             print(msg)
+
         if self.callback:
+            print()  # TODO: Temp debugging
             self.callback.send({
                 'name': self.name,
-                'status': self.status,
-                'current': self.completion_ratio})
+                'status': the_status,
+                'current': completion_pct})
 
     def _begin_subtask(self, subtask_name: str,
                        subtask_queue: OrderedDict = None):
@@ -149,6 +168,7 @@ class MultistepTask:
         """
         subtask_queue: OrderedDict = subtask_queue if subtask_queue \
             else self.subtasks
+
         if not subtask_queue:
             return
         subtask: Union[Dict, FunctionalSubtask] = subtask_queue[subtask_name]

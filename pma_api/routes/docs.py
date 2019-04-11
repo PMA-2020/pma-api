@@ -1,7 +1,7 @@
 """Documentation related routes"""
 from flask import redirect
 
-from . import root
+from pma_api.routes import root
 
 
 @root.route('/docs')

@@ -6,6 +6,7 @@ from typing import List, Dict, Union, Generator
 
 import xlrd
 from flask import Flask, current_app
+from sqlalchemy import Table
 from sqlalchemy.exc import OperationalError, DatabaseError
 
 from pma_api.manage.functional_subtask import FunctionalSubtask
@@ -15,9 +16,15 @@ from pma_api.manage.db_mgmt import get_api_data, get_ui_data, \
     env_access_err_tell, env_access_err_msg, caching_error, drop_tables, \
     ORDERED_METADATA_SHEET_MODEL_MAP, DATASET_WB_SHEET_MODEL_MAP, \
     get_datasheet_names, commit_from_sheet, seed_users
-from pma_api import db
+from pma_api.manage.utils import get_table_models
 from pma_api.error import PmaApiDbInteractionError
-from pma_api.models import Cache, Characteristic, Indicator, Survey
+from pma_api.models import db, Cache, Characteristic, Indicator, Survey, Task
+
+
+ALL_MODELS: tuple = get_table_models()
+NODROP_MODELS: tuple = (Task,)
+DROP_MODELS = tuple(x for x in ALL_MODELS if x not in NODROP_MODELS)
+DROP_TABLES: List[Table] = list(x.__table__ for x in DROP_MODELS)
 
 
 class InitDbFromWb(MultistepTask):
@@ -324,12 +331,12 @@ class InitDbFromWb(MultistepTask):
         """Reset database
 
         Side effects:
-            - Drops all data and schema
+            - Drops data and schema
             - Creates new schema
             - Seeds initial, default users
             - Registers administrative metadata
         """
-        drop_tables()
+        drop_tables(DROP_TABLES)
         self._create_schema()
         seed_users()
         register_administrative_metadata(self.api_file_path)

@@ -1,7 +1,7 @@
 """Metadata table."""
 from flask_user import UserMixin
 
-from . import db
+from pma_api.models import db
 
 
 class User(db.Model, UserMixin):

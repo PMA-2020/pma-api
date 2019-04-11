@@ -1,9 +1,14 @@
 """App management utilities"""
 import os
+import platform
 import subprocess
 from datetime import datetime
-from typing import List, Dict
+from typing import List, Dict, Union
 from uuid import uuid4 as random_uuid
+
+from flask_sqlalchemy import DefaultMeta
+# noinspection PyProtectedMember
+from sqlalchemy.ext.declarative.clsregistry import _ModuleMarker
 
 from pma_api.error import PmaApiDbInteractionError, PmaApiException
 from pma_api.config import ERROR_LOG_PATH, LOGS_DIR, REFERENCES, BINARY_DIR, \
@@ -113,8 +118,8 @@ def run_proc_simple(cmd, shell: bool = False) -> Dict[str, str]:
     return output
 
 
-def _get_bin_path_from_ref_config(bin_name: str, system: bool = False,
-                                  project: bool = False) -> str:
+def _get_bin_path_from_ref_config(
+        bin_name: str, system: bool = False, project: bool = False) -> str:
     """Get binary from 'REFERENCES' dictionary in pma_api.config
 
     If 'project', gets the first binary discovered.
@@ -135,12 +140,17 @@ def _get_bin_path_from_ref_config(bin_name: str, system: bool = False,
     Returns:
         str: Path to binary if project, or callable binary name if system
     """
+    binary_found: str = ''
+    os_dirnames: tuple = ('MacOS', 'Windows', 'Linux')
+    this_os: str = platform.system()
+    this_os: str = 'MacOS' if this_os == 'Darwin' else this_os
     err = 'Error occurred while trying to run command. Must designate ' \
           'whether to use the designated system binary or project binary. ' \
           'Args used: ' + \
           '\nBinary: ' + bin_name + \
           '\nUse system binary?: ' + str(system) + \
           '\nUse project binary?: ' + str(project)
+
     if system == project:
         raise PmaApiException(err)
 
@@ -156,17 +166,26 @@ def _get_bin_path_from_ref_config(bin_name: str, system: bool = False,
 
     current_path, branch_root = '', ''
     binary_dir_root: {str: str} = os.path.join(BINARY_DIR, bin_name)
+
     for (current_dir, dirs, files) in os.walk(binary_dir_root, topdown=True):
         current_path: str = os.path.join(current_path, current_dir) if \
             current_path else current_dir
-        # TODO: Need some logic here if there are multiple versions / OSs
+        os_dirs_present: bool = any([x in os_dirnames for x in dirs])
+        if os_dirs_present:
+            this_os_dir_present: bool = any([x == this_os for x in dirs])
+            if not this_os_dir_present:
+                break
+
+        # TODO: Need some logic here if there are multiple versions
         # branch_root: str = current_dir if not branch_root else branch_root
 
         binaries: List[str] = [x for x in files if x not in FILE_LIST_IGNORES]
         if binaries:
             first_bin_found: str = binaries[0]
-            found: str = os.path.join(current_path, first_bin_found)
-            return found
+            binary_found: str = os.path.join(current_path, first_bin_found)
+            break
+
+    return binary_found
 
 
 def run_proc(cmd, shell: bool = False, raises: bool = True,
@@ -224,3 +243,22 @@ def run_proc(cmd, shell: bool = False, raises: bool = True,
         print(stderr)
 
     return output
+
+
+def get_table_models() -> tuple:
+    """Get list of all db tables
+
+    Returns:
+        tuple: All db tables
+    """
+    from pma_api.models import db
+
+    # noinspection PyProtectedMember
+    registered_classes: List[Union[DefaultMeta, _ModuleMarker]] = \
+        [x for x in db.Model._decl_class_registry.values()]
+    registered_models: List[DefaultMeta] = \
+        [x for x in registered_classes if isinstance(x, DefaultMeta)]
+    tables: List[DefaultMeta] = \
+        [x for x in registered_models if hasattr(x, '__tablename__')]
+
+    return tuple(tables)

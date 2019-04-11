@@ -9,13 +9,13 @@ from typing import Union, List
 from flask import request
 from flask_sqlalchemy import Model
 
-from pma_api import db
+from pma_api.models import db
 from pma_api.response import QuerySetApiResult
 from pma_api.config import PROJECT_ROOT_PATH, \
     SQLALCHEMY_MODEL_ATTR_QUERY_IGNORES as IGNORES
 from pma_api.utils import get_db_models
 
-from . import api
+from pma_api.routes.endpoints.api_1_0 import api
 
 
 db_models: List[Model] = get_db_models(db)

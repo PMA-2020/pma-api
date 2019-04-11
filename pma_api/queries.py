@@ -8,9 +8,8 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy.sql.elements import BooleanClauseList
 
-from pma_api import db
-from pma_api.models import Characteristic, CharacteristicGroup, Country, Data,\
-    EnglishString, Geography, Indicator, Survey, Translation
+from pma_api.models import db, Characteristic, CharacteristicGroup, Country, \
+    Data, EnglishString, Geography, Indicator, Survey, Translation
 
 
 # pylint: disable=too-many-public-methods
@@ -222,9 +221,11 @@ class DatalabData:
         if char_grp_code:
             filtered: BaseQuery = filtered.filter(grp1.code == char_grp_code)
         # TODO 2017.08.28-jkp: Remove E711 from .pycodestyle
+        # TO-DO: 2019-04-15-jef: For some reason, pycharm is still flagging
+        # this even with the noinspection.
         # 'is None' rather than '== None' will yield an error here.
         # pylint: disable=singleton-comparison
-        # noinspection PyComparisonWithNone
+        # noinspection PyComparisonWithNone,PyPep8
         filtered: BaseQuery = filtered.filter(grp2.code == None)
         if over_time:
             # This ordering is very important!

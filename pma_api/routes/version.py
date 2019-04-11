@@ -2,8 +2,7 @@
 from flask import jsonify
 
 from pma_api.response import QuerySetApiResult
-
-from . import root
+from pma_api.routes import root
 
 
 @root.route('/version')

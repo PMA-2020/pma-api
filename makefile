@@ -265,9 +265,11 @@ list-backups:
 	@python3 manage.py list_backups
 
 # Task queues
+# queue is also specified in pma_api.config
 celery:
 	celery worker \
 	--app=pma_api.tasks.celery \
+	--queue=pma-api-${ENV_NAME} \
 	--loglevel=info \
 	--without-gossip \
 	--without-mingle \

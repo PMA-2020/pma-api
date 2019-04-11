@@ -5,7 +5,7 @@ from typing import List
 
 from flask import Response, jsonify, make_response
 
-from .__version__ import __version__
+from pma_api.__version__ import __version__
 
 
 class ApiResult:
@@ -23,7 +23,7 @@ class ApiResult:
         self.extra_metadata = metadata
         self.kwargs = kwargs
 
-    def to_response(self):
+    def to_response(self) -> jsonify:
         """Make a response from the data."""
         metadata = self.metadata(self.extra_metadata)
         obj = {
@@ -36,7 +36,7 @@ class ApiResult:
     @staticmethod
     def metadata(extra_metadata=None):
         """Return metadata."""
-        from .models import ApiMetadata
+        from pma_api.models import ApiMetadata
         obj = {
             'version': __version__,
             'datasetMetadata': [item.to_json() for item in
