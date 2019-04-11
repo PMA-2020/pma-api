@@ -130,3 +130,31 @@ def get_db_models(db: SQLAlchemy) -> List[Model]:
          if isinstance(cls, type) and issubclass(cls, db.Model)]
 
     return models
+
+
+# TODO 2019.03.10-jef: Get this to work
+def stderr_stdout_captured(func):
+    """Capture stderr and stdout
+
+    Args:
+        func: A function
+
+    Returns:
+        str, str, any: stderr output, stdout output, return of function
+    """
+    import sys
+    from io import StringIO
+
+    old_stdout = sys.stdout
+    old_stderr = sys.stderr
+    captured_stderr = sys.stderr = StringIO()
+    captured_stdout = sys.stdout = StringIO()
+
+    returned_value = func()
+
+    _err: str = captured_stderr.getvalue()
+    _out: str = captured_stdout.getvalue()
+    sys.stdout = old_stdout
+    sys.stderr = old_stderr
+
+    return _err, _out, returned_value

@@ -17,7 +17,7 @@ from glob import glob
 from typing import List, Dict, Union
 
 from flask import Response, Flask
-import flask_testing
+import unittest
 from flask_sqlalchemy import Model
 from sqlalchemy.exc import OperationalError
 
@@ -41,7 +41,7 @@ sleep_seconds = 3
 max_attempts = 3
 
 
-class PmaApiTest(flask_testing.TestCase):
+class PmaApiTest(unittest.TestCase):
     """Package super class"""
 
     @staticmethod
@@ -264,8 +264,27 @@ class SequentialTests(PmaApiTest):
 
     def tearDown(self):
         """Tear down"""
-        print('- Finishing test: Restoring backup file...')
-        restore_db_local(path=self.backup, silent=True)
+        # TODO 2019.04.11-jef: Fix this issue. Don't know why this occurs.
+        #  Seems to occur even when Postico, other clients are closed, celery
+        #  isn't running, server isn't running. Maybe it's the test client?
+        #  In any event... this method of restore would not work on our server
+        #  deployments on Heroku, as Heroku CLI is used for backup and restore.
+        # pma_api.error.PmaApiDbInteractionError:
+        # pg_restore: [archiver (db)] Error while PROCESSING TOC:
+        # pg_restore: [archiver (db)] Error from TOC entry 2583; 1262 227420
+        # DATABASE pmaapi postgres
+        # pg_restore: [archiver (db)] could not execute query: ERROR:
+        # database "pmaapi" is being accessed by other users
+        # DETAIL:  There are 2 other sessions using the database.
+        #     Command was: DROP DATABASE pmaapi;
+        #
+        # Offending command: pg_restore --exit-on-error --create --clean
+        # --dbname=postgres --host=localhost --port=5432 --username=postgres
+        # /Users/joeflack4/projects/pma-api/data/db_backups/pma-api-
+        # backup_MacOS_development_2019-04-11_10-22-47.440488.dump
+        pass
+        # print('- Finishing test: Restoring backup file...')
+        # restore_db_local(path=self.backup, silent=True)
 
     @classmethod
     def initdb_overwrite(cls, path: str = ''):

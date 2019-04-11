@@ -88,12 +88,13 @@ def activate_dataset(self, dataset_id: str) -> Dict:
     Returns:
         dict: Results.
     """
+    # TODO: 2019.03.27-jef: This shouldn't be necessary, but for some reason,
+    #  even though all instances of our config have this set off, the attr
+    #  doesn't even seem to appear unless it is set here.
+    app.config.SQLALCHEMY_ECHO = False
+
     callback: Generator = \
         progress_update_callback(task_obj=self, verbose=True)
-
-    # TODO: 2019-03-27: temp. This shouldn't be necessary, but for some reason,
-    #  I couldn't get this to work when setting this in the test case.
-    app.config.SQLALCHEMY_ECHO = False
 
     next(callback)
 

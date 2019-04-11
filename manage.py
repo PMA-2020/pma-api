@@ -49,7 +49,9 @@ def initdb(api_file_path: str, ui_file_path: str):
     api_fp = api_file_path if api_file_path else get_api_data()
     ui_fp = ui_file_path if ui_file_path else get_ui_data()
     results: Dict = InitDbFromWb(
-        _app=app, api_file_path=api_fp, ui_file_path=ui_fp)\
+        _app=app,
+        api_file_path=api_fp,
+        ui_file_path=ui_fp)\
         .run()
 
     warning_str = ''
@@ -165,38 +167,11 @@ def backup_source_files():
     backupsourcefiles()
 
 
-# TODO: Get this to work. then move to utils
-def stderr_stdout_captured(func):
-    """Capture stderr and stdout
-
-    Args:
-        func: A function
-
-    Returns:
-        str, str, any: stderr output, stdout output, return of function
-    """
-    import sys
-    from io import StringIO
-
-    old_stdout = sys.stdout
-    old_stderr = sys.stderr
-    captured_stderr = sys.stderr = StringIO()
-    captured_stdout = sys.stdout = StringIO()
-
-    returned_value = func()
-
-    _err: str = captured_stderr.getvalue()
-    _out: str = captured_stdout.getvalue()
-    sys.stdout = old_stdout
-    sys.stderr = old_stderr
-
-    return _err, _out, returned_value
-
-
+@manager.command
 def release():
     """Perform steps necessary for a deployment"""
     print('Deployment release task: Beginning')
-    initdb()
+    initdb(api_file_path='', ui_file_path='')
     print('Deployment release task: Complete')
 
 

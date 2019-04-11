@@ -5,7 +5,6 @@ Flask-AlchemyDumps
 Flask-Cors
 Flask-Script
 Flask-SQLAlchemy
-Flask-Testing
 Flask-User
 gunicorn
 psutil

@@ -135,17 +135,20 @@ class Config:
 
 class StagingConfig(Config):
     """Production configuration."""
-    DEBUG = True  # TODO: TEMP
+    DEBUG = False
+    SQLALCHEMY_ECHO = False
 
 
 class ProductionConfig(Config):
     """Production configuration."""
+    DEBUG = False
+    SQLALCHEMY_ECHO = False
 
 
 class DevelopmentConfig(Config):
     """Development configuration."""
     DEBUG = True
-    # SQLALCHEMY_ECHO = True  # TODO: temp
+    SQLALCHEMY_ECHO = False
 
 
 config = {

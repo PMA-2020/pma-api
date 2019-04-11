@@ -216,16 +216,16 @@ class DatalabData:
             survey_sql: BooleanClauseList = \
                 DatalabData.survey_list_to_sql(survey_codes)
             filtered: BaseQuery = filtered.filter(survey_sql)
-        if indicator_code:  # TODO: Debug - 77 results i think
+        if indicator_code:
             filtered: BaseQuery = \
                 filtered.filter(Indicator.code == indicator_code)
-        if char_grp_code:  # TODO: Debug - 6 results i think
+        if char_grp_code:
             filtered: BaseQuery = filtered.filter(grp1.code == char_grp_code)
-        # TODO (jkp, begin=2017-08-28): This will be grp2.code == 'none'
-        # eventually when the Data show "none" for char_grp2 in excel import
-        # Remove E711 from .pycodestyle
+        # TODO 2017.08.28-jkp: Remove E711 from .pycodestyle
+        # 'is None' rather than '== None' will yield an error here.
         # pylint: disable=singleton-comparison
-        filtered: BaseQuery = filtered.filter(grp2.code is None)
+        # noinspection PyComparisonWithNone
+        filtered: BaseQuery = filtered.filter(grp2.code == None)
         if over_time:
             # This ordering is very important!
             ordered: BaseQuery = filtered\

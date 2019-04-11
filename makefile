@@ -86,7 +86,6 @@ virtualenvwrapper-deactivate: deactivate
 db:
 	@python3 manage.py initdb
 db-production: db
-# TODO - fix some issues causing tests to fail when run on Heroku
 release:
 	@python3 manage.py release
 	@make test
