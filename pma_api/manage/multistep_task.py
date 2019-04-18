@@ -135,11 +135,9 @@ class MultistepTask:
             else self.completion_ratio
 
         if not the_status or completion_pct is None:
-            print()  # TODO: Debugging
             return
 
         if not self.silent:
-            print()  # TODO: Temp debugging
             pct: str = str(int(completion_pct * 100)) + '%'
             msg = ' '.join([
                 the_status if not silence_status else '',
@@ -147,7 +145,6 @@ class MultistepTask:
             print(msg)
 
         if self.callback:
-            print()  # TODO: Temp debugging
             self.callback.send({
                 'name': self.name,
                 'status': the_status,

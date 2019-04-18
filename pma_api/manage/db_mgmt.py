@@ -238,7 +238,7 @@ def remove_stata_undefined_token_from_wb(wb: xlrd.book.Book):
                         if str(x).startswith(DATA_SHEET_PREFIX)]
     sheets = [book.sheet_by_name(x) for x in data_sheet_names]
 
-    # DEBUGGING
+    # For de-bug purposes
     # noinspection PyUnusedLocal
     none_in_field_vals = False
     # noinspection PyUnusedLocal
@@ -247,7 +247,7 @@ def remove_stata_undefined_token_from_wb(wb: xlrd.book.Book):
     for sheet in sheets:
         for i in range(sheet.ncols):
             col = sheet.col(i)
-            # field_name = col[0].value  # debugging
+            # field_name = col[0].value  # For de-bug
 
             field_vals = [x.value for x in col[1:] if x.value]
             sample_size = 50
@@ -266,7 +266,7 @@ def remove_stata_undefined_token_from_wb(wb: xlrd.book.Book):
                         # TODO: Will this do the trick?
                         cell.value = None
 
-            # DEBUGGING
+            # For de-bug purposes
             if None in field_vals:
                 # noinspection PyUnusedLocal
                 none_in_field_vals = True

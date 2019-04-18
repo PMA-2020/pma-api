@@ -37,14 +37,6 @@ pma\_api.error module
     :undoc-members:
     :show-inheritance:
 
-pma\_api.python\_query\_template module
----------------------------------------
-
-.. automodule:: pma_api.python_query_template
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 pma\_api.queries module
 -----------------------
 

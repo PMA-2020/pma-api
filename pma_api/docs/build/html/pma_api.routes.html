@@ -82,9 +82,10 @@
             
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="content/users/endpoints.html">Endpoints</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Using the API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/developers/for_developers.html">Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/project_developers/project_developers.html">For project developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/data_managers/data_managers.html">For data managers</a></li>
 </ul>
 
             
@@ -159,7 +160,6 @@
 <li class="toctree-l2"><a class="reference internal" href="pma_api.routes.endpoints.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pma_api.routes.endpoints.api_1_0.html">pma_api.routes.endpoints.api_1_0 package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pma_api.routes.endpoints.api_1_0.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pma_api.routes.endpoints.api_1_0.html#module-pma_api.routes.endpoints.api_1_0.caching">pma_api.routes.endpoints.api_1_0.caching module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pma_api.routes.endpoints.api_1_0.html#module-pma_api.routes.endpoints.api_1_0.collection">pma_api.routes.endpoints.api_1_0.collection module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pma_api.routes.endpoints.api_1_0.html#module-pma_api.routes.endpoints.api_1_0.datalab">pma_api.routes.endpoints.api_1_0.datalab module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pma_api.routes.endpoints.api_1_0.html#module-pma_api.routes.endpoints.api_1_0.dynamic">pma_api.routes.endpoints.api_1_0.dynamic module</a></li>
@@ -181,8 +181,8 @@
 <span id="pma-api-routes-administration-module"></span><h2>pma_api.routes.administration module<a class="headerlink" href="#module-pma_api.routes.administration" title="Permalink to this headline">¶</a></h2>
 <p>Administration related routes</p>
 <dl class="function">
-<dt id="pma_api.routes.administration.activate_dataset_to_self">
-<code class="descclassname">pma_api.routes.administration.</code><code class="descname">activate_dataset_to_self</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; flask.json.jsonify<a class="headerlink" href="#pma_api.routes.administration.activate_dataset_to_self" title="Permalink to this definition">¶</a></dt>
+<dt id="pma_api.routes.administration.activate_dataset">
+<code class="descclassname">pma_api.routes.administration.</code><code class="descname">activate_dataset</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; flask.json.jsonify<a class="headerlink" href="#pma_api.routes.administration.activate_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Activate dataset to the this server.</p>
 <dl class="docutils">
 <dt>Params:</dt>
@@ -198,8 +198,12 @@
 <dd><p>Route to admin portal for uploading and managing datasets.</p>
 <p>datasets.</p>
 <dl class="docutils">
-<dt>For more information on the features that will be added to this route,</dt>
-<dd>take a look at: <a class="reference external" href="https://github.com/PMA-2020/pma-api/issues/32">https://github.com/PMA-2020/pma-api/issues/32</a></dd>
+<dt>Notes:</dt>
+<dd><ul class="first simple">
+<li>flash() uses Bootstrap 4.0 alert categories,</li>
+</ul>
+<p class="last"><a class="reference external" href="https://getbootstrap.com/docs/4.0/components/alerts/">https://getbootstrap.com/docs/4.0/components/alerts/</a></p>
+</dd>
 </dl>
 <p># GET REQUESTS
 Args: n/a</p>
@@ -215,16 +219,15 @@ ImmutableMultiDict([(‘file’, &lt;FileStorage: ‘FILENAME’ (‘FILETYPE’
 </dd></dl>
 
 <dl class="function">
-<dt id="pma_api.routes.administration.longtask">
-<code class="descclassname">pma_api.routes.administration.</code><code class="descname">longtask</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.routes.administration.longtask" title="Permalink to this definition">¶</a></dt>
-<dd><p>Long task</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="pma_api.routes.administration.taskstatus">
 <code class="descclassname">pma_api.routes.administration.</code><code class="descname">taskstatus</code><span class="sig-paren">(</span><em>task_id: str</em><span class="sig-paren">)</span> &#x2192; flask.json.jsonify<a class="headerlink" href="#pma_api.routes.administration.taskstatus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get task status</p>
 <dl class="docutils">
+<dt>TODOs</dt>
+<dd>1. Low priority. Get correct exception types or find some other
+way to do this better. Annoyingly, sometimes info isn’t a dict, and
+sometimes doesn’t have key ‘args’, and I think there are even more
+edge cases.</dd>
 <dt>Args:</dt>
 <dd>task_id (str): ID with which to look up task in task queue</dd>
 <dt>Returns:</dt>

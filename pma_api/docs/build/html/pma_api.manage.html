@@ -82,9 +82,10 @@
             
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="content/users/endpoints.html">Endpoints</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Using the API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/developers/for_developers.html">Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/project_developers/project_developers.html">For project developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/data_managers/data_managers.html">For data managers</a></li>
 </ul>
 
             
@@ -157,33 +158,6 @@
 <div class="section" id="module-pma_api.manage.db_mgmt">
 <span id="pma-api-manage-db-mgmt-module"></span><h2>pma_api.manage.db_mgmt module<a class="headerlink" href="#module-pma_api.manage.db_mgmt" title="Permalink to this headline">¶</a></h2>
 <p>Database management</p>
-<dl class="class">
-<dt id="pma_api.manage.db_mgmt.TaskTracker">
-<em class="property">class </em><code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">TaskTracker</code><span class="sig-paren">(</span><em>queue: List[str] = None</em>, <em>silent: bool = False</em>, <em>name: str = ''</em>, <em>callback: Generator = None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.TaskTracker" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Tracks progress of task queue</p>
-<dl class="method">
-<dt id="pma_api.manage.db_mgmt.TaskTracker.begin">
-<code class="descname">begin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.TaskTracker.begin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Register and report task begin</p>
-<p>Usage optional</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pma_api.manage.db_mgmt.TaskTracker.complete">
-<code class="descname">complete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.TaskTracker.complete" title="Permalink to this definition">¶</a></dt>
-<dd><p>Register and report all sub-tasks and task itself complete</p>
-<p>Usage optional</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pma_api.manage.db_mgmt.TaskTracker.next">
-<code class="descname">next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.TaskTracker.next" title="Permalink to this definition">¶</a></dt>
-<dd><p>Register and report next sub-task begin</p>
-</dd></dl>
-
-</dd></dl>
-
 <dl class="function">
 <dt id="pma_api.manage.db_mgmt.aws_s3">
 <code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">aws_s3</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.aws_s3" title="Permalink to this definition">¶</a></dt>
@@ -285,7 +259,7 @@ silent (bool): Don’t print updates?</dd>
 
 <dl class="function">
 <dt id="pma_api.manage.db_mgmt.backup_local_using_heroku_postgres">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">backup_local_using_heroku_postgres</code><span class="sig-paren">(</span><em>path: str = '/Users/joeflack4/projects/pma-api/data/db_backups/pma-api-backup_MacOS_development_2019-03-28_12-55-11.946391.dump'</em>, <em>app_name: str = ''</em>, <em>silent: bool = False</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pma_api.manage.db_mgmt.backup_local_using_heroku_postgres" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">backup_local_using_heroku_postgres</code><span class="sig-paren">(</span><em>path: str = '/Users/joeflack4/projects/pma-api/data/db_backups/pma-api-backup_MacOS_development_2019-04-23_13-42-27.791668.dump'</em>, <em>app_name: str = ''</em>, <em>silent: bool = False</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pma_api.manage.db_mgmt.backup_local_using_heroku_postgres" title="Permalink to this definition">¶</a></dt>
 <dd><p>Backup using Heroku PostgreSQL DB using Heroku CLI</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -327,7 +301,7 @@ silent (bool): Don’t print updates?</dd>
 
 <dl class="function">
 <dt id="pma_api.manage.db_mgmt.backup_using_pgdump">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">backup_using_pgdump</code><span class="sig-paren">(</span><em>path: str = '/Users/joeflack4/projects/pma-api/data/db_backups/pma-api-backup_MacOS_development_2019-03-28_12-55-11.946423.dump'</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pma_api.manage.db_mgmt.backup_using_pgdump" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">backup_using_pgdump</code><span class="sig-paren">(</span><em>path: str = '/Users/joeflack4/projects/pma-api/data/db_backups/pma-api-backup_MacOS_development_2019-04-23_13-42-27.791705.dump'</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pma_api.manage.db_mgmt.backup_using_pgdump" title="Permalink to this definition">¶</a></dt>
 <dd><p>Backup using pg_dump</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -347,15 +321,15 @@ silent (bool): Don’t print updates?</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="pma_api.manage.db_mgmt.commit_data_file">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">commit_data_file</code><span class="sig-paren">(</span><em>file: xlrd.book.Book</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.commit_data_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Write data file to db</p>
+<dt id="pma_api.manage.db_mgmt.commit_from_sheet">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">commit_from_sheet</code><span class="sig-paren">(</span><em>ws: xlrd.sheet.Sheet</em>, <em>model: sqlalchemy.ext.declarative.api.Model</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.commit_from_sheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize DB table data from XLRD Worksheet.</p>
+<p>Initialize table data from source data associated with corresponding
+data model.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>file (xlrd.Book): workbook file to write to db</dd>
-<dt>Side effects:</dt>
-<dd>Writes data to db.
-- See: process_metadata(), process_data(), process_translations()</dd>
+<dd>ws (xlrd.sheet.Sheet): XLRD worksheet object.
+model (class): SqlAlchemy model class.</dd>
 </dl>
 </dd></dl>
 
@@ -392,16 +366,6 @@ users it will create the super user, else does nothing.</p>
 <dt>Args:</dt>
 <dd>name (str): Username
 pw (str): Plain text for password</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pma_api.manage.db_mgmt.create_wb_metadata">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">create_wb_metadata</code><span class="sig-paren">(</span><em>wb_path</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.create_wb_metadata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create metadata for Excel Workbook files imported into the DB.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>wb_path (str) Path to Excel Workbook.</dd>
 </dl>
 </dd></dl>
 
@@ -493,7 +457,7 @@ does not exist’</dd>
 
 <dl class="function">
 <dt id="pma_api.manage.db_mgmt.format_book">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">format_book</code><span class="sig-paren">(</span><em>wb: xlrd.book.Book</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.format_book" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">format_book</code><span class="sig-paren">(</span><em>wb: xlrd.book.Book</em><span class="sig-paren">)</span> &#x2192; xlrd.book.Book<a class="headerlink" href="#pma_api.manage.db_mgmt.format_book" title="Permalink to this definition">¶</a></dt>
 <dd><p>Format workbook by making edits to prevent edge case errors</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -525,11 +489,11 @@ does not exist’</dd>
 
 <dl class="function">
 <dt id="pma_api.manage.db_mgmt.get_datasheet_names">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">get_datasheet_names</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="headerlink" href="#pma_api.manage.db_mgmt.get_datasheet_names" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">get_datasheet_names</code><span class="sig-paren">(</span><em>wb: xlrd.book.Book</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="headerlink" href="#pma_api.manage.db_mgmt.get_datasheet_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets data sheet names from a workbook</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>path (str): Path to a workbook file</dd>
+<dd>wb (Book): Pre-loaded XLRD Workbook obj</dd>
 <dt>Returns:</dt>
 <dd>list(str): List of datasheet names</dd>
 </dl>
@@ -552,30 +516,6 @@ does not exist’</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="pma_api.manage.db_mgmt.init_data">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">init_data</code><span class="sig-paren">(</span><em>wb: xlrd.book.Book</em>, <em>progress_updater: pma_api.manage.db_mgmt.TaskTracker = &lt;pma_api.manage.db_mgmt.TaskTracker object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.init_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Put all the data from the workbook into the database.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>wb (xlrd.Book): A spreadsheet
-progress_updater (TaskTracker): Tracks progress of task queue</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pma_api.manage.db_mgmt.init_from_sheet">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">init_from_sheet</code><span class="sig-paren">(</span><em>ws</em>, <em>model</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.init_from_sheet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize DB table data from XLRD Worksheet.</p>
-<p>Initialize table data from source data associated with the corresponding
-data model.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>ws (xlrd.sheet.Sheet): XLRD worksheet object.
-model (class): SqlAlchemy model class.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
 <dt id="pma_api.manage.db_mgmt.init_from_source">
 <code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">init_from_source</code><span class="sig-paren">(</span><em>path</em>, <em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.init_from_source" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize DB table data from csv file.</p>
@@ -585,52 +525,6 @@ corresponding data model.</p>
 <dt>Args:</dt>
 <dd>path (str): Path to csv data file.
 model (class): SqlAlchemy model class.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pma_api.manage.db_mgmt.init_from_workbook">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">init_from_workbook</code><span class="sig-paren">(</span><em>wb: str</em>, <em>queue: ()</em>, <em>progress_updater: pma_api.manage.db_mgmt.TaskTracker = &lt;pma_api.manage.db_mgmt.TaskTracker object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.init_from_workbook" title="Permalink to this definition">¶</a></dt>
-<dd><p>Init from workbook.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>wb (str): path to workbook file
-queue (tuple): Order in which to load db_models.
-progress_updater (TaskTracker): Tracks progress of task queue</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pma_api.manage.db_mgmt.initdb_from_wb">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">initdb_from_wb</code><span class="sig-paren">(</span><em>_app: flask.app.Flask = &lt;LocalProxy unbound&gt;</em>, <em>api_file_path: str = '/Users/joeflack4/projects/pma-api/data/api_data-2019.01.22-v36-jef.xlsx'</em>, <em>ui_file_path: str = '/Users/joeflack4/projects/pma-api/data/ui_data-2017.10.02-v4-jef.xlsx'</em>, <em>overwrite: bool = False</em>, <em>callback: Generator = None</em><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#pma_api.manage.db_mgmt.initdb_from_wb" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create the database.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>_app (Flask): Flask application for context
-overwrite (bool): Overwrite database if True, else update.
-api_file_path (str): path to “API data file” spec xls file
-ui_file_path (str): path to “UIdata file” spec xls file
-callback: Callback function for progress yields</dd>
-<dt>Side effects:</dt>
-<dd><dl class="first last docutils">
-<dt>Always:</dt>
-<dd><ul class="first last simple">
-<li>Creates tables</li>
-<li>Adds values to database</li>
-<li>Temporarily sets current dataset to ‘processing’</li>
-<li>Backs up database: at the beginning and end</li>
-</ul>
-</dd>
-<dt>If overwrite:</dt>
-<dd><ul class="first last simple">
-<li>Deletes all tables except for ‘datasets’</li>
-<li>Sets all other datasets to active=False</li>
-</ul>
-</dd>
-</dl>
-</dd>
-<dt>Returns:</dt>
-<dd>dict: Results</dd>
 </dl>
 </dd></dl>
 
@@ -672,14 +566,15 @@ currently just checks if there is any data in the ‘data’ table.</p>
 
 <dl class="function">
 <dt id="pma_api.manage.db_mgmt.list_cloud_datasets">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_cloud_datasets</code><span class="sig-paren">(</span><em>detailed: bool = True</em><span class="sig-paren">)</span> &#x2192; List<a class="headerlink" href="#pma_api.manage.db_mgmt.list_cloud_datasets" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_cloud_datasets</code><span class="sig-paren">(</span><em>detailed: bool = True</em><span class="sig-paren">)</span> &#x2192; Union[List[str], List[Dict[str, str]]]<a class="headerlink" href="#pma_api.manage.db_mgmt.list_cloud_datasets" title="Permalink to this definition">¶</a></dt>
 <dd><p>List pma api dataset spec files on AWS S3</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>detailed (bool): ‘detailed’ param to pass down to
 list_filtered_s3_files function.</dd>
 <dt>Returns:</dt>
-<dd>list: List of files</dd>
+<dd>list: List of file names if not detailed, else list of objects
+containing file names and metadata.</dd>
 </dl>
 </dd></dl>
 
@@ -708,7 +603,7 @@ list_filtered_s3_files function.</dd>
 
 <dl class="function">
 <dt id="pma_api.manage.db_mgmt.list_filtered_s3_files">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_filtered_s3_files</code><span class="sig-paren">(</span><em>path: str</em>, <em>detailed: bool = True</em>, <em>include_e_tag: bool = True</em><span class="sig-paren">)</span> &#x2192; List<a class="headerlink" href="#pma_api.manage.db_mgmt.list_filtered_s3_files" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">list_filtered_s3_files</code><span class="sig-paren">(</span><em>path: str</em>, <em>detailed: bool = True</em>, <em>include_e_tag: bool = True</em><span class="sig-paren">)</span> &#x2192; Union[List[str], List[Dict[str, str]]]<a class="headerlink" href="#pma_api.manage.db_mgmt.list_filtered_s3_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets list of S3 files w/ directories and path prefixes filtered out</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -792,18 +687,6 @@ contain this string</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="pma_api.manage.db_mgmt.load_data_file">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">load_data_file</code><span class="sig-paren">(</span><em>filepath: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.load_data_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load data file into memory</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>filepath (str): Path of file to load into memory</dd>
-<dt>Returns:</dt>
-<dd>xlrd.Book: workbook file object</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
 <dt id="pma_api.manage.db_mgmt.make_shell_context">
 <code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">make_shell_context</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.make_shell_context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make shell context, for the ability to manipulate these db_models/tables
@@ -833,38 +716,12 @@ ext (str): File extension to use</dd>
 </dd></dl>
 
 <dl class="function">
-<dt id="pma_api.manage.db_mgmt.process_data">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">process_data</code><span class="sig-paren">(</span><em>file: xlrd.book.Book</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.process_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read and write metadata from xlrd.Book into db</p>
+<dt id="pma_api.manage.db_mgmt.register_administrative_metadata">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">register_administrative_metadata</code><span class="sig-paren">(</span><em>wb_path</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.register_administrative_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create metadata for Excel Workbook files imported into the DB.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>file (xlrd.Book): contains contents to write</dd>
-<dt>Side effects:</dt>
-<dd>Writes data to db.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pma_api.manage.db_mgmt.process_metadata">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">process_metadata</code><span class="sig-paren">(</span><em>file: xlrd.book.Book</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.process_metadata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read and write data from xlrd.Book into db</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>file (xlrd.Book): contains contents to write</dd>
-<dt>Side effects:</dt>
-<dd>Writes data to db.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pma_api.manage.db_mgmt.process_translations">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">process_translations</code><span class="sig-paren">(</span><em>file: xlrd.book.Book</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.process_translations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read and write translations from xlrd.Book into db</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>file (xlrd.Book): contains contents to write</dd>
-<dt>Side effects:</dt>
-<dd>Writes data to db.</dd>
+<dd>wb_path (str) Path to Excel Workbook.</dd>
 </dl>
 </dd></dl>
 
@@ -950,11 +807,12 @@ inside the output, and add it to the list.</dd>
 
 <dl class="function">
 <dt id="pma_api.manage.db_mgmt.restore_using_pgrestore">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">restore_using_pgrestore</code><span class="sig-paren">(</span><em>path: str</em>, <em>dropdb: bool = False</em>, <em>silent: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.restore_using_pgrestore" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">restore_using_pgrestore</code><span class="sig-paren">(</span><em>path: str</em>, <em>attempt: int = 1</em>, <em>dropdb: bool = False</em>, <em>silent: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.restore_using_pgrestore" title="Permalink to this definition">¶</a></dt>
 <dd><p>Restore postgres datagbase using pg_restore</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>path (str): Path of file to restore
+attempt (int): Attempt number
 dropdb (bool): Drop database in process?
 silent (bool): Don’t print updates?</dd>
 <dt>Side effects:</dt>
@@ -979,6 +837,12 @@ URL.</dd>
 <dt>Returns:</dt>
 <dd>str: Signed AWS S3 URL for object</dd>
 </dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.manage.db_mgmt.seed_users">
+<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">seed_users</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.seed_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates users for fresh instance; currently just a superuser</p>
 </dd></dl>
 
 <dl class="function">
@@ -1014,48 +878,260 @@ path (str): Path to pgpass file</dd>
 </dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="pma_api.manage.db_mgmt.validate_data_file">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">validate_data_file</code><span class="sig-paren">(</span><em>file: xlrd.book.Book = None</em>, <em>filepath: str = ''</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.validate_data_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Validate data file</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>file (xlrd.Book): Validate Workbook obj
-filepath (str): Validate Workbook file at path</dd>
-<dt>Raises:</dt>
-<dd>InvalidDataFileError: if file is not valid</dd>
-</dl>
+</div>
+<div class="section" id="module-pma_api.manage.functional_subtask">
+<span id="pma-api-manage-functional-subtask-module"></span><h2>pma_api.manage.functional_subtask module<a class="headerlink" href="#module-pma_api.manage.functional_subtask" title="Permalink to this headline">¶</a></h2>
+<p>Functional Subtask</p>
+<dl class="class">
+<dt id="pma_api.manage.functional_subtask.FunctionalSubtask">
+<em class="property">class </em><code class="descclassname">pma_api.manage.functional_subtask.</code><code class="descname">FunctionalSubtask</code><span class="sig-paren">(</span><em>name: str</em>, <em>prints: str</em>, <em>pct_starts_at: float</em>, <em>func: Callable = None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.functional_subtask.FunctionalSubtask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A single granule of a multistep task; runs a simple function.</p>
+<p>Can be sync or async.</p>
+<dl class="method">
+<dt id="pma_api.manage.functional_subtask.FunctionalSubtask.func">
+<code class="descname">func</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.functional_subtask.FunctionalSubtask.func" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs function w/ arguments ‘args’ or keyword arguments ‘kwargs’.</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="pma_api.manage.db_mgmt.view_db_connections">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">view_db_connections</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[dict]<a class="headerlink" href="#pma_api.manage.db_mgmt.view_db_connections" title="Permalink to this definition">¶</a></dt>
-<dd><p>View active connections to a db</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.manage.initdb_from_wb">
+<span id="pma-api-manage-initdb-from-wb-module"></span><h2>pma_api.manage.initdb_from_wb module<a class="headerlink" href="#module-pma_api.manage.initdb_from_wb" title="Permalink to this headline">¶</a></h2>
+<p>Database management</p>
+<dl class="class">
+<dt id="pma_api.manage.initdb_from_wb.InitDbFromWb">
+<em class="property">class </em><code class="descclassname">pma_api.manage.initdb_from_wb.</code><code class="descname">InitDbFromWb</code><span class="sig-paren">(</span><em>_app: flask.app.Flask = &lt;LocalProxy unbound&gt;</em>, <em>api_file_path: str = '/Users/joeflack4/projects/pma-api/data/api_data-2019.01.22-v36-jef.xlsx'</em>, <em>ui_file_path: str = '/Users/joeflack4/projects/pma-api/data/ui_data-2017.10.02-v4-jef.xlsx'</em>, <em>silent: bool = False</em>, <em>callback: Generator = None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.initdb_from_wb.InitDbFromWb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pma_api.manage.multistep_task.MultistepTask" title="pma_api.manage.multistep_task.MultistepTask"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.manage.multistep_task.MultistepTask</span></code></a></p>
+<p>From a Workbook object, initialize database.</p>
+<dl class="docutils">
+<dt># TODO 2019-04-02 jef</dt>
+<dd><ul class="first last simple">
+<li>For some reason, geography label_id arent being populated</li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pma_api.manage.initdb_from_wb.InitDbFromWb.create_onload_subtasks">
+<code class="descname">create_onload_subtasks</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; collections.OrderedDict<a class="headerlink" href="#pma_api.manage.initdb_from_wb.InitDbFromWb.create_onload_subtasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of collection of subtask dict objects</p>
 <dl class="docutils">
 <dt>Returns:</dt>
-<dd>list(dict): List of active connections in the form of dictionaries
-containing information about connections</dd>
+<dd>OrderedDict: Collection of subtask objects</dd>
 </dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="pma_api.manage.db_mgmt.write_data_file_to_db">
-<code class="descclassname">pma_api.manage.db_mgmt.</code><code class="descname">write_data_file_to_db</code><span class="sig-paren">(</span><em>filepath: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.db_mgmt.write_data_file_to_db" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load, validate, and commit data file to db</p>
+<dl class="method">
+<dt id="pma_api.manage.initdb_from_wb.InitDbFromWb.create_subtasks">
+<code class="descname">create_subtasks</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; collections.OrderedDict<a class="headerlink" href="#pma_api.manage.initdb_from_wb.InitDbFromWb.create_subtasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of collection of subtask dict objects</p>
 <dl class="docutils">
-<dt>Args:</dt>
-<dd>filepath (str) Path of file to write</dd>
-<dt>Raises:</dt>
-<dd><ul class="first last simple">
-<li>See: validate_data_file()</li>
-</ul>
-</dd>
+<dt>Returns:</dt>
+<dd>OrderedDict: Collection of subtask objects</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.manage.initdb_from_wb.InitDbFromWb.init_api_data_worksheet">
+<code class="descname">init_api_data_worksheet</code><span class="sig-paren">(</span><em>sheetname: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.initdb_from_wb.InitDbFromWb.init_api_data_worksheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init data worksheet</p>
+<dl class="docutils">
 <dt>Side effects:</dt>
 <dd><ul class="first last simple">
-<li>See: commit_data_file()</li>
+<li>Creates records in db</li>
+<li>Creates instance attributes if not already exist</li>
+</ul>
+</dd>
+<dt>Args:</dt>
+<dd>sheetname (str): Name of worksheet containing data</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.manage.initdb_from_wb.InitDbFromWb.init_api_worksheet">
+<code class="descname">init_api_worksheet</code><span class="sig-paren">(</span><em>sheetname: str</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.initdb_from_wb.InitDbFromWb.init_api_worksheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init metadata worksheet</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>commit_from_sheet</li>
+</ul>
+</dd>
+<dt>Args:</dt>
+<dd>sheetname (str): Name of worksheet for a model
+<a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs: Additional keyword arguments to unpack and repack
+into init_from_worksheet.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.manage.initdb_from_wb.InitDbFromWb.init_client_ui_data">
+<code class="descname">init_client_ui_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.initdb_from_wb.InitDbFromWb.init_client_ui_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load client UI language data into DB</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>xlrd.open_workbook</li>
+<li>commit_from_sheet</li>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.manage.initdb_from_wb.InitDbFromWb.load_api_wb">
+<code class="descname">load_api_wb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.initdb_from_wb.InitDbFromWb.load_api_wb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load API workbook data into memory as instance attr</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>Reads file</li>
+<li>Sets attribute</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.manage.initdb_from_wb.InitDbFromWb.load_source_data_files">
+<code class="descname">load_source_data_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.initdb_from_wb.InitDbFromWb.load_source_data_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data necessary to initialize DB.</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>self.load_api_wb</li>
+<li>self.load_ui_wb</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.manage.initdb_from_wb.InitDbFromWb.load_ui_wb">
+<code class="descname">load_ui_wb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.initdb_from_wb.InitDbFromWb.load_ui_wb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load UI workbook data into memory as instance attr</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>Reads file</li>
+<li>Sets attribute</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.manage.initdb_from_wb.InitDbFromWb.restore_msg">
+<code class="descname">restore_msg</code><em class="property"> = 'An issue occurred. Restoring database to state it was in prior to task initialization.'</em><a class="headerlink" href="#pma_api.manage.initdb_from_wb.InitDbFromWb.restore_msg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pma_api.manage.initdb_from_wb.InitDbFromWb.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict<a class="headerlink" href="#pma_api.manage.initdb_from_wb.InitDbFromWb.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a fresh database instance.</p>
+<p>Runs task execution, handles errors, and reports result.</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>Runs subtasks</li>
+<li>Sets attributes</li>
+</ul>
+</dd>
+<dt>Raises:</dt>
+<dd>PmaApiDbInteractionError: If tried to recover from issues but
+failed.</dd>
+<dt>Returns:</dt>
+<dd>dict: Final results</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.manage.initdb_from_wb.InitDbFromWb.set_relational_metadata">
+<code class="descname">set_relational_metadata</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.initdb_from_wb.InitDbFromWb.set_relational_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set instance attrs for required relational keys for ‘Data’ upload</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>setattr</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.manage.initdb_from_wb.InitDbFromWb.task_name">
+<code class="descname">task_name</code><em class="property"> = 'Initializing database from {}'</em><a class="headerlink" href="#pma_api.manage.initdb_from_wb.InitDbFromWb.task_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.manage.multistep_task">
+<span id="pma-api-manage-multistep-task-module"></span><h2>pma_api.manage.multistep_task module<a class="headerlink" href="#module-pma_api.manage.multistep_task" title="Permalink to this headline">¶</a></h2>
+<p>Multistep Task super class</p>
+<dl class="class">
+<dt id="pma_api.manage.multistep_task.MultistepTask">
+<em class="property">class </em><code class="descclassname">pma_api.manage.multistep_task.</code><code class="descname">MultistepTask</code><span class="sig-paren">(</span><em>silent: bool = False</em>, <em>name: str = ''</em>, <em>callback: Generator = None</em>, <em>subtasks: Dict = None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.multistep_task.MultistepTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A synchronous multi-step task</p>
+<p>Subtasks groups are of the form:
+Dict[str, Dict[str, Union[str, int, Callable]]] = {</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>‘subtask_1_name’: {</dt>
+<dd>‘prints’: ‘Doing first thing’,
+‘pct_starts_at’: 0</dd>
+</dl>
+<p>},
+‘subtask_2_name’: {</p>
+<blockquote>
+<div>‘prints’: ‘Doing second thing’,
+‘pct_starts_at’: 10</div></blockquote>
+<p>…</p>
+</div></blockquote>
+<p>}</p>
+<dl class="docutils">
+<dt>Or it could be of the form:</dt>
+<dd>‘subtask_1_name’: &lt;subtask obj&gt;</dd>
+</dl>
+<p>This class is meant to be used either by itself, in which print statements
+are typically made to show task progress, or in tandem with a task queue
+such as Celery, where a callback is utilized to report progress.</p>
+<p>With each call to <cite>begin(&lt;subtask&gt;)</cite>, progress is reported, utilizing each
+sub-task objects’ print statement and percentage. When creating a sub-task
+to build up a sub-task dictionary as shown above, it is necessary to assign
+semi-arbitrary percentages. These percentages will represent the task
+authors’ best guess at how long a task should take.</p>
+<dl class="method">
+<dt id="pma_api.manage.multistep_task.MultistepTask.begin">
+<code class="descname">begin</code><span class="sig-paren">(</span><em>subtask_name: str = ''</em>, <em>subtask_queue: collections.OrderedDict = None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.multistep_task.MultistepTask.begin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register and report task or subtask begin</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>self._begin_multistep_task</li>
+<li>self._begin_subtask</li>
+</ul>
+</dd>
+<dt>Args:</dt>
+<dd>subtask_name: Name of subtask to report running. If absent,
+prints that task has already begun.
+subtask_queue: Ordered dictionary of subtasks to run</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pma_api.manage.multistep_task.MultistepTask.complete">
+<code class="descname">complete</code><span class="sig-paren">(</span><em>seconds_elapsed: int = None</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.manage.multistep_task.MultistepTask.complete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register and report all sub-tasks and task itself complete</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.manage.multistep_task.MultistepTask.start_status">
+<code class="descname">start_status</code><em class="property"> = 'PENDING'</em><a class="headerlink" href="#pma_api.manage.multistep_task.MultistepTask.start_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -1123,6 +1199,16 @@ any lines to execute running server</p>
 <div class="section" id="module-pma_api.manage.utils">
 <span id="pma-api-manage-utils-module"></span><h2>pma_api.manage.utils module<a class="headerlink" href="#module-pma_api.manage.utils" title="Permalink to this headline">¶</a></h2>
 <p>App management utilities</p>
+<dl class="function">
+<dt id="pma_api.manage.utils.get_table_models">
+<code class="descclassname">pma_api.manage.utils.</code><code class="descname">get_table_models</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; tuple<a class="headerlink" href="#pma_api.manage.utils.get_table_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of all db tables</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>tuple: All db tables</dd>
+</dl>
+</dd></dl>
+
 <dl class="function">
 <dt id="pma_api.manage.utils.log_process_stderr">
 <code class="descclassname">pma_api.manage.utils.</code><code class="descname">log_process_stderr</code><span class="sig-paren">(</span><em>stderr_obj</em>, <em>err_msg: str = None</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pma_api.manage.utils.log_process_stderr" title="Permalink to this definition">¶</a></dt>
@@ -1199,6 +1285,7 @@ shell (bool): Shell argument to pass to subprocess.Popen</dd>
 </div>
 <div class="section" id="module-pma_api.manage">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pma_api.manage" title="Permalink to this headline">¶</a></h2>
+<p>Init</p>
 </div>
 </div>
 

@@ -82,9 +82,10 @@
             
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="content/users/endpoints.html">Endpoints</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Using the API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/developers/for_developers.html">Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/project_developers/project_developers.html">For project developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/data_managers/data_managers.html">For data managers</a></li>
 </ul>
 
             
@@ -158,6 +159,9 @@
 <li class="toctree-l1"><a class="reference internal" href="pma_api.manage.html">pma_api.manage package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pma_api.manage.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pma_api.manage.html#module-pma_api.manage.db_mgmt">pma_api.manage.db_mgmt module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.manage.html#module-pma_api.manage.functional_subtask">pma_api.manage.functional_subtask module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.manage.html#module-pma_api.manage.initdb_from_wb">pma_api.manage.initdb_from_wb module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.manage.html#module-pma_api.manage.multistep_task">pma_api.manage.multistep_task module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pma_api.manage.html#module-pma_api.manage.server_mgmt">pma_api.manage.server_mgmt module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pma_api.manage.html#module-pma_api.manage.utils">pma_api.manage.utils module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pma_api.manage.html#module-pma_api.manage">Module contents</a></li>
@@ -170,6 +174,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models.dataset">pma_api.models.dataset module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models.meta">pma_api.models.meta module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models.string">pma_api.models.string module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models.task">pma_api.models.task module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models.user">pma_api.models.user module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pma_api.models.html#module-pma_api.models">Module contents</a></li>
 </ul>
@@ -180,7 +185,6 @@
 <li class="toctree-l4"><a class="reference internal" href="pma_api.routes.endpoints.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="pma_api.routes.endpoints.api_1_0.html">pma_api.routes.endpoints.api_1_0 package</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="pma_api.routes.endpoints.api_1_0.html#submodules">Submodules</a></li>
-<li class="toctree-l6"><a class="reference internal" href="pma_api.routes.endpoints.api_1_0.html#module-pma_api.routes.endpoints.api_1_0.caching">pma_api.routes.endpoints.api_1_0.caching module</a></li>
 <li class="toctree-l6"><a class="reference internal" href="pma_api.routes.endpoints.api_1_0.html#module-pma_api.routes.endpoints.api_1_0.collection">pma_api.routes.endpoints.api_1_0.collection module</a></li>
 <li class="toctree-l6"><a class="reference internal" href="pma_api.routes.endpoints.api_1_0.html#module-pma_api.routes.endpoints.api_1_0.datalab">pma_api.routes.endpoints.api_1_0.datalab module</a></li>
 <li class="toctree-l6"><a class="reference internal" href="pma_api.routes.endpoints.api_1_0.html#module-pma_api.routes.endpoints.api_1_0.dynamic">pma_api.routes.endpoints.api_1_0.dynamic module</a></li>
@@ -218,7 +222,56 @@
 <dl class="method">
 <dt id="pma_api.app.PmaApiFlask.make_response">
 <code class="descname">make_response</code><span class="sig-paren">(</span><em>rv</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.app.PmaApiFlask.make_response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handle custom responses.</p>
+<dd><p>Handle custom responses: Cached vs non-cached</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>rv (Union[ApiResult, Cache, ‘rv’]): Model for cached or non-cached
+response, or Flask ‘rv’ obj as described below.</dd>
+</dl>
+<p>Documentation below is taken directly from Flask.make_response.</p>
+<ul class="simple">
+<li><ul class="first">
+<li><ul class="first">
+<li></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rv</strong> – <p>the return value from the view function. The view function
+must return a response. Returning <code class="docutils literal notranslate"><span class="pre">None</span></code>, or the view ending
+without returning, is not allowed. The following types are allowed
+for <code class="docutils literal notranslate"><span class="pre">view_rv</span></code>:</p>
+<dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">str</span></code> (<code class="docutils literal notranslate"><span class="pre">unicode</span></code> in Python 2)</dt>
+<dd>A response object is created with the string encoded to UTF-8
+as the body.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">bytes</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code> in Python 2)</dt>
+<dd>A response object is created with the bytes as the body.</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">tuple</span></code></dt>
+<dd>Either <code class="docutils literal notranslate"><span class="pre">(body,</span> <span class="pre">status,</span> <span class="pre">headers)</span></code>, <code class="docutils literal notranslate"><span class="pre">(body,</span> <span class="pre">status)</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">(body,</span> <span class="pre">headers)</span></code>, where <code class="docutils literal notranslate"><span class="pre">body</span></code> is any of the other types
+allowed here, <code class="docutils literal notranslate"><span class="pre">status</span></code> is a string or an integer, and
+<code class="docutils literal notranslate"><span class="pre">headers</span></code> is a dictionary or a list of <code class="docutils literal notranslate"><span class="pre">(key,</span> <span class="pre">value)</span></code>
+tuples. If <code class="docutils literal notranslate"><span class="pre">body</span></code> is a <code class="xref py py-attr docutils literal notranslate"><span class="pre">response_class</span></code> instance,
+<code class="docutils literal notranslate"><span class="pre">status</span></code> overwrites the exiting value and <code class="docutils literal notranslate"><span class="pre">headers</span></code> are
+extended.</dd>
+<dt><code class="xref py py-attr docutils literal notranslate"><span class="pre">response_class</span></code></dt>
+<dd>The object is returned unchanged.</dd>
+<dt>other <code class="xref py py-class docutils literal notranslate"><span class="pre">Response</span></code> class</dt>
+<dd>The object is coerced to <code class="xref py py-attr docutils literal notranslate"><span class="pre">response_class</span></code>.</dd>
+<dt><code class="xref py py-func docutils literal notranslate"><span class="pre">callable()</span></code></dt>
+<dd>The function is called as a WSGI application. The result is
+used to create a response object.</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -233,18 +286,13 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base configuration.</p>
 <dl class="attribute">
-<dt id="pma_api.config.Config.BROKER_TRANSPORT_OPTIONS">
-<code class="descname">BROKER_TRANSPORT_OPTIONS</code><em class="property"> = {'interval_max': 0.2, 'interval_start': 0, 'interval_step': 0.2, 'max_retries': 3}</em><a class="headerlink" href="#pma_api.config.Config.BROKER_TRANSPORT_OPTIONS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
 <dt id="pma_api.config.Config.CELERY_BROKER_URL">
-<code class="descname">CELERY_BROKER_URL</code><em class="property"> = 'amqp://jtelfutd:L-zblaepdwujs0fwHKikhrq_LckoiFRY&#64;llama.rmq.cloudamqp.com/jtelfutd'</em><a class="headerlink" href="#pma_api.config.Config.CELERY_BROKER_URL" title="Permalink to this definition">¶</a></dt>
+<code class="descname">CELERY_BROKER_URL</code><em class="property"> = 'amqp://fjnsgyya:49K498S_BEHiqMLnIZjQHf0BybJFHuw7&#64;clam.rmq.cloudamqp.com/fjnsgyya'</em><a class="headerlink" href="#pma_api.config.Config.CELERY_BROKER_URL" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pma_api.config.Config.CELERY_RESULT_BACKEND">
-<code class="descname">CELERY_RESULT_BACKEND</code><em class="property"> = 'amqp://jtelfutd:L-zblaepdwujs0fwHKikhrq_LckoiFRY&#64;llama.rmq.cloudamqp.com/jtelfutd'</em><a class="headerlink" href="#pma_api.config.Config.CELERY_RESULT_BACKEND" title="Permalink to this definition">¶</a></dt>
+<code class="descname">CELERY_RESULT_BACKEND</code><em class="property"> = 'amqp://fjnsgyya:49K498S_BEHiqMLnIZjQHf0BybJFHuw7&#64;clam.rmq.cloudamqp.com/fjnsgyya'</em><a class="headerlink" href="#pma_api.config.Config.CELERY_RESULT_BACKEND" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -384,6 +432,11 @@
 <code class="descname">DEBUG</code><em class="property"> = True</em><a class="headerlink" href="#pma_api.config.DevelopmentConfig.DEBUG" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="pma_api.config.DevelopmentConfig.SQLALCHEMY_ECHO">
+<code class="descname">SQLALCHEMY_ECHO</code><em class="property"> = False</em><a class="headerlink" href="#pma_api.config.DevelopmentConfig.SQLALCHEMY_ECHO" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -391,6 +444,16 @@
 <em class="property">class </em><code class="descclassname">pma_api.config.</code><code class="descname">ProductionConfig</code><a class="headerlink" href="#pma_api.config.ProductionConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pma_api.config.Config" title="pma_api.config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.config.Config</span></code></a></p>
 <p>Production configuration.</p>
+<dl class="attribute">
+<dt id="pma_api.config.ProductionConfig.DEBUG">
+<code class="descname">DEBUG</code><em class="property"> = False</em><a class="headerlink" href="#pma_api.config.ProductionConfig.DEBUG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.config.ProductionConfig.SQLALCHEMY_ECHO">
+<code class="descname">SQLALCHEMY_ECHO</code><em class="property"> = False</em><a class="headerlink" href="#pma_api.config.ProductionConfig.SQLALCHEMY_ECHO" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -400,29 +463,14 @@
 <p>Production configuration.</p>
 <dl class="attribute">
 <dt id="pma_api.config.StagingConfig.DEBUG">
-<code class="descname">DEBUG</code><em class="property"> = True</em><a class="headerlink" href="#pma_api.config.StagingConfig.DEBUG" title="Permalink to this definition">¶</a></dt>
+<code class="descname">DEBUG</code><em class="property"> = False</em><a class="headerlink" href="#pma_api.config.StagingConfig.DEBUG" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</dd></dl>
+<dl class="attribute">
+<dt id="pma_api.config.StagingConfig.SQLALCHEMY_ECHO">
+<code class="descname">SQLALCHEMY_ECHO</code><em class="property"> = False</em><a class="headerlink" href="#pma_api.config.StagingConfig.SQLALCHEMY_ECHO" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
-<dl class="function">
-<dt id="pma_api.config.data_folder_path">
-<code class="descclassname">pma_api.config.</code><code class="descname">data_folder_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pma_api.config.data_folder_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the path to data folder.</p>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd>str: path</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pma_api.config.temp_folder_path">
-<code class="descclassname">pma_api.config.</code><code class="descname">temp_folder_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pma_api.config.temp_folder_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the path to temp upload folder.</p>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd>str: path</dd>
-</dl>
 </dd></dl>
 
 </div>
@@ -430,63 +478,36 @@
 <span id="pma-api-error-module"></span><h2>pma_api.error module<a class="headerlink" href="#module-pma_api.error" title="Permalink to this headline">¶</a></h2>
 <p>Errors and exceptions</p>
 <dl class="exception">
-<dt id="pma_api.error.DatasetNotFoundError">
-<em class="property">exception </em><code class="descclassname">pma_api.error.</code><code class="descname">DatasetNotFoundError</code><a class="headerlink" href="#pma_api.error.DatasetNotFoundError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pma_api.error.PmaApiDbInteractionError" title="pma_api.error.PmaApiDbInteractionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.error.PmaApiDbInteractionError</span></code></a></p>
-<p>Dataset was not found in db</p>
-</dd></dl>
-
-<dl class="exception">
 <dt id="pma_api.error.ExistingDatasetError">
-<em class="property">exception </em><code class="descclassname">pma_api.error.</code><code class="descname">ExistingDatasetError</code><a class="headerlink" href="#pma_api.error.ExistingDatasetError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">pma_api.error.</code><code class="descname">ExistingDatasetError</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.error.ExistingDatasetError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pma_api.error.PmaApiDbInteractionError" title="pma_api.error.PmaApiDbInteractionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.error.PmaApiDbInteractionError</span></code></a></p>
 <p>Dataset already exists in db</p>
 </dd></dl>
 
 <dl class="exception">
-<dt id="pma_api.error.InvalidDataFileError">
-<em class="property">exception </em><code class="descclassname">pma_api.error.</code><code class="descname">InvalidDataFileError</code><a class="headerlink" href="#pma_api.error.InvalidDataFileError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pma_api.error.PmaApiException" title="pma_api.error.PmaApiException"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.error.PmaApiException</span></code></a></p>
-<p>Data file was not valid</p>
-</dd></dl>
-
-<dl class="exception">
 <dt id="pma_api.error.PmaApiDbInteractionError">
-<em class="property">exception </em><code class="descclassname">pma_api.error.</code><code class="descname">PmaApiDbInteractionError</code><a class="headerlink" href="#pma_api.error.PmaApiDbInteractionError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">pma_api.error.</code><code class="descname">PmaApiDbInteractionError</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.error.PmaApiDbInteractionError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pma_api.error.PmaApiException" title="pma_api.error.PmaApiException"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.error.PmaApiException</span></code></a></p>
 <p>Broad class for exceptions related to DB interactions</p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="pma_api.error.PmaApiException">
-<em class="property">exception </em><code class="descclassname">pma_api.error.</code><code class="descname">PmaApiException</code><a class="headerlink" href="#pma_api.error.PmaApiException" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">pma_api.error.</code><code class="descname">PmaApiException</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.error.PmaApiException" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>Base exception for package</p>
 </dd></dl>
 
 <dl class="exception">
-<dt id="pma_api.error.PmaApiServerError">
-<em class="property">exception </em><code class="descclassname">pma_api.error.</code><code class="descname">PmaApiServerError</code><a class="headerlink" href="#pma_api.error.PmaApiServerError" title="Permalink to this definition">¶</a></dt>
+<dt id="pma_api.error.PmaApiTaskDenialError">
+<em class="property">exception </em><code class="descclassname">pma_api.error.</code><code class="descname">PmaApiTaskDenialError</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.error.PmaApiTaskDenialError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pma_api.error.PmaApiException" title="pma_api.error.PmaApiException"><code class="xref py py-class docutils literal notranslate"><span class="pre">pma_api.error.PmaApiException</span></code></a></p>
-<p>Broad class for exceptiosn related to server</p>
-</dd></dl>
+<p>Task denial exception</p>
+<dl class="attribute">
+<dt id="pma_api.error.PmaApiTaskDenialError.msg">
+<code class="descname">msg</code><em class="property"> = 'There is currently a task actively running. A request to start a new, concurrent task was made, but has been denied.'</em><a class="headerlink" href="#pma_api.error.PmaApiTaskDenialError.msg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
-</div>
-<div class="section" id="module-pma_api.python_query_template">
-<span id="pma-api-python-query-template-module"></span><h2>pma_api.python_query_template module<a class="headerlink" href="#module-pma_api.python_query_template" title="Permalink to this headline">¶</a></h2>
-<p>Dynamic interpolated runtime python queries</p>
-<dl class="function">
-<dt id="pma_api.python_query_template.interpolated_query">
-<code class="descclassname">pma_api.python_query_template.</code><code class="descname">interpolated_query</code><span class="sig-paren">(</span><em>objects: [&lt;class 'flask_sqlalchemy.model.Model'&gt;]</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'flask_sqlalchemy.model.Model'&gt;]<a class="headerlink" href="#pma_api.python_query_template.interpolated_query" title="Permalink to this definition">¶</a></dt>
-<dd><p>Interpolates a templated ‘query’ in form of list comprehension.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>objects (list(flask_sqlalchemy.Model)): List of SqlAlchemy Models.</dd>
-<dt>Returns</dt>
-<dd>list(flask_sqlalchemy.Model): Filtered list</dd>
-<dt>Raises:</dt>
-<dd>PmaApiException: If attribute requested not found</dd>
-</dl>
 </dd></dl>
 
 </div>
@@ -506,8 +527,12 @@
 
 <dl class="staticmethod">
 <dt id="pma_api.queries.DatalabData.all_minimal">
-<em class="property">static </em><code class="descname">all_minimal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.all_minimal" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">all_minimal</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[Dict]<a class="headerlink" href="#pma_api.queries.DatalabData.all_minimal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all datalab data in the minimal style.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>list(dict): Datalab data, filtered minimally</dd>
+</dl>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -525,36 +550,38 @@ query_values (str): A list of codes joined by comma</dd>
 
 <dl class="attribute">
 <dt id="pma_api.queries.DatalabData.char1">
-<code class="descname">char1</code><em class="property"> = &lt;AliasedClass at 0x10f871d68; Characteristic&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char1" title="Permalink to this definition">¶</a></dt>
+<code class="descname">char1</code><em class="property"> = &lt;AliasedClass at 0x10f95a128; Characteristic&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pma_api.queries.DatalabData.char2">
-<code class="descname">char2</code><em class="property"> = &lt;AliasedClass at 0x10f8e0ef0; Characteristic&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char2" title="Permalink to this definition">¶</a></dt>
+<code class="descname">char2</code><em class="property"> = &lt;AliasedClass at 0x10fb03278; Characteristic&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pma_api.queries.DatalabData.char_grp1">
-<code class="descname">char_grp1</code><em class="property"> = &lt;AliasedClass at 0x10f8e0fd0; CharacteristicGroup&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char_grp1" title="Permalink to this definition">¶</a></dt>
+<code class="descname">char_grp1</code><em class="property"> = &lt;AliasedClass at 0x10fb03358; CharacteristicGroup&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char_grp1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pma_api.queries.DatalabData.char_grp2">
-<code class="descname">char_grp2</code><em class="property"> = &lt;AliasedClass at 0x10f91d0f0; CharacteristicGroup&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char_grp2" title="Permalink to this definition">¶</a></dt>
+<code class="descname">char_grp2</code><em class="property"> = &lt;AliasedClass at 0x10fb03438; CharacteristicGroup&gt;</em><a class="headerlink" href="#pma_api.queries.DatalabData.char_grp2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="pma_api.queries.DatalabData.combos_all">
-<em class="property">static </em><code class="descname">combos_all</code><span class="sig-paren">(</span><em>survey_list</em>, <em>indicator</em>, <em>char_grp</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.combos_all" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">combos_all</code><span class="sig-paren">(</span><em>survey_list: List[str], indicator: str, char_grp: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.combos_all" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get lists of all valid datalab selections.</p>
 <p>Based on a current selection in the datalab, this method returns lists
 of what should be clickable in each of the three selection areas of
 the datalab.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>survey_list (list of str): A list of survey codes. An empty list if not provided.
+<dd>survey_list (list(str)): A list of survey codes. An empty list if
+not provided.
 indicator (str): An indicator code or None if not provided.
-char_grp(str): An characteristic group code or None if not provided.</dd>
+char_grp(str): An characteristic group code or None if not
+provided.</dd>
 <dt>Returns:</dt>
 <dd>A dictionary with a survey list, an indicator list, and a
 characteristic group list.</dd>
@@ -575,11 +602,11 @@ characteristic group list.</dd>
 
 <dl class="staticmethod">
 <dt id="pma_api.queries.DatalabData.combos_indicator">
-<em class="property">static </em><code class="descname">combos_indicator</code><span class="sig-paren">(</span><em>indicator</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.combos_indicator" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">combos_indicator</code><span class="sig-paren">(</span><em>indicator: str</em><span class="sig-paren">)</span> &#x2192; Dict<a class="headerlink" href="#pma_api.queries.DatalabData.combos_indicator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all valid combos of survey and characteristic group.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>indicator_code (str): An indicator code</dd>
+<dd>indicator (str): An indicator code</dd>
 <dt>Returns:</dt>
 <dd>A dictionary with two key names and list values.</dd>
 </dl>
@@ -631,13 +658,14 @@ characteristic group</dd>
 
 <dl class="staticmethod">
 <dt id="pma_api.queries.DatalabData.filter_minimal">
-<em class="property">static </em><code class="descname">filter_minimal</code><span class="sig-paren">(</span><em>survey_codes</em>, <em>indicator_code</em>, <em>char_grp_code</em>, <em>over_time</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.filter_minimal" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">filter_minimal</code><span class="sig-paren">(</span><em>survey_codes: str</em>, <em>indicator_code: str</em>, <em>char_grp_code: str</em>, <em>over_time</em><span class="sig-paren">)</span> &#x2192; List[Dict]<a class="headerlink" href="#pma_api.queries.DatalabData.filter_minimal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get filtered Datalab data and return minimal columns.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>survey_codes (str): A list of survey codes joined together by a comma
+<dd>survey_codes (str): Comma-delimited list of survey codes
 indicator_code (str): An indicator code
-char_grp_code (str): A characteristic group code</dd>
+char_grp_code (str): A characteristic group code
+over_time (bool): Filter charting over time?</dd>
 </dl>
 <p>Filters the data based on the function arguments. The returned data
 are data value, the precision, the survey code, the indicator code,
@@ -655,7 +683,7 @@ applying the various filters.</dd>
 <dd><p>Get filtered Datalab data and return readable columns.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>survey_codes (str): A list of survey codes joined together by a comma
+<dd>survey_codes (str): Comma-delimited list of survey codes
 indicator_code (str): An indicator code
 char_grp_code (str): A characteristic group code
 lang (str): The language, if specified.</dd>
@@ -706,11 +734,11 @@ applying the various filters.</dd>
 
 <dl class="staticmethod">
 <dt id="pma_api.queries.DatalabData.query_input">
-<em class="property">static </em><code class="descname">query_input</code><span class="sig-paren">(</span><em>survey</em>, <em>indicator</em>, <em>char_grp</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.queries.DatalabData.query_input" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">query_input</code><span class="sig-paren">(</span><em>survey: str</em>, <em>indicator: str</em>, <em>char_grp: str</em><span class="sig-paren">)</span> &#x2192; Dict<a class="headerlink" href="#pma_api.queries.DatalabData.query_input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build up a dictionary of query input to return with API result.</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>survey (str): A list of survey codes separated by a comma
+<dd>survey (str): Comma-delimited list of survey codes
 indicator (str): An indicator code
 char_grp (str): A characteristic group code</dd>
 <dt>Returns:</dt>
@@ -755,7 +783,7 @@ char_grp (str): A characteristic group code</dd>
 
 <dl class="method">
 <dt id="pma_api.response.ApiResult.to_response">
-<code class="descname">to_response</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.response.ApiResult.to_response" title="Permalink to this definition">¶</a></dt>
+<code class="descname">to_response</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; flask.json.jsonify<a class="headerlink" href="#pma_api.response.ApiResult.to_response" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a response from the data.</p>
 </dd></dl>
 
@@ -790,6 +818,35 @@ char_grp (str): A characteristic group code</dd>
 <div class="section" id="module-pma_api.task_utils">
 <span id="pma-api-task-utils-module"></span><h2>pma_api.task_utils module<a class="headerlink" href="#module-pma_api.task_utils" title="Permalink to this headline">¶</a></h2>
 <p>Utilities for tasks</p>
+<dl class="docutils">
+<dt>TODOs:</dt>
+<dd>1. 2019.04.16-jef: A better structure for this and ‘tasks’ module would be
+to make a ‘tasks’ subpackage folder, put ‘tasks’ in __init__.py, and put
+this file into a new file there called ‘utils’.</dd>
+</dl>
+<dl class="function">
+<dt id="pma_api.task_utils.get_task_status">
+<code class="descclassname">pma_api.task_utils.</code><code class="descname">get_task_status</code><span class="sig-paren">(</span><em>task_id: str</em>, <em>return_format: str = 'str'</em>, <em>attempt: int = 1</em><span class="sig-paren">)</span> &#x2192; Union[str, Dict[str, Union[str, int, float]]]<a class="headerlink" href="#pma_api.task_utils.get_task_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get task status from message broker through celery</p>
+<dl class="docutils">
+<dt>TODO 2019.04.16-jef: Maybe the restarting of this shouldn’t happen at this</dt>
+<dd>level, but at the level of routing, or wherever the root source of the
+request is coming from.</dd>
+<dt>Args:</dt>
+<dd><p class="first">task_id (str): Task id
+return_format (str): Can be ‘str’ or ‘dict’. If ‘str’, will return</p>
+<blockquote>
+<div>celery’s default single-word task state. Else if ‘dict’, will return a
+custom dictionary.</div></blockquote>
+<p class="last">attempt (int): Attempt number</p>
+</dd>
+<dt>Raises:</dt>
+<dd>PmaApiException: If ‘format’ arg passed is not in valid.</dd>
+<dt>Returns:</dt>
+<dd>Union[str,Dict]: See arg ‘format’ for more info</dd>
+</dl>
+</dd></dl>
+
 <dl class="function">
 <dt id="pma_api.task_utils.load_local_dataset_from_db">
 <code class="descclassname">pma_api.task_utils.</code><code class="descname">load_local_dataset_from_db</code><span class="sig-paren">(</span><em>dataset_id: str</em><span class="sig-paren">)</span> &#x2192; BinaryIO<a class="headerlink" href="#pma_api.task_utils.load_local_dataset_from_db" title="Permalink to this definition">¶</a></dt>
@@ -810,26 +867,18 @@ char_grp (str): A characteristic group code</dd>
 
 <dl class="function">
 <dt id="pma_api.task_utils.progress_update_callback">
-<code class="descclassname">pma_api.task_utils.</code><code class="descname">progress_update_callback</code><span class="sig-paren">(</span><em>celery_obj</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.task_utils.progress_update_callback" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pma_api.task_utils.</code><code class="descname">progress_update_callback</code><span class="sig-paren">(</span><em>task_obj: celery.app.base.Celery</em>, <em>verbose: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.task_utils.progress_update_callback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Progress update callback generator</p>
 <dl class="docutils">
-<dt>Args:</dt>
-<dd>celery_obj: Celery object
-verbose (bool): Print update yields?</dd>
 <dt>Side effects:</dt>
-<dd>celery_obj.update_state: Updates task state.</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="pma_api.task_utils.response_to_task_state">
-<code class="descclassname">pma_api.task_utils.</code><code class="descname">response_to_task_state</code><span class="sig-paren">(</span><em>r: requests.models.Response</em><span class="sig-paren">)</span> &#x2192; Dict<a class="headerlink" href="#pma_api.task_utils.response_to_task_state" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert response object to custom task state dictionary.</p>
-<dl class="docutils">
+<dd><ul class="first last simple">
+<li>task_obj.update_state(): Updates task state.</li>
+<li>print(): if verbose</li>
+</ul>
+</dd>
 <dt>Args:</dt>
-<dd>r (requests.Response): Response object</dd>
-<dt>Returns:</dt>
-<dd>dict: Custom task state</dd>
+<dd>task_obj (Celery): Celery task object
+verbose (bool): Print update yields?</dd>
 </dl>
 </dd></dl>
 
@@ -871,6 +920,23 @@ file_path (str): File name.</dd>
 </dd></dl>
 
 <dl class="function">
+<dt id="pma_api.task_utils.start_task">
+<code class="descclassname">pma_api.task_utils.</code><code class="descname">start_task</code><span class="sig-paren">(</span><em>func: celery.app.base.Celery</em>, <em>kwarg_dict: Dict = None</em>, <em>queue: str = 'pma-api-development'</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pma_api.task_utils.start_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start a task, handling unexplaiend failures along the way</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">func (Celery): Celery task function to call to start task
+kwarg_dict (dict): Dicitonary to pass to Celery.apply_async’s single</p>
+<blockquote>
+<div>kwargs parameter</div></blockquote>
+<p class="last">queue (str): Name of the celery queue to use</p>
+</dd>
+<dt>Returns:</dt>
+<dd>str: Task ID</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="pma_api.task_utils.upload_dataset">
 <code class="descclassname">pma_api.task_utils.</code><code class="descname">upload_dataset</code><span class="sig-paren">(</span><em>filename: str</em>, <em>file</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pma_api.task_utils.upload_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Upload file to data storage</p>
@@ -887,6 +953,18 @@ file: File.</dd>
 <dd>ExistingDatasetError: If dataset already exists</dd>
 <dt>Returns:</dt>
 <dd>str: Url where file is stored</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.task_utils.validate_active_task_status">
+<code class="descclassname">pma_api.task_utils.</code><code class="descname">validate_active_task_status</code><span class="sig-paren">(</span><em>task_id: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pma_api.task_utils.validate_active_task_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate task status</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>task_id (str): Celery task ID</dd>
+<dt>Returns:</dt>
+<dd>bool: True if task is actually active, else False.</dd>
 </dl>
 </dd></dl>
 
@@ -908,6 +986,28 @@ file: File.</dd>
 <dd>dictionary (dict): dictionary</dd>
 <dt>Returns:</dt>
 <dd>str: Prettified JSON string</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.utils.get_app_instance">
+<code class="descclassname">pma_api.utils.</code><code class="descname">get_app_instance</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; pma_api.app.PmaApiFlask<a class="headerlink" href="#pma_api.utils.get_app_instance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get reference to copy of currently running application instance</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>PmaApiFlask: PmaApiFlask application instance.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pma_api.utils.get_db_models">
+<code class="descclassname">pma_api.utils.</code><code class="descname">get_db_models</code><span class="sig-paren">(</span><em>db: flask_sqlalchemy.SQLAlchemy</em><span class="sig-paren">)</span> &#x2192; List[flask_sqlalchemy.model.Model]<a class="headerlink" href="#pma_api.utils.get_db_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of models from SqlAlchemy</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>db: SqlAlchemy db object</dd>
+<dt>Returns:</dt>
+<dd>list(Model): List of registered SqlAlchemy models</dd>
 </dl>
 </dd></dl>
 
@@ -948,30 +1048,30 @@ directly together may yield too many or too few ‘/’ delimiters.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pma_api.utils.os_appropriate_folder_path">
-<code class="descclassname">pma_api.utils.</code><code class="descname">os_appropriate_folder_path</code><span class="sig-paren">(</span><em>folder_name: str</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#pma_api.utils.os_appropriate_folder_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the path string to folder path, appropriate to OS.</p>
+<dt id="pma_api.utils.stderr_stdout_captured">
+<code class="descclassname">pma_api.utils.</code><code class="descname">stderr_stdout_captured</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.utils.stderr_stdout_captured" title="Permalink to this definition">¶</a></dt>
+<dd><p>Capture stderr and stdout</p>
 <dl class="docutils">
 <dt>Args:</dt>
-<dd>folder_name (str): Folder name.</dd>
+<dd>func: A function</dd>
 <dt>Returns:</dt>
-<dd>str: path</dd>
+<dd>str, str, any: stderr output, stdout output, return of function</dd>
 </dl>
 </dd></dl>
 
 </div>
 <div class="section" id="module-pma_api">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pma_api" title="Permalink to this headline">¶</a></h2>
-<p>Definition of application object.</p>
+<p>Creation for application instance</p>
 <dl class="function">
 <dt id="pma_api.create_app">
-<code class="descclassname">pma_api.</code><code class="descname">create_app</code><span class="sig-paren">(</span><em>config_name='development'</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.create_app" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pma_api.</code><code class="descname">create_app</code><span class="sig-paren">(</span><em>config_name: str = 'development'</em><span class="sig-paren">)</span> &#x2192; pma_api.app.PmaApiFlask<a class="headerlink" href="#pma_api.create_app" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create configured Flask application.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>config_name (str): Name of the configuration to be used.</dd>
 <dt>Returns:</dt>
-<dd>Flask: Configured Flask application.</dd>
+<dd>PmaApiFlask: Configured Flask application.</dd>
 </dl>
 </dd></dl>
 

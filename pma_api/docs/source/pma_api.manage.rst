@@ -12,6 +12,30 @@ pma\_api.manage.db\_mgmt module
     :undoc-members:
     :show-inheritance:
 
+pma\_api.manage.functional\_subtask module
+------------------------------------------
+
+.. automodule:: pma_api.manage.functional_subtask
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pma\_api.manage.initdb\_from\_wb module
+---------------------------------------
+
+.. automodule:: pma_api.manage.initdb_from_wb
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pma\_api.manage.multistep\_task module
+--------------------------------------
+
+.. automodule:: pma_api.manage.multistep_task
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pma\_api.manage.server\_mgmt module
 -----------------------------------
 

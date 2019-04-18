@@ -82,9 +82,10 @@
             
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="content/users/endpoints.html">Endpoints</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Using the API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/developers/for_developers.html">Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/project_developers/project_developers.html">For project developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/data_managers/data_managers.html">For data managers</a></li>
 </ul>
 
             
@@ -1113,8 +1114,39 @@ datasetSubType: string / varchar ~256?; domain of,
 
 <dl class="classmethod">
 <dt id="pma_api.models.meta.ApiMetadata.get_current_api_data">
-<em class="property">classmethod </em><code class="descname">get_current_api_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.meta.ApiMetadata.get_current_api_data" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">get_current_api_data</code><span class="sig-paren">(</span><em>as_json: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[Dict, Any]<a class="headerlink" href="#pma_api.models.meta.ApiMetadata.get_current_api_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the record for the most recent API data.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>as_json (bool): Return as dictionary to be serialized into JSON?</dd>
+<dt>Returns:</dt>
+<dd>Union[Dict, db.Model]: Record</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pma_api.models.meta.ApiMetadata.get_current_ui_data">
+<em class="property">classmethod </em><code class="descname">get_current_ui_data</code><span class="sig-paren">(</span><em>as_json: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[Dict, Any]<a class="headerlink" href="#pma_api.models.meta.ApiMetadata.get_current_ui_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the record for the most recent UI data.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>as_json (bool): Return as dictionary to be serialized into JSON?</dd>
+<dt>Returns:</dt>
+<dd>Union[Dict, db.Model]: Record</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pma_api.models.meta.ApiMetadata.get_record">
+<em class="property">classmethod </em><code class="descname">get_record</code><span class="sig-paren">(</span><em>ui_or_api: str</em>, <em>as_json: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[Dict, Any]<a class="headerlink" href="#pma_api.models.meta.ApiMetadata.get_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the record for the most recent API/UI data.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>as_json (bool): Return as dictionary to be serialized into JSON?
+ui_or_api (str): Dataset type; valid values: (‘ui’, ‘api’)</dd>
+<dt>Returns:</dt>
+<dd>Union[Dict, db.Model]: Record</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -1340,6 +1372,88 @@ code (str): The code for the string. None if it should be random.</dd>
 <dt id="pma_api.models.string.Translation.translation">
 <code class="descname">translation</code><a class="headerlink" href="#pma_api.models.string.Translation.translation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.models.task">
+<span id="pma-api-models-task-module"></span><h2>pma_api.models.task module<a class="headerlink" href="#module-pma_api.models.task" title="Permalink to this headline">¶</a></h2>
+<p>Metadata table.</p>
+<dl class="class">
+<dt id="pma_api.models.task.Task">
+<em class="property">class </em><code class="descclassname">pma_api.models.task.</code><code class="descname">Task</code><span class="sig-paren">(</span><em>task_id</em>, <em>is_active=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.task.Task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Model</span></code></p>
+<p>Tasks</p>
+<p>Attribute ‘id’ is not auto-generated / auto-incremented, but is actually
+a unique task ID assigned by celery.</p>
+<dl class="classmethod">
+<dt id="pma_api.models.task.Task.get_present_tasks">
+<em class="property">classmethod </em><code class="descname">get_present_tasks</code><span class="sig-paren">(</span><em>validate: bool = True</em>, <em>update: bool = True</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="headerlink" href="#pma_api.models.task.Task.get_present_tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of IDs for active tasks</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>Modifies records if update arg is True</li>
+</ul>
+</dd>
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>validate (bool): If True, will query task queue message broker to</dt>
+<dd>see if tasks marked as active in the PMA API db are in fact
+correctly marked as such. If update arg is True, validation will
+also run validation even if the arg validate is False.</dd>
+<dt>update (bool): If True, will: (1) also set validation to True, (2)</dt>
+<dd>also modify records to correctly mark them as inactive if they
+fail to validate as active tasks.</dd>
+</dl>
+</dd>
+<dt>TODO 2019.04.15-jef: Ideally, we want to use a more standard way to get</dt>
+<dd>a list of present (active/scheduled/reserved tasks). Unfortunately,
+there are some issues making this difficult in Celery 4. Presently,
+best solution seems to be either: a. downgrade to Celery 3, or b. use
+rabbitmq-admin available on pip. Useful link: <a class="reference external" href="https://stackoverflow">https://stackoverflow</a>.
+com/questions/5544629/retrieve-list-of-tasks-in-a-queue-in-celery</dd>
+<dt>Returns:</dt>
+<dd>list(str): Present tasks</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.task.Task.id">
+<code class="descname">id</code><a class="headerlink" href="#pma_api.models.task.Task.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.task.Task.is_active">
+<code class="descname">is_active</code><a class="headerlink" href="#pma_api.models.task.Task.is_active" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pma_api.models.task.Task.register_active">
+<em class="property">classmethod </em><code class="descname">register_active</code><span class="sig-paren">(</span><em>task_id: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.task.Task.register_active" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register task as active</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>Adds record to DB if doesn’t exist</li>
+<li>Modifies record</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pma_api.models.task.Task.register_inactive">
+<em class="property">classmethod </em><code class="descname">register_inactive</code><span class="sig-paren">(</span><em>task_id: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.task.Task.register_inactive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register task as inactive</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>Modifies record</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

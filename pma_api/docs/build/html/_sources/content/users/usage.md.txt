@@ -1,4 +1,4 @@
-# Using the API
+# Usage
 ## Navigation
 ### Resource Lists
 Resource roots are endpoints that return a list of resources and URLs to those

@@ -28,8 +28,8 @@ API Documentation
    :maxdepth: 1
    :caption: Contents
 
-   content/users/endpoints.md
    content/users/usage.md
+   content/users/endpoints.md
    content/project_developers/project_developers.md
    content/data_managers/data_managers.md
 

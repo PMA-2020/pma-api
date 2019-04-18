@@ -26,8 +26,8 @@ docs setup-docs-no-open build-docs-no-open docs-push-production \
 docs-push-staging serve-dev-network-accessible circleci-validate-config logs \
 logs-staging virtualenv-make virtualenvwrapper-make virtualenv-activate \
 virtualenvwrapper-activate deactivate virtualenv-deactivate connect-staging \
-virtualenvwrapper-deactivate restore restore-test backup % connect-production \
-list-backups list list-api-data list-datasets list-ui-data \
+virtualenvwrapper-deactivate restore restore-test backup connect-production \
+list-backups list list-api-data list-datasets list-ui-data docs-local \
 backup-source-files release
 
 # ALL LINTING
@@ -207,16 +207,17 @@ typical-sphinx-setup:
 open-docs:
 	open pma_api/docs/build/html/index.html
 readme-to-docs:
-	cp README.md pma_api/docs/source/content/developers/for_developers.md
+	cp README.md pma_api/docs/source/content/project_developers/\
+	for_developers.md
 build-docs-no-open:
 	rm -rf pma_api/docslocal/build/
 	make readme-to-docs
 	(cd pma_api/docs; \
 	sphinx-apidoc -f -o source/ ..; \
 	make html)
-	printf "\nAbout WARNINGs\nNot all warnings should be ignored, but you can
-	ignore the following.\n- pma_api.rst not being in a toctree.\n<autoflask>
-	:1: WARNING: duplicate label...\n\n"
+	@printf "\nNOTE: About Warnings\nNot all warnings should be ignored, but\
+	you can ignore the following:\n  1. pma_api.rst not being in a toctree.\n\
+	  2. <autoflask> :1: WARNING: duplicate label...\n\n"
 build-docs:
 	make build-docs-no-open
 	make open-docs
@@ -224,6 +225,7 @@ build-docs:
 docs-push-production:
 	aws s3 sync pma_api/docs/build/html s3://api-docs.pma2020.org \
 	--region us-west-2 --profile work
+	open http://api-docs.pma2020.org
 #docs-push-production:
 #	make setup-docs
 #	aws s3 sync pma_api/docs/build/html s3://api-docs.pma2020.org
@@ -231,12 +233,14 @@ docs-push-production:
 docs-push-staging:
 	aws s3 sync pma_api/docs/build/html s3://api-docs-staging.pma2020.org \
 	--region us-west-2 --profile work
+	open http://api-docs-staging.pma2020.org
 docs-push:
 	make docs-push-staging
 	make docs-push-production
 create-docs: build-docs
 docs-create: build-docs
 docs-build: build-docs
+docs-local: build-docs
 docs: build-docs
 
 # Text editors / CTAGS

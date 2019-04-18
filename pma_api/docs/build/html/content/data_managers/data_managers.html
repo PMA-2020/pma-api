@@ -1,0 +1,358 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>For data managers &mdash; PMA API 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="For project developers" href="../project_developers/project_developers.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PMA API
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../users/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users/endpoints.html">Endpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_developers/project_developers.html">For project developers</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">For data managers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pma-api-dataset-files">PMA API dataset files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#online-admin-area">Online admin area</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#logging-in">Logging in</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uploading-datasets">Uploading datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#downloading-datasets">Downloading datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deleting-datasets">Deleting datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#activating-datasets">Activating datasets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#activate-and-test-on-staging-server">1. Activate and test on staging server</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#activate-and-test-on-production-server">2. Activate and test on production server</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PMA API</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>For data managers</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/content/data_managers/data_managers.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="for-data-managers">
+<span id="for-data-managers"></span><h1>For data managers<a class="headerlink" href="#for-data-managers" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="pma-api-dataset-files">
+<span id="pma-api-dataset-files"></span><h2>PMA API dataset files<a class="headerlink" href="#pma-api-dataset-files" title="Permalink to this headline">¶</a></h2>
+<p><strong>What are dataset files for?</strong>  <br/>PMA API dataset files contain all of the contents needed to construct PMA API’s
+database.</p>
+<p><strong>File format</strong>  <br/>
+The file format should be an Excel workbook with the <code class="docutils literal notranslate"><span class="pre">.xlsx</span></code> file extension.</p>
+<p><strong>File naming</strong>  <br/>
+The name of the file must be named in very specific way as follows.</p>
+<p><code class="docutils literal notranslate"><span class="pre">api_data-YYYY.MM.DD-v#-xxx</span></code></p>
+<p>The file name is a hyphen delimited list of values, starting with the dataset
+type (always ‘api_data’), followed by the date in year, month, day format,
+followed by the version number (e.g. v1, v12, v100, etc), followed by initials
+(number of characters in initials does not matter). For example,</p>
+<p><code class="docutils literal notranslate"><span class="pre">api_data-2019.04.22-v1-jef</span></code></p>
+<p><strong>Worksheets</strong>  <br/>
+The worksheets inside the file need to have very specific naming.
+There is a single worksheet for each kind of structural metadata, where the
+name of the worksheet is the singular noun for that metadata, e.g. <code class="docutils literal notranslate"><span class="pre">country</span></code>,
+<code class="docutils literal notranslate"><span class="pre">geography</span></code>, etc. There is also a single worksheet called <code class="docutils literal notranslate"><span class="pre">translation</span></code>, which
+contains all language translations. There can be any number of data
+worksheets which can be named in any way, so long as the worksheet name starts
+with the word ‘data’. It is also possible to create auxiliary worksheets that
+will be ignored by PMA API. To create such a worksheet, simply put a double
+underscore <code class="docutils literal notranslate"><span class="pre">__</span></code> at the start of the worksheet name. Columns inside of the
+worksheets must also have very specific naming. Similar to worksheets, you
+can also create auxiliary columns that will be ignored by the PMA API by
+starting the column name with a double underscore.</p>
+</div>
+<div class="section" id="online-admin-area">
+<span id="online-admin-area"></span><h2>Online admin area<a class="headerlink" href="#online-admin-area" title="Permalink to this headline">¶</a></h2>
+<p>PMA API offers a few simple features for data management. Namely, you can
+upload, download, delete, and ‘activate’ datasets.</p>
+<p><strong>What is ‘activation’, and how is it different than uploading?</strong>  <br/>
+When a dataset is uploaded, it is essentially backed up to an online storage
+area. The online storage area is shared between the staging and production
+servers. When you upload or delete a dataset, you will notice this change
+reflected in the list of available datasets shown whether you are logged into
+the staging server or the production server. Since uploading is simply storing
+the dataset file online, nothing else happens once it is uploaded; the PMA API
+database has not changed yet. In order to update the database with any changes
+in the dataset file, we have to ‘activate’. Activation takes that file, reads
+it, and imports its contents into the database.</p>
+<p>Currently, only one dataset can be ‘active’ at a given time.</p>
+<div class="section" id="logging-in">
+<span id="logging-in"></span><h3>Logging in<a class="headerlink" href="#logging-in" title="Permalink to this headline">¶</a></h3>
+<p>You can log in by accessing the <code class="docutils literal notranslate"><span class="pre">/admin</span></code> page. The credentials are pre-created
+and are the same on any server, so it is not necessary/possible to register
+for a new account. If the credentials have not been provided to you by the time
+you read this, please check your credentials sharing service (e.g. LastPass),
+or contact the person in charge of PMA API server administration.</p>
+<p><strong>Admin area URLs</strong>  <br/>
+Staging server: http://api-staging.pma2020.org/admin  <br/>
+Production server: http://api.pma2020.org/admin</p>
+</div>
+<div class="section" id="uploading-datasets">
+<span id="uploading-datasets"></span><h3>Uploading datasets<a class="headerlink" href="#uploading-datasets" title="Permalink to this headline">¶</a></h3>
+<p>As mentioned previously, uploading a dataset places the dataset in an online
+storage area that is shared between the staging and production servers.
+Uploading does not cause the contents of the dataset file to be reflected in
+the PMA API database. For information on doing that, please refer to the
+‘activating datasets’ section.</p>
+<p><img alt="Upload widget" src="../../_images/upload-widget.png" /></p>
+</div>
+<div class="section" id="downloading-datasets">
+<span id="downloading-datasets"></span><h3>Downloading datasets<a class="headerlink" href="#downloading-datasets" title="Permalink to this headline">¶</a></h3>
+<p><img alt="Download button" src="../../_images/download-button.png" /></p>
+</div>
+<div class="section" id="deleting-datasets">
+<span id="deleting-datasets"></span><h3>Deleting datasets<a class="headerlink" href="#deleting-datasets" title="Permalink to this headline">¶</a></h3>
+<p><img alt="Delete button" src="../../_images/delete-button.png" /></p>
+</div>
+<div class="section" id="activating-datasets">
+<span id="activating-datasets"></span><h3>Activating datasets<a class="headerlink" href="#activating-datasets" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="activate-and-test-on-staging-server">
+<span id="activate-and-test-on-staging-server"></span><h4>1. Activate and test on staging server<a class="headerlink" href="#activate-and-test-on-staging-server" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="make-sure-the-dataset-is-uploaded">
+<span id="make-sure-the-dataset-is-uploaded"></span><h5>1.1. Make sure the dataset is uploaded<a class="headerlink" href="#make-sure-the-dataset-is-uploaded" title="Permalink to this headline">¶</a></h5>
+<p>If the dataset you want to activate appears as a row in the datasets table,
+proceed to the next step. Otherwise, upload the dataset file first.</p>
+</div>
+<div class="section" id="click-the-activate-button">
+<span id="click-the-activate-button"></span><h5>1.2. Click the ‘activate’ button<a class="headerlink" href="#click-the-activate-button" title="Permalink to this headline">¶</a></h5>
+<p><img alt="Activation step 2" src="../../_images/activate-002.png" /></p>
+</div>
+<div class="section" id="wait-until-request-resolution">
+<span id="wait-until-request-resolution"></span><h5>1.3. Wait until request resolution<a class="headerlink" href="#wait-until-request-resolution" title="Permalink to this headline">¶</a></h5>
+<p>A progress bar will display estimated progress percentage as well as a status
+message of the task that the server is currently executing. Some steps may
+hang for before you see any updates, even for several minutes. Do not worry
+about the possibility of a complete frozen state unless you see that the
+progress has not updated at all in about 20 minutes or so. If that happens,
+contact the PMA API server administrator.</p>
+<p><strong>Progress updates</strong>  <br/>
+<img alt="Activation step 3" src="../../_images/activate-003.png" /></p>
+<p><strong>Success!</strong>  <br/>
+<img alt="Activation step 3b" src="../../_images/activate-003b.png" /></p>
+</div>
+<div class="section" id="troubleshoot-issues">
+<span id="troubleshoot-issues"></span><h5>1.4. Troubleshoot issues<a class="headerlink" href="#troubleshoot-issues" title="Permalink to this headline">¶</a></h5>
+<p>If any issues occur during the activation process, a notification bar will
+appear. Typically, these messages will include helpful information, such as
+information about parts of the dataset file that may contain issues that need
+to be corrected.</p>
+<p><img alt="Activation step 4" src="../../_images/activate-004.png" /></p>
+</div>
+<div class="section" id="verify-test-on-datalab">
+<span id="verify-test-on-datalab"></span><h5>1.5. Verify / test on Datalab<a class="headerlink" href="#verify-test-on-datalab" title="Permalink to this headline">¶</a></h5>
+<p>After the progress bar reaches 100%, the dataset will have been activated.
+While Datalab does run some automated validation and testing, it is essential
+to do some manual testing and verification. For example, a good method of
+testing would be to open up an application that connects to the API, e.g.
+Datalab, and try to create some charts. If some metadata was added, deleted,
+or otherwise changed in the latest dataset activated, do you see those changes
+correctly reflected in Datalab? Are you able to successfully make a chart
+that utilizes some new data that has been added? Do the numbers or appearance
+of the graph reflect what you might expect?</p>
+<p><strong>Datalab URLs</strong>  <br/>
+Staging server: http://datalab-staging.pma2020.org  <br/>
+Production server: http://datalab.pma2020.org</p>
+<p><img alt="Activation step 5" src="../../_images/activate-005.png" /></p>
+</div>
+</div>
+<div class="section" id="activate-and-test-on-production-server">
+<span id="activate-and-test-on-production-server"></span><h4>2. Activate and test on production server<a class="headerlink" href="#activate-and-test-on-production-server" title="Permalink to this headline">¶</a></h4>
+<p>After the dataset has been activated and tested on the staging server, repeat
+this same process for the production server.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../project_developers/project_developers.html" class="btn btn-neutral" title="For project developers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, James Pringle, Joe Flack
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
