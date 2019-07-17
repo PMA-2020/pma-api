@@ -4,7 +4,7 @@ For any model resources that do not have explicit static routes created, this
 route will attempt to return a standardized list of results for that model.
 """
 import os
-from typing import Union, List
+from typing import Union, List, Dict
 
 from flask import request
 from flask_sqlalchemy import Model
@@ -26,7 +26,7 @@ resource_model_map = {
 }
 
 
-def models_to_dicts(models: [Model], ignores: () = IGNORES) -> [dict]:
+def models_to_dicts(models: [Model], ignores: () = IGNORES) -> [Dict]:
     """Converts list of SqlAlchemy Model objects to dictionaries
 
     Args:
@@ -34,9 +34,9 @@ def models_to_dicts(models: [Model], ignores: () = IGNORES) -> [dict]:
         ignores (tuple): Attributes to not include in dict
 
     Returns:
-        list(dict): List of dictionaries
+        listd: List of dictionaries
     """
-    dicts: [dict] = [
+    dicts: List[Dict] = [
         {
             k: v
             for k, v in x.__dict__.items() if k not in ignores

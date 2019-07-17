@@ -14,8 +14,10 @@ DEFAULT_PRECISION = 1
 
 
 def get_datalab_data_csv(
-        survey_codes: str, indicator_code: str, char_grp_code: str, lang: str) \
-        -> QuerySetApiResult:
+    survey_codes: str,
+    indicator_code: str,
+    char_grp_code: str,
+    lang: str) -> QuerySetApiResult:
     """Get Datalab data in CSV format.
 
     Args:
@@ -39,8 +41,10 @@ def get_datalab_data_csv(
 
 
 def get_datalab_data_json(
-        survey_codes: str, indicator_code: str, char_grp_code: str,
-        over_time: bool) -> QuerySetApiResult:
+    survey_codes: str,
+    indicator_code: str,
+    char_grp_code: str,
+    over_time: bool) -> QuerySetApiResult:
     """Get Datalab data in JSON format.
 
     Args:

@@ -135,8 +135,11 @@ class DatalabData:
         return results
 
     @staticmethod
-    def filter_readable(survey_codes, indicator_code, char_grp_code,
-                        lang=None):
+    def filter_readable(
+        survey_codes: str,
+        indicator_code: str,
+        char_grp_code: str,
+        lang=None):
         """Get filtered Datalab data and return readable columns.
 
         Args:
@@ -151,23 +154,25 @@ class DatalabData:
             A list of simple python objects, one for each record found by
             applying the various filters.
         """
-        chr1 = DatalabData.char1
-        grp1, grp2 = DatalabData.char_grp1, DatalabData.char_grp2
-        select_args = (Data, Survey, Indicator, grp1, chr1)
-        filtered = DatalabData.all_joined(*select_args)
+        chr1: AliasedClass = DatalabData.char1
+        grp1: AliasedClass = DatalabData.char_grp1
+        grp2: AliasedClass = DatalabData.char_grp2
+        select_args: tuple = (Data, Survey, Indicator, grp1, chr1)
+        filtered: BaseQuery = DatalabData.all_joined(*select_args)
         if survey_codes:
             survey_sql = DatalabData.survey_list_to_sql(survey_codes)
-            filtered = filtered.filter(survey_sql)
+            filtered: BaseQuery = filtered.filter(survey_sql)
         if indicator_code:
-            filtered = filtered.filter(Indicator.code == indicator_code)
+            filtered: BaseQuery = \
+                filtered.filter(Indicator.code == indicator_code)
         if char_grp_code:
-            filtered = filtered.filter(grp1.code == char_grp_code)
+            filtered: BaseQuery = filtered.filter(grp1.code == char_grp_code)
         # TODO (jkp, begin=2017-08-28): This will be grp2.code is None
         # eventually when the Data show "none" for char_grp2 in excel import
         # Remove E711 from .pycodestyle
         # pylint: disable=singleton-comparison
-        filtered = filtered.filter(grp2.code is None)
-        results = filtered.all()
+        filtered: BaseQuery = filtered.filter(grp2.code == None)
+        results: List = filtered.all()
         json_results = []
         for item in results:
             precision = item[0].precision
@@ -186,8 +191,11 @@ class DatalabData:
         return json_results
 
     @staticmethod
-    def filter_minimal(survey_codes: str, indicator_code: str,
-                       char_grp_code: str, over_time) -> List[Dict]:
+    def filter_minimal(
+        survey_codes: str,
+        indicator_code: str,
+        char_grp_code: str,
+        over_time) -> List[Dict]:
         """Get filtered Datalab data and return minimal columns.
 
         Args:

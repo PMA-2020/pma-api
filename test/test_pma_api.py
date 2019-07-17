@@ -708,6 +708,14 @@ class TestListDatasets(PmaApiTest):
         self.assertTrue(well_formed, self.err)
 
 
+class TestCSV(PmaApiTest):
+    """Test CSV download"""
+
+    def test_csv(self):
+        """Test CSV download"""
+        pass
+
+
 if __name__ == '__main__':
     pass
     from test import doctest_unittest_runner
