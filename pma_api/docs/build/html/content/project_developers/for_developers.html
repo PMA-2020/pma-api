@@ -1,0 +1,312 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Developer Documentation &mdash; PMA API 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PMA API
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../users/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../users/endpoints.html">Endpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_developers.html">For project developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_managers/data_managers.html">For data managers</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PMA API</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Developer Documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/content/project_developers/for_developers.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="developer-documentation">
+<span id="developer-documentation"></span><h1>Developer Documentation<a class="headerlink" href="#developer-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="master-circleci-develop-circleci">
+<span id="master-circleci-develop-circleci"></span><h2><code class="docutils literal notranslate"><span class="pre">master</span></code> <a class="reference external" href="https://circleci.com/gh/PMA-2020/pma-api/tree/master"><img alt="CircleCI" src="https://circleci.com/gh/PMA-2020/pma-api/tree/master.svg?style=svg&amp;circle-token=3cd5fffe3dad1d27e6cc1000307bc299e2ef3e77" /></a> |  <code class="docutils literal notranslate"><span class="pre">develop</span></code> <a class="reference external" href="https://circleci.com/gh/PMA-2020/pma-api/tree/develop"><img alt="CircleCI" src="https://circleci.com/gh/PMA-2020/pma-api/tree/develop.svg?style=svg&amp;circle-token=3cd5fffe3dad1d27e6cc1000307bc299e2ef3e77" /></a><a class="headerlink" href="#master-circleci-develop-circleci" title="Permalink to this headline">¶</a></h2>
+<!--
+// We should uncomment this when it is up-to-date.
+## Relational Database Diagram
+<img src="https://raw.githubusercontent.com/joeflack4/pma-api/develop/pma_api/docs/source/_static/apiClassDiagramV4.png" data-canonical-src="https://raw.githubusercontent.com/joeflack4/pma-api/develop/pma_api/docs/source/_static/apiClassDiagramV4.png" width="620" height="513" />
+--></div>
+<div class="section" id="usage-endpoint-info-and-other-user-documentation">
+<span id="usage-endpoint-info-and-other-user-documentation"></span><h2>Usage, endpoint info, and other user documentation<a class="headerlink" href="#usage-endpoint-info-and-other-user-documentation" title="Permalink to this headline">¶</a></h2>
+<p>Extensive user documentation is available at either of the following sites:</p>
+<ul class="simple">
+<li>http://api.pma2020.org</li>
+<li>http://api-docs.pma2020.org</li>
+</ul>
+</div>
+<div class="section" id="installation">
+<span id="installation"></span><h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="system-dependencies">
+<span id="system-dependencies"></span><h3>1. System dependencies<a class="headerlink" href="#system-dependencies" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference external" href="https://www.python.org/downloads/">Python3</a></li>
+<li><a class="reference external" href="http://www.postgresqltutorial.com/install-postgresql/">PostgreSQL</a></li>
+</ul>
+</div>
+<div class="section" id="clone-the-project">
+<span id="clone-the-project"></span><h3>2. Clone the project<a class="headerlink" href="#clone-the-project" title="Permalink to this headline">¶</a></h3>
+<ol class="simple">
+<li>Change directory to <code class="docutils literal notranslate"><span class="pre">PATH</span></code> where you want to clone: <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">PATH</span></code></li>
+<li>Clone: <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.com/PMA-2020/pma-api.git</span></code></li>
+</ol>
+</div>
+<div class="section" id="virtual-environment">
+<span id="virtual-environment"></span><h3>3. Virtual environment<a class="headerlink" href="#virtual-environment" title="Permalink to this headline">¶</a></h3>
+<p>A Python virtual environment is a way to isolate applications and their dependencies from one another in order to avoid conflicts. We recommend that you install virtualenv. <a class="reference external" href="https://virtualenv.pypa.io/en/stable/">The virtualenv documentation</a> has installation steps as well as more information about the usefulness of virtual environments. Here’s a summary of the installation steps:</p>
+<ol class="simple">
+<li>Install <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code> globally: <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">virtualenv</span></code></li>
+<li>Change directory to where <code class="docutils literal notranslate"><span class="pre">pma-api</span></code> was cloned: <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">PATH/pma-api</span></code></li>
+<li>Create a virtual environment called <code class="docutils literal notranslate"><span class="pre">env</span></code>: <code class="docutils literal notranslate"><span class="pre">virtualenv</span> <span class="pre">env</span></code></li>
+<li>Use the virtualenv every time you want to work on the project
+4a. Activate the virtuale environment: <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">PATH/pma-api</span></code> &amp;&amp; <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">env/bin/activate</span></code>
+4b. Deactivate when you’re done. You can do this by closing the terminal session, or running: <code class="docutils literal notranslate"><span class="pre">deactivate</span></code></li>
+</ol>
+</div>
+<div class="section" id="install-project-dependencies">
+<span id="install-project-dependencies"></span><h3>4. Install project dependencies<a class="headerlink" href="#install-project-dependencies" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code></li>
+</ul>
+</div>
+<div class="section" id="create-the-database">
+<span id="create-the-database"></span><h3>5. Create the database<a class="headerlink" href="#create-the-database" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="set-up-postgresql-db">
+<span id="set-up-postgresql-db"></span><h4>5.1. Set up PostgreSQL DB<a class="headerlink" href="#set-up-postgresql-db" title="Permalink to this headline">¶</a></h4>
+<p>You can use a command line interface (e.g. <em>psql</em>) or graphical user interface (e.g. <a class="reference external" href="https://www.pgadmin.org/download/">PgAadmin4</a>) to set up the DB.
+i. Create database a called ‘pma-api’. <code class="docutils literal notranslate"><span class="pre">CREATE</span> <span class="pre">DATABASE</span> <span class="pre">pma-api;</span></code>ii. Create a user called ‘pma-api’. <code class="docutils literal notranslate"><span class="pre">CREATE</span> <span class="pre">USER</span> <span class="pre">pma-api;</span></code>iii. Set a password for this user, by default ‘pma-api’. You can change this later. <code class="docutils literal notranslate"><span class="pre">ALTER</span> <span class="pre">USER</span> <span class="pre">pma-api</span> <span class="pre">WITH</span> <span class="pre">PASSWORD</span> <span class="pre">'pma-api';</span></code>iv. Make user ‘pma-api’ a super user for DB ‘pma-api’. <code class="docutils literal notranslate"><span class="pre">GRANT</span> <span class="pre">ALL</span> <span class="pre">PRIVILEGES</span> <span class="pre">ON</span> <span class="pre">DATABASE</span> <span class="pre">pma-api</span> <span class="pre">TO</span> <span class="pre">pma-api;</span></code></p>
+</div>
+<div class="section" id="environmental-variables">
+<span id="environmental-variables"></span><h4>5.2. Environmental variables<a class="headerlink" href="#environmental-variables" title="Permalink to this headline">¶</a></h4>
+<p>a. <strong><em>Virtualenv</em> setups:</strong> After installing the virtual environment, you should have a folder called <code class="docutils literal notranslate"><span class="pre">env</span></code>. Open up <code class="docutils literal notranslate"><span class="pre">env/bin/activate</span></code> in a text editor. Add the following text to the bottom of the file.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">ENV_NAME</span><span class="o">=</span><span class="s2">&quot;development&quot;</span>
+<span class="nb">export</span> <span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi&quot;</span>
+<span class="nb">export</span> <span class="nv">STAGING_URL</span><span class="o">=</span><span class="s2">&quot;http://api-staging.pma2020.org&quot;</span>
+<span class="nb">export</span> <span class="nv">PRODUCTION_URL</span><span class="o">=</span><span class="s2">&quot;http://api.pma2020.org&quot;</span>
+</pre></div>
+</div>
+<p>b. <strong><em>Virtualenvwrapper</em> setups:</strong> Add the following to your postactivate script. This is found in the root directory of wherever you installed virtualenvwrapper. Also, the text below assumes that you named your virtual environment “pma-api”. If you are using virtualenvwrapper and named it something else, replace the text “pma-api” with whatever you named your environment.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$VIRTUAL_ENV</span><span class="s2">&quot;</span> <span class="o">=</span> <span class="s2">&quot;path/to/virtualenvs/pma-api&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+    <span class="nb">export</span> <span class="nv">ENV_NAME</span><span class="o">=</span><span class="s2">&quot;development&quot;</span>
+    <span class="nb">export</span> <span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql+psycopg2://pmaapi:pmaapi@localhost/pmaapi&quot;</span>
+    <span class="nb">export</span> <span class="nv">STAGING_URL</span><span class="o">=</span><span class="s2">&quot;http://api-staging.pma2020.org&quot;</span>
+    <span class="nb">export</span> <span class="nv">PRODUCTION_URL</span><span class="o">=</span><span class="s2">&quot;http://api.pma2020.org&quot;</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="seed-data-into-db-makefile-command-make-db">
+<span id="seed-data-into-db-makefile-command-make-db"></span><h4>5.3. Seed data into DB <code class="docutils literal notranslate"><span class="pre">makefile</span></code> command: <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">db</span></code><a class="headerlink" href="#seed-data-into-db-makefile-command-make-db" title="Permalink to this headline">¶</a></h4>
+<p>Seed data into DB <code class="docutils literal notranslate"><span class="pre">makefile</span></code> command: <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">db</span></code>. If you are on a Windows system or another system that cannot run makefiles, you can open up the makefile in a text editor and use it as a reference to run common commands. In the case of “<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">db</span></code>”, the equivalent command will be: <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">manage.py</span> <span class="pre">initdb</span> <span class="pre">--overwrite</span></code>. This will execute a script that populates a database using data taken from the <code class="docutils literal notranslate"><span class="pre">data</span></code> directory.</p>
+<p>After running the command to seed data into DB, check the terminal to see if it was a success. If you do not see any error messages and one of the last lines says “COMMIT”, this means the process was probably successful.</p>
+</div>
+</div>
+</div>
+<div class="section" id="running-locally">
+<span id="running-locally"></span><h2>6. Running locally<a class="headerlink" href="#running-locally" title="Permalink to this headline">¶</a></h2>
+<ol class="simple">
+<li>Run <code class="docutils literal notranslate"><span class="pre">pma-api</span></code> on a local server process via the following makefile command: <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">serve</span></code>. The equivalent command is: <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">manage.py</span> <span class="pre">runserver</span></code>.</li>
+<li>Verify that it is running in the browser by going to: <code class="docutils literal notranslate"><span class="pre">http://localhost:5000/v1/resources</span></code></li>
+</ol>
+</div>
+<div class="section" id="getting-to-know-the-api">
+<span id="getting-to-know-the-api"></span><h2>Getting to know the API<a class="headerlink" href="#getting-to-know-the-api" title="Permalink to this headline">¶</a></h2>
+<p>You can:
+i. Navigate the API further by either (a) utilizing the URL links shown in the browser, or (b) looking at the available endpoints in the <a class="reference external" href="https://api.pma2020.org">pma-api documentation</a>.
+ii. Read the <a class="reference external" href="https://api.pma2020.org">pma-api documentation</a> for more information on use.</p>
+</div>
+<div class="section" id="server-management">
+<span id="server-management"></span><h2>Server management<a class="headerlink" href="#server-management" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="pushing-to-staging">
+<span id="pushing-to-staging"></span><h3>Pushing to staging<a class="headerlink" href="#pushing-to-staging" title="Permalink to this headline">¶</a></h3>
+<p>Run: <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">push-staging</span></code></p>
+</div>
+<div class="section" id="pushing-to-production">
+<span id="pushing-to-production"></span><h3>Pushing to production<a class="headerlink" href="#pushing-to-production" title="Permalink to this headline">¶</a></h3>
+<p>Run: <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">push-production</span></code></p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, James Pringle, Joe Flack
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

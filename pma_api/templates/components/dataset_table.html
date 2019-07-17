@@ -1,0 +1,69 @@
+
+<h2>Datasets</h2>
+<table class="table table-bordered" id="datasets-table">
+  <thead>
+    <tr>
+{#      <th></th>  {# Checkbox column #}
+      <th>ID</th>
+      <th>Version</th>
+      <th>Name</th>
+{#      <th>Type</th>#}
+      <th>Uploaded</th>
+      <th>Active</th>
+      <th>Actions</th>
+{#      <th>Active: Staging</th>#}
+{#      <th>Active: Production</th>#}
+{#      {% if this_env=='development' %}#}
+{#        <th>Active: Dev</th>#}
+{#      {% endif %}#}
+    </tr>
+    {% for dataset in datasets %}
+{#      <tr id="{{ dataset.ID }}">#}
+      <tr id="{{ dataset.version_number }}">
+{#        <td class="dataset-row-checkbox">#}
+{#          <!--suppress HtmlFormInputWithoutLabel -->#}
+{#          <input type="checkbox">#}
+{#        </td>#}
+        <td>{{ dataset.id }}</td>
+        <td>{{ dataset.version_number }}</td>
+{#        <td>{{ dataset.dataset_display_name }}</td>#}
+        <td>{{ dataset.name }}</td>
+{#        <td>{{ dataset.dataset_type }}</td>#}
+        <td>{{ dataset.last_modified }}</td>
+        {# Active #}
+        <td style="text-align: center;">
+          {% if active_dataset_version == dataset.version_number %}
+            <i class="fas fa-check"></i>
+          {% endif %}
+        </td>
+        {# Actions #}
+        <td style="text-align: center;">
+          <a id="download-link-{{ dataset.version_number }}"  href="#">
+            <button type="button"
+              class="btn btn-outline-dark download-button"
+              id="download-button-{{ dataset.version_number }}">
+              <i class="fas fa-download"></i>
+            </button>
+          </a>
+          <a id="delete-link-{{ dataset.version_number }}"  href="#">
+            <button type="button"
+              class="btn btn-outline-dark delete-button"
+              id="delete-button-{{ dataset.version_number }}">
+              <i class="fas fa-trash"></i>
+            </button>
+          </a>
+          <a class="activate-button-anchor"
+            id="activate-link-{{ dataset.version_number }}" href="#">
+            <button type="button"
+              class="btn btn-outline-dark activate-button"
+              id="activate-button-{{ dataset.version_number }}">
+              Activate
+            </button>
+          </a>
+        </td>
+      </tr>
+    {% endfor %}
+  </thead>
+  <tbody>
+  </tbody>
+</table>

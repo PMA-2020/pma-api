@@ -1,2 +1,3 @@
+release: make release
+worker: make celery
 web: make serve-production
-release: make db-production

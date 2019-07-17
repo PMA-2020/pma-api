@@ -1,4 +1,4 @@
-# Using the API
+# Usage
 ## Navigation
 ### Resource Lists
 Resource roots are endpoints that return a list of resources and URLs to those
@@ -8,7 +8,7 @@ be found at `/v#/datalab` or `v#/datalab/resources`, where "#" is the API
 version number.
 
 ### Navigating API Versions
-Leaving `/v#/` out of your API query URLs will default to the most recent,
+Leaving `/v#/` out of your API interpolated_query URLs will default to the most recent,
 stable API verison. To prevent unexpected results, it is advised to always
 supply a version number.
 
@@ -17,9 +17,9 @@ supply a version number.
 #### Special Character Meanings
 - Forward-slash, `/`: Only for URL pathing.
 - Back-slash, `\ `: For character escaping (Available in [upcoming release](https://github.com/PMA-2020/pma-api/releases/tag/2.0.0).)
-- Question mark, `?`: For specifying query parameters.
+- Question mark, `?`: For specifying interpolated_query parameters.
 - Ampersand, `&`: Query parameter delimiter.
-- Equals-sign, `=`: Keyword query parameter assignment operator.
+- Equals-sign, `=`: Keyword interpolated_query parameter assignment operator.
 - Comma, `,`: List item delimiter.
 
 #### Character Escaping
@@ -27,7 +27,7 @@ Available in [upcoming release](https://github.com/PMA-2020/pma-api/releases/tag
 
 ### Data Types
 #### Primitives
-In an API query URL string, specific data types should be used as follows and
+In an API interpolated_query URL string, specific data types should be used as follows and
 should be specified witout quotation marks (`"` or `'`).
 ##### String
 Example: `/v1/datalab/data?survey=GH2013PMA`.

@@ -1,216 +1,185 @@
-"""Application manager."""
-import csv
-import glob
-import logging
+"""Application management CLI"""
 import os
+from pathlib import Path
+import sys
+from sys import stderr
 
+# noinspection PyPackageRequirements
+from dotenv import load_dotenv
+from typing import Dict
 from flask_script import Manager, Shell
-import xlrd
+from psycopg2 import DatabaseError
+from sqlalchemy.exc import StatementError
 
-from pma_api import create_app, db
-from pma_api.models import (Cache, Characteristic, CharacteristicGroup,
-                            Country, Data, EnglishString, Geography, Indicator,
-                            SourceData, Survey, Translation)
-import pma_api.api_1_0.caching as caching
+from pma_api import create_app
+from pma_api.config import PROJECT_ROOT_PATH
+from pma_api.manage.server_mgmt import store_pid
+from pma_api.manage.db_mgmt import get_api_data, get_ui_data, \
+     make_shell_context, connection_error, backup_db, \
+     restore_db, list_backups as listbackups, \
+     list_ui_data as listuidata, list_datasets as listdatasets, \
+     backup_source_files as backupsourcefiles
+from pma_api.manage.initdb_from_wb import InitDbFromWb
+from pma_api.models import db, Cache, ApiMetadata, Translation
+from pma_api.utils import dict_to_pretty_json
 
-
-app = create_app(os.getenv('FLASK_CONFIG', 'default'))
+load_dotenv(dotenv_path=Path(PROJECT_ROOT_PATH) / '.env')
+app = create_app(os.getenv('ENV_NAME', 'default'))
 manager = Manager(app)
 
 
-def get_file_by_glob(pattern):
-    """Get file by glob.
+@manager.option('-a', '--api_file_path', help='Custom path for api file')
+@manager.option('-u', '--ui_file_path', help='Custom path for ui file')
+def initdb(api_file_path: str, ui_file_path: str):
+    """Initialize a fresh database instance.
+
+    WARNING: If DB already exists, will drop it.
+
+    Side effects:
+        - Drops database
+        - Creates database
+        - Prints results
 
     Args:
-        pattern (str): A glob pattern.
-
-    Returns:
-        str: Path/to/first_file_found
+        api_file_path (str): Path to API spec file; if not present, gets
+        from default path
+        ui_file_path (str): Path to UI spec file; if not present, gets
+        from default path
     """
-    found = glob.glob(pattern)
-    return found[0]
+    api_fp = api_file_path if api_file_path else get_api_data()
+    ui_fp = ui_file_path if ui_file_path else get_ui_data()
+    results: Dict = InitDbFromWb(
+        _app=app,
+        api_file_path=api_fp,
+        ui_file_path=ui_fp)\
+        .run()
 
+    warning_str = ''
+    if results['warnings']:
+        warning_str += '\nWarnings:'
+        warnings: dict = results['warnings']
+        for k, v in warnings.items():
+            warning_str += '\n{}: {}'.format(k, v)
+    result = 'Successfully initialized dataset.' if results['success'] \
+        else 'Failed to initialize dataset.'
 
-API_DATA = get_file_by_glob('./data/api_data*.xlsx')
-UI_DATA = get_file_by_glob('./data/ui_data*.xlsx')
-
-
-ORDERED_MODEL_MAP = (
-    ('geography', Geography),
-    ('country', Country),
-    ('survey', Survey),
-    ('char_grp', CharacteristicGroup),
-    ('char', Characteristic),
-    ('indicator', Indicator),
-    ('translation', Translation),
-    ('data', Data)
-)
-
-
-TRANSLATION_MODEL_MAP = (
-    ('translation', Translation),
-)
-
-
-def make_shell_context():
-    """Make shell context.
-
-    Returns:
-        dict: Context for application manager shell.
-    """
-    return dict(app=app, db=db, Country=Country, EnglishString=EnglishString,
-                Translation=Translation, Survey=Survey, Indicator=Indicator,
-                Data=Data, Characteristic=Characteristic, Cache=Cache,
-                CharacteristicGroup=CharacteristicGroup, SourceData=SourceData)
-
-
-def init_from_source(path, model):
-    """Initialize DB table data from csv file.
-
-    Initialize table data from csv source data files associated with the
-    corresponding data model.
-
-    Args:
-        path (str): Path to csv data file.
-        model (class): SqlAlchemy model class.
-    """
-    with open(path, newline='', encoding='utf-8') as csvfile:
-        csvreader = csv.DictReader(csvfile)
-        for row in csvreader:
-            record = model(**row)
-            db.session.add(record)
-        db.session.commit()
-
-
-def init_data(wb):
-    """Put all the data from the workbook into the database."""
-    survey = {}
-    indicator = {}
-    characteristic = {}
-    for record in Survey.query.all():
-        survey[record.code] = record.id
-    for record in Indicator.query.all():
-        indicator[record.code] = record.id
-    for record in Characteristic.query.all():
-        characteristic[record.code] = record.id
-    for ws in wb.sheets():
-        if ws.name.startswith('data'):
-            init_from_sheet(ws, Data, survey=survey, indicator=indicator,
-                            characteristic=characteristic)
-
-
-def init_from_sheet(ws, model, **kwargs):
-    """Initialize DB table data from XLRD Worksheet.
-
-    Initialize table data from source data associated with the corresponding
-    data model.
-
-    Args:
-        ws (xlrd.sheet.Sheet): XLRD worksheet object.
-        model (class): SqlAlchemy model class.
-    """
-    if model == Data:
-        survey = kwargs['survey']
-        indicator = kwargs['indicator']
-        characteristic = kwargs['characteristic']
-    header = None
-    for i, row in enumerate(ws.get_rows()):
-        row = [r.value for r in row]
-        if i == 0:
-            header = row
-        else:
-            row_dict = {k: v for k, v in zip(header, row)}
-            if model == Data:
-                survey_code = row_dict.get('survey_code')
-                survey_id = survey.get(survey_code)
-                row_dict['survey_id'] = survey_id
-                indicator_code = row_dict.get('indicator_code')
-                indicator_id = indicator.get(indicator_code)
-                row_dict['indicator_id'] = indicator_id
-                char1_code = row_dict.get('char1_code')
-                char1_id = characteristic.get(char1_code)
-                row_dict['char1_id'] = char1_id
-                char2_code = row_dict.get('char2_code')
-                char2_id = characteristic.get(char2_code)
-                row_dict['char2_id'] = char2_id
-            try:
-                record = model(**row_dict)
-            except:
-                msg = 'Error when processing row {} of "{}". Cell values: {}'
-                msg = msg.format(i+1, ws.name, row)
-                logging.error(msg)
-                raise
-            db.session.add(record)
-    db.session.commit()
-
-
-def init_from_workbook(wb, queue):
-    """Init from workbook.
-
-    Args:
-        wb (xlrd.Workbook): Workbook object.
-        queue (tuple): Order in which to load models.
-    """
-    with xlrd.open_workbook(wb) as book:
-        for sheetname, model in queue:
-            if sheetname == 'data':  # actually done last
-                init_data(book)
-            else:
-                ws = book.sheet_by_name(sheetname)
-                init_from_sheet(ws, model)
-    create_wb_metadata(wb)
-
-
-def create_wb_metadata(wb_path):
-    """Create metadata for Excel Workbook files imported into the DB.
-
-    Args:
-        wb_path (str) Path to Excel Workbook.
-    """
-    record = SourceData(wb_path)
-    db.session.add(record)
-    db.session.commit()
-
-
-@manager.option('--overwrite', help='Drop tables first?', action='store_true')
-def initdb(overwrite=False):
-    """Create the database.
-
-    Args:
-        overwrite (bool): Overwrite database if True, else update.
-    """
-    with app.app_context():
-        if overwrite:
-            db.drop_all()
-        db.create_all()
-        if overwrite:
-            init_from_workbook(wb=API_DATA, queue=ORDERED_MODEL_MAP)
-            init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
-            caching.cache_datalab_init(app)
+    print('\n' + result + '\n' + warning_str)
 
 
 @manager.command
 def translations():
     """Import all translations into the database."""
     with app.app_context():
-        # TODO (jkp 2017-09-28) make this ONE transaction instead of many.
-        db.session.query(SourceData).delete()
-        db.session.query(Translation).delete()
-        db.session.commit()
-        init_from_workbook(wb=API_DATA, queue=TRANSLATION_MODEL_MAP)
-        init_from_workbook(wb=UI_DATA, queue=TRANSLATION_MODEL_MAP)
-        cache_responses()
+        try:
+            # TODO 2017.09.28-jkp make one transaction instead of many
+            db.session.query(ApiMetadata).delete()
+            db.session.query(Translation).delete()
+            db.session.commit()
+            db_initializer = InitDbFromWb()
+            db_initializer.init_api_worksheet('translation')
+            db_initializer.init_client_ui_data()
+            cache_responses()
+        except (StatementError, DatabaseError) as e:
+            print(connection_error.format(str(e)), file=stderr)
+        except RuntimeError as e:
+            print('Error trying to execute caching. Is the server running?\n\n'
+                  + '- Original error:\n'
+                  + type(e).__name__ + ': ' + str(e))
 
 
 @manager.command
 def cache_responses():
     """Cache responses in the 'cache' table of DB."""
     with app.app_context():
-        caching.cache_datalab_init(app)
+        try:
+            Cache.cache_datalab_init(app)
+        except (StatementError, DatabaseError) as e:
+            print(connection_error.format(str(e)), file=stderr)
+
+
+@manager.option('--path', help='Custom path for backup file')
+def backup(path: str = ''):
+    """Backup db
+
+    Args:
+        path (str): Path to save backup file
+    """
+    if path:
+        backup_db(path)
+    else:
+        backup_db()
+
+
+@manager.option('--path', help='Path of backup file to restore, or the '
+                               'filename to fetch from AWS S3')
+def restore(path: str):
+    """Restore db
+
+    Args:
+        path (str): Path to backup file
+    """
+    import inspect
+
+    if not path:
+        syntax = ' '.join([__file__,
+                           inspect.currentframe().f_code.co_name,
+                           '--path=PATH/TO/BACKUP'])
+        print('\nMust specify path: ' + syntax, file=stderr)
+        print('\nHere is a list of backups to choose from: \n',
+              dict_to_pretty_json(listbackups()))
+    else:
+        restore_db(path)
+
+
+@manager.command
+def list_backups():
+    """List available backups"""
+    pretty_json = dict_to_pretty_json(listbackups())
+    print(pretty_json)
+
+
+@manager.command
+def list_ui_data():
+    """List available ui data"""
+    pretty_json = dict_to_pretty_json(listuidata())
+    print(pretty_json)
+
+
+@manager.command
+def list_datasets():
+    """List available datasets"""
+    pretty_json = dict_to_pretty_json(listdatasets())
+    print(pretty_json)
+
+
+@manager.command
+def list_source_files():
+    """List available source files: ui data and datasets"""
+    print('Datasets: ')
+    list_datasets()
+    print('UI data files: ')
+    list_ui_data()
+
+
+@manager.command
+def backup_source_files():
+    """Backup available source files: ui data and datasets"""
+    backupsourcefiles()
+
+
+@manager.command
+def release():
+    """Perform steps necessary for a deployment"""
+    print('Deployment release task: Beginning')
+    initdb(api_file_path='', ui_file_path='')
+    print('Deployment release task: Complete')
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
 
 
 if __name__ == '__main__':
+    args = ' '.join(sys.argv)
+    if 'runserver' in args:  # native Manager command
+        store_pid()
     manager.run()

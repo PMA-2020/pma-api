@@ -82,9 +82,10 @@
             
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="content/users/endpoints.html">Endpoints</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Using the API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/developers/for_developers.html">Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/project_developers/project_developers.html">For project developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/data_managers/data_managers.html">For data managers</a></li>
 </ul>
 
             
@@ -160,7 +161,7 @@
 <dl class="class">
 <dt id="pma_api.models.api_base.ApiModel">
 <em class="property">class </em><code class="descclassname">pma_api.models.api_base.</code><code class="descname">ApiModel</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.api_base.ApiModel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask_sqlalchemy.Model</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Model</span></code></p>
 <p>Abstract base model.</p>
 <dl class="staticmethod">
 <dt id="pma_api.models.api_base.ApiModel.empty_to_none">
@@ -256,10 +257,10 @@ fstr (str): The format string for the date.</dd>
 <em class="property">static </em><code class="descname">update_kwargs_english</code><span class="sig-paren">(</span><em>kwargs</em>, <em>source_key</em>, <em>target_key</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.api_base.ApiModel.update_kwargs_english" title="Permalink to this definition">¶</a></dt>
 <dd><p>Translate API query parameters to equivalent in model.</p>
 <p>API URL query parameters are in many case abstracted away from the
-models and underlying database. For example, ‘survey’ in the API would
-equate to ‘survey_id’ in the database model. Side effects: kwargs are
-modified so that new key of name matching ‘target_key’ argument is
-inserted, with value as the corresponding record id.</p>
+db_models and underlying database. For example, ‘survey’ in the API
+would equate to ‘survey_id’ in the database model. Side effects:
+kwargs are modified so that new key of name matching ‘target_key’
+argument is inserted, with value as the corresponding record id.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd>source_key (str): The API query parameter.
@@ -284,7 +285,7 @@ parameters submitted by the API request.</dd>
 </div>
 <div class="section" id="module-pma_api.models.core">
 <span id="pma-api-models-core-module"></span><h2>pma_api.models.core module<a class="headerlink" href="#module-pma_api.models.core" title="Permalink to this headline">¶</a></h2>
-<p>Core models.</p>
+<p>Core db_models.</p>
 <dl class="class">
 <dt id="pma_api.models.core.Characteristic">
 <em class="property">class </em><code class="descclassname">pma_api.models.core.</code><code class="descname">Characteristic</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Characteristic" title="Permalink to this definition">¶</a></dt>
@@ -468,7 +469,7 @@ itself, e.g. “characteristic1”, “characteristic2”.</dd>
 <p>Country model.</p>
 <dl class="attribute">
 <dt id="pma_api.models.core.Country.api_schema">
-<code class="descname">api_schema</code><em class="property"> = {'fields': {'id': {'restrictions': {'type': &lt;class 'str'&gt;, 'size_min': 1, 'size_max': None, 'queryable': True}}, 'label': {'restrictions': {'type': &lt;class 'str'&gt;, 'size_min': 1, 'size_max': None, 'queryable': True}}, 'order': {'restrictions': {'type': &lt;class 'int'&gt;, 'size_min': 1, 'size_max': None, 'queryable': False}}, 'region': {'restrictions': {'type': &lt;class 'str'&gt;, 'size_min': 1, 'size_max': None, 'queryable': True}}, 'subregion': {'restrictions': {'type': &lt;class 'str'&gt;, 'size_min': 1, 'size_max': None, 'queryable': True}}}}</em><a class="headerlink" href="#pma_api.models.core.Country.api_schema" title="Permalink to this definition">¶</a></dt>
+<code class="descname">api_schema</code><em class="property"> = {'fields': {'id': {'restrictions': {'queryable': True, 'size_max': None, 'size_min': 1, 'type': &lt;class 'str'&gt;}}, 'label': {'restrictions': {'queryable': True, 'size_max': None, 'size_min': 1, 'type': &lt;class 'str'&gt;}}, 'order': {'restrictions': {'queryable': False, 'size_max': None, 'size_min': 1, 'type': &lt;class 'int'&gt;}}, 'region': {'restrictions': {'queryable': True, 'size_max': None, 'size_min': 1, 'type': &lt;class 'str'&gt;}}, 'subregion': {'restrictions': {'queryable': True, 'size_max': None, 'size_min': 1, 'type': &lt;class 'str'&gt;}}}}</em><a class="headerlink" href="#pma_api.models.core.Country.api_schema" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -933,8 +934,12 @@ endpoint (str): If supplied, provides URL for entity in response.</dd>
 
 <dl class="method">
 <dt id="pma_api.models.core.Survey.datalab_init_json">
-<code class="descname">datalab_init_json</code><span class="sig-paren">(</span><em>reduced=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Survey.datalab_init_json" title="Permalink to this definition">¶</a></dt>
-<dd><p>Datalab init json: Survey.</p>
+<code class="descname">datalab_init_json</code><span class="sig-paren">(</span><em>reduced: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.core.Survey.datalab_init_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Datalab init json: Survey</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>reduced (bool): Return more information if true</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -1036,13 +1041,176 @@ table name.</dd>
 </dd></dl>
 
 </div>
+<div class="section" id="module-pma_api.models.dataset">
+<span id="pma-api-models-dataset-module"></span><h2>pma_api.models.dataset module<a class="headerlink" href="#module-pma_api.models.dataset" title="Permalink to this headline">¶</a></h2>
+<p>Dataset model.</p>
+<dl class="class">
+<dt id="pma_api.models.dataset.Dataset">
+<em class="property">class </em><code class="descclassname">pma_api.models.dataset.</code><code class="descname">Dataset</code><span class="sig-paren">(</span><em>file_path: str</em>, <em>processing: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.dataset.Dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>dataset_type: string / varchar; factor var of (‘data’, ‘metadata’, ‘full’)
+datasetSubType: string / varchar ~256?; domain of,
+(‘CCRR’, ‘METADATA_CLASS’, ‘all’/’full’)</p>
+<dl class="docutils">
+<dt>Example usage:</dt>
+<dd>new_dataset = Dataset(file_path)</dd>
+</dl>
+<dl class="staticmethod">
+<dt id="pma_api.models.dataset.Dataset.get_file_version">
+<em class="property">static </em><code class="descname">get_file_version</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.dataset.Dataset.get_file_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get file version</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to API or UI spec data file</dd>
+<dt>Returns:</dt>
+<dd>int: Version number</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.dataset.Dataset.is_dataset_file_active_in_db">
+<em class="property">static </em><code class="descname">is_dataset_file_active_in_db</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pma_api.models.dataset.Dataset.is_dataset_file_active_in_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is API or UI dataset spec data file active in DB?</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to API or UI dataset spec data file</dd>
+<dt>Returns:</dt>
+<dd>bool: Is the dataset in the file currently active in the DB?</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.dataset.Dataset.ui_dataset_already_active">
+<em class="property">static </em><code class="descname">ui_dataset_already_active</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#pma_api.models.dataset.Dataset.ui_dataset_already_active" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is UI dataset spec data file active in DB?</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): Path to file</dd>
+<dt>Returns:</dt>
+<dd>bool: Is the dataset in the file currently active in the DB?</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-pma_api.models.meta">
 <span id="pma-api-models-meta-module"></span><h2>pma_api.models.meta module<a class="headerlink" href="#module-pma_api.models.meta" title="Permalink to this headline">¶</a></h2>
+<p>Metadata table.</p>
+<dl class="class">
+<dt id="pma_api.models.meta.ApiMetadata">
+<em class="property">class </em><code class="descclassname">pma_api.models.meta.</code><code class="descname">ApiMetadata</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.meta.ApiMetadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Model</span></code></p>
+<p>Metadata.</p>
+<dl class="attribute">
+<dt id="pma_api.models.meta.ApiMetadata.blob">
+<code class="descname">blob</code><a class="headerlink" href="#pma_api.models.meta.ApiMetadata.blob" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.meta.ApiMetadata.created_on">
+<code class="descname">created_on</code><a class="headerlink" href="#pma_api.models.meta.ApiMetadata.created_on" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pma_api.models.meta.ApiMetadata.get_current_api_data">
+<em class="property">classmethod </em><code class="descname">get_current_api_data</code><span class="sig-paren">(</span><em>as_json: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[Dict, Any]<a class="headerlink" href="#pma_api.models.meta.ApiMetadata.get_current_api_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the record for the most recent API data.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>as_json (bool): Return as dictionary to be serialized into JSON?</dd>
+<dt>Returns:</dt>
+<dd>Union[Dict, db.Model]: Record</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pma_api.models.meta.ApiMetadata.get_current_ui_data">
+<em class="property">classmethod </em><code class="descname">get_current_ui_data</code><span class="sig-paren">(</span><em>as_json: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[Dict, Any]<a class="headerlink" href="#pma_api.models.meta.ApiMetadata.get_current_ui_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the record for the most recent UI data.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>as_json (bool): Return as dictionary to be serialized into JSON?</dd>
+<dt>Returns:</dt>
+<dd>Union[Dict, db.Model]: Record</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pma_api.models.meta.ApiMetadata.get_record">
+<em class="property">classmethod </em><code class="descname">get_record</code><span class="sig-paren">(</span><em>ui_or_api: str</em>, <em>as_json: bool = False</em><span class="sig-paren">)</span> &#x2192; Union[Dict, Any]<a class="headerlink" href="#pma_api.models.meta.ApiMetadata.get_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the record for the most recent API/UI data.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>as_json (bool): Return as dictionary to be serialized into JSON?
+ui_or_api (str): Dataset type; valid values: (‘ui’, ‘api’)</dd>
+<dt>Returns:</dt>
+<dd>Union[Dict, db.Model]: Record</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.meta.ApiMetadata.id">
+<code class="descname">id</code><a class="headerlink" href="#pma_api.models.meta.ApiMetadata.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.meta.ApiMetadata.md5_checksum">
+<code class="descname">md5_checksum</code><a class="headerlink" href="#pma_api.models.meta.ApiMetadata.md5_checksum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.meta.ApiMetadata.name">
+<code class="descname">name</code><a class="headerlink" href="#pma_api.models.meta.ApiMetadata.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pma_api.models.meta.ApiMetadata.to_json">
+<code class="descname">to_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.meta.ApiMetadata.to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dictionary ready to convert to JSON as response.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>dict: API response ready to be JSONified.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.meta.ApiMetadata.type">
+<code class="descname">type</code><a class="headerlink" href="#pma_api.models.meta.ApiMetadata.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="class">
 <dt id="pma_api.models.meta.Cache">
 <em class="property">class </em><code class="descclassname">pma_api.models.meta.</code><code class="descname">Cache</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.meta.Cache" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask_sqlalchemy.Model</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Model</span></code></p>
 <p>Cache for API responses.</p>
+<dl class="staticmethod">
+<dt id="pma_api.models.meta.Cache.cache_datalab_init">
+<em class="property">static </em><code class="descname">cache_datalab_init</code><span class="sig-paren">(</span><em>app: flask.app.Flask = &lt;LocalProxy unbound&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.meta.Cache.cache_datalab_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add /v1/datalab/init to the server cache.</p>
+<p>This method checks the cache. If there is nothing cached or if the md5s
+do not match, then a new cached response is generated and saved.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>app (Flask): The Flask app. There must be a current app context.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pma_api.models.meta.Cache.cache_route">
+<em class="property">static </em><code class="descname">cache_route</code><span class="sig-paren">(</span><em>route: str</em>, <em>app: flask.app.Flask = &lt;LocalProxy unbound&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.meta.Cache.cache_route" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add route to the server cache</p>
+<p>This method checks the cache. If there is nothing cached or if the md5s
+do not match, then a new cached response is generated and saved.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>route (str): route to cache
+app (Flask): The Flask app. There must be a current app context.</dd>
+</dl>
+</dd></dl>
+
 <dl class="classmethod">
 <dt id="pma_api.models.meta.Cache.get">
 <em class="property">classmethod </em><code class="descname">get</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.meta.Cache.get" title="Permalink to this definition">¶</a></dt>
@@ -1071,59 +1239,6 @@ table name.</dd>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="pma_api.models.meta.SourceData">
-<em class="property">class </em><code class="descclassname">pma_api.models.meta.</code><code class="descname">SourceData</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.meta.SourceData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask_sqlalchemy.Model</span></code></p>
-<p>Metadata.</p>
-<dl class="attribute">
-<dt id="pma_api.models.meta.SourceData.blob">
-<code class="descname">blob</code><a class="headerlink" href="#pma_api.models.meta.SourceData.blob" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pma_api.models.meta.SourceData.created_on">
-<code class="descname">created_on</code><a class="headerlink" href="#pma_api.models.meta.SourceData.created_on" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="classmethod">
-<dt id="pma_api.models.meta.SourceData.get_current_api_data">
-<em class="property">classmethod </em><code class="descname">get_current_api_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.meta.SourceData.get_current_api_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the record for the most recent API data.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pma_api.models.meta.SourceData.id">
-<code class="descname">id</code><a class="headerlink" href="#pma_api.models.meta.SourceData.id" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pma_api.models.meta.SourceData.md5_checksum">
-<code class="descname">md5_checksum</code><a class="headerlink" href="#pma_api.models.meta.SourceData.md5_checksum" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="pma_api.models.meta.SourceData.name">
-<code class="descname">name</code><a class="headerlink" href="#pma_api.models.meta.SourceData.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pma_api.models.meta.SourceData.to_json">
-<code class="descname">to_json</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.meta.SourceData.to_json" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return dictionary ready to convert to JSON as response.</p>
-<dl class="docutils">
-<dt>Returns:</dt>
-<dd>dict: API response ready to be JSONified.</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pma_api.models.meta.SourceData.type">
-<code class="descname">type</code><a class="headerlink" href="#pma_api.models.meta.SourceData.type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 </div>
 <div class="section" id="module-pma_api.models.string">
 <span id="pma-api-models-string-module"></span><h2>pma_api.models.string module<a class="headerlink" href="#module-pma_api.models.string" title="Permalink to this headline">¶</a></h2>
@@ -1131,7 +1246,7 @@ table name.</dd>
 <dl class="class">
 <dt id="pma_api.models.string.EnglishString">
 <em class="property">class </em><code class="descclassname">pma_api.models.string.</code><code class="descname">EnglishString</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.string.EnglishString" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask_sqlalchemy.Model</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Model</span></code></p>
 <p>EnglishString model.</p>
 <dl class="attribute">
 <dt id="pma_api.models.string.EnglishString.code">
@@ -1215,7 +1330,7 @@ code (str): The code for the string. None if it should be random.</dd>
 <dl class="class">
 <dt id="pma_api.models.string.Translation">
 <em class="property">class </em><code class="descclassname">pma_api.models.string.</code><code class="descname">Translation</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.string.Translation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask_sqlalchemy.Model</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Model</span></code></p>
 <p>Translation model.</p>
 <dl class="attribute">
 <dt id="pma_api.models.string.Translation.english_id">
@@ -1240,7 +1355,7 @@ code (str): The code for the string. None if it should be random.</dd>
 
 <dl class="attribute">
 <dt id="pma_api.models.string.Translation.languages_info">
-<code class="descname">languages_info</code><em class="property"> = {'english': {'code': 'en', 'label': 'English', 'active': True, 'string_records': 'english'}, 'french': {'code': 'fr', 'label': 'French', 'active': True, 'string_records': 'To be implemented.'}}</em><a class="headerlink" href="#pma_api.models.string.Translation.languages_info" title="Permalink to this definition">¶</a></dt>
+<code class="descname">languages_info</code><em class="property"> = {'english': {'active': True, 'code': 'en', 'label': 'English', 'string_records': 'english'}, 'french': {'active': True, 'code': 'fr', 'label': 'French', 'string_records': 'To be implemented.'}}</em><a class="headerlink" href="#pma_api.models.string.Translation.languages_info" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
@@ -1261,10 +1376,145 @@ code (str): The code for the string. None if it should be random.</dd>
 </dd></dl>
 
 </div>
+<div class="section" id="module-pma_api.models.task">
+<span id="pma-api-models-task-module"></span><h2>pma_api.models.task module<a class="headerlink" href="#module-pma_api.models.task" title="Permalink to this headline">¶</a></h2>
+<p>Metadata table.</p>
+<dl class="class">
+<dt id="pma_api.models.task.Task">
+<em class="property">class </em><code class="descclassname">pma_api.models.task.</code><code class="descname">Task</code><span class="sig-paren">(</span><em>task_id</em>, <em>is_active=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.task.Task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Model</span></code></p>
+<p>Tasks</p>
+<p>Attribute ‘id’ is not auto-generated / auto-incremented, but is actually
+a unique task ID assigned by celery.</p>
+<dl class="classmethod">
+<dt id="pma_api.models.task.Task.get_present_tasks">
+<em class="property">classmethod </em><code class="descname">get_present_tasks</code><span class="sig-paren">(</span><em>validate: bool = True</em>, <em>update: bool = True</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="headerlink" href="#pma_api.models.task.Task.get_present_tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of IDs for active tasks</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>Modifies records if update arg is True</li>
+</ul>
+</dd>
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>validate (bool): If True, will query task queue message broker to</dt>
+<dd>see if tasks marked as active in the PMA API db are in fact
+correctly marked as such. If update arg is True, validation will
+also run validation even if the arg validate is False.</dd>
+<dt>update (bool): If True, will: (1) also set validation to True, (2)</dt>
+<dd>also modify records to correctly mark them as inactive if they
+fail to validate as active tasks.</dd>
+</dl>
+</dd>
+<dt>TODO 2019.04.15-jef: Ideally, we want to use a more standard way to get</dt>
+<dd>a list of present (active/scheduled/reserved tasks). Unfortunately,
+there are some issues making this difficult in Celery 4. Presently,
+best solution seems to be either: a. downgrade to Celery 3, or b. use
+rabbitmq-admin available on pip. Useful link: <a class="reference external" href="https://stackoverflow">https://stackoverflow</a>.
+com/questions/5544629/retrieve-list-of-tasks-in-a-queue-in-celery</dd>
+<dt>Returns:</dt>
+<dd>list(str): Present tasks</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.task.Task.id">
+<code class="descname">id</code><a class="headerlink" href="#pma_api.models.task.Task.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.task.Task.is_active">
+<code class="descname">is_active</code><a class="headerlink" href="#pma_api.models.task.Task.is_active" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pma_api.models.task.Task.register_active">
+<em class="property">classmethod </em><code class="descname">register_active</code><span class="sig-paren">(</span><em>task_id: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.task.Task.register_active" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register task as active</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>Adds record to DB if doesn’t exist</li>
+<li>Modifies record</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pma_api.models.task.Task.register_inactive">
+<em class="property">classmethod </em><code class="descname">register_inactive</code><span class="sig-paren">(</span><em>task_id: str</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.task.Task.register_inactive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register task as inactive</p>
+<dl class="docutils">
+<dt>Side effects:</dt>
+<dd><ul class="first last simple">
+<li>Modifies record</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pma_api.models.user">
+<span id="pma-api-models-user-module"></span><h2>pma_api.models.user module<a class="headerlink" href="#module-pma_api.models.user" title="Permalink to this headline">¶</a></h2>
+<p>Metadata table.</p>
+<dl class="class">
+<dt id="pma_api.models.user.User">
+<em class="property">class </em><code class="descclassname">pma_api.models.user.</code><code class="descname">User</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pma_api.models.user.User" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sqlalchemy.ext.declarative.api.Model</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">flask_user.user_mixin.UserMixin</span></code></p>
+<p>Regarding collation: The collation=’NOCASE’ is required to search case
+insensitively when USER_IFIND_MODE is ‘nocase_collation’.</p>
+<dl class="docutils">
+<dt>Example:</dt>
+<dd>username = db.Column(db.String(100, collation=’NOCASE’), …)</dd>
+<dt>Warnings:</dt>
+<dd>PostgreSQL does not allow for (utf-8) ‘NOCASE’ collation.</dd>
+</dl>
+<dl class="attribute">
+<dt id="pma_api.models.user.User.active">
+<code class="descname">active</code><a class="headerlink" href="#pma_api.models.user.User.active" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.user.User.email_confirmed_at">
+<code class="descname">email_confirmed_at</code><a class="headerlink" href="#pma_api.models.user.User.email_confirmed_at" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.user.User.first_name">
+<code class="descname">first_name</code><a class="headerlink" href="#pma_api.models.user.User.first_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.user.User.id">
+<code class="descname">id</code><a class="headerlink" href="#pma_api.models.user.User.id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.user.User.last_name">
+<code class="descname">last_name</code><a class="headerlink" href="#pma_api.models.user.User.last_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.user.User.password">
+<code class="descname">password</code><a class="headerlink" href="#pma_api.models.user.User.password" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pma_api.models.user.User.username">
+<code class="descname">username</code><a class="headerlink" href="#pma_api.models.user.User.username" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-pma_api.models">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pma_api.models" title="Permalink to this headline">¶</a></h2>
 <p>Model definitions.</p>
-<p>This file defines the doorway for other components into the models
+<p>This file defines the doorway for other components into the db_models
 sub-package.</p>
 </div>
 </div>
@@ -1280,7 +1530,7 @@ sub-package.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, James Pringle, Joe Flack.
+        &copy; Copyright 2019, James Pringle, Joe Flack
 
     </p>
   </div>
@@ -1299,20 +1549,13 @@ sub-package.</p>
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.0.0',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
 
   
 

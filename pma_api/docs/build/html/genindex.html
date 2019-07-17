@@ -83,9 +83,10 @@
             
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="content/users/endpoints.html">Endpoints</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Using the API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/developers/for_developers.html">Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/project_developers/project_developers.html">For project developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/data_managers/data_managers.html">For data managers</a></li>
 </ul>
 
             
@@ -180,19 +181,29 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.routes.html#pma_api.routes.administration.activate_dataset">activate_dataset() (in module pma_api.routes.administration)</a>
+</li>
+      <li><a href="pma_api.models.html#pma_api.models.user.User.active">active (pma_api.models.user.User attribute)</a>
+</li>
+      <li><a href="pma_api.routes.html#pma_api.routes.administration.admin_route">admin_route() (in module pma_api.routes.administration)</a>
+</li>
       <li><a href="pma_api.html#pma_api.queries.DatalabData.all_joined">all_joined() (pma_api.queries.DatalabData static method)</a>
 </li>
       <li><a href="pma_api.html#pma_api.queries.DatalabData.all_minimal">all_minimal() (pma_api.queries.DatalabData static method)</a>
 </li>
-      <li><a href="pma_api.html#pma_api.queries.DatalabData.api_list_to_sql_list">api_list_to_sql_list() (pma_api.queries.DatalabData static method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.html#pma_api.queries.DatalabData.api_list_to_sql_list">api_list_to_sql_list() (pma_api.queries.DatalabData static method)</a>
+</li>
       <li><a href="pma_api.models.html#pma_api.models.core.Country.api_schema">api_schema (pma_api.models.core.Country attribute)</a>
+</li>
+      <li><a href="pma_api.models.html#pma_api.models.meta.ApiMetadata">ApiMetadata (class in pma_api.models.meta)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.api_base.ApiModel">ApiModel (class in pma_api.models.api_base)</a>
 </li>
       <li><a href="pma_api.html#pma_api.response.ApiResult">ApiResult (class in pma_api.response)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.aws_s3">aws_s3() (in module pma_api.manage.db_mgmt)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -200,7 +211,27 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pma_api.models.html#pma_api.models.meta.SourceData.blob">blob (pma_api.models.meta.SourceData attribute)</a>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.backup_datasets">backup_datasets() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.backup_db">backup_db() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.backup_db_cloud">backup_db_cloud() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.backup_local">backup_local() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.backup_local_using_heroku_postgres">backup_local_using_heroku_postgres() (in module pma_api.manage.db_mgmt)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.backup_source_files">backup_source_files() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.backup_ui_data">backup_ui_data() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.backup_using_pgdump">backup_using_pgdump() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.multistep_task.MultistepTask.begin">begin() (pma_api.manage.multistep_task.MultistepTask method)</a>
+</li>
+      <li><a href="pma_api.models.html#pma_api.models.meta.ApiMetadata.blob">blob (pma_api.models.meta.ApiMetadata attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -210,11 +241,17 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pma_api.models.html#pma_api.models.meta.Cache">Cache (class in pma_api.models.meta)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.caching.cache_datalab_init">cache_datalab_init() (in module pma_api.api_1_0.caching)</a>
+      <li><a href="pma_api.models.html#pma_api.models.meta.Cache.cache_datalab_init">cache_datalab_init() (pma_api.models.meta.Cache static method)</a>
+</li>
+      <li><a href="pma_api.models.html#pma_api.models.meta.Cache.cache_route">cache_route() (pma_api.models.meta.Cache static method)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.CharacteristicGroup.category">category (pma_api.models.core.CharacteristicGroup attribute)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.CharacteristicGroup.category_id">category_id (pma_api.models.core.CharacteristicGroup attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.CELERY_BROKER_URL">CELERY_BROKER_URL (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.CELERY_RESULT_BACKEND">CELERY_RESULT_BACKEND (pma_api.config.Config attribute)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Data.char1">char1 (pma_api.models.core.Data attribute)</a>
 
@@ -274,6 +311,10 @@
 </li>
       <li><a href="pma_api.html#pma_api.queries.DatalabData.combos_survey_list">combos_survey_list() (pma_api.queries.DatalabData static method)</a>
 </li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.commit_from_sheet">commit_from_sheet() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.multistep_task.MultistepTask.complete">complete() (pma_api.manage.multistep_task.MultistepTask method)</a>
+</li>
       <li><a href="pma_api.html#pma_api.config.Config">Config (class in pma_api.config)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Country">Country (class in pma_api.models.core)</a>
@@ -284,7 +325,15 @@
 </li>
       <li><a href="pma_api.html#pma_api.create_app">create_app() (in module pma_api)</a>
 </li>
-      <li><a href="pma_api.models.html#pma_api.models.meta.SourceData.created_on">created_on (pma_api.models.meta.SourceData attribute)</a>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.create_db">create_db() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.initdb_from_wb.InitDbFromWb.create_onload_subtasks">create_onload_subtasks() (pma_api.manage.initdb_from_wb.InitDbFromWb method)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.initdb_from_wb.InitDbFromWb.create_subtasks">create_subtasks() (pma_api.manage.initdb_from_wb.InitDbFromWb method)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.create_superuser">create_superuser() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.models.html#pma_api.models.meta.ApiMetadata.created_on">created_on (pma_api.models.meta.ApiMetadata attribute)</a>
 </li>
       <li><a href="pma_api.html#pma_api.config.Config.CSRF_ENABLED">CSRF_ENABLED (pma_api.config.Config attribute)</a>
 </li>
@@ -298,7 +347,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pma_api.models.html#pma_api.models.core.Data">Data (class in pma_api.models.core)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.collection.data_refined_query">data_refined_query() (in module pma_api.api_1_0.collection)</a>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.collection.data_refined_query">data_refined_query() (in module pma_api.routes.endpoints.api_1_0.collection)</a>
 </li>
       <li><a href="pma_api.html#pma_api.queries.DatalabData.data_to_series">data_to_series() (pma_api.queries.DatalabData static method)</a>
 </li>
@@ -320,10 +369,42 @@
       </ul></li>
       <li><a href="pma_api.html#pma_api.queries.DatalabData">DatalabData (class in pma_api.queries)</a>
 </li>
+      <li><a href="pma_api.models.html#pma_api.models.dataset.Dataset">Dataset (class in pma_api.models.dataset)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.dataset_version_to_name">dataset_version_to_name() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.DB_HOST">DB_HOST (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.DB_NAME">DB_NAME (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.DB_PASS">DB_PASS (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.DB_PORT">DB_PORT (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.DB_ROOT_HOST">DB_ROOT_HOST (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.DB_ROOT_NAME">DB_ROOT_NAME (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.DB_ROOT_PASS">DB_ROOT_PASS (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.DB_ROOT_PORT">DB_ROOT_PORT (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.DB_ROOT_USER">DB_ROOT_USER (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.DB_USER">DB_USER (pma_api.config.Config attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pma_api.html#pma_api.config.DevelopmentConfig.DEBUG">DEBUG (pma_api.config.DevelopmentConfig attribute)</a>
+      <li><a href="pma_api.html#pma_api.config.Config.DEBUG">DEBUG (pma_api.config.Config attribute)</a>
+
+      <ul>
+        <li><a href="pma_api.html#pma_api.config.DevelopmentConfig.DEBUG">(pma_api.config.DevelopmentConfig attribute)</a>
 </li>
+        <li><a href="pma_api.html#pma_api.config.ProductionConfig.DEBUG">(pma_api.config.ProductionConfig attribute)</a>
+</li>
+        <li><a href="pma_api.html#pma_api.config.StagingConfig.DEBUG">(pma_api.config.StagingConfig attribute)</a>
+</li>
+      </ul></li>
       <li><a href="pma_api.models.html#pma_api.models.core.CharacteristicGroup.definition">definition (pma_api.models.core.CharacteristicGroup attribute)</a>
 
       <ul>
@@ -336,6 +417,12 @@
         <li><a href="pma_api.models.html#pma_api.models.core.Indicator.definition_id">(pma_api.models.core.Indicator attribute)</a>
 </li>
       </ul></li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.delete_backup">delete_backup() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.delete_dataset">delete_dataset() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.delete_s3_file">delete_s3_file() (in module pma_api.manage.db_mgmt)</a>
+</li>
       <li><a href="pma_api.models.html#pma_api.models.core.Data.denom_uw">denom_uw (pma_api.models.core.Data attribute)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Data.denom_w">denom_w (pma_api.models.core.Data attribute)</a>
@@ -344,11 +431,21 @@
 </li>
       <li><a href="pma_api.html#pma_api.config.DevelopmentConfig">DevelopmentConfig (class in pma_api.config)</a>
 </li>
-      <li><a href="pma_api.html#pma_api.documentation">documentation() (in module pma_api)</a>
+      <li><a href="pma_api.html#pma_api.utils.dict_to_pretty_json">dict_to_pretty_json() (in module pma_api.utils)</a>
+</li>
+      <li><a href="pma_api.routes.html#pma_api.routes.docs.documentation">documentation() (in module pma_api.routes.docs)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Indicator.domain">domain (pma_api.models.core.Indicator attribute)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Indicator.domain_id">domain_id (pma_api.models.core.Indicator attribute)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.download_dataset">download_dataset() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.download_file_from_s3">download_file_from_s3() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.drop_tables">drop_tables() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.dynamic.dynamic_route">dynamic_route() (in module pma_api.routes.endpoints.api_1_0.dynamic)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -356,6 +453,8 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.models.html#pma_api.models.user.User.email_confirmed_at">email_confirmed_at (pma_api.models.user.User attribute)</a>
+</li>
       <li><a href="pma_api.models.html#pma_api.models.api_base.ApiModel.empty_to_none">empty_to_none() (pma_api.models.api_base.ApiModel static method)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Survey.end_date">end_date (pma_api.models.core.Survey attribute)</a>
@@ -368,6 +467,8 @@
 </li>
       <li><a href="pma_api.models.html#pma_api.models.string.EnglishString">EnglishString (class in pma_api.models.string)</a>
 </li>
+      <li><a href="pma_api.html#pma_api.error.ExistingDatasetError">ExistingDatasetError</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -379,6 +480,10 @@
       <li><a href="pma_api.html#pma_api.queries.DatalabData.filter_minimal">filter_minimal() (pma_api.queries.DatalabData static method)</a>
 </li>
       <li><a href="pma_api.html#pma_api.queries.DatalabData.filter_readable">filter_readable() (pma_api.queries.DatalabData static method)</a>
+</li>
+      <li><a href="pma_api.models.html#pma_api.models.user.User.first_name">first_name (pma_api.models.user.User attribute)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.format_book">format_book() (in module pma_api.manage.db_mgmt)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Characteristic.full_json">full_json() (pma_api.models.core.Characteristic method)</a>
 
@@ -394,6 +499,12 @@
         <li><a href="pma_api.models.html#pma_api.models.core.Survey.full_json">(pma_api.models.core.Survey method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.manage.html#pma_api.manage.functional_subtask.FunctionalSubtask.func">func() (pma_api.manage.functional_subtask.FunctionalSubtask method)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.functional_subtask.FunctionalSubtask">FunctionalSubtask (class in pma_api.manage.functional_subtask)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -412,43 +523,75 @@
 </li>
       <li><a href="pma_api.models.html#pma_api.models.meta.Cache.get">get() (pma_api.models.meta.Cache class method)</a>
 </li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.get_api_data">get_api_data() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.utils.get_app_instance">get_app_instance() (in module pma_api.utils)</a>
+</li>
       <li><a href="pma_api.models.html#pma_api.models.api_base.ApiModel.get_by_code">get_by_code() (pma_api.models.api_base.ApiModel class method)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.collection.get_characteristic_group">get_characteristic_group() (in module pma_api.api_1_0.collection)</a>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.collection.get_characteristic_group">get_characteristic_group() (in module pma_api.routes.endpoints.api_1_0.collection)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.collection.get_characteristic_groups">get_characteristic_groups() (in module pma_api.api_1_0.collection)</a>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.collection.get_characteristic_groups">get_characteristic_groups() (in module pma_api.routes.endpoints.api_1_0.collection)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.collection.get_countries">get_countries() (in module pma_api.api_1_0.collection)</a>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.collection.get_countries">get_countries() (in module pma_api.routes.endpoints.api_1_0.collection)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.collection.get_country">get_country() (in module pma_api.api_1_0.collection)</a>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.collection.get_country">get_country() (in module pma_api.routes.endpoints.api_1_0.collection)</a>
 </li>
-      <li><a href="pma_api.models.html#pma_api.models.meta.SourceData.get_current_api_data">get_current_api_data() (pma_api.models.meta.SourceData class method)</a>
+      <li><a href="pma_api.models.html#pma_api.models.meta.ApiMetadata.get_current_api_data">get_current_api_data() (pma_api.models.meta.ApiMetadata class method)</a>
+</li>
+      <li><a href="pma_api.models.html#pma_api.models.meta.ApiMetadata.get_current_ui_data">get_current_ui_data() (pma_api.models.meta.ApiMetadata class method)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.collection.get_data">get_data() (in module pma_api.routes.endpoints.api_1_0.collection)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.get_data_file_by_glob">get_data_file_by_glob() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.datalab.get_datalab_combos">get_datalab_combos() (in module pma_api.routes.endpoints.api_1_0.datalab)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.datalab.get_datalab_data">get_datalab_data() (in module pma_api.routes.endpoints.api_1_0.datalab)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.datalab.get_datalab_data_csv">get_datalab_data_csv() (in module pma_api.routes.endpoints.api_1_0.datalab)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.collection.get_data">get_data() (in module pma_api.api_1_0.collection)</a>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.datalab.get_datalab_data_json">get_datalab_data_json() (in module pma_api.routes.endpoints.api_1_0.datalab)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.datalab.get_datalab_combos">get_datalab_combos() (in module pma_api.api_1_0.datalab)</a>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.datalab.get_datalab_init">get_datalab_init() (in module pma_api.routes.endpoints.api_1_0.datalab)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.datalab.get_datalab_data">get_datalab_data() (in module pma_api.api_1_0.datalab)</a>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.get_datasheet_names">get_datasheet_names() (in module pma_api.manage.db_mgmt)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.datalab.get_datalab_init">get_datalab_init() (in module pma_api.api_1_0.datalab)</a>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.collection.get_datum">get_datum() (in module pma_api.routes.endpoints.api_1_0.collection)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.collection.get_datum">get_datum() (in module pma_api.api_1_0.collection)</a>
+      <li><a href="pma_api.html#pma_api.utils.get_db_models">get_db_models() (in module pma_api.utils)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.collection.get_indicator">get_indicator() (in module pma_api.api_1_0.collection)</a>
+      <li><a href="pma_api.models.html#pma_api.models.dataset.Dataset.get_file_version">get_file_version() (pma_api.models.dataset.Dataset static method)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.collection.get_indicators">get_indicators() (in module pma_api.api_1_0.collection)</a>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.collection.get_indicator">get_indicator() (in module pma_api.routes.endpoints.api_1_0.collection)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.collection.get_resources">get_resources() (in module pma_api.api_1_0.collection)</a>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.collection.get_indicators">get_indicators() (in module pma_api.routes.endpoints.api_1_0.collection)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.collection.get_survey">get_survey() (in module pma_api.api_1_0.collection)</a>
+      <li><a href="pma_api.models.html#pma_api.models.task.Task.get_present_tasks">get_present_tasks() (pma_api.models.task.Task class method)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.collection.get_surveys">get_surveys() (in module pma_api.api_1_0.collection)</a>
+      <li><a href="pma_api.models.html#pma_api.models.meta.ApiMetadata.get_record">get_record() (pma_api.models.meta.ApiMetadata class method)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.collection.get_text">get_text() (in module pma_api.api_1_0.collection)</a>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.collection.get_resources">get_resources() (in module pma_api.routes.endpoints.api_1_0.collection)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.collection.get_texts">get_texts() (in module pma_api.api_1_0.collection)</a>
+      <li><a href="pma_api.manage.html#pma_api.manage.server_mgmt.get_server_pid">get_server_pid() (in module pma_api.manage.server_mgmt)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.collection.get_survey">get_survey() (in module pma_api.routes.endpoints.api_1_0.collection)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.collection.get_surveys">get_surveys() (in module pma_api.routes.endpoints.api_1_0.collection)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.utils.get_table_models">get_table_models() (in module pma_api.manage.utils)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.task_utils.get_task_status">get_task_status() (in module pma_api.task_utils)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.collection.get_text">get_text() (in module pma_api.routes.endpoints.api_1_0.collection)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.collection.get_texts">get_texts() (in module pma_api.routes.endpoints.api_1_0.collection)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.get_ui_data">get_ui_data() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.grant_full_permissions_to_file">grant_full_permissions_to_file() (in module pma_api.manage.db_mgmt)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -471,26 +614,38 @@
 </li>
         <li><a href="pma_api.models.html#pma_api.models.core.Survey.id">(pma_api.models.core.Survey attribute)</a>
 </li>
-        <li><a href="pma_api.models.html#pma_api.models.meta.SourceData.id">(pma_api.models.meta.SourceData attribute)</a>
+        <li><a href="pma_api.models.html#pma_api.models.meta.ApiMetadata.id">(pma_api.models.meta.ApiMetadata attribute)</a>
 </li>
         <li><a href="pma_api.models.html#pma_api.models.string.EnglishString.id">(pma_api.models.string.EnglishString attribute)</a>
 </li>
         <li><a href="pma_api.models.html#pma_api.models.string.Translation.id">(pma_api.models.string.Translation attribute)</a>
+</li>
+        <li><a href="pma_api.models.html#pma_api.models.task.Task.id">(pma_api.models.task.Task attribute)</a>
+</li>
+        <li><a href="pma_api.models.html#pma_api.models.user.User.id">(pma_api.models.user.User attribute)</a>
 </li>
       </ul></li>
       <li><a href="pma_api.models.html#pma_api.models.api_base.ApiModel.ignore_field_prefix">ignore_field_prefix (pma_api.models.api_base.ApiModel attribute)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Indicator">Indicator (class in pma_api.models.core)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pma_api.models.html#pma_api.models.core.Data.indicator">indicator (pma_api.models.core.Data attribute)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Data.indicator_id">indicator_id (pma_api.models.core.Data attribute)</a>
 </li>
+      <li><a href="pma_api.manage.html#pma_api.manage.initdb_from_wb.InitDbFromWb.init_api_data_worksheet">init_api_data_worksheet() (pma_api.manage.initdb_from_wb.InitDbFromWb method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.manage.html#pma_api.manage.initdb_from_wb.InitDbFromWb.init_api_worksheet">init_api_worksheet() (pma_api.manage.initdb_from_wb.InitDbFromWb method)</a>
+</li>
       <li><a href="pma_api.html#pma_api.queries.DatalabData.init_char_grp">init_char_grp() (pma_api.queries.DatalabData static method)</a>
 </li>
       <li><a href="pma_api.html#pma_api.queries.DatalabData.init_chars">init_chars() (pma_api.queries.DatalabData static method)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.initdb_from_wb.InitDbFromWb.init_client_ui_data">init_client_ui_data() (pma_api.manage.initdb_from_wb.InitDbFromWb method)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.init_from_source">init_from_source() (in module pma_api.manage.db_mgmt)</a>
 </li>
       <li><a href="pma_api.html#pma_api.queries.DatalabData.init_indicators">init_indicators() (pma_api.queries.DatalabData static method)</a>
 </li>
@@ -500,9 +655,17 @@
 </li>
       <li><a href="pma_api.html#pma_api.queries.DatalabData.init_surveys">init_surveys() (pma_api.queries.DatalabData static method)</a>
 </li>
+      <li><a href="pma_api.manage.html#pma_api.manage.initdb_from_wb.InitDbFromWb">InitDbFromWb (class in pma_api.manage.initdb_from_wb)</a>
+</li>
       <li><a href="pma_api.models.html#pma_api.models.string.EnglishString.insert_or_update">insert_or_update() (pma_api.models.string.EnglishString static method)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.string.EnglishString.insert_unique">insert_unique() (pma_api.models.string.EnglishString static method)</a>
+</li>
+      <li><a href="pma_api.models.html#pma_api.models.task.Task.is_active">is_active (pma_api.models.task.Task attribute)</a>
+</li>
+      <li><a href="pma_api.models.html#pma_api.models.dataset.Dataset.is_dataset_file_active_in_db">is_dataset_file_active_in_db() (pma_api.models.dataset.Dataset static method)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.is_db_empty">is_db_empty() (in module pma_api.manage.db_mgmt)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Indicator.is_favorite">is_favorite (pma_api.models.core.Indicator attribute)</a>
 </li>
@@ -513,6 +676,10 @@
 
 <h2 id="J">J</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.html#pma_api.utils.join_url_parts">join_url_parts() (in module pma_api.utils)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pma_api.html#pma_api.response.QuerySetApiResult.json_response">json_response() (pma_api.response.QuerySetApiResult static method)</a>
 </li>
@@ -558,13 +725,13 @@
         <li><a href="pma_api.models.html#pma_api.models.core.Survey.label_id">(pma_api.models.core.Survey attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pma_api.models.html#pma_api.models.string.Translation.language_code">language_code (pma_api.models.string.Translation attribute)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.string.Translation.languages">languages() (pma_api.models.string.Translation static method)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.string.Translation.languages_info">languages_info (pma_api.models.string.Translation attribute)</a>
+</li>
+      <li><a href="pma_api.models.html#pma_api.models.user.User.last_name">last_name (pma_api.models.user.User attribute)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Indicator.level1">level1 (pma_api.models.core.Indicator attribute)</a>
 </li>
@@ -574,7 +741,45 @@
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Indicator.level2_id">level2_id (pma_api.models.core.Indicator attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pma_api.models.html#pma_api.models.core.Data.level_ci">level_ci (pma_api.models.core.Data attribute)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.list_backups">list_backups() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.list_cloud_backups">list_cloud_backups() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.list_cloud_datasets">list_cloud_datasets() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.list_cloud_ui_data">list_cloud_ui_data() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.list_datasets">list_datasets() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.list_filtered_s3_files">list_filtered_s3_files() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.list_local_backups">list_local_backups() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.list_local_datasets">list_local_datasets() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.list_local_files">list_local_files() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.list_local_ui_data">list_local_ui_data() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.list_s3_objects">list_s3_objects() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.list_ui_data">list_ui_data() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.initdb_from_wb.InitDbFromWb.load_api_wb">load_api_wb() (pma_api.manage.initdb_from_wb.InitDbFromWb method)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.task_utils.load_local_dataset_from_db">load_local_dataset_from_db() (in module pma_api.task_utils)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.initdb_from_wb.InitDbFromWb.load_source_data_files">load_source_data_files() (pma_api.manage.initdb_from_wb.InitDbFromWb method)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.initdb_from_wb.InitDbFromWb.load_ui_wb">load_ui_wb() (pma_api.manage.initdb_from_wb.InitDbFromWb method)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.LOCAL_DEVELOPMENT_URL">LOCAL_DEVELOPMENT_URL (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.utils.log_process_stderr">log_process_stderr() (in module pma_api.manage.utils)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Data.lower_ci">lower_ci (pma_api.models.core.Data attribute)</a>
 </li>
@@ -586,15 +791,25 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pma_api.html#pma_api.app.PmaApiFlask.make_response">make_response() (pma_api.app.PmaApiFlask method)</a>
 </li>
-      <li><a href="pma_api.models.html#pma_api.models.meta.SourceData.md5_checksum">md5_checksum (pma_api.models.meta.SourceData attribute)</a>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.make_shell_context">make_shell_context() (in module pma_api.manage.db_mgmt)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.models.html#pma_api.models.meta.ApiMetadata.md5_checksum">md5_checksum (pma_api.models.meta.ApiMetadata attribute)</a>
+</li>
       <li><a href="pma_api.models.html#pma_api.models.core.Indicator.measurement_type">measurement_type (pma_api.models.core.Indicator attribute)</a>
 </li>
       <li><a href="pma_api.html#pma_api.response.ApiResult.metadata">metadata() (pma_api.response.ApiResult static method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pma_api.models.html#pma_api.models.meta.Cache.mimetype">mimetype (pma_api.models.meta.Cache attribute)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.dynamic.models_to_dicts">models_to_dicts() (in module pma_api.routes.endpoints.api_1_0.dynamic)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.utils.most_common">most_common() (in module pma_api.utils)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.error.PmaApiTaskDenialError.msg">msg (pma_api.error.PmaApiTaskDenialError attribute)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.multistep_task.MultistepTask">MultistepTask (class in pma_api.manage.multistep_task)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -602,14 +817,16 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pma_api.models.html#pma_api.models.meta.SourceData.name">name (pma_api.models.meta.SourceData attribute)</a>
+      <li><a href="pma_api.models.html#pma_api.models.meta.ApiMetadata.name">name (pma_api.models.meta.ApiMetadata attribute)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.api_base.ApiModel.namespace">namespace() (pma_api.models.api_base.ApiModel static method)</a>
 </li>
-      <li><a href="pma_api.html#pma_api.utils.next64">next64() (in module pma_api.utils)</a>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.new_backup_path">new_backup_path() (in module pma_api.manage.db_mgmt)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.html#pma_api.utils.next64">next64() (in module pma_api.utils)</a>
+</li>
       <li><a href="pma_api.models.html#pma_api.models.core.Characteristic.none_json">none_json() (pma_api.models.core.Characteristic static method)</a>
 
       <ul>
@@ -648,19 +865,29 @@
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Survey.partner_id">partner_id (pma_api.models.core.Survey attribute)</a>
 </li>
+      <li><a href="pma_api.models.html#pma_api.models.user.User.password">password (pma_api.models.user.User attribute)</a>
+</li>
       <li><a href="pma_api.html#module-pma_api">pma_api (module)</a>
-</li>
-      <li><a href="pma_api.api_1_0.html#module-pma_api.api_1_0">pma_api.api_1_0 (module)</a>
-</li>
-      <li><a href="pma_api.api_1_0.html#module-pma_api.api_1_0.caching">pma_api.api_1_0.caching (module)</a>
-</li>
-      <li><a href="pma_api.api_1_0.html#module-pma_api.api_1_0.collection">pma_api.api_1_0.collection (module)</a>
-</li>
-      <li><a href="pma_api.api_1_0.html#module-pma_api.api_1_0.datalab">pma_api.api_1_0.datalab (module)</a>
 </li>
       <li><a href="pma_api.html#module-pma_api.app">pma_api.app (module)</a>
 </li>
       <li><a href="pma_api.html#module-pma_api.config">pma_api.config (module)</a>
+</li>
+      <li><a href="pma_api.html#module-pma_api.error">pma_api.error (module)</a>
+</li>
+      <li><a href="pma_api.manage.html#module-pma_api.manage">pma_api.manage (module)</a>
+</li>
+      <li><a href="pma_api.manage.html#module-pma_api.manage.db_mgmt">pma_api.manage.db_mgmt (module)</a>
+</li>
+      <li><a href="pma_api.manage.html#module-pma_api.manage.functional_subtask">pma_api.manage.functional_subtask (module)</a>
+</li>
+      <li><a href="pma_api.manage.html#module-pma_api.manage.initdb_from_wb">pma_api.manage.initdb_from_wb (module)</a>
+</li>
+      <li><a href="pma_api.manage.html#module-pma_api.manage.multistep_task">pma_api.manage.multistep_task (module)</a>
+</li>
+      <li><a href="pma_api.manage.html#module-pma_api.manage.server_mgmt">pma_api.manage.server_mgmt (module)</a>
+</li>
+      <li><a href="pma_api.manage.html#module-pma_api.manage.utils">pma_api.manage.utils (module)</a>
 </li>
       <li><a href="pma_api.models.html#module-pma_api.models">pma_api.models (module)</a>
 </li>
@@ -668,25 +895,63 @@
 </li>
       <li><a href="pma_api.models.html#module-pma_api.models.core">pma_api.models.core (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.models.html#module-pma_api.models.dataset">pma_api.models.dataset (module)</a>
+</li>
       <li><a href="pma_api.models.html#module-pma_api.models.meta">pma_api.models.meta (module)</a>
 </li>
       <li><a href="pma_api.models.html#module-pma_api.models.string">pma_api.models.string (module)</a>
+</li>
+      <li><a href="pma_api.models.html#module-pma_api.models.task">pma_api.models.task (module)</a>
+</li>
+      <li><a href="pma_api.models.html#module-pma_api.models.user">pma_api.models.user (module)</a>
 </li>
       <li><a href="pma_api.html#module-pma_api.queries">pma_api.queries (module)</a>
 </li>
       <li><a href="pma_api.html#module-pma_api.response">pma_api.response (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.routes.html#module-pma_api.routes">pma_api.routes (module)</a>
+</li>
+      <li><a href="pma_api.routes.html#module-pma_api.routes.administration">pma_api.routes.administration (module)</a>
+</li>
+      <li><a href="pma_api.routes.html#module-pma_api.routes.docs">pma_api.routes.docs (module)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.html#module-pma_api.routes.endpoints">pma_api.routes.endpoints (module)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#module-pma_api.routes.endpoints.api_1_0">pma_api.routes.endpoints.api_1_0 (module)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#module-pma_api.routes.endpoints.api_1_0.collection">pma_api.routes.endpoints.api_1_0.collection (module)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#module-pma_api.routes.endpoints.api_1_0.datalab">pma_api.routes.endpoints.api_1_0.datalab (module)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#module-pma_api.routes.endpoints.api_1_0.dynamic">pma_api.routes.endpoints.api_1_0.dynamic (module)</a>
+</li>
+      <li><a href="pma_api.routes.html#module-pma_api.routes.version">pma_api.routes.version (module)</a>
+</li>
+      <li><a href="pma_api.html#module-pma_api.task_utils">pma_api.task_utils (module)</a>
+</li>
+      <li><a href="pma_api.html#module-pma_api.tasks">pma_api.tasks (module)</a>
+</li>
       <li><a href="pma_api.html#module-pma_api.utils">pma_api.utils (module)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Survey.pma_code">pma_code (pma_api.models.core.Survey attribute)</a>
 </li>
+      <li><a href="pma_api.html#pma_api.error.PmaApiDbInteractionError">PmaApiDbInteractionError</a>
+</li>
+      <li><a href="pma_api.html#pma_api.error.PmaApiException">PmaApiException</a>
+</li>
       <li><a href="pma_api.html#pma_api.app.PmaApiFlask">PmaApiFlask (class in pma_api.app)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.error.PmaApiTaskDenialError">PmaApiTaskDenialError</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Data.precision">precision (pma_api.models.core.Data attribute)</a>
 </li>
+      <li><a href="pma_api.html#pma_api.config.Config.PRODUCTION_URL">PRODUCTION_URL (pma_api.config.Config attribute)</a>
+</li>
       <li><a href="pma_api.html#pma_api.config.ProductionConfig">ProductionConfig (class in pma_api.config)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.task_utils.progress_update_callback">progress_update_callback() (in module pma_api.task_utils)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.api_base.prune_ignored_fields">prune_ignored_fields() (in module pma_api.models.api_base)</a>
 
@@ -716,13 +981,41 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pma_api.models.html#pma_api.models.core.Country.region">region (pma_api.models.core.Country attribute)</a>
 </li>
-      <li><a href="pma_api.api_1_0.html#pma_api.api_1_0.root">root() (in module pma_api.api_1_0)</a>
+      <li><a href="pma_api.models.html#pma_api.models.task.Task.register_active">register_active() (pma_api.models.task.Task class method)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.register_administrative_metadata">register_administrative_metadata() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.models.html#pma_api.models.task.Task.register_inactive">register_inactive() (pma_api.models.task.Task class method)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.remove_stata_undefined_token_from_wb">remove_stata_undefined_token_from_wb() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.restore_db">restore_db() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.restore_db_cloud">restore_db_cloud() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.restore_db_local">restore_db_local() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.initdb_from_wb.InitDbFromWb.restore_msg">restore_msg (pma_api.manage.initdb_from_wb.InitDbFromWb attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pma_api.html#pma_api.root_route">root_route() (in module pma_api)</a>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.restore_using_heroku_postgres">restore_using_heroku_postgres() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.restore_using_pgrestore">restore_using_pgrestore() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.routes.endpoints.api_1_0.html#pma_api.routes.endpoints.api_1_0.root">root() (in module pma_api.routes.endpoints.api_1_0)</a>
+</li>
+      <li><a href="pma_api.routes.html#pma_api.routes.root_route">root_route() (in module pma_api.routes)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Survey.round">round (pma_api.models.core.Survey attribute)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.initdb_from_wb.InitDbFromWb.run">run() (pma_api.manage.initdb_from_wb.InitDbFromWb method)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.utils.run_proc">run_proc() (in module pma_api.manage.utils)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.utils.run_proc_and_log_errs">run_proc_and_log_errs() (in module pma_api.manage.utils)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.utils.run_proc_simple">run_proc_simple() (in module pma_api.manage.utils)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -730,41 +1023,75 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.s3_signed_url">s3_signed_url() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.task_utils.save_file_from_bytes">save_file_from_bytes() (in module pma_api.task_utils)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.task_utils.save_file_from_bytesio">save_file_from_bytesio() (in module pma_api.task_utils)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.task_utils.save_file_from_request">save_file_from_request() (in module pma_api.task_utils)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.SECRET_KEY">SECRET_KEY (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.seed_users">seed_users() (in module pma_api.manage.db_mgmt)</a>
+</li>
       <li><a href="pma_api.html#pma_api.queries.DatalabData.series_query">series_query() (pma_api.queries.DatalabData static method)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.api_base.ApiModel.set_kwargs_id">set_kwargs_id() (pma_api.models.api_base.ApiModel static method)</a>
 </li>
-      <li><a href="pma_api.html#pma_api.show_version">show_version() (in module pma_api)</a>
+      <li><a href="pma_api.manage.html#pma_api.manage.initdb_from_wb.InitDbFromWb.set_relational_metadata">set_relational_metadata() (pma_api.manage.initdb_from_wb.InitDbFromWb method)</a>
+</li>
+      <li><a href="pma_api.routes.html#pma_api.routes.version.show_version">show_version() (in module pma_api.routes.version)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.meta.Cache.source_data_md5">source_data_md5 (pma_api.models.meta.Cache attribute)</a>
 </li>
-      <li><a href="pma_api.models.html#pma_api.models.meta.SourceData">SourceData (class in pma_api.models.meta)</a>
+      <li><a href="pma_api.html#pma_api.config.Config.SQLALCHEMY_DATABASE_URI">SQLALCHEMY_DATABASE_URI (pma_api.config.Config attribute)</a>
 </li>
-      <li><a href="pma_api.html#pma_api.config.DevelopmentConfig.SQLALCHEMY_DATABASE_URI">SQLALCHEMY_DATABASE_URI (pma_api.config.DevelopmentConfig attribute)</a>
+      <li><a href="pma_api.html#pma_api.config.Config.SQLALCHEMY_ECHO">SQLALCHEMY_ECHO (pma_api.config.Config attribute)</a>
 
       <ul>
-        <li><a href="pma_api.html#pma_api.config.ProductionConfig.SQLALCHEMY_DATABASE_URI">(pma_api.config.ProductionConfig attribute)</a>
+        <li><a href="pma_api.html#pma_api.config.DevelopmentConfig.SQLALCHEMY_ECHO">(pma_api.config.DevelopmentConfig attribute)</a>
 </li>
-        <li><a href="pma_api.html#pma_api.config.StagingConfig.SQLALCHEMY_DATABASE_URI">(pma_api.config.StagingConfig attribute)</a>
+        <li><a href="pma_api.html#pma_api.config.ProductionConfig.SQLALCHEMY_ECHO">(pma_api.config.ProductionConfig attribute)</a>
+</li>
+        <li><a href="pma_api.html#pma_api.config.StagingConfig.SQLALCHEMY_ECHO">(pma_api.config.StagingConfig attribute)</a>
 </li>
       </ul></li>
-      <li><a href="pma_api.html#pma_api.config.DevelopmentConfig.SQLALCHEMY_ECHO">SQLALCHEMY_ECHO (pma_api.config.DevelopmentConfig attribute)</a>
-</li>
       <li><a href="pma_api.html#pma_api.config.Config.SQLALCHEMY_TRACK_MODIFICATIONS">SQLALCHEMY_TRACK_MODIFICATIONS (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.STAGING_URL">STAGING_URL (pma_api.config.Config attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pma_api.html#pma_api.config.DevelopmentConfig.SQLITE_URI">SQLITE_URI (pma_api.config.DevelopmentConfig attribute)</a>
-</li>
       <li><a href="pma_api.html#pma_api.config.StagingConfig">StagingConfig (class in pma_api.config)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Survey.start_date">start_date (pma_api.models.core.Survey attribute)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.server_mgmt.start_dev_server">start_dev_server() (in module pma_api.manage.server_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.server_mgmt.start_prod_server">start_prod_server() (in module pma_api.manage.server_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.server_mgmt.start_server">start_server() (in module pma_api.manage.server_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.multistep_task.MultistepTask.start_status">start_status (pma_api.manage.multistep_task.MultistepTask attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.task_utils.start_task">start_task() (in module pma_api.task_utils)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.utils.stderr_stdout_captured">stderr_stdout_captured() (in module pma_api.utils)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.server_mgmt.stop_server">stop_server() (in module pma_api.manage.server_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.store_file_on_s3">store_file_on_s3() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.server_mgmt.store_pid">store_pid() (in module pma_api.manage.server_mgmt)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Geography.subheading">subheading (pma_api.models.core.Geography attribute)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Geography.subheading_id">subheading_id (pma_api.models.core.Geography attribute)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Country.subregion">subregion (pma_api.models.core.Country attribute)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.superuser_dbms_connection">superuser_dbms_connection() (in module pma_api.manage.db_mgmt)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Survey">Survey (class in pma_api.models.core)</a>
 </li>
@@ -780,12 +1107,18 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.models.html#pma_api.models.task.Task">Task (class in pma_api.models.task)</a>
+</li>
+      <li><a href="pma_api.manage.html#pma_api.manage.initdb_from_wb.InitDbFromWb.task_name">task_name (pma_api.manage.initdb_from_wb.InitDbFromWb attribute)</a>
+</li>
+      <li><a href="pma_api.routes.html#pma_api.routes.administration.taskstatus">taskstatus() (in module pma_api.routes.administration)</a>
+</li>
       <li><a href="pma_api.html#pma_api.config.Config.TESTING">TESTING (pma_api.config.Config attribute)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Country.to_json">to_json() (pma_api.models.core.Country method)</a>
 
       <ul>
-        <li><a href="pma_api.models.html#pma_api.models.meta.SourceData.to_json">(pma_api.models.meta.SourceData method)</a>
+        <li><a href="pma_api.models.html#pma_api.models.meta.ApiMetadata.to_json">(pma_api.models.meta.ApiMetadata method)</a>
 </li>
         <li><a href="pma_api.models.html#pma_api.models.string.EnglishString.to_json">(pma_api.models.string.EnglishString method)</a>
 </li>
@@ -796,10 +1129,10 @@
         <li><a href="pma_api.html#pma_api.response.QuerySetApiResult.to_response">(pma_api.response.QuerySetApiResult method)</a>
 </li>
       </ul></li>
-      <li><a href="pma_api.models.html#pma_api.models.string.EnglishString.to_string">to_string() (pma_api.models.string.EnglishString method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.models.html#pma_api.models.string.EnglishString.to_string">to_string() (pma_api.models.string.EnglishString method)</a>
+</li>
       <li><a href="pma_api.models.html#pma_api.models.string.Translation">Translation (class in pma_api.models.string)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.string.Translation.translation">translation (pma_api.models.string.Translation attribute)</a>
@@ -813,7 +1146,7 @@
 </li>
         <li><a href="pma_api.models.html#pma_api.models.core.Survey.type">(pma_api.models.core.Survey attribute)</a>
 </li>
-        <li><a href="pma_api.models.html#pma_api.models.meta.SourceData.type">(pma_api.models.meta.SourceData attribute)</a>
+        <li><a href="pma_api.models.html#pma_api.models.meta.ApiMetadata.type">(pma_api.models.meta.ApiMetadata attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -822,12 +1155,16 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.models.html#pma_api.models.dataset.Dataset.ui_dataset_already_active">ui_dataset_already_active() (pma_api.models.dataset.Dataset static method)</a>
+</li>
       <li><a href="pma_api.models.html#pma_api.models.api_base.ApiModel.update_kwargs_date">update_kwargs_date() (pma_api.models.api_base.ApiModel static method)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.api_base.ApiModel.update_kwargs_english">update_kwargs_english() (pma_api.models.api_base.ApiModel static method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.manage.html#pma_api.manage.db_mgmt.update_pgpass">update_pgpass() (in module pma_api.manage.db_mgmt)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.task_utils.upload_dataset">upload_dataset() (in module pma_api.task_utils)</a>
+</li>
       <li><a href="pma_api.models.html#pma_api.models.core.Data.upper_ci">upper_ci (pma_api.models.core.Data attribute)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Country.url_for">url_for() (pma_api.models.core.Country method)</a>
@@ -837,11 +1174,27 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.models.html#pma_api.models.user.User">User (class in pma_api.models.user)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.USER_APP_NAME">USER_APP_NAME (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.USER_ENABLE_EMAIL">USER_ENABLE_EMAIL (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.USER_ENABLE_USERNAME">USER_ENABLE_USERNAME (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.html#pma_api.config.Config.USER_REQUIRE_RETYPE_PASSWORD">USER_REQUIRE_RETYPE_PASSWORD (pma_api.config.Config attribute)</a>
+</li>
+      <li><a href="pma_api.models.html#pma_api.models.user.User.username">username (pma_api.models.user.User attribute)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pma_api.html#pma_api.task_utils.validate_active_task_status">validate_active_task_status() (in module pma_api.task_utils)</a>
+</li>
       <li><a href="pma_api.models.html#pma_api.models.core.Country.validate_keys">validate_keys() (pma_api.models.core.Country static method)</a>
 </li>
       <li><a href="pma_api.models.html#pma_api.models.core.Country.validate_param_types">validate_param_types() (pma_api.models.core.Country static method)</a>
@@ -891,7 +1244,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, James Pringle, Joe Flack.
+        &copy; Copyright 2019, James Pringle, Joe Flack
 
     </p>
   </div>
@@ -910,20 +1263,13 @@
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.0.0',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
 
   
 

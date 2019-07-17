@@ -1,9 +1,9 @@
-"""Core models."""
+"""Core db_models."""
 from flask import url_for
 
-from . import db
-from .api_base import ApiModel
-from ..utils import next64
+from pma_api.models import db
+from pma_api.models.api_base import ApiModel
+from pma_api.utils import next64
 from copy import copy
 
 
@@ -250,9 +250,8 @@ class Characteristic(ApiModel):
         """
         result = {
             'id': self.code,
-            'order': self.order
-        }
-        result['label'] = self.label.to_string(lang)
+            'order': self.order,
+            'label': self.label.to_string(lang)}
 
         if jns:
             result = self.namespace(result, 'char', index=index)
@@ -490,8 +489,12 @@ class Survey(ApiModel):
         result.update(country_json)
         return result
 
-    def datalab_init_json(self, reduced=True):
-        """Datalab init json: Survey."""
+    def datalab_init_json(self, reduced: bool = True):
+        """Datalab init json: Survey
+
+        Args:
+            reduced (bool): Return more information if true
+        """
         to_return = {
             'id': self.code,
             'partner.label.id': self.partner.code,
@@ -592,11 +595,21 @@ class Country(ApiModel):
         }
     }
 
+    # def __init__(self, label_id, order, ):
     def __init__(self, **kwargs):
         """Initialize instance of model.
 
         Does a few things: (1) Updates instance based on mapping from API query
         parameter names to model field names, and (2) calls super init.
+
+        Example Usage:
+            new_country = Country(
+                label_id='Burkina Faso',
+                order='1',
+                subregion='West Africa',
+                region='Africa',
+                code='BF'
+            )
         """
         self.update_kwargs_english(kwargs, 'label', 'label_id')
         super(Country, self).__init__(**kwargs)

@@ -1,12 +1,15 @@
 """Queries."""
 from collections import ChainMap
+from typing import Dict, List
 
+from flask_sqlalchemy import BaseQuery
 from sqlalchemy import or_
 from sqlalchemy.orm import aliased
+from sqlalchemy.orm.util import AliasedClass
+from sqlalchemy.sql.elements import BooleanClauseList
 
-from . import db
-from .models import (Characteristic, CharacteristicGroup, Country, Data,
-                     EnglishString, Geography, Indicator, Survey, Translation)
+from pma_api.models import db, Characteristic, CharacteristicGroup, Country, \
+    Data, EnglishString, Geography, Indicator, Survey, Translation
 
 
 # pylint: disable=too-many-public-methods
@@ -25,6 +28,7 @@ class DatalabData:
         chr2 = DatalabData.char2
         grp1 = DatalabData.char_grp1
         grp2 = DatalabData.char_grp2
+
         joined = db.session.query(*select_args) \
             .select_from(Data) \
             .join(Survey, Data.survey_id == Survey.id) \
@@ -35,13 +39,14 @@ class DatalabData:
             .outerjoin(grp1, grp1.id == chr1.char_grp_id) \
             .outerjoin(chr2, Data.char2_id == chr2.id) \
             .outerjoin(grp2, grp2.id == chr2.char_grp_id)
+
         return joined
 
     @staticmethod
     def series_query(survey_codes, indicator_code, char_grp_code, over_time):
         """Get the series based on supplied codes."""
-        json_list = DatalabData.filter_minimal(survey_codes, indicator_code,
-                                               char_grp_code, over_time)
+        json_list: List[Dict] = DatalabData.filter_minimal(
+            survey_codes, indicator_code, char_grp_code, over_time)
         if over_time:
             series_list = DatalabData.data_to_time_series(json_list)
         else:
@@ -59,7 +64,7 @@ class DatalabData:
             new_char = obj['characteristic.id'] != curr_char
             new_geo = obj['geography.id'] != curr_geo
             if new_char or new_geo:
-                if curr_char is not None and curr_geo is not None:
+                if curr_char and curr_geo:
                     results.append(next_series)
                 next_series = {
                     'characteristic.id': obj.pop('characteristic.id'),
@@ -99,7 +104,7 @@ class DatalabData:
         next_series = {}
         for obj in sorted_data:
             if obj['survey.id'] != curr_survey:
-                if curr_survey is not None:
+                if curr_survey:
                     results.append(next_series)
                 next_series = {
                     'survey.id': obj.pop('survey.id'),
@@ -130,12 +135,15 @@ class DatalabData:
         return results
 
     @staticmethod
-    def filter_readable(survey_codes, indicator_code, char_grp_code,
-                        lang=None):
+    def filter_readable(
+        survey_codes: str,
+        indicator_code: str,
+        char_grp_code: str,
+        lang=None):
         """Get filtered Datalab data and return readable columns.
 
         Args:
-            survey_codes (str): A list of survey codes joined together by a comma
+            survey_codes (str): Comma-delimited list of survey codes
             indicator_code (str): An indicator code
             char_grp_code (str): A characteristic group code
             lang (str): The language, if specified.
@@ -146,23 +154,25 @@ class DatalabData:
             A list of simple python objects, one for each record found by
             applying the various filters.
         """
-        chr1 = DatalabData.char1
-        grp1, grp2 = DatalabData.char_grp1, DatalabData.char_grp2
-        select_args = (Data, Survey, Indicator, grp1, chr1)
-        filtered = DatalabData.all_joined(*select_args)
-        if survey_codes is not None:
+        chr1: AliasedClass = DatalabData.char1
+        grp1: AliasedClass = DatalabData.char_grp1
+        grp2: AliasedClass = DatalabData.char_grp2
+        select_args: tuple = (Data, Survey, Indicator, grp1, chr1)
+        filtered: BaseQuery = DatalabData.all_joined(*select_args)
+        if survey_codes:
             survey_sql = DatalabData.survey_list_to_sql(survey_codes)
-            filtered = filtered.filter(survey_sql)
-        if indicator_code is not None:
-            filtered = filtered.filter(Indicator.code == indicator_code)
-        if char_grp_code is not None:
-            filtered = filtered.filter(grp1.code == char_grp_code)
-        # TODO (jkp, begin=2017-08-28): This will be grp2.code == 'none'
+            filtered: BaseQuery = filtered.filter(survey_sql)
+        if indicator_code:
+            filtered: BaseQuery = \
+                filtered.filter(Indicator.code == indicator_code)
+        if char_grp_code:
+            filtered: BaseQuery = filtered.filter(grp1.code == char_grp_code)
+        # TODO (jkp, begin=2017-08-28): This will be grp2.code is None
         # eventually when the Data show "none" for char_grp2 in excel import
         # Remove E711 from .pycodestyle
         # pylint: disable=singleton-comparison
-        filtered = filtered.filter(grp2.code == None)
-        results = filtered.all()
+        filtered: BaseQuery = filtered.filter(grp2.code == None)
+        results: List = filtered.all()
         json_results = []
         for item in results:
             precision = item[0].precision
@@ -180,15 +190,19 @@ class DatalabData:
             json_results.append(this_dict)
         return json_results
 
-
     @staticmethod
-    def filter_minimal(survey_codes, indicator_code, char_grp_code, over_time):
+    def filter_minimal(
+        survey_codes: str,
+        indicator_code: str,
+        char_grp_code: str,
+        over_time) -> List[Dict]:
         """Get filtered Datalab data and return minimal columns.
 
         Args:
-            survey_codes (str): A list of survey codes joined together by a comma
+            survey_codes (str): Comma-delimited list of survey codes
             indicator_code (str): An indicator code
             char_grp_code (str): A characteristic group code
+            over_time (bool): Filter charting over time?
 
         Filters the data based on the function arguments. The returned data
         are data value, the precision, the survey code, the indicator code,
@@ -198,51 +212,73 @@ class DatalabData:
             A list of simple python objects, one for each record found by
             applying the various filters.
         """
-        chr1 = DatalabData.char1
-        grp1, grp2 = DatalabData.char_grp1, DatalabData.char_grp2
-        select_args = (Data, Survey, Indicator.code, grp1.code, chr1,
-                       Geography, Country)
-        filtered = DatalabData.all_joined(*select_args)
-        if survey_codes is not None:
-            survey_sql = DatalabData.survey_list_to_sql(survey_codes)
-            filtered = filtered.filter(survey_sql)
-        if indicator_code is not None:
-            filtered = filtered.filter(Indicator.code == indicator_code)
-        if char_grp_code is not None:
-            filtered = filtered.filter(grp1.code == char_grp_code)
-        # TODO (jkp, begin=2017-08-28): This will be grp2.code == 'none'
-        # eventually when the Data show "none" for char_grp2 in excel import
-        # Remove E711 from .pycodestyle
+        chr1: AliasedClass = DatalabData.char1  # Characteristic
+        grp1: AliasedClass = DatalabData.char_grp1  # CharacteristicGroup
+        grp2: AliasedClass = DatalabData.char_grp2  # CharacteristicGroup
+        # Tuple[Union[AliasedClass, InstrumentedAttribute, ApiModel]]
+        select_args: tuple = (
+            Data, Survey, Indicator.code, grp1.code, chr1, Geography, Country)
+        filtered: BaseQuery = DatalabData.all_joined(*select_args)
+        if survey_codes:
+            survey_sql: BooleanClauseList = \
+                DatalabData.survey_list_to_sql(survey_codes)
+            filtered: BaseQuery = filtered.filter(survey_sql)
+        if indicator_code:
+            filtered: BaseQuery = \
+                filtered.filter(Indicator.code == indicator_code)
+        if char_grp_code:
+            filtered: BaseQuery = filtered.filter(grp1.code == char_grp_code)
+        # TODO 2017.08.28-jkp: Remove E711 from .pycodestyle
+        # TO-DO: 2019-04-15-jef: For some reason, pycharm is still flagging
+        # this even with the noinspection.
+        # 'is None' rather than '== None' will yield an error here.
         # pylint: disable=singleton-comparison
-        filtered = filtered.filter(grp2.code == None)
+        # noinspection PyComparisonWithNone,PyPep8
+        filtered: BaseQuery = filtered.filter(grp2.code == None)
         if over_time:
             # This ordering is very important!
-            ordered = filtered.order_by(Geography.order) \
-                              .order_by(chr1.order) \
-                              .order_by(Survey.order)
+            ordered: BaseQuery = filtered\
+                .order_by(Geography.order)\
+                .order_by(chr1.order)\
+                .order_by(Survey.order)
             # Perhaps order by the date of the survey?
         else:
-            ordered = filtered.order_by(Survey.order) \
-                              .order_by(chr1.order)
-        results = ordered.all()
-        json_results = []
-        for item in results:
+            ordered: BaseQuery = filtered\
+                .order_by(Survey.order)\
+                .order_by(chr1.order)
+
+        mdl_results: List = ordered.all()
+
+        idx: Dict[str, int] = {  # result:index map
+            'Data': 0,  # Data
+            'Survey': 1,  # Survey
+            'Indicator.id': 2,  # str
+            'CharacteristicGroup.id': 3,  # str
+            'Characteristic': 4,  # Characteristic
+            'Geography': 5,  # Geogrpahy
+            'Country': 6,  # Country
+        }
+        json_results: List[Dict] = []
+        for item in mdl_results:
             this_dict = {
-                'value': item[0].value,
-                'precision': item[0].precision,
-                'survey.id': item[1].code,
-                'survey.date': item[1].start_date.strftime('%m-%Y'),
-                'survey.label.id': item[1].label.code,
-                'indicator.id': item[2],
-                'characteristicGroup.id': item[3],
-                'characteristic.id': item[4].code,
-                'characteristic.label.id': item[4].label.code,
-                'geography.label.id': item[5].subheading.code,
-                'geography.id': item[5].code,
-                'country.label.id': item[6].label.code,
-                'country.id': item[6].code
+                'value': item[idx['Data']].value,
+                'precision': item[idx['Data']].precision,
+                'survey.id': item[idx['Survey']].code,
+                'survey.date':
+                    item[idx['Survey']].start_date.strftime('%m-%Y'),
+                'survey.label.id': item[idx['Survey']].label.code,
+                'indicator.id': item[idx['Indicator.id']],
+                'characteristicGroup.id': item[idx['CharacteristicGroup.id']],
+                'characteristic.id': item[idx['Characteristic']].code,
+                'characteristic.label.id':
+                    item[idx['Characteristic']].label.code,
+                'geography.label.id': item[idx['Geography']].subheading.code,
+                'geography.id': item[idx['Geography']].code,
+                'country.label.id': item[idx['Country']].label.code,
+                'country.id': item[idx['Country']].code
             }
             json_results.append(this_dict)
+
         return json_results
 
     @staticmethod
@@ -279,7 +315,7 @@ class DatalabData:
 
     # pylint: disable=too-many-locals
     @staticmethod
-    def combos_all(survey_list, indicator, char_grp):
+    def combos_all(survey_list: List[str], indicator: str, char_grp: str):
         """Get lists of all valid datalab selections.
 
         Based on a current selection in the datalab, this method returns lists
@@ -287,15 +323,17 @@ class DatalabData:
         the datalab.
 
         Args:
-            survey_list (list of str): A list of survey codes. An empty list if not provided.
+            survey_list (list(str)): A list of survey codes. An empty list if
+            not provided.
             indicator (str): An indicator code or None if not provided.
-            char_grp(str): An characteristic group code or None if not provided.
+            char_grp(str): An characteristic group code or None if not
+            provided.
 
         Returns:
             A dictionary with a survey list, an indicator list, and a
             characteristic group list.
         """
-        def keep_survey(this_indicator, this_char_grp):
+        def keep_survey(this_indicator: str, this_char_grp: str):
             """Determine whether a survey from the data is valid.
 
             Args:
@@ -306,11 +344,11 @@ class DatalabData:
                 True or False to say if the related survey code should be
                 included in the return set.
             """
-            if indicator is None and char_grp is None:
+            if not indicator and not char_grp:
                 keep = True
-            elif indicator is None and char_grp is not None:
+            elif not indicator and not char_grp:
                 keep = this_char_grp == char_grp
-            elif indicator is not None and char_grp is None:
+            elif not indicator and not char_grp:
                 keep = this_indicator == indicator
             else:
                 indicator_match = this_indicator == indicator
@@ -385,17 +423,22 @@ class DatalabData:
         return json_obj
 
     @staticmethod
-    def all_minimal():
-        """Get all datalab data in the minimal style."""
-        results = DatalabData.filter_minimal(None, None, None, False)
+    def all_minimal() -> List[Dict]:
+        """Get all datalab data in the minimal style.
+
+        Returns:
+            list(dict): Datalab data, filtered minimally
+        """
+        results: List[Dict] = DatalabData.filter_minimal('', '', '', False)
+
         return results
 
     @staticmethod
-    def combos_indicator(indicator):
+    def combos_indicator(indicator: str) -> Dict:
         """Get all valid combos of survey and characteristic group.
 
         Args:
-            indicator_code (str): An indicator code
+            indicator (str): An indicator code
 
         Returns:
             A dictionary with two key names and list values.
@@ -411,10 +454,12 @@ class DatalabData:
             survey_codes.add(survey_code)
             char_grp_code = item[1]
             char_grp_codes.add(char_grp_code)
+
         to_return = {
             'survey.id': sorted(list(survey_codes)),
             'characteristicGroup.id': sorted(list(char_grp_codes))
         }
+
         return to_return
 
     @staticmethod
@@ -468,11 +513,11 @@ class DatalabData:
             if this_indicator in indicator_dict:
                 indicator_dict[this_indicator].add(this_char_grp)
             else:
-                indicator_dict[this_indicator] = set([this_char_grp])
+                indicator_dict[this_indicator] = {this_char_grp}
             if this_char_grp in char_grp_dict:
                 char_grp_dict[this_char_grp].add(this_indicator)
             else:
-                char_grp_dict[this_char_grp] = set([this_indicator])
+                char_grp_dict[this_char_grp] = {this_indicator}
         new_indicator_dict = {
             k: sorted(list(v)) for k, v in indicator_dict.items()
         }
@@ -642,11 +687,11 @@ class DatalabData:
         }
 
     @staticmethod
-    def query_input(survey, indicator, char_grp):
+    def query_input(survey: str, indicator: str, char_grp: str) -> Dict:
         """Build up a dictionary of query input to return with API result.
 
         Args:
-            survey (str): A list of survey codes separated by a comma
+            survey (str): Comma-delimited list of survey codes
             indicator (str): An indicator code
             char_grp (str): A characteristic group code
 
@@ -654,9 +699,11 @@ class DatalabData:
             A dictionary with lists of input data. Data is from datalab init.
         """
         survey_list = sorted(survey.split(',')) if survey else []
-        survey_records = Survey.get_by_code(survey_list)
-        input_survey = [r.datalab_init_json(False) for r in survey_records]
+        survey_records = Survey.get_by_code(survey_list) if survey_list else []
+        input_survey = \
+            [r.datalab_init_json(reduced=False) for r in survey_records]
         indicator_records = Indicator.get_by_code(indicator)
+
         if indicator_records:
             input_indicator = [indicator_records[0].datalab_init_json()]
         else:
@@ -666,9 +713,11 @@ class DatalabData:
             input_char_grp = [char_grp_records[0].datalab_init_json()]
         else:
             input_char_grp = None
+
         query_input = {
             'surveys': input_survey,
             'characteristicGroups': input_char_grp,
             'indicators': input_indicator
         }
+
         return query_input

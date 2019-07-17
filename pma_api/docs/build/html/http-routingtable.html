@@ -89,9 +89,10 @@
             
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="content/users/endpoints.html">Endpoints</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/users/usage.html">Using the API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="content/developers/for_developers.html">Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/project_developers/project_developers.html">For project developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="content/data_managers/data_managers.html">For data managers</a></li>
 </ul>
 
             
@@ -157,7 +158,10 @@
 
    <div class="modindex-jumpbox">
    <a href="#cap-/"><strong>/</strong></a> | 
+   <a href="#cap-/activate_dataset"><strong>/activate_dataset</strong></a> | 
+   <a href="#cap-/admin"><strong>/admin</strong></a> | 
    <a href="#cap-/docs"><strong>/docs</strong></a> | 
+   <a href="#cap-/status"><strong>/status</strong></a> | 
    <a href="#cap-/v1"><strong>/v1</strong></a> | 
    <a href="#cap-/version"><strong>/version</strong></a>
    </div>
@@ -172,6 +176,27 @@
        <a href="index.html#get--"><code class="xref">GET /</code></a></td><td>
        <em></em></td></tr>
      <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/activate_dataset"><td></td><td>
+       <strong>/activate_dataset</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="index.html#post--activate_dataset"><code class="xref">POST /activate_dataset</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/admin"><td></td><td>
+       <strong>/admin</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="index.html#get--admin"><code class="xref">GET /admin</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="index.html#post--admin"><code class="xref">POST /admin</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
      <tr class="cap" id="cap-/docs"><td></td><td>
        <strong>/docs</strong></td><td></td></tr>
      <tr>
@@ -180,12 +205,25 @@
        <a href="index.html#get--docs"><code class="xref">GET /docs</code></a></td><td>
        <em></em></td></tr>
      <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-/status"><td></td><td>
+       <strong>/status</strong></td><td></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="index.html#get--status-(task_id)"><code class="xref">GET /status/(task_id)</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
      <tr class="cap" id="cap-/v1"><td></td><td>
        <strong>/v1</strong></td><td></td></tr>
      <tr>
        <td></td>
        <td>
        <a href="index.html#get--v1-"><code class="xref">GET /v1/</code></a></td><td>
+       <em></em></td></tr>
+     <tr>
+       <td></td>
+       <td>
+       <a href="index.html#get--v1-(resource)"><code class="xref">GET /v1/(resource)</code></a></td><td>
        <em></em></td></tr>
      <tr>
        <td></td>
@@ -288,7 +326,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, James Pringle, Joe Flack.
+        &copy; Copyright 2019, James Pringle, Joe Flack
 
     </p>
   </div>
@@ -307,20 +345,13 @@
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'1.0.0',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
 
   
 

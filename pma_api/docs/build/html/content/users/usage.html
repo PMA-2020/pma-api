@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Using the API &mdash; PMA API 1.0.0 documentation</title>
+  <title>Usage &mdash; PMA API 1.0.0 documentation</title>
   
 
   
@@ -28,8 +28,8 @@
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Developer Documentation" href="../developers/for_developers.html" />
-    <link rel="prev" title="Endpoints" href="endpoints.html" /> 
+    <link rel="next" title="Endpoints" href="endpoints.html" />
+    <link rel="prev" title="API Documentation" href="../../index.html" /> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
@@ -84,8 +84,7 @@
             
               <p class="caption"><span class="caption-text">Contents</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="endpoints.html">Endpoints</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Using the API</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#navigation">Navigation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#resource-lists">Resource Lists</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#navigating-api-versions">Navigating API Versions</a></li>
@@ -112,7 +111,9 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../developers/for_developers.html">Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="endpoints.html">Endpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_developers/project_developers.html">For project developers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_managers/data_managers.html">For data managers</a></li>
 </ul>
 
             
@@ -158,7 +159,7 @@
     
       <li><a href="../../index.html">Docs</a> &raquo;</li>
         
-      <li>Using the API</li>
+      <li>Usage</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -177,8 +178,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="using-the-api">
-<span id="using-the-api"></span><h1>Using the API<a class="headerlink" href="#using-the-api" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="usage">
+<span id="usage"></span><h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="navigation">
 <span id="navigation"></span><h2>Navigation<a class="headerlink" href="#navigation" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="resource-lists">
@@ -191,7 +192,7 @@ version number.</p>
 </div>
 <div class="section" id="navigating-api-versions">
 <span id="navigating-api-versions"></span><h3>Navigating API Versions<a class="headerlink" href="#navigating-api-versions" title="Permalink to this headline">¶</a></h3>
-<p>Leaving <code class="docutils literal notranslate"><span class="pre">/v#/</span></code> out of your API query URLs will default to the most recent,
+<p>Leaving <code class="docutils literal notranslate"><span class="pre">/v#/</span></code> out of your API interpolated_query URLs will default to the most recent,
 stable API verison. To prevent unexpected results, it is advised to always
 supply a version number.</p>
 </div>
@@ -205,9 +206,9 @@ supply a version number.</p>
 <ul class="simple">
 <li>Forward-slash, <code class="docutils literal notranslate"><span class="pre">/</span></code>: Only for URL pathing.</li>
 <li>Back-slash, <code class="docutils literal notranslate"><span class="pre">\</span></code>: For character escaping (Available in <a class="reference external" href="https://github.com/PMA-2020/pma-api/releases/tag/2.0.0">upcoming release</a>.)</li>
-<li>Question mark, <code class="docutils literal notranslate"><span class="pre">?</span></code>: For specifying query parameters.</li>
+<li>Question mark, <code class="docutils literal notranslate"><span class="pre">?</span></code>: For specifying interpolated_query parameters.</li>
 <li>Ampersand, <code class="docutils literal notranslate"><span class="pre">&amp;</span></code>: Query parameter delimiter.</li>
-<li>Equals-sign, <code class="docutils literal notranslate"><span class="pre">=</span></code>: Keyword query parameter assignment operator.</li>
+<li>Equals-sign, <code class="docutils literal notranslate"><span class="pre">=</span></code>: Keyword interpolated_query parameter assignment operator.</li>
 <li>Comma, <code class="docutils literal notranslate"><span class="pre">,</span></code>: List item delimiter.</li>
 </ul>
 </div>
@@ -220,7 +221,7 @@ supply a version number.</p>
 <span id="data-types"></span><h3>Data Types<a class="headerlink" href="#data-types" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="primitives">
 <span id="primitives"></span><h4>Primitives<a class="headerlink" href="#primitives" title="Permalink to this headline">¶</a></h4>
-<p>In an API query URL string, specific data types should be used as follows and
+<p>In an API interpolated_query URL string, specific data types should be used as follows and
 should be specified witout quotation marks (<code class="docutils literal notranslate"><span class="pre">&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">'</span></code>).</p>
 <div class="section" id="string">
 <span id="string"></span><h5>String<a class="headerlink" href="#string" title="Permalink to this headline">¶</a></h5>
@@ -285,10 +286,10 @@ Example: <code class="docutils literal notranslate"><span class="pre">/v1/datala
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../developers/for_developers.html" class="btn btn-neutral float-right" title="Developer Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="endpoints.html" class="btn btn-neutral float-right" title="Endpoints" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="endpoints.html" class="btn btn-neutral" title="Endpoints" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../../index.html" class="btn btn-neutral" title="API Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -297,7 +298,7 @@ Example: <code class="docutils literal notranslate"><span class="pre">/v1/datala
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, James Pringle, Joe Flack.
+        &copy; Copyright 2019, James Pringle, Joe Flack
 
     </p>
   </div>
@@ -316,20 +317,13 @@ Example: <code class="docutils literal notranslate"><span class="pre">/v1/datala
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../',
-            VERSION:'1.0.0',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
 
   
 

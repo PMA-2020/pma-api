@@ -1,8 +1,9 @@
 """Abstract base model."""
 from datetime import datetime
 
-from . import db
-from .string import EnglishString
+from pma_api.config import IGNORE_FIELD_PREFIX
+from pma_api.models import db
+from pma_api.models.string import EnglishString
 
 
 def prune_ignored_fields(kwargs):
@@ -22,7 +23,7 @@ class ApiModel(db.Model):
 
     __abstract__ = True
 
-    ignore_field_prefix = '__'
+    ignore_field_prefix = IGNORE_FIELD_PREFIX
 
     def __init__(self, *args, **kwargs):
         """Perform common tasks on kwargs."""
@@ -57,10 +58,10 @@ class ApiModel(db.Model):
         """Translate API query parameters to equivalent in model.
 
         API URL query parameters are in many case abstracted away from the
-        models and underlying database. For example, 'survey' in the API would
-        equate to 'survey_id' in the database model. Side effects: kwargs are
-        modified so that new key of name matching 'target_key' argument is
-        inserted, with value as the corresponding record id.
+        db_models and underlying database. For example, 'survey' in the API
+        would equate to 'survey_id' in the database model. Side effects:
+        kwargs are modified so that new key of name matching 'target_key'
+        argument is inserted, with value as the corresponding record id.
 
         Args:
             source_key (str): The API query parameter.
@@ -142,7 +143,7 @@ class ApiModel(db.Model):
             dict: Namespace formatted dictionary.
         """
         if index is not None:
-            prefix = prefix + str(index)
+            prefix += str(index)
         new_dict = {'.'.join((prefix, k)): v for k, v in old_dict.items()}
         return new_dict
 

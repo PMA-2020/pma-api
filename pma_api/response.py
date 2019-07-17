@@ -1,10 +1,11 @@
 """Responses."""
 from io import StringIO
 from csv import DictWriter
+from typing import List
 
 from flask import Response, jsonify, make_response
 
-from .__version__ import __version__
+from pma_api.__version__ import __version__
 
 
 class ApiResult:
@@ -22,7 +23,7 @@ class ApiResult:
         self.extra_metadata = metadata
         self.kwargs = kwargs
 
-    def to_response(self):
+    def to_response(self) -> jsonify:
         """Make a response from the data."""
         metadata = self.metadata(self.extra_metadata)
         obj = {
@@ -35,11 +36,11 @@ class ApiResult:
     @staticmethod
     def metadata(extra_metadata=None):
         """Return metadata."""
-        from .models import SourceData
+        from pma_api.models import ApiMetadata
         obj = {
             'version': __version__,
             'datasetMetadata': [item.to_json() for item in
-                                SourceData.query.all()]
+                                ApiMetadata.query.all()]
         }
         if extra_metadata:
             obj.update(extra_metadata)
@@ -80,11 +81,41 @@ class QuerySetApiResult(ApiResult):
         return response
 
     @staticmethod
+    def _remove_bytes_values(record_list: List[dict]) -> List[dict]:
+        """From a list of dicts, remove any dict value that is bytes.
+
+        Args:
+            record_list(list(dict)): Records queried from db
+
+        Returns:
+            list(dict): Records with any non-JSON-serializable bytes values
+            replaced with the string 'bytes'
+        """
+        try:
+            formatted_list: [dict] = [
+                {
+                    k: 'bytes' if isinstance(v, bytes) else
+                    v
+                    for k, v in x.items()
+                }
+                for x in record_list
+            ]
+
+            return formatted_list
+
+        except AttributeError:
+            # record_list is not a List[dict]
+            return record_list
+
+    @staticmethod
     def json_response(record_list, extra_metadata, **kwargs):
         """Convert a list of records into a JSON response."""
+        # TODO: instead of remove bytes values, convert bytes value to URL
+        #  to download file
+        formatted_list = QuerySetApiResult._remove_bytes_values(record_list)
         obj = {
             **kwargs,
-            'results': record_list,
+            'results': formatted_list,
             'resultSize': len(record_list),
             'metadata': ApiResult.metadata(extra_metadata)
         }
