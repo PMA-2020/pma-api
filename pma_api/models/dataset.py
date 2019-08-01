@@ -4,6 +4,7 @@ import os
 # from sqlalchemy.exc import IntegrityError
 from typing import List
 
+from pma_api.error import MalformedApiDatasetError
 from pma_api.models import ApiMetadata
 from pma_api.config import ACCEPTED_DATASET_EXTENSIONS as EXTENSIONS, \
     UI_DATASET_FILE_PREFIX as UI_PREFIX
@@ -45,10 +46,14 @@ class Dataset:
 
         self.dataset_display_name: str = filename_parts[0]
         self.upload_date = datetime.date.today()
-        self.version_number: int = self.get_file_version(file_path)
         self.dataset_type: str = 'full'  # TODO: allow for different types
         self.active: bool = False
         self.processing: bool = processing
+
+        try:
+            self.version_number: int = self.get_file_version(file_path)
+        except IndexError:
+            raise MalformedApiDatasetError
 
         # super(Dataset, self).__init__(
         #     data=open(file_path, 'rb').read(),
