@@ -35,6 +35,11 @@ from pma_api.manage.db_mgmt import restore_db_local, new_backup_path, \
 from pma_api.utils import dict_to_pretty_json, get_db_models
 from test.config import TEST_STATIC_DIR
 
+
+FEATURE_SUPPORT_CONFIG = {
+    'admin_portal': False
+}
+
 other_test_interference_tell = \
     'server closed the connection unexpectedly'
 sleep_seconds = 3
@@ -501,7 +506,7 @@ class SequentialTests(PmaApiTest):
 
                     valid: bool = bool(valid)
                     status_code: int = r.status_code
-                    conditions: bool = status_code == 200 and valid
+                    conditions: bool = str(status_code) == '200' and valid
                     self.assertTrue(
                         conditions,
                         msg=msg.format(route, str(status_code), str(valid)))
@@ -605,26 +610,29 @@ class SequentialTests(PmaApiTest):
 
     def t1_initdb_overwrite(self):
         """Test initdb with full db overwrite without any exceptions"""
-        msg = 'Records were not found in the following tables: {}'
+        if FEATURE_SUPPORT_CONFIG['admin_portal']:
+            msg = 'Records were not found in the following tables: {}'
 
-        for file in self.get_method_static_files():
-            self.initdb_overwrite(path=file)
+            for file in self.get_method_static_files():
+                self.initdb_overwrite(path=file)
 
-        models: List[Model] = get_db_models(db)
-        with self.live_app.app_context():
-            # noinspection PyUnresolvedReferences
-            first_records: Dict[str, Model] = \
-                {x.__tablename__: x.query.first() for x in models}
-            # TODO 2019-04-02 jef: Right now, we're allowing caching to not
-            #  happen during db initialization, but we really shouldn't.
-            #  Change this test when we go back to requiring init caching.
-            # error_tables: List[str] = \
-            #     [k for k, v in first_records.items() if not v]
-            error_tables: List[str] = \
-                [k for k, v in first_records.items()
-                 if not v and k is not 'cache']
+            models: List[Model] = get_db_models(db)
+            with self.live_app.app_context():
+                # noinspection PyUnresolvedReferences
+                first_records: Dict[str, Model] = \
+                    {x.__tablename__: x.query.first() for x in models}
+                # TODO 2019-04-02 jef: Right now, we're allowing caching to not
+                #  happen during db initialization, but we really shouldn't.
+                #  Change this test when we go back to requiring init caching.
+                # error_tables: List[str] = \
+                #     [k for k, v in first_records.items() if not v]
+                error_tables: List[str] = \
+                    [k for k, v in first_records.items()
+                     if not v and k is not 'cache']
 
-        self.assertTrue(not error_tables, msg.format(', '.join(error_tables)))
+            self.assertTrue(
+                not error_tables,
+                msg.format(', '.join(error_tables)))
 
     def t2_json_routes(self):
         """Smoke test routes: no runtime errors and return JSON"""
@@ -708,7 +716,7 @@ class TestListDatasets(PmaApiTest):
         self.assertTrue(well_formed, self.err)
 
 
-class TestCSV(PmaApiTest):
+class TestCSV(PmaApiTest):  # TODO
     """Test CSV download"""
 
     def test_csv(self):
