@@ -139,7 +139,8 @@ class DatalabData:
         survey_codes: str,
         indicator_code: str,
         char_grp_code: str,
-        lang=None):
+        lang=None
+    ):
         """Get filtered Datalab data and return readable columns.
 
         Args:
@@ -195,7 +196,8 @@ class DatalabData:
         survey_codes: str,
         indicator_code: str,
         char_grp_code: str,
-        over_time) -> List[Dict]:
+        over_time
+    ) -> List[Dict]:
         """Get filtered Datalab data and return minimal columns.
 
         Args:
@@ -559,6 +561,7 @@ class DatalabData:
         joined = DatalabData.all_joined(select_args)
         ordered = joined.order_by(Indicator.order)
         results = ordered.distinct().all()
+
         indicator_categories = []
         for ind in results:
             for cat in indicator_categories:
@@ -579,12 +582,13 @@ class DatalabData:
         joined = DatalabData.all_joined(select_args)
         ordered = joined.order_by(DatalabData.char_grp1.order)
         results = ordered.distinct().all()
+
         chargrp_categories = []
         for char_grp in results:
             for cat in chargrp_categories:
                 if char_grp.category.code == cat['label.id']:
-                    cat['characteristicGroups'].append(char_grp.
-                                                       datalab_init_json())
+                    cat['characteristicGroups'].append(
+                        char_grp.datalab_init_json())
                     break
             else:
                 chargrp_categories.append({

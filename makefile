@@ -117,7 +117,8 @@ serve-dev-network-accessible:
 	--capture-output \
 	--pythonpath python3
 # serve-production: D="run in background, p="path to save file w/ process ID"
-#  Don't use -D on Heroku. Will result in H10 error with no details.
+#  Heroku: Don't use -D on Heroku. Will result in H10 error with no details.
+#  Heroku: Not necessary to set PORT env var. Heroku will do automatically
 serve-production:
 	gunicorn -p pma-api_process-id.pid --bind 0.0.0.0:${PORT} run:app
 connect-production:

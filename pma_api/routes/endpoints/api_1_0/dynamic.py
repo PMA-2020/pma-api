@@ -26,7 +26,7 @@ resource_model_map = {
 }
 
 
-def models_to_dicts(models: [Model], ignores: () = IGNORES) -> [Dict]:
+def models_to_dicts(models: List[Model], ignores: () = IGNORES) -> List[Dict]:
     """Converts list of SqlAlchemy Model objects to dictionaries
 
     Args:
@@ -87,7 +87,7 @@ def dynamic_route(resource: str) -> Union[QuerySetApiResult, str]:
         msg = '<br/>'.join([msg_404, resource_h1, resources])
         return msg
 
-    objects: [Model] = model.query.all()
+    objects: List[Model] = model.query.all()
 
     if not request.args:
         dict_objs: [{}] = models_to_dicts(objects)
@@ -115,7 +115,7 @@ def dynamic_route(resource: str) -> Union[QuerySetApiResult, str]:
         file.write(txt)
     # noinspection PyUnresolvedReferences
     from pma_api.python_query_tempfile import interpolated_query
-    filtered_objs: [Model] = interpolated_query(objects)
+    filtered_objs: List[Model] = interpolated_query(objects)
     os.remove(query_tempfile_path)
 
     dict_objs: [{}] = models_to_dicts(filtered_objs)

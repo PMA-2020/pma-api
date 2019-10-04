@@ -11,7 +11,8 @@ from flask_user import login_required
 from werkzeug.datastructures import ImmutableDict
 from werkzeug.utils import secure_filename
 
-from pma_api.error import ExistingDatasetError, PmaApiTaskDenialError
+from pma_api.error import ExistingDatasetError, PmaApiTaskDenialError, \
+    MalformedApiDatasetError
 from pma_api.routes import root
 
 
@@ -53,7 +54,7 @@ def admin_route():
             filename = secure_filename(file.filename)
             file_url: str = upload_dataset(filename=filename, file=file)
             return jsonify({'success': bool(file_url)})
-        except ExistingDatasetError as err:
+        except (MalformedApiDatasetError, ExistingDatasetError) as err:
             return jsonify({'success': False, 'message': str(err)})
         except Exception as err:
             msg = 'An unexpected error occurred.\n' + \

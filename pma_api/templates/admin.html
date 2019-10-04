@@ -7,17 +7,21 @@
     <title>PMA API Admin Portal</title>
 
     <link rel="shortcut icon"
-          href="{{ url_for('static', filename='favicon.ico') }}">
+      href="{{ url_for('static', filename='favicon.ico') }}" />
+
     <link rel="stylesheet"
-          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
-          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
-          crossorigin="anonymous">
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous" />
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+      href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+      integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
+      crossorigin="anonymous" />
     <link rel="stylesheet"
-          href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
-          integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
-          crossorigin="anonymous">
+      href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/basic.css"
+      integrity="sha256-NI6EfwSJhhs7gXBPbwLXD00msI29Bku3GDJT8gYW+gc=" crossorigin="anonymous" />
+    <link rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}" />
   </head>
   <body>
     <div class="container">
@@ -192,15 +196,15 @@ id="activate-dataset-button">#}
       <!--
       <hr/>
       <form class="form-manual-testing">
-          <h2>Manual Testing</h2>
-          <textarea rows="20" cols="80" class="form-control">
-              - Check pie chart of modern method mix, married, for Ghana R1: http://datalab.pma2020.org/?surveyCountries=PMA2013_GHR1&indicators=methodmix_marw_modernm&characteristicGroups=method_mix_modern&chartType=pie&overTime=false&lang=en
+        <h2>Manual Testing</h2>
+        <textarea rows="20" cols="80" class="form-control">
+          - Check pie chart of modern method mix, married, for Ghana R1: http://datalab.pma2020.org/?surveyCountries=PMA2013_GHR1&indicators=methodmix_marw_modernm&characteristicGroups=method_mix_modern&chartType=pie&overTime=false&lang=en
 
-              - Check bar chart mcp all Kenya R1: http://datalab.pma2020.org/?surveyCountries=PMA2014_KER1&indicators=mcp_all&characteristicGroups=region_KE&chartType=bar&overTime=false&lang=en
+          - Check bar chart mcp all Kenya R1: http://datalab.pma2020.org/?surveyCountries=PMA2014_KER1&indicators=mcp_all&characteristicGroups=region_KE&chartType=bar&overTime=false&lang=en
 
-              - Check line graph of contraceptive prevalance for Ethiopia R1 and R2: http://datalab.pma2020.org/?surveyCountries=PMA2014_ETR1,PMA2014_ETR2&indicators=cp_all&characteristicGroups=none&chartType=line&overTime=false&lang=en
-          </textarea>
-          <button class="btn btn-outline-dark" style="margin-top:10px;">Save</button>
+          - Check line graph of contraceptive prevalance for Ethiopia R1 and R2: http://datalab.pma2020.org/?surveyCountries=PMA2014_ETR1,PMA2014_ETR2&indicators=cp_all&characteristicGroups=none&chartType=line&overTime=false&lang=en
+        </textarea>
+        <button class="btn btn-outline-dark" style="margin-top:10px;">Save</button>
       </form>
       -->
     </div>
@@ -214,7 +218,9 @@ id="activate-dataset-button">#}
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
       integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
       crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename='dropzone.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/dropzone.js"
+      integrity="sha256-awEOL+kdrMJU/HUksRrTVHc6GA25FvDEIJ4KaEsFfG4="
+      crossorigin="anonymous"></script>
 
     <script>
       // to-do 2019.04.10-jef: Move all of this inside $(function() {...})()?
@@ -425,14 +431,14 @@ id="activate-dataset-button">#}
         function showProgressWidget() {
           progressUpdatesContainer.css('display', 'inherit');
         }
-        function disableActivateButtons() {
-          if (state.client.activateButtons.disabled === false) {
-            activateButtons.attr("disabled", true);
-            activateButtonAnchors.attr("title",
-              'Currently disabled until activation task is completed.');
-            state.client.activateButtons.disabled = true;
-          }
-        }
+        // function disableActivateButtons() {
+        //   if (state.client.activateButtons.disabled === false) {
+        //     activateButtons.attr("disabled", true);
+        //     activateButtonAnchors.attr("title",
+        //       'Currently disabled until activation task is completed.');
+        //     state.client.activateButtons.disabled = true;
+        //   }
+        // }
         function enableActivateButtons() {
           if (state.client.activateButtons.disabled === true) {
             activateButtons.removeAttr("disabled");
@@ -474,7 +480,10 @@ id="activate-dataset-button">#}
           const startMsg = 'Starting task...';  // str
           const err = 'Error when creating task: ';  // str
           // Disable/clear irrelevant UI
-          disableActivateButtons();
+          // Note: Currently, activate buttons are left enabled to allow for
+          // override of currentnly active task. Activating the new task should
+          // effectively cancel the previous one.
+          // disableActivateButtons();
           clearProgressLogNotifications();
           // Enable relevant UI
           showProgressWidget();
@@ -556,7 +565,10 @@ id="activate-dataset-button">#}
           // Enable relevant UI
           showProgressWidget();
           // Disable irrelevant UI
-          disableActivateButtons();
+          // Note: Currently, activate buttons are left enabled to allow for
+          // override of currentnly active task. Activating the new task should
+          // effectively cancel the previous one.
+          // disableActivateButtons();
 
           $.getJSON(statusUrl, async function(data) {  // obj -> str
             // 0.1 Set some helper variables
