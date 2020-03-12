@@ -41,7 +41,7 @@ mccabe==0.6.1
 numpy==1.16.2
 packaging==17.1
 passlib==1.7.1
-psutil==5.5.0
+psutil==5.6.6
 psycopg2-binary==2.7.7
 pycodestyle==2.3.1
 pycparser==2.19
