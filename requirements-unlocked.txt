@@ -1,5 +1,5 @@
 boto3
-celery>=4,<5
+celery>=4,<6
 Flask
 Flask-AlchemyDumps
 Flask-Cors
